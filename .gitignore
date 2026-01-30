@@ -1,0 +1,57 @@
+# === Unity generated folders ===
+[Ll]ibrary/
+[Tt]emp/
+[Ll]ogs/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Pp]ackages/
+
+# === User-specific ===
+UserSettings/
+
+# === Visual Studio / Rider ===
+.vscode/
+.vs/
+.idea/
+*.csproj
+*.sln
+
+# === Unity cache / Burst ===
+*_BurstDebugInformation_DoNotShip/
+
+# === OS junk ===
+.DS_Store
+Thumbs.db
+
+# === Builds / exports ===
+*.apk
+*.aab
+*.zip# Unity
+[Ll]ibrary/
+[Tt]emp/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+[Bb]uild/
+[Bb]uilds/
+[Pp]ackages/*/packages-lock.json
+
+# IDE
+.vscode/
+.vs/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Android / builds
+*.apk
+*.aab
+*.zip
+
+# Backup folders
+*_BackUpThisFolder_ButDontShipItWithYourGame/
+.tmp/
+*.slnx
+
