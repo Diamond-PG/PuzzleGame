@@ -54,4 +54,5 @@ Thumbs.db
 *_BackUpThisFolder_ButDontShipItWithYourGame/
 .tmp/
 *.slnx
+.tmp/
 
