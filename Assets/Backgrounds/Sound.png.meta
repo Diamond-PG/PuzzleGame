@@ -129,10 +129,10 @@ TextureImporter:
       name: Sound_0
       rect:
         serializedVersion: 2
-        x: 30
-        y: 54
-        width: 717
-        height: 243
+        x: 0
+        y: 238
+        width: 1280
+        height: 615
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}

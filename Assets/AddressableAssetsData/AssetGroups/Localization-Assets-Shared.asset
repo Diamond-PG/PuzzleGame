@@ -20,6 +20,16 @@ MonoBehaviour:
     m_ReadOnly: 1
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6f477b3c100595d4b9a77d1806686ef5
+    m_Address: Assets/Localization/AndroidDisplayName Shared Data.asset
+    m_ReadOnly: 1
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e27fe074ab73c444096d66978eb968e5
+    m_Address: Assets/Localization_Custom/AppName Shared Data.asset
+    m_ReadOnly: 1
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 1
   m_Settings: {fileID: 11400000, guid: 9e54219c5573b6c41a07a852adb1263f, type: 2}
   m_SchemaSet:

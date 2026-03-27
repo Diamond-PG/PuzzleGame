@@ -15,6 +15,12 @@ MonoBehaviour:
   m_GroupName: Localization-Locales
   m_GUID: 07bb8a85b29ff4c49b33420758ddb770
   m_SerializeEntries:
+  - m_GUID: 1f636cd996fafe74298d98fea2e4847f
+    m_Address: German (de)
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 321241eb0f6fa954b9d443e3cd78639d
     m_Address: Spanish (es)
     m_ReadOnly: 1
@@ -33,20 +39,8 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 632c0507d64872b4cab59fc4a16ce4f9
-    m_Address: Arabic (ar)
-    m_ReadOnly: 1
-    m_SerializedLabels:
-    - Locale
-    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 6b92c8c8ad26cc5478d2f05460a33b46
     m_Address: French (France) (fr-FR)
-    m_ReadOnly: 1
-    m_SerializedLabels:
-    - Locale
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: a3ca7d06a9cf915428cbf0b41c8c6b89
-    m_Address: Hebrew (he)
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale

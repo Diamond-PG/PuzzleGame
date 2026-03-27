@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5be51871efa6c3e4eae1703925c8f5ac, type: 3}
+  m_Name: AndroidDisplayName
+  m_EditorClassIdentifier: Unity.Localization.Editor::UnityEditor.Localization.StringTableCollection
+  m_SharedTableData: {fileID: 11400000, guid: 6f477b3c100595d4b9a77d1806686ef5, type: 2}
+  m_Tables:
+  - {fileID: 11400000, guid: dd9c9f603c04d9949a3ae144bbfb39fd, type: 2}
+  - {fileID: 11400000, guid: ceb22e2306589a444aae3850bef84f51, type: 2}
+  - {fileID: 11400000, guid: f8d64c9e09738544189e9e298b5f374f, type: 2}
+  - {fileID: 11400000, guid: 636a0ca151621f148aeb2048158268d2, type: 2}
+  - {fileID: 11400000, guid: b1d164db8bba29843aecefea9e69fd88, type: 2}
+  - {fileID: 11400000, guid: 897fe95332dba864992801363c75f009, type: 2}
+  m_Extensions: []
+  m_Group: String Table
+  references:
+    version: 2
+    RefIds: []

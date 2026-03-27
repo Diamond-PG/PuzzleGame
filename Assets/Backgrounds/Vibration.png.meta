@@ -129,10 +129,10 @@ TextureImporter:
       name: Vibration_0
       rect:
         serializedVersion: 2
-        x: 39
-        y: 36
-        width: 710
-        height: 242
+        x: 4
+        y: 247
+        width: 1276
+        height: 443
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}

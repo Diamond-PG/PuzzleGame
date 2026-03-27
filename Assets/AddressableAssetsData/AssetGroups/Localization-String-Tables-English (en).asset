@@ -15,6 +15,18 @@ MonoBehaviour:
   m_GroupName: Localization-String-Tables-English (en)
   m_GUID: 9043dac9904f7714db454342f9e5dadc
   m_SerializeEntries:
+  - m_GUID: dd9c9f603c04d9949a3ae144bbfb39fd
+    m_Address: AndroidDisplayName_en
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-en
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e034ede710a170545a8aeced161d04ff
+    m_Address: AppName_en
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-en
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: fd2645ffc5ed9654ba57f488dfcb467c
     m_Address: UI_en
     m_ReadOnly: 1

@@ -20,14 +20,18 @@ MonoBehaviour:
     - rid: 6325592134801948940
   m_TableData:
   - m_Id: 1633578594304
-    m_Localized: 'PLAY
-
-      OPTIONS
-
-      QUIT'
+    m_Localized: PLAY
     m_Metadata:
       m_Items:
       - rid: 6325592134801948940
+  - m_Id: 11159892473622528
+    m_Localized: OPTIONS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11163846309785600
+    m_Localized: QUIT
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:

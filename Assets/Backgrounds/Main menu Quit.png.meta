@@ -129,10 +129,10 @@ TextureImporter:
       name: Main menu Quit_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 315
-        width: 1262
-        height: 538
+        x: 125
+        y: 319
+        width: 1155
+        height: 534
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}

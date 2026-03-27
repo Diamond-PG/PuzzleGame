@@ -1,28 +1,39 @@
- using UnityEngine;
+using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class OptionsMenu : MonoBehaviour
 {
     [Header("UI References")]
     [SerializeField] private GameObject optionsPanel;
-    [SerializeField] private CanvasGroup dimOverlay;   // объект DimOverlay (на нем CanvasGroup)
-    [SerializeField] private GameObject firstSelected; // можно оставить пустым
+    [SerializeField] private CanvasGroup dimOverlay;     // объект DimOverlay (на нем CanvasGroup)
+    [SerializeField] private GameObject firstSelected;   // можно оставить пустым
 
     [Header("Menu Buttons Root (freeze animations)")]
-    [SerializeField] private GameObject menuButtonsRoot; // Canvas или объект-родитель кнопок (Play/Options/Quit)
+    [SerializeField] private GameObject menuButtonsRoot; // Canvas или объект-родитель кнопок меню
 
     [Header("Audio")]
-    [SerializeField] private AudioSource menuMusic;    // MenuMusic -> AudioSource
-    [Range(0f, 1f)][SerializeField] private float musicVolumeWhenOptionsOpen = 0.25f;
+    [SerializeField] private AudioSource menuMusic;      // MenuMusic -> AudioSource
+    [Range(0f, 1f)] [SerializeField] private float musicVolumeWhenOptionsOpen = 0.25f;
     [SerializeField] private bool pauseMusicInsteadOfLowering = false;
 
     [Header("Overlay")]
-    [Range(0f, 1f)][SerializeField] private float dimAlpha = 0.55f;
+    [Range(0f, 1f)] [SerializeField] private float dimAlpha = 0.55f;
+
+    [Header("Vibration UI (Glow)")]
+    [SerializeField] private GameObject vibrationOnGlow;   // OnGlow
+    [SerializeField] private GameObject vibrationOffGlow;  // OffGlow
+
+    [Header("Vibration Safety")]
+    [Tooltip("Защита от двойного клика/двойного OnClick в одном кадре")]
+    [SerializeField] private float vibrationClickCooldown = 0.15f;
+
+    // -------------------------
 
     private bool isOpen;
     private float musicVolumeBefore;
-
     private Animator[] cachedAnimators;
+
+    private float lastVibrationClickTime = -999f;
 
     private void Awake()
     {
@@ -37,7 +48,7 @@ public class OptionsMenu : MonoBehaviour
             dimOverlay.gameObject.SetActive(false);
         }
 
-        // кэшируем аниматоры на кнопках/меню, чтобы их замораживать
+        // кешируем аниматоры на кнопках/меню, чтобы их замораживать
         if (menuButtonsRoot != null)
             cachedAnimators = menuButtonsRoot.GetComponentsInChildren<Animator>(true);
 
@@ -45,29 +56,36 @@ public class OptionsMenu : MonoBehaviour
             musicVolumeBefore = menuMusic.volume;
 
         isOpen = false;
+
+        // если glow не назначены — попробуем найти автоматически внутри OptionsPanel
+        AutoFindVibrationGlowsIfMissing();
+
+        // синхронизация визуала вибрации с MicroHaptics
+        UpdateVibrationVisuals(GetVibrationEnabled());
     }
+
+    // -------------------------
+    // Options open/close
+    // -------------------------
 
     public void OpenOptions()
     {
         if (isOpen) return;
         isOpen = true;
 
-        // 1) затемнение + блок кликов по меню под ним
         ShowDim(true);
 
-        // 2) показываем панель опций
         if (optionsPanel != null)
             optionsPanel.SetActive(true);
 
-        // 3) заморозка анимаций кнопок (и вообще всего меню, что анимируется через Animator)
         FreezeMenu(true);
-
-        // 4) музыка: пауза или приглушение
         HandleMusic(true);
 
-        // 5) фокус на первой кнопке внутри Options (для клавы/геймпада)
         if (firstSelected != null && EventSystem.current != null)
             EventSystem.current.SetSelectedGameObject(firstSelected);
+
+        // обновим визуал вибрации при открытии
+        UpdateVibrationVisuals(GetVibrationEnabled());
     }
 
     public void CloseOptions()
@@ -75,20 +93,13 @@ public class OptionsMenu : MonoBehaviour
         if (!isOpen) return;
         isOpen = false;
 
-        // 1) скрываем панель
         if (optionsPanel != null)
             optionsPanel.SetActive(false);
 
-        // 2) убираем затемнение
         ShowDim(false);
-
-        // 3) размораживаем меню
         FreezeMenu(false);
-
-        // 4) возвращаем музыку
         HandleMusic(false);
 
-        // 5) сброс выделения
         if (EventSystem.current != null)
             EventSystem.current.SetSelectedGameObject(null);
     }
@@ -99,6 +110,10 @@ public class OptionsMenu : MonoBehaviour
         else OpenOptions();
     }
 
+    // -------------------------
+    // Dim Overlay
+    // -------------------------
+
     private void ShowDim(bool show)
     {
         if (dimOverlay == null) return;
@@ -106,13 +121,17 @@ public class OptionsMenu : MonoBehaviour
         dimOverlay.gameObject.SetActive(true);
         dimOverlay.alpha = show ? dimAlpha : 0f;
 
-        // важно: когда открыт Options — блокируем клики по меню снизу
+        // когда открыт Options — блокируем клики по меню снизу
         dimOverlay.interactable = show;
         dimOverlay.blocksRaycasts = show;
 
         if (!show)
             dimOverlay.gameObject.SetActive(false);
     }
+
+    // -------------------------
+    // Freeze menu animations
+    // -------------------------
 
     private void FreezeMenu(bool freeze)
     {
@@ -121,12 +140,13 @@ public class OptionsMenu : MonoBehaviour
         foreach (var a in cachedAnimators)
         {
             if (a == null) continue;
-
-            // Останавливаем именно анимации меню-кнопок
-            // (OptionsPanel можно не трогать — он отдельно)
             a.enabled = !freeze;
         }
     }
+
+    // -------------------------
+    // Music
+    // -------------------------
 
     private void HandleMusic(bool opening)
     {
@@ -137,24 +157,97 @@ public class OptionsMenu : MonoBehaviour
             musicVolumeBefore = menuMusic.volume;
 
             if (pauseMusicInsteadOfLowering)
-            {
                 menuMusic.Pause();
-            }
             else
-            {
                 menuMusic.volume = musicVolumeWhenOptionsOpen;
-            }
         }
         else
         {
             if (pauseMusicInsteadOfLowering)
-            {
                 menuMusic.UnPause();
-            }
             else
-            {
                 menuMusic.volume = musicVolumeBefore;
-            }
+        }
+    }
+
+    // -------------------------
+    // VIBRATION (через MicroHaptics)
+    // -------------------------
+
+    // НЕ вешай это на OnHitbox/OffHitbox. Это общий тумблер.
+    public void ToggleVibration()
+    {
+        if (!VibrationCooldownPassed()) return;
+
+        bool enabledNow = MicroHaptics.IsEnabled();
+        bool newValue = !enabledNow;
+
+        MicroHaptics.SetEnabled(newValue);
+        UpdateVibrationVisuals(newValue);
+
+        // приятный клик только когда включили
+        if (newValue) MicroHaptics.TinyClick();
+    }
+
+    // ВЕШАЙ ЭТО НА OnHitbox
+    public void SetVibrationOn()
+    {
+        if (!VibrationCooldownPassed()) return;
+
+        MicroHaptics.SetEnabled(true);
+        UpdateVibrationVisuals(true);
+
+        // приятный клик при включении
+        MicroHaptics.TinyClick();
+    }
+
+    // ВЕШАЙ ЭТО НА OffHitbox
+    public void SetVibrationOff()
+    {
+        if (!VibrationCooldownPassed()) return;
+
+        MicroHaptics.SetEnabled(false);
+        UpdateVibrationVisuals(false);
+    }
+
+    private bool GetVibrationEnabled()
+    {
+        return MicroHaptics.IsEnabled();
+    }
+
+    private void UpdateVibrationVisuals(bool isOn)
+    {
+        if (vibrationOnGlow != null) vibrationOnGlow.SetActive(isOn);
+        if (vibrationOffGlow != null) vibrationOffGlow.SetActive(!isOn);
+    }
+
+    // -------------------------
+    // Helpers
+    // -------------------------
+
+    private bool VibrationCooldownPassed()
+    {
+        if (Time.unscaledTime - lastVibrationClickTime < vibrationClickCooldown)
+            return false;
+
+        lastVibrationClickTime = Time.unscaledTime;
+        return true;
+    }
+
+    private void AutoFindVibrationGlowsIfMissing()
+    {
+        if (optionsPanel == null) return;
+
+        if (vibrationOnGlow == null)
+        {
+            var t = optionsPanel.transform.Find("OnGlow");
+            if (t != null) vibrationOnGlow = t.gameObject;
+        }
+
+        if (vibrationOffGlow == null)
+        {
+            var t = optionsPanel.transform.Find("OffGlow");
+            if (t != null) vibrationOffGlow = t.gameObject;
         }
     }
 }

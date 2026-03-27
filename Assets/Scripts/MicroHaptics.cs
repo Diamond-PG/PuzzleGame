@@ -1,8 +1,10 @@
+using System;
 using System.Runtime.InteropServices;
 using UnityEngine;
 
 public class MicroHaptics : MonoBehaviour
 {
+    // Один ключ на весь проект — ВЕЗДЕ должен быть такой же
     private const string PREF_KEY = "HAPTICS_ENABLED";
 
     [Header("Enable")]
@@ -12,20 +14,24 @@ public class MicroHaptics : MonoBehaviour
     [SerializeField, Range(0.02f, 0.3f)]
     private float minInterval = 0.06f;
 
+    // Эти поля в редакторе могут считаться "неиспользуемыми" из-за #if UNITY_* && !UNITY_EDITOR
+    // Поэтому отключаем предупреждение CS0414 точечно.
+#pragma warning disable CS0414
+
     [Header("Android Pulse (ms)")]
     [Tooltip("Длительность клика вибрации в миллисекундах (Android).")]
-#pragma warning disable CS0414
     [SerializeField, Range(5, 100)]
     private int tinyClickMs = 25;
-#pragma warning restore CS0414
 
     [Header("iOS Haptics")]
     [Tooltip("Тип хаптика для iOS. Selection — самый короткий и приятный для UI.")]
-#pragma warning disable CS0414
-    [SerializeField] private IOSHapticStyle iosStyle = IOSHapticStyle.Selection;
+    [SerializeField]
+    private IOSHapticStyle iosStyle = IOSHapticStyle.Selection;
 
     [Tooltip("Если iOS-плагин не подключён, использовать Handheld.Vibrate() как запасной вариант.")]
-    [SerializeField] private bool iosFallbackToHandheldVibrate = true;
+    [SerializeField]
+    private bool iosFallbackToHandheldVibrate = true;
+
 #pragma warning restore CS0414
 
     private float lastTime;
@@ -74,17 +80,20 @@ public class MicroHaptics : MonoBehaviour
     // Для UI Toggle: узнать, включена ли вибрация сейчас
     public static bool IsEnabled()
     {
-        return instance != null && instance.enableHaptics;
+        // Берём из PlayerPrefs — так UI будет правильным даже если instance ещё не создан
+        return PlayerPrefs.GetInt(PREF_KEY, 1) == 1;
     }
 
     // Для UI Toggle: включить/выключить и сохранить
     public static void SetEnabled(bool enabled)
     {
-        if (instance == null) return;
-
-        instance.enableHaptics = enabled;
+        // Сохраняем всегда, даже если instance == null
         PlayerPrefs.SetInt(PREF_KEY, enabled ? 1 : 0);
         PlayerPrefs.Save();
+
+        // Если инстанс уже есть — обновляем поле, чтобы работало “на лету”
+        if (instance != null)
+            instance.enableHaptics = enabled;
     }
 
     private void PlayTiny()
@@ -99,18 +108,19 @@ public class MicroHaptics : MonoBehaviour
         AndroidVibrateMs(tinyClickMs);
 
 #elif UNITY_IOS && !UNITY_EDITOR
-        // На iOS делаем хаптики через UIImpactFeedbackGenerator (через плагин)
+        // На iOS делаем хаптики через плагин
         bool ok = IOS_Haptic((int)iosStyle);
         if (!ok && iosFallbackToHandheldVibrate)
             Handheld.Vibrate();
 
 #else
-        // Другие платформы: дефолт
+        // Другие платформы / Editor
         Handheld.Vibrate();
 #endif
     }
 
     // ================= ANDROID =================
+
 #if UNITY_ANDROID && !UNITY_EDITOR
     private void TryInitAndroidVibrator()
     {
@@ -143,6 +153,7 @@ public class MicroHaptics : MonoBehaviour
     {
         if (ms <= 0) return;
 
+        // если вибратор не инициализирован — fallback
         if (vibrator == null)
         {
             Handheld.Vibrate();
@@ -175,8 +186,8 @@ public class MicroHaptics : MonoBehaviour
 #endif
 
     // ================= iOS =================
+
 #if UNITY_IOS && !UNITY_EDITOR
-    // Важно: вернёт false, если плагин не подключён/не сработал
     [DllImport("__Internal")]
     private static extern bool _MicroHaptics_Haptic(int style);
 
