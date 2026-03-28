@@ -90,6 +90,16 @@ public class BreakableHardBox : MonoBehaviour
     [Tooltip("Небольшой подъём щепок, чтобы не проваливались визуально в пол")]
     public float chipGroundLift = 0.045f;
 
+    [Header("Goal Reveal")]
+    [Tooltip("Ссылка на компонент GoalRevealFromBox на объекте Goal")]
+    public GoalRevealFromBox goalReveal;
+
+    [Tooltip("Через сколько секунд после начала появления отсоединить пазл от ящика, чтобы он не удалился вместе с ящиком")]
+    public float goalDetachDelay = 0.25f;
+
+    [Tooltip("Показывать ли логи по появлению пазла")]
+    public bool goalDebugLogs = false;
+
     private int hits = 0;
     private Camera mainCamera;
 
@@ -155,14 +165,19 @@ public class BreakableHardBox : MonoBehaviour
                 boxSpriteRenderer.sprite = normalSprite;
         }
 
-        // Фон НЕ перекрашиваем в белый
         if (boxBackgroundRenderer != null)
-        {
             boxBackgroundRenderer.enabled = true;
-        }
 
         if (boxCollider != null)
             boxCollider.enabled = true;
+
+        if (goalReveal != null)
+        {
+            goalReveal.HideGoalImmediate();
+
+            if (goalReveal.transform.parent != transform)
+                goalReveal.transform.SetParent(transform, true);
+        }
     }
 
     private void Update()
@@ -364,7 +379,6 @@ public class BreakableHardBox : MonoBehaviour
         transform.localPosition = originalLocalPosition;
         transform.localScale = originalLocalScale;
 
-        // На финальном спрайте чёрный фон пока ОСТАЁТСЯ
         if (boxSpriteRenderer != null)
         {
             if (brokenSprite != null)
@@ -381,10 +395,41 @@ public class BreakableHardBox : MonoBehaviour
         SpawnBreakEffect();
         SpawnBrokenPieces();
 
-        // Даём увидеть последний спрайт вместе с фоном
+        // Пазл вылетает сразу, в тот же момент, вместе с пылью
+        RevealGoalFromBox();
+
+        // Даём коротко увидеть финальный спрайт вместе с пылью,
+        // а потом уже скрываем ящик
         yield return new WaitForSeconds(brokenSpriteDuration);
 
         HideAndFinishBreak();
+    }
+
+    private void RevealGoalFromBox()
+    {
+        if (goalReveal == null)
+        {
+            if (goalDebugLogs)
+                Debug.LogWarning("GoalRevealFromBox не назначен в BreakableHardBox.");
+
+            return;
+        }
+
+        goalReveal.RevealGoal();
+        StartCoroutine(DetachGoalAfterDelay());
+    }
+
+    private IEnumerator DetachGoalAfterDelay()
+    {
+        yield return new WaitForSeconds(goalDetachDelay);
+
+        if (goalReveal != null)
+        {
+            goalReveal.transform.SetParent(null, true);
+
+            if (goalDebugLogs)
+                Debug.Log("Goal отсоединён от Hard box.");
+        }
     }
 
     private IEnumerator ShakeBox(float duration, float amountX, float amountY, float speed)
@@ -410,7 +455,6 @@ public class BreakableHardBox : MonoBehaviour
         if (boxSpriteRenderer != null)
             boxSpriteRenderer.enabled = false;
 
-        // Вот тут фон выключается ПРАВИЛЬНО — только в самом конце
         if (boxBackgroundRenderer != null)
             boxBackgroundRenderer.enabled = false;
 

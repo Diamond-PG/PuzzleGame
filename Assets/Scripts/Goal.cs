@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class Goal : MonoBehaviour
 {
@@ -9,6 +10,9 @@ public class Goal : MonoBehaviour
     [Header("Player Tag")]
     [SerializeField] private string playerTag = "Player";
 
+    [Header("Pickup Settings")]
+    [SerializeField] private float pickupDistance = 1.2f;
+
     [Header("Freeze player on win (Variant B)")]
     [SerializeField] private bool freezePlayerOnWin = true;
 
@@ -16,9 +20,16 @@ public class Goal : MonoBehaviour
     [SerializeField] private bool debugLogs = true;
 
     private bool triggered;
+    private bool playerIsNearby;
+    private Collider2D nearbyPlayerCollider;
+    private Collider2D goalCollider;
+    private Camera mainCamera;
 
     private void Awake()
     {
+        goalCollider = GetComponent<Collider2D>();
+        mainCamera = Camera.main;
+
         // Unity 6: FindObjectOfType устарел -> FindFirstObjectByType
         if (levelTimer == null)
             levelTimer = Object.FindFirstObjectByType<LevelTimer>();
@@ -30,12 +41,37 @@ public class Goal : MonoBehaviour
             Debug.Log($"[GOAL] Awake. levelTimer={(levelTimer ? "OK" : "NULL")}, levelCompleteUI={(levelCompleteUI ? "OK" : "NULL")}", this);
     }
 
+    private void Update()
+    {
+        if (triggered)
+            return;
+
+        if (mainCamera == null)
+            mainCamera = Camera.main;
+
+        if (!playerIsNearby)
+            return;
+
+        // Клик мышкой в редакторе
+        if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
+        {
+            Vector2 screenPos = Mouse.current.position.ReadValue();
+            TryPickupByPointer(screenPos);
+        }
+
+        // Тап на телефоне
+        if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.wasPressedThisFrame)
+        {
+            Vector2 screenPos = Touchscreen.current.primaryTouch.position.ReadValue();
+            TryPickupByPointer(screenPos);
+        }
+    }
+
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (triggered) return;
+        if (triggered)
+            return;
 
-        // Важно: часто other = collider дочернего объекта игрока.
-        // Поэтому проверяем и сам тег, и тег root.
         bool isPlayer =
             other.CompareTag(playerTag) ||
             (other.transform.root != null && other.transform.root.CompareTag(playerTag));
@@ -43,9 +79,91 @@ public class Goal : MonoBehaviour
         if (debugLogs)
             Debug.Log($"[GOAL] Trigger enter: other='{other.name}' tag='{other.tag}', rootTag='{other.transform.root.tag}', isPlayer={isPlayer}", this);
 
-        if (!isPlayer) return;
+        if (!isPlayer)
+            return;
+
+        playerIsNearby = true;
+        nearbyPlayerCollider = other;
+
+        if (debugLogs)
+            Debug.Log("[GOAL] Player is NEAR the puzzle. Waiting for click/tap.", this);
+    }
+
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        if (triggered)
+            return;
+
+        bool isPlayer =
+            other.CompareTag(playerTag) ||
+            (other.transform.root != null && other.transform.root.CompareTag(playerTag));
+
+        if (!isPlayer)
+            return;
+
+        playerIsNearby = false;
+
+        if (nearbyPlayerCollider == other)
+            nearbyPlayerCollider = null;
+
+        if (debugLogs)
+            Debug.Log("[GOAL] Player moved away from puzzle.", this);
+    }
+
+    private void TryPickupByPointer(Vector2 screenPos)
+    {
+        if (mainCamera == null)
+            return;
+
+        Vector3 worldPos = mainCamera.ScreenToWorldPoint(screenPos);
+        Vector2 point2D = new Vector2(worldPos.x, worldPos.y);
+
+        Collider2D hit = Physics2D.OverlapPoint(point2D);
+
+        if (debugLogs)
+        {
+            string hitName = hit != null ? hit.name : "NULL";
+            Debug.Log($"[GOAL] Pointer click/tap. Hit={hitName}", this);
+        }
+
+        if (hit == null)
+            return;
+
+        if (hit != goalCollider)
+            return;
+
+        GameObject playerObj = GameObject.FindGameObjectWithTag(playerTag);
+        if (playerObj == null)
+        {
+            Debug.LogWarning("[GOAL] Player with required tag not found.", this);
+            return;
+        }
+
+        float distance = Vector2.Distance(playerObj.transform.position, transform.position);
+
+        if (debugLogs)
+            Debug.Log($"[GOAL] Clicked on puzzle. Distance to player = {distance:F2}", this);
+
+        if (distance > pickupDistance)
+        {
+            if (debugLogs)
+                Debug.Log("[GOAL] Too far from puzzle. Pickup denied.", this);
+
+            return;
+        }
+
+        CompleteGoal(playerObj);
+    }
+
+    private void CompleteGoal(GameObject playerObj)
+    {
+        if (triggered)
+            return;
 
         triggered = true;
+
+        if (debugLogs)
+            Debug.Log("[GOAL] Puzzle picked up. Completing level...", this);
 
         // 1) остановить таймер (если есть)
         if (levelTimer != null)
@@ -56,7 +174,7 @@ public class Goal : MonoBehaviour
 
         // 3) ВАРИАНТ B: заморозить игрока СРАЗУ при победе
         if (freezePlayerOnWin)
-            FreezePlayer(other);
+            FreezePlayer(playerObj);
 
         // 4) показать окно победы
         if (levelCompleteUI != null)
@@ -65,30 +183,32 @@ public class Goal : MonoBehaviour
             Debug.LogWarning("[GOAL] levelCompleteUI == null, победа не может быть показана!", this);
     }
 
-    private void FreezePlayer(Collider2D other)
+    private void FreezePlayer(GameObject playerObj)
     {
-        // Пытаемся достать PlayerController максимально надежно:
-        // - из объекта rigidbody (если collider на дочке)
-        // - из root
-        PlayerController pc = null;
+        if (playerObj == null)
+        {
+            Debug.LogWarning("[GOAL] Player object is null. Freeze failed.", this);
+            return;
+        }
 
-        if (other.attachedRigidbody != null)
-            pc = other.attachedRigidbody.GetComponent<PlayerController>();
+        PlayerController pc = playerObj.GetComponent<PlayerController>();
 
         if (pc == null)
-            pc = other.GetComponentInParent<PlayerController>();
+            pc = playerObj.GetComponentInChildren<PlayerController>();
 
-        if (pc == null && other.transform.root != null)
-            pc = other.transform.root.GetComponent<PlayerController>();
+        if (pc == null)
+            pc = playerObj.GetComponentInParent<PlayerController>();
 
         if (pc != null)
         {
             pc.LockMovement(true);
-            if (debugLogs) Debug.Log("[GOAL] Player movement LOCKED", this);
+
+            if (debugLogs)
+                Debug.Log("[GOAL] Player movement LOCKED", this);
         }
         else
         {
-            Debug.LogWarning("[GOAL] Не найден PlayerController — заморозка не сработала. Проверь: PlayerController висит на объекте Player (root).", this);
+            Debug.LogWarning("[GOAL] Не найден PlayerController — заморозка не сработала. Проверь: PlayerController висит на объекте Player.", this);
         }
     }
 
@@ -97,18 +217,24 @@ public class Goal : MonoBehaviour
         GameObject musicObj = GameObject.Find("GameMusic");
         if (musicObj == null)
         {
-            if (debugLogs) Debug.Log("[GOAL] GameMusic not found (это не ошибка).", this);
+            if (debugLogs)
+                Debug.Log("[GOAL] GameMusic not found (это не ошибка).", this);
+
             return;
         }
 
         AudioSource audio = musicObj.GetComponent<AudioSource>();
         if (audio == null)
         {
-            if (debugLogs) Debug.Log("[GOAL] GameMusic найден, но AudioSource на нём нет.", this);
+            if (debugLogs)
+                Debug.Log("[GOAL] GameMusic найден, но AudioSource на нём нет.", this);
+
             return;
         }
 
         audio.Stop();
-        if (debugLogs) Debug.Log("[GOAL] GameMusic stopped.", this);
+
+        if (debugLogs)
+            Debug.Log("[GOAL] GameMusic stopped.", this);
     }
 }
