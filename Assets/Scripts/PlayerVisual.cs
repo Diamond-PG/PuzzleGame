@@ -15,6 +15,7 @@ public class PlayerVisual : MonoBehaviour
     [SerializeField] private Sprite lookUpSprite;
     [SerializeField] private Sprite lookLeftSprite;
     [SerializeField] private Sprite lookDownSprite;
+    [SerializeField] private Sprite hurtSprite;
 
     [Header("Movement Detection")]
     [SerializeField] private float movementThreshold = 0.05f;
@@ -38,6 +39,11 @@ public class PlayerVisual : MonoBehaviour
     [SerializeField] private float randomBlinkOffsetMin = 0.05f;
     [SerializeField] private float randomBlinkOffsetMax = 0.35f;
 
+    [Header("Hurt Settings")]
+    [SerializeField] private float hurtDuration = 0.45f;
+    [SerializeField] private bool pauseBlinkWhileHurt = true;
+    [SerializeField] private bool restartBlinkAfterHurt = true;
+
     [Header("Debug")]
     [SerializeField] private bool debugLogs = false;
 
@@ -52,9 +58,12 @@ public class PlayerVisual : MonoBehaviour
     private LookDirection currentDirection = LookDirection.Down;
 
     private Coroutine blinkRoutine;
-    private bool isBlinking;
-    private float nextBlinkTime;
+    private Coroutine hurtRoutine;
 
+    private bool isBlinking;
+    private bool isHurt;
+
+    private float nextBlinkTime;
     private float lastMoveTime;
     private bool wasMovingLastFrame;
 
@@ -73,19 +82,16 @@ public class PlayerVisual : MonoBehaviour
     private void Start()
     {
         currentDirection = startDirection;
-
-        if (useDirectionSpriteAsIdle)
-            SetDirectionSprite(currentDirection);
-        else
-            SetIdleSprite();
-
+        ApplyCurrentIdleOrDirectionSprite();
         ScheduleNextBlink();
     }
 
     private void Update()
     {
         UpdateLookDirectionFromInput();
-        HandleBlink();
+
+        if (!isHurt || !pauseBlinkWhileHurt)
+            HandleBlink();
     }
 
     private void UpdateLookDirectionFromInput()
@@ -103,13 +109,9 @@ public class PlayerVisual : MonoBehaviour
             LookDirection newDirection;
 
             if (Mathf.Abs(input.x) > Mathf.Abs(input.y))
-            {
                 newDirection = input.x > 0f ? LookDirection.Right : LookDirection.Left;
-            }
             else
-            {
                 newDirection = input.y > 0f ? LookDirection.Up : LookDirection.Down;
-            }
 
             if (newDirection != currentDirection)
             {
@@ -119,7 +121,7 @@ public class PlayerVisual : MonoBehaviour
                     Debug.Log($"[PlayerVisual] Direction changed to: {currentDirection}", this);
             }
 
-            if (!isBlinking)
+            if (!isBlinking && !isHurt)
                 SetDirectionSprite(currentDirection);
 
             wasMovingLastFrame = true;
@@ -133,7 +135,7 @@ public class PlayerVisual : MonoBehaviour
 
             if (wasMovingLastFrame || timeSinceStop < holdDuration)
             {
-                if (!isBlinking)
+                if (!isBlinking && !isHurt)
                     SetDirectionSprite(currentDirection);
 
                 wasMovingLastFrame = false;
@@ -141,13 +143,8 @@ public class PlayerVisual : MonoBehaviour
             }
         }
 
-        if (!isBlinking)
-        {
-            if (useDirectionSpriteAsIdle)
-                SetDirectionSprite(currentDirection);
-            else
-                SetIdleSprite();
-        }
+        if (!isBlinking && !isHurt)
+            ApplyCurrentIdleOrDirectionSprite();
 
         wasMovingLastFrame = false;
     }
@@ -180,6 +177,9 @@ public class PlayerVisual : MonoBehaviour
         if (isBlinking)
             return;
 
+        if (pauseBlinkWhileHurt && isHurt)
+            return;
+
         if (Time.time >= nextBlinkTime)
         {
             if (blinkRoutine != null)
@@ -193,51 +193,18 @@ public class PlayerVisual : MonoBehaviour
     {
         isBlinking = true;
 
-        if (spriteRenderer != null && blinkSprite != null)
+        if ((!isHurt || !pauseBlinkWhileHurt) && spriteRenderer != null && blinkSprite != null)
             spriteRenderer.sprite = blinkSprite;
 
         yield return new WaitForSeconds(blinkDuration);
 
         isBlinking = false;
 
-        if (playerController != null)
-        {
-            Vector2 input = playerController.GetInput();
-            bool isMoving = input.magnitude >= movementThreshold;
-
-            if (isMoving)
-            {
-                SetDirectionSprite(currentDirection);
-            }
-            else if (holdLookDirectionAfterStop)
-            {
-                float holdDuration = GetCurrentDirectionHoldDuration();
-                float timeSinceStop = Time.time - lastMoveTime;
-
-                if (timeSinceStop < holdDuration)
-                    SetDirectionSprite(currentDirection);
-                else if (useDirectionSpriteAsIdle)
-                    SetDirectionSprite(currentDirection);
-                else
-                    SetIdleSprite();
-            }
-            else
-            {
-                if (useDirectionSpriteAsIdle)
-                    SetDirectionSprite(currentDirection);
-                else
-                    SetIdleSprite();
-            }
-        }
-        else
-        {
-            if (useDirectionSpriteAsIdle)
-                SetDirectionSprite(currentDirection);
-            else
-                SetIdleSprite();
-        }
+        if (!isHurt)
+            RestoreVisualAfterTemporaryState();
 
         ScheduleNextBlink();
+        blinkRoutine = null;
     }
 
     private void ScheduleNextBlink()
@@ -248,6 +215,14 @@ public class PlayerVisual : MonoBehaviour
             interval += Random.Range(randomBlinkOffsetMin, randomBlinkOffsetMax);
 
         nextBlinkTime = Time.time + interval;
+    }
+
+    private void ApplyCurrentIdleOrDirectionSprite()
+    {
+        if (useDirectionSpriteAsIdle)
+            SetDirectionSprite(currentDirection);
+        else
+            SetIdleSprite();
     }
 
     private void SetIdleSprite()
@@ -287,5 +262,72 @@ public class PlayerVisual : MonoBehaviour
 
         if (targetSprite != null)
             spriteRenderer.sprite = targetSprite;
+    }
+
+    private void RestoreVisualAfterTemporaryState()
+    {
+        if (playerController != null)
+        {
+            Vector2 input = playerController.GetInput();
+            bool isMoving = input.magnitude >= movementThreshold;
+
+            if (isMoving)
+            {
+                SetDirectionSprite(currentDirection);
+                return;
+            }
+        }
+
+        if (holdLookDirectionAfterStop)
+        {
+            float holdDuration = GetCurrentDirectionHoldDuration();
+            float timeSinceStop = Time.time - lastMoveTime;
+
+            if (timeSinceStop < holdDuration)
+            {
+                SetDirectionSprite(currentDirection);
+                return;
+            }
+        }
+
+        ApplyCurrentIdleOrDirectionSprite();
+    }
+
+    public void PlayHurtVisual()
+    {
+        if (hurtRoutine != null)
+            StopCoroutine(hurtRoutine);
+
+        if (pauseBlinkWhileHurt && blinkRoutine != null)
+        {
+            StopCoroutine(blinkRoutine);
+            blinkRoutine = null;
+        }
+
+        hurtRoutine = StartCoroutine(HurtRoutine());
+    }
+
+    private IEnumerator HurtRoutine()
+    {
+        isHurt = true;
+        isBlinking = false;
+
+        if (spriteRenderer != null)
+        {
+            if (hurtSprite != null)
+                spriteRenderer.sprite = hurtSprite;
+            else
+                ApplyCurrentIdleOrDirectionSprite();
+        }
+
+        yield return new WaitForSeconds(hurtDuration);
+
+        isHurt = false;
+        hurtRoutine = null;
+
+        RestoreVisualAfterTemporaryState();
+
+        if (restartBlinkAfterHurt)
+            ScheduleNextBlink();
     }
 }

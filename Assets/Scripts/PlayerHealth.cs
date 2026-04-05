@@ -14,12 +14,12 @@ public class PlayerHealth : MonoBehaviour
     [Header("Links")]
     [SerializeField] private SpriteRenderer playerRenderer;
     [SerializeField] private HeartsUI heartsUI;
+    [SerializeField] private PlayerVisual playerVisual;
 
     [Header("Blink Player")]
     [SerializeField] private int blinkCount = 3;
     [SerializeField] private float blinkInterval = 0.15f;
 
-    // ===== Sound =====
     [Header("Sound")]
     [SerializeField] private AudioSource sfxSource;
     [SerializeField] private AudioClip damageClip;
@@ -29,32 +29,28 @@ public class PlayerHealth : MonoBehaviour
     [SerializeField] private AudioClip deathClip;
     [SerializeField, Range(0f, 1f)] private float deathVolume = 1f;
 
-    // ===== Hit Flash =====
     [Header("Hit Flash")]
     [SerializeField] private bool useHitFlash = true;
     [SerializeField] private Color flashColor = Color.white;
     [SerializeField] private float flashDuration = 0.08f;
     private Color _originalColor;
 
-    // ===== Hit Effect (Particles) =====
     [Header("Hit Effect (Particles)")]
     [SerializeField] private ParticleSystem hitEffectPrefab;
     [SerializeField] private Vector3 hitEffectOffset = Vector3.zero;
     [SerializeField] private bool effectFollowsPlayer = true;
     [SerializeField] private bool destroyEffectAfterPlay = true;
 
-    // ===== Death Effect (Particles) =====
     [Header("Death Effect (Particles)")]
     [SerializeField] private ParticleSystem deathEffectPrefab;
     [SerializeField] private Vector3 deathEffectOffset = Vector3.zero;
     [SerializeField] private bool deathEffectFollowsPlayer = false;
     [SerializeField] private bool destroyDeathEffectAfterPlay = true;
 
-    // ===== Death Settings =====
     [Header("Death Settings")]
-    [SerializeField] private float deathRestartDelay = 0.6f;          // минимум пауза перед рестартом
-    [SerializeField] private bool hidePlayerOnDeath = true;           // спрятать игрока при смерти (после запуска эффекта)
-    [SerializeField] private bool disableMovementOnDeath = true;      // отключить PlayerController на смерть
+    [SerializeField] private float deathRestartDelay = 0.6f;
+    [SerializeField] private bool hidePlayerOnDeath = true;
+    [SerializeField] private bool disableMovementOnDeath = true;
 
     private int hearts;
     private bool invulnerable;
@@ -84,11 +80,12 @@ public class PlayerHealth : MonoBehaviour
         if (heartsUI != null)
             heartsUI.SetHearts(hearts);
 
-        // auto-pick AudioSource if not set
         if (sfxSource == null)
             sfxSource = GetComponent<AudioSource>();
 
-        // optional: movement script
+        if (playerVisual == null)
+            playerVisual = GetComponent<PlayerVisual>();
+
         playerController = GetComponent<PlayerController>();
     }
 
@@ -97,7 +94,6 @@ public class PlayerHealth : MonoBehaviour
         if (isDead) return;
         if (invulnerable) return;
 
-        // CAMERA SHAKE
         if (CameraShake2D.Instance != null)
             CameraShake2D.Instance.ShakeDefault();
 
@@ -105,88 +101,87 @@ public class PlayerHealth : MonoBehaviour
         hearts = Mathf.Max(0, hearts - amount);
         int lostIndex = prev - 1;
 
-        // UI update + blink heart
         if (heartsUI != null)
         {
             heartsUI.SetHearts(hearts);
             heartsUI.BlinkAndHide(lostIndex);
         }
 
-        // damage sound
         if (sfxSource != null && damageClip != null)
             sfxSource.PlayOneShot(damageClip, damageVolume);
 
-        // hit particles
+        if (playerVisual != null)
+            playerVisual.PlayHurtVisual();
+
         SpawnHitEffect();
 
-        // hit flash
         if (useHitFlash && playerRenderer != null)
         {
-            if (hitFlashRoutine != null) StopCoroutine(hitFlashRoutine);
+            if (hitFlashRoutine != null)
+                StopCoroutine(hitFlashRoutine);
+
             hitFlashRoutine = StartCoroutine(HitFlash());
         }
 
-        // blink player
-        if (playerBlinkRoutine != null) StopCoroutine(playerBlinkRoutine);
+        if (playerBlinkRoutine != null)
+            StopCoroutine(playerBlinkRoutine);
+
         playerBlinkRoutine = StartCoroutine(BlinkPlayer());
 
-        // death
         if (hearts <= 0)
         {
             Die();
             return;
         }
 
-        // invulnerability window
         invulnerable = true;
-        if (invulnRoutine != null) StopCoroutine(invulnRoutine);
+
+        if (invulnRoutine != null)
+            StopCoroutine(invulnRoutine);
+
         invulnRoutine = StartCoroutine(InvulnTimer(invulnTime));
     }
 
     private void Die()
     {
         if (isDead) return;
+
         isDead = true;
         invulnerable = true;
 
-        // stop routines
         if (invulnRoutine != null) StopCoroutine(invulnRoutine);
         if (playerBlinkRoutine != null) StopCoroutine(playerBlinkRoutine);
         if (hitFlashRoutine != null) StopCoroutine(hitFlashRoutine);
 
-        // restore renderer
         if (playerRenderer != null)
         {
             playerRenderer.enabled = true;
             playerRenderer.color = _originalColor;
         }
 
-        // disable movement (optional)
         if (disableMovementOnDeath && playerController != null)
             playerController.enabled = false;
 
-        // play death sound
         if (sfxSource != null && deathClip != null)
             sfxSource.PlayOneShot(deathClip, deathVolume);
 
-        // spawn death particles
         SpawnDeathEffect();
 
-        // hide player (optional) - делаем чуть позже, чтобы эффект успел появиться
         if (hidePlayerOnDeath)
             StartCoroutine(HidePlayerNextFrame());
 
-        // restart with delay, but ensure deathClip can finish
         float wait = deathRestartDelay;
-        if (deathClip != null) wait = Mathf.Max(wait, deathClip.length);
+        if (deathClip != null)
+            wait = Mathf.Max(wait, deathClip.length);
 
-        if (restartRoutine != null) StopCoroutine(restartRoutine);
+        if (restartRoutine != null)
+            StopCoroutine(restartRoutine);
+
         restartRoutine = StartCoroutine(RestartAfterDeath(wait));
     }
 
     private IEnumerator HidePlayerNextFrame()
     {
-        // 1 кадр — чтобы Particles успели заспавниться в позиции игрока
         yield return null;
 
         if (playerRenderer != null)
@@ -210,6 +205,7 @@ public class PlayerHealth : MonoBehaviour
         if (playerRenderer == null) yield break;
 
         int toggles = blinkCount * 2;
+
         for (int i = 0; i < toggles; i++)
         {
             playerRenderer.enabled = !playerRenderer.enabled;
@@ -227,7 +223,6 @@ public class PlayerHealth : MonoBehaviour
 
         playerRenderer.color = flashColor;
         yield return new WaitForSeconds(flashDuration);
-
         playerRenderer.color = before;
     }
 
