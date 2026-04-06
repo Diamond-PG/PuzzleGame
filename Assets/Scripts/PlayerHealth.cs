@@ -41,6 +41,23 @@ public class PlayerHealth : MonoBehaviour
     [SerializeField] private bool effectFollowsPlayer = true;
     [SerializeField] private bool destroyEffectAfterPlay = true;
 
+    [Header("Hit Effect Amount")]
+    [SerializeField, Min(1)] private int hitEffectSpawnCount = 2;
+    [SerializeField, Min(0f)] private float hitEffectSpawnDelay = 0.03f;
+
+    [Header("Hit Effect Spread")]
+    [SerializeField] private Vector2 hitEffectRandomOffsetX = new Vector2(-0.15f, 0.15f);
+    [SerializeField] private Vector2 hitEffectRandomOffsetY = new Vector2(-0.10f, 0.18f);
+    [SerializeField] private Vector2 hitEffectRandomOffsetZ = new Vector2(0f, 0f);
+
+    [Header("Hit Effect Rotation")]
+    [SerializeField] private bool randomizeHitEffectRotation = true;
+    [SerializeField] private Vector2 hitEffectRandomRotationZ = new Vector2(-25f, 25f);
+
+    [Header("Hit Effect Scale")]
+    [SerializeField] private bool randomizeHitEffectScale = true;
+    [SerializeField] private Vector2 hitEffectRandomScale = new Vector2(0.9f, 1.25f);
+
     [Header("Death Effect (Particles)")]
     [SerializeField] private ParticleSystem deathEffectPrefab;
     [SerializeField] private Vector3 deathEffectOffset = Vector3.zero;
@@ -61,6 +78,7 @@ public class PlayerHealth : MonoBehaviour
     private Coroutine invulnRoutine;
     private Coroutine playerBlinkRoutine;
     private Coroutine hitFlashRoutine;
+    private Coroutine hitEffectRoutine;
 
     private PlayerController playerController;
 
@@ -113,7 +131,10 @@ public class PlayerHealth : MonoBehaviour
         if (playerVisual != null)
             playerVisual.PlayHurtVisual();
 
-        SpawnHitEffect();
+        if (hitEffectRoutine != null)
+            StopCoroutine(hitEffectRoutine);
+
+        hitEffectRoutine = StartCoroutine(SpawnHitEffectRoutine());
 
         if (useHitFlash && playerRenderer != null)
         {
@@ -152,6 +173,7 @@ public class PlayerHealth : MonoBehaviour
         if (invulnRoutine != null) StopCoroutine(invulnRoutine);
         if (playerBlinkRoutine != null) StopCoroutine(playerBlinkRoutine);
         if (hitFlashRoutine != null) StopCoroutine(hitFlashRoutine);
+        if (hitEffectRoutine != null) StopCoroutine(hitEffectRoutine);
 
         if (playerRenderer != null)
         {
@@ -226,28 +248,62 @@ public class PlayerHealth : MonoBehaviour
         playerRenderer.color = before;
     }
 
-    private void SpawnHitEffect()
+    private IEnumerator SpawnHitEffectRoutine()
     {
-        if (hitEffectPrefab == null) return;
+        if (hitEffectPrefab == null) yield break;
 
-        Vector3 spawnPos = transform.position + hitEffectOffset;
+        int spawnCount = Mathf.Max(1, hitEffectSpawnCount);
+
+        for (int i = 0; i < spawnCount; i++)
+        {
+            SpawnSingleHitEffect();
+
+            if (i < spawnCount - 1 && hitEffectSpawnDelay > 0f)
+                yield return new WaitForSeconds(hitEffectSpawnDelay);
+        }
+    }
+
+    private void SpawnSingleHitEffect()
+    {
+        Vector3 randomOffset = new Vector3(
+            Random.Range(hitEffectRandomOffsetX.x, hitEffectRandomOffsetX.y),
+            Random.Range(hitEffectRandomOffsetY.x, hitEffectRandomOffsetY.y),
+            Random.Range(hitEffectRandomOffsetZ.x, hitEffectRandomOffsetZ.y)
+        );
+
+        Vector3 spawnPos = transform.position + hitEffectOffset + randomOffset;
+
+        Quaternion spawnRot = Quaternion.identity;
+        if (randomizeHitEffectRotation)
+        {
+            float randomZ = Random.Range(hitEffectRandomRotationZ.x, hitEffectRandomRotationZ.y);
+            spawnRot = Quaternion.Euler(0f, 0f, randomZ);
+        }
 
         ParticleSystem fx;
         if (effectFollowsPlayer)
         {
-            fx = Instantiate(hitEffectPrefab, spawnPos, Quaternion.identity, transform);
-            fx.transform.localPosition = hitEffectOffset;
+            fx = Instantiate(hitEffectPrefab, spawnPos, spawnRot, transform);
+            fx.transform.localPosition = hitEffectOffset + randomOffset;
+            fx.transform.localRotation = spawnRot;
         }
         else
         {
-            fx = Instantiate(hitEffectPrefab, spawnPos, Quaternion.identity);
+            fx = Instantiate(hitEffectPrefab, spawnPos, spawnRot);
+        }
+
+        if (randomizeHitEffectScale)
+        {
+            float randomScale = Random.Range(hitEffectRandomScale.x, hitEffectRandomScale.y);
+            fx.transform.localScale = Vector3.one * randomScale;
         }
 
         fx.Play();
 
         if (destroyEffectAfterPlay)
         {
-            Destroy(fx.gameObject, fx.main.duration + fx.main.startLifetime.constantMax + 0.2f);
+            float destroyDelay = fx.main.duration + fx.main.startLifetime.constantMax + 0.2f;
+            Destroy(fx.gameObject, destroyDelay);
         }
     }
 
