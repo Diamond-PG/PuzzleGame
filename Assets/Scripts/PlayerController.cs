@@ -26,48 +26,50 @@ public class PlayerController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
 
-        // Если забыли привязать mobileInput в Inspector — попробуем найти сами
         if (mobileInput == null)
             mobileInput = FindFirstObjectByType<MobileInput>();
     }
 
     private void Update()
     {
-        // 1) Если победная панель активна — стоп управление
         if (freezeWhenWinPanelActive && winPanel != null && winPanel.activeInHierarchy)
         {
             LockMovement(true);
             return;
         }
 
-        // 2) Если движение заблокировано вручную — тоже стоп
         if (movementLocked)
             return;
 
         float moveX = 0f;
         float moveY = 0f;
 
-        // Мобилка
+        // Мобильное управление
         if (mobileInput != null)
         {
             moveX = mobileInput.Horizontal;
-            moveY = mobileInput.Vertical;
+
+            // ВАЖНО:
+            // Вертикальное движение отключаем,
+            // потому что кнопка вверх теперь отвечает за прыжок.
+            moveY = 0f;
         }
         else
         {
 #if UNITY_EDITOR || UNITY_STANDALONE
             moveX = Input.GetAxisRaw("Horizontal");
-            moveY = Input.GetAxisRaw("Vertical");
+
+            // ВАЖНО:
+            // Вертикаль отключена, чтобы не мешала прыжку.
+            moveY = 0f;
 #else
             moveX = 0f;
             moveY = 0f;
 #endif
         }
 
-        // Нормализуем, чтобы по диагонали скорость не была больше
         input = new Vector2(moveX, moveY).normalized;
 
-        // Запуск таймера при первом движении
         if (!timerNotified && input.sqrMagnitude > 0.0001f)
         {
             timerNotified = true;
@@ -82,8 +84,10 @@ public class PlayerController : MonoBehaviour
         if (movementLocked)
             return;
 
-        Vector2 newPos = rb.position + input * moveSpeed * Time.fixedDeltaTime;
-        rb.MovePosition(newPos);
+        // ВАЖНО:
+        // Меняем только X-скорость.
+        // Y-скорость оставляем как есть, чтобы прыжок и гравитация работали.
+        rb.linearVelocity = new Vector2(input.x * moveSpeed, rb.linearVelocity.y);
     }
 
     public void LockMovement(bool locked)
@@ -93,6 +97,9 @@ public class PlayerController : MonoBehaviour
         if (locked)
         {
             input = Vector2.zero;
+
+            // ВАЖНО:
+            // При блокировке полностью останавливаем игрока.
             rb.linearVelocity = Vector2.zero;
         }
     }

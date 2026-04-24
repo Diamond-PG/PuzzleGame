@@ -1,17 +1,17 @@
 using UnityEngine;
 
-public class DropTimer : MonoBehaviour
+public class DropTimerShort : MonoBehaviour
 {
     public Animator animator;
 
     [SerializeField] private PuddlePulseTrigger puddle;
 
     [Header("Timing")]
-    public float delayMin = 5.5f;
-    public float delayMax = 8f;
+    public float delayMin = 2.5f;
+    public float delayMax = 4.5f;
 
     [Header("Animation")]
-    public string dropAnimationName = "Drop_Fall";
+    public string dropAnimationName = "Drop_Fall_Short";
     public float dropDuration = 1f;
 
     private float timer;

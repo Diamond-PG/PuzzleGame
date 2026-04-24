@@ -31,6 +31,9 @@ public class PlayerVisual : MonoBehaviour
     [SerializeField] private float holdUpDuration = 0.20f;
     [SerializeField] private float holdDownDuration = 0.20f;
 
+    [Header("Jump Look")]
+    [SerializeField] private float jumpLookUpDuration = 0.35f;
+
     [Header("Blink Settings")]
     [SerializeField] private bool enableBlink = true;
     [SerializeField] private float blinkInterval = 2.2f;
@@ -59,9 +62,11 @@ public class PlayerVisual : MonoBehaviour
 
     private Coroutine blinkRoutine;
     private Coroutine hurtRoutine;
+    private Coroutine jumpLookRoutine;
 
     private bool isBlinking;
     private bool isHurt;
+    private bool isJumpLookingUp;
 
     private float nextBlinkTime;
     private float lastMoveTime;
@@ -88,10 +93,35 @@ public class PlayerVisual : MonoBehaviour
 
     private void Update()
     {
-        UpdateLookDirectionFromInput();
+        if (!isJumpLookingUp)
+            UpdateLookDirectionFromInput();
 
         if (!isHurt || !pauseBlinkWhileHurt)
             HandleBlink();
+    }
+
+    public void PlayJumpLookUp()
+    {
+        if (jumpLookRoutine != null)
+            StopCoroutine(jumpLookRoutine);
+
+        jumpLookRoutine = StartCoroutine(JumpLookUpRoutine());
+    }
+
+    private IEnumerator JumpLookUpRoutine()
+    {
+        isJumpLookingUp = true;
+        currentDirection = LookDirection.Up;
+
+        if (!isBlinking && !isHurt)
+            SetDirectionSprite(LookDirection.Up);
+
+        yield return new WaitForSeconds(jumpLookUpDuration);
+
+        isJumpLookingUp = false;
+        jumpLookRoutine = null;
+
+        RestoreVisualAfterTemporaryState();
     }
 
     private void UpdateLookDirectionFromInput()
@@ -155,13 +185,10 @@ public class PlayerVisual : MonoBehaviour
         {
             case LookDirection.Right:
                 return holdRightDuration;
-
             case LookDirection.Left:
                 return holdLeftDuration;
-
             case LookDirection.Up:
                 return holdUpDuration;
-
             case LookDirection.Down:
                 return holdDownDuration;
         }
@@ -178,6 +205,9 @@ public class PlayerVisual : MonoBehaviour
             return;
 
         if (pauseBlinkWhileHurt && isHurt)
+            return;
+
+        if (isJumpLookingUp)
             return;
 
         if (Time.time >= nextBlinkTime)
@@ -246,15 +276,12 @@ public class PlayerVisual : MonoBehaviour
             case LookDirection.Right:
                 targetSprite = lookRightSprite != null ? lookRightSprite : idleSprite;
                 break;
-
             case LookDirection.Up:
                 targetSprite = lookUpSprite != null ? lookUpSprite : idleSprite;
                 break;
-
             case LookDirection.Left:
                 targetSprite = lookLeftSprite != null ? lookLeftSprite : idleSprite;
                 break;
-
             case LookDirection.Down:
                 targetSprite = lookDownSprite != null ? lookDownSprite : idleSprite;
                 break;
@@ -266,6 +293,12 @@ public class PlayerVisual : MonoBehaviour
 
     private void RestoreVisualAfterTemporaryState()
     {
+        if (isJumpLookingUp)
+        {
+            SetDirectionSprite(LookDirection.Up);
+            return;
+        }
+
         if (playerController != null)
         {
             Vector2 input = playerController.GetInput();
