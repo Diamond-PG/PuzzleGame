@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerController : MonoBehaviour
@@ -42,33 +43,24 @@ public class PlayerController : MonoBehaviour
             return;
 
         float moveX = 0f;
-        float moveY = 0f;
 
-        // Мобильное управление
         if (mobileInput != null)
         {
             moveX = mobileInput.Horizontal;
-
-            // ВАЖНО:
-            // Вертикальное движение отключаем,
-            // потому что кнопка вверх теперь отвечает за прыжок.
-            moveY = 0f;
         }
         else
         {
-#if UNITY_EDITOR || UNITY_STANDALONE
-            moveX = Input.GetAxisRaw("Horizontal");
+            if (Keyboard.current != null)
+            {
+                if (Keyboard.current.aKey.isPressed || Keyboard.current.leftArrowKey.isPressed)
+                    moveX = -1f;
 
-            // ВАЖНО:
-            // Вертикаль отключена, чтобы не мешала прыжку.
-            moveY = 0f;
-#else
-            moveX = 0f;
-            moveY = 0f;
-#endif
+                if (Keyboard.current.dKey.isPressed || Keyboard.current.rightArrowKey.isPressed)
+                    moveX = 1f;
+            }
         }
 
-        input = new Vector2(moveX, moveY).normalized;
+        input = new Vector2(moveX, 0f).normalized;
 
         if (!timerNotified && input.sqrMagnitude > 0.0001f)
         {
@@ -84,9 +76,6 @@ public class PlayerController : MonoBehaviour
         if (movementLocked)
             return;
 
-        // ВАЖНО:
-        // Меняем только X-скорость.
-        // Y-скорость оставляем как есть, чтобы прыжок и гравитация работали.
         rb.linearVelocity = new Vector2(input.x * moveSpeed, rb.linearVelocity.y);
     }
 
@@ -97,9 +86,6 @@ public class PlayerController : MonoBehaviour
         if (locked)
         {
             input = Vector2.zero;
-
-            // ВАЖНО:
-            // При блокировке полностью останавливаем игрока.
             rb.linearVelocity = Vector2.zero;
         }
     }
@@ -107,5 +93,28 @@ public class PlayerController : MonoBehaviour
     public Vector2 GetInput()
     {
         return input;
+    }
+
+    public float GetClimbVerticalInput()
+    {
+        float vertical = 0f;
+
+        if (mobileInput != null)
+        {
+            vertical = mobileInput.Vertical;
+        }
+        else
+        {
+            if (Keyboard.current != null)
+            {
+                if (Keyboard.current.wKey.isPressed || Keyboard.current.upArrowKey.isPressed)
+                    vertical = 1f;
+
+                if (Keyboard.current.sKey.isPressed || Keyboard.current.downArrowKey.isPressed)
+                    vertical = -1f;
+            }
+        }
+
+        return vertical;
     }
 }

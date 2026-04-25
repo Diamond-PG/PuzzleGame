@@ -175,10 +175,10 @@ TextureImporter:
       name: Walls_1
       rect:
         serializedVersion: 2
-        x: 375
-        y: 721
-        width: 269
-        height: 245
+        x: 380
+        y: 723
+        width: 260
+        height: 243
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
