@@ -1,10 +1,16 @@
 fileFormatVersion: 2
-guid: fa84be0017b4c9c4fb427a429ca865e6
+guid: c6444daf99e950a4a8c74e54f14721f5
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 5213229242370633579
-    second: Door_0
+      213: 4940350532372530158
+    second: Door_3_0
+  - first:
+      213: -2471208791466001417
+    second: Door_3_1
+  - first:
+      213: -9017109342795545721
+    second: Door_3_2
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -126,13 +132,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Door_0
+      name: Door_3_0
       rect:
         serializedVersion: 2
-        x: 121
-        y: 2
-        width: 269
-        height: 477
+        x: 178
+        y: 3
+        width: 134
+        height: 388
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +147,52 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: b6f2e24006c195840800000000000000
-      internalID: 5213229242370633579
+      spriteID: ee30af352a6af8440800000000000000
+      internalID: 4940350532372530158
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Door_3_1
+      rect:
+        serializedVersion: 2
+        x: 312
+        y: 215
+        width: 22
+        height: 75
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7fbb8da72b084bdd0800000000000000
+      internalID: -2471208791466001417
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Door_3_2
+      rect:
+        serializedVersion: 2
+        x: 312
+        y: 26
+        width: 22
+        height: 92
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 783c0d1d3daccd280800000000000000
+      internalID: -9017109342795545721
       vertices: []
       indices: 
       edges: []
@@ -161,7 +211,9 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Door_0: 5213229242370633579
+      Door_3_0: 4940350532372530158
+      Door_3_1: -2471208791466001417
+      Door_3_2: -9017109342795545721
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

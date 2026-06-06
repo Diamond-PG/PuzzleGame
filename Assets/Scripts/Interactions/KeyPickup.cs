@@ -17,6 +17,13 @@ public class KeyPickup : MonoBehaviour
     [Header("Pickup Settings")]
     [SerializeField] private float pickupDistance = 1.2f;
 
+    [Header("Pickup Sound")]
+    [SerializeField] private AudioSource pickupAudioSource;
+    [SerializeField] private bool playPickupSound = true;
+
+    [Header("Pickup Haptics")]
+    [SerializeField] private bool usePickupHaptics = true;
+
     [Header("Fly To UI Animation")]
     [SerializeField] private bool animateToUI = true;
     [SerializeField] private float flyDuration = 0.35f;
@@ -33,13 +40,17 @@ public class KeyPickup : MonoBehaviour
     private Collider2D nearbyPlayerCollider;
     private Collider2D keyCollider;
     private Camera mainCamera;
+    private SpriteRenderer[] spriteRenderers;
 
     private void Awake()
     {
         keyCollider = GetComponent<Collider2D>();
         mainCamera = Camera.main;
+        spriteRenderers = GetComponentsInChildren<SpriteRenderer>();
 
-        // При загрузке сцены считаем, что ключ ещё не взят
+        if (pickupAudioSource == null)
+            pickupAudioSource = GetComponent<AudioSource>();
+
         HasKey = false;
 
         if (keyIconUI != null)
@@ -60,14 +71,12 @@ public class KeyPickup : MonoBehaviour
         if (!playerIsNearby)
             return;
 
-        // Клик мышкой в редакторе
         if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
         {
             Vector2 screenPos = Mouse.current.position.ReadValue();
             TryPickupByPointer(screenPos);
         }
 
-        // Тап на телефоне
         if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.wasPressedThisFrame)
         {
             Vector2 screenPos = Touchscreen.current.primaryTouch.position.ReadValue();
@@ -174,11 +183,15 @@ public class KeyPickup : MonoBehaviour
         if (keyCollider != null)
             keyCollider.enabled = false;
 
-        // Отключаем glow
+        if (usePickupHaptics)
+            MicroHaptics.TinyClick();
+
+        if (playPickupSound && pickupAudioSource != null && pickupAudioSource.clip != null)
+            pickupAudioSource.PlayOneShot(pickupAudioSource.clip);
+
         if (keyGlowObject != null)
             keyGlowObject.SetActive(false);
 
-        // Отключаем пульс ключа
         if (keyPulseScript != null)
             keyPulseScript.enabled = false;
 
@@ -250,6 +263,33 @@ public class KeyPickup : MonoBehaviour
         {
             Debug.LogWarning("[KEY] keyIconUI is NULL. Assign KeyIcon in Inspector.", this);
         }
+
+        HideWorldKeyVisuals();
+
+        float waitTime = 0f;
+
+        if (playPickupSound && pickupAudioSource != null && pickupAudioSource.clip != null)
+            waitTime = pickupAudioSource.clip.length;
+
+        StartCoroutine(DisableAfterSound(waitTime));
+    }
+
+    private void HideWorldKeyVisuals()
+    {
+        if (spriteRenderers == null)
+            return;
+
+        foreach (SpriteRenderer sr in spriteRenderers)
+        {
+            if (sr != null)
+                sr.enabled = false;
+        }
+    }
+
+    private IEnumerator DisableAfterSound(float delay)
+    {
+        if (delay > 0f)
+            yield return new WaitForSeconds(delay);
 
         gameObject.SetActive(false);
     }
