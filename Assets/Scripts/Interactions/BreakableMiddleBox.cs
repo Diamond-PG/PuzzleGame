@@ -9,6 +9,16 @@ public class BreakableMiddleBox : MonoBehaviour
     public Transform player;
     public float interactDistance = 1.5f;
 
+    [Header("Reward")]
+    [SerializeField] private GoalRevealFromBox rewardReveal;
+    [SerializeField] private bool revealRewardOnBreak = true;
+    [SerializeField] private float rewardRevealDelay = 0.05f;
+
+    [Header("Reward Safe Detach")]
+    [SerializeField] private bool detachRewardBeforeDestroy = true;
+    [SerializeField] private float rewardDetachDelayAfterReveal = 0.65f;
+    [SerializeField] private HeartPulse rewardHeartPulse;
+
     [Header("Effects")]
     public GameObject breakEffect;
     public float breakEffectLifetime = 2f;
@@ -54,31 +64,14 @@ public class BreakableMiddleBox : MonoBehaviour
     [Header("Broken Pieces")]
     public GameObject[] woodChips;
 
-    [Tooltip("Время первого осыпания щепки")]
     public float chipFallDuration = 0.22f;
-
-    [Tooltip("Время дополнительного падения щепки вниз")]
     public float chipExtraFallDuration = 0.26f;
-
-    [Tooltip("Насколько ещё щепка опускается вниз после первого падения")]
     public float chipExtraDropDistance = 0.18f;
-
-    [Tooltip("Разброс по X при финальном падении")]
     public float chipHorizontalSpread = 0.06f;
-
-    [Tooltip("Сколько щепки лежат на полу до исчезновения")]
     public float chipStayDuration = 0.55f;
-
-    [Tooltip("Сколько времени щепки плавно исчезают")]
     public float chipFadeDuration = 0.25f;
-
-    [Tooltip("Минимальный финальный угол, когда щепка ложится плашмя")]
     public float chipEndRotMin = 55f;
-
-    [Tooltip("Максимальный финальный угол, когда щепка ложится плашмя")]
     public float chipEndRotMax = 125f;
-
-    [Tooltip("Небольшой подъём щепок, чтобы не проваливались визуально в пол")]
     public float chipGroundLift = 0.045f;
 
     private int hits = 0;
@@ -95,6 +88,7 @@ public class BreakableMiddleBox : MonoBehaviour
     private bool isPlayingHitEffect = false;
     private bool isBreaking = false;
     private bool isBusy = false;
+    private bool rewardDetached = false;
 
     private void Awake()
     {
@@ -105,6 +99,12 @@ public class BreakableMiddleBox : MonoBehaviour
 
         if (audioSource == null)
             audioSource = GetComponent<AudioSource>();
+
+        if (rewardReveal == null)
+            rewardReveal = GetComponentInChildren<GoalRevealFromBox>(true);
+
+        if (rewardHeartPulse == null && rewardReveal != null)
+            rewardHeartPulse = rewardReveal.GetComponent<HeartPulse>();
 
         Transform bg = transform.Find("Box_Background");
         if (bg != null)
@@ -132,10 +132,14 @@ public class BreakableMiddleBox : MonoBehaviour
         isBreaking = false;
         isBusy = false;
         isPlayingHitEffect = false;
+        rewardDetached = false;
         hitEffectTimer = 0f;
 
         transform.localScale = originalLocalScale;
         transform.localPosition = originalLocalPosition;
+
+        if (rewardHeartPulse != null)
+            rewardHeartPulse.enabled = false;
 
         if (boxSpriteRenderer != null)
         {
@@ -151,6 +155,9 @@ public class BreakableMiddleBox : MonoBehaviour
 
         if (boxCollider != null)
             boxCollider.enabled = true;
+
+        if (rewardReveal != null)
+            rewardReveal.HideGoalImmediate();
     }
 
     private void Update()
@@ -164,16 +171,10 @@ public class BreakableMiddleBox : MonoBehaviour
             return;
 
         if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
-        {
-            Vector2 screenPos = Mouse.current.position.ReadValue();
-            TryHitBox(screenPos);
-        }
+            TryHitBox(Mouse.current.position.ReadValue());
 
         if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.wasPressedThisFrame)
-        {
-            Vector2 touchPos = Touchscreen.current.primaryTouch.position.ReadValue();
-            TryHitBox(touchPos);
-        }
+            TryHitBox(Touchscreen.current.primaryTouch.position.ReadValue());
     }
 
     private void TryHitBox(Vector2 screenPos)
@@ -271,21 +272,11 @@ public class BreakableMiddleBox : MonoBehaviour
 
         if (hits == 1)
         {
-            yield return StartCoroutine(ShakeBox(
-                firstHitShakeDuration,
-                firstHitShakeAmountX,
-                firstHitShakeAmountY,
-                firstHitShakeSpeed
-            ));
+            yield return StartCoroutine(ShakeBox(firstHitShakeDuration, firstHitShakeAmountX, firstHitShakeAmountY, firstHitShakeSpeed));
         }
         else if (hits == 2)
         {
-            yield return StartCoroutine(ShakeBox(
-                secondHitShakeDuration,
-                secondHitShakeAmountX,
-                secondHitShakeAmountY,
-                secondHitShakeSpeed
-            ));
+            yield return StartCoroutine(ShakeBox(secondHitShakeDuration, secondHitShakeAmountX, secondHitShakeAmountY, secondHitShakeSpeed));
         }
 
         ApplyDamageSprite();
@@ -320,12 +311,7 @@ public class BreakableMiddleBox : MonoBehaviour
         isBusy = true;
         isBreaking = true;
 
-        yield return StartCoroutine(ShakeBox(
-            finalShakeDuration,
-            finalShakeAmountX,
-            finalShakeAmountY,
-            finalShakeSpeed
-        ));
+        yield return StartCoroutine(ShakeBox(finalShakeDuration, finalShakeAmountX, finalShakeAmountY, finalShakeSpeed));
 
         transform.localPosition = originalLocalPosition;
         transform.localScale = originalLocalScale;
@@ -347,9 +333,56 @@ public class BreakableMiddleBox : MonoBehaviour
         SpawnBreakEffect();
         SpawnBrokenPieces();
 
-        yield return new WaitForSeconds(brokenSpriteDuration);
+        if (revealRewardOnBreak && rewardReveal != null)
+            StartCoroutine(RevealRewardAfterDelay());
+
+        float safeWait = brokenSpriteDuration;
+
+        if (revealRewardOnBreak && rewardReveal != null)
+            safeWait = Mathf.Max(safeWait, rewardRevealDelay + rewardDetachDelayAfterReveal + 0.05f);
+
+        yield return new WaitForSeconds(safeWait);
 
         HideAndFinishBreak();
+    }
+
+    private IEnumerator RevealRewardAfterDelay()
+    {
+        if (rewardRevealDelay > 0f)
+            yield return new WaitForSeconds(rewardRevealDelay);
+
+        if (rewardHeartPulse != null)
+            rewardHeartPulse.enabled = false;
+
+        rewardReveal.RevealGoal();
+
+        if (rewardDetachDelayAfterReveal > 0f)
+            yield return new WaitForSeconds(rewardDetachDelayAfterReveal);
+
+        DetachRewardFromBox();
+
+        if (rewardHeartPulse != null)
+        {
+            rewardHeartPulse.SetBaseScale(rewardHeartPulse.transform.localScale);
+            rewardHeartPulse.enabled = true;
+        }
+    }
+
+    private void DetachRewardFromBox()
+    {
+        if (!detachRewardBeforeDestroy)
+            return;
+
+        if (rewardDetached)
+            return;
+
+        if (rewardReveal == null)
+            return;
+
+        Transform rewardTransform = rewardReveal.transform;
+
+        rewardTransform.SetParent(null, true);
+        rewardDetached = true;
     }
 
     private IEnumerator ShakeBox(float duration, float amountX, float amountY, float speed)
@@ -372,6 +405,8 @@ public class BreakableMiddleBox : MonoBehaviour
 
     private void HideAndFinishBreak()
     {
+        DetachRewardFromBox();
+
         if (boxSpriteRenderer != null)
             boxSpriteRenderer.enabled = false;
 

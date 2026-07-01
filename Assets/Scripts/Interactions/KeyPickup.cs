@@ -26,9 +26,6 @@ public class KeyPickup : MonoBehaviour
 
     [Header("Fly To UI Animation")]
     [SerializeField] private bool animateToUI = true;
-    [SerializeField] private float flyDuration = 0.35f;
-    [SerializeField] private float flyArcHeight = 0.6f;
-    [SerializeField] private float endScaleMultiplier = 0.35f;
 
     [Header("Debug")]
     [SerializeField] private bool debugLogs = true;
@@ -41,12 +38,14 @@ public class KeyPickup : MonoBehaviour
     private Collider2D keyCollider;
     private Camera mainCamera;
     private SpriteRenderer[] spriteRenderers;
+    private PickupFlyEffect flyEffect;
 
     private void Awake()
     {
         keyCollider = GetComponent<Collider2D>();
         mainCamera = Camera.main;
         spriteRenderers = GetComponentsInChildren<SpriteRenderer>();
+        flyEffect = GetComponent<PickupFlyEffect>();
 
         if (pickupAudioSource == null)
             pickupAudioSource = GetComponent<AudioSource>();
@@ -72,16 +71,10 @@ public class KeyPickup : MonoBehaviour
             return;
 
         if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
-        {
-            Vector2 screenPos = Mouse.current.position.ReadValue();
-            TryPickupByPointer(screenPos);
-        }
+            TryPickupByPointer(Mouse.current.position.ReadValue());
 
         if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.wasPressedThisFrame)
-        {
-            Vector2 screenPos = Touchscreen.current.primaryTouch.position.ReadValue();
-            TryPickupByPointer(screenPos);
-        }
+            TryPickupByPointer(Touchscreen.current.primaryTouch.position.ReadValue());
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -195,59 +188,10 @@ public class KeyPickup : MonoBehaviour
         if (keyPulseScript != null)
             keyPulseScript.enabled = false;
 
-        if (animateToUI && keyIconUI != null)
-            StartCoroutine(AnimateKeyToUI());
+        if (animateToUI && keyIconUI != null && flyEffect != null)
+            StartCoroutine(flyEffect.FlyToUI(keyIconUI, FinishPickupInstant));
         else
             FinishPickupInstant();
-    }
-
-    private IEnumerator AnimateKeyToUI()
-    {
-        if (mainCamera == null)
-            mainCamera = Camera.main;
-
-        Vector3 startWorldPos = transform.position;
-        Vector3 startScale = transform.localScale;
-
-        Vector3 targetWorldPos = startWorldPos;
-
-        RectTransform keyIconRect = keyIconUI.GetComponent<RectTransform>();
-        Canvas canvas = keyIconUI.GetComponentInParent<Canvas>();
-
-        if (mainCamera != null && keyIconRect != null && canvas != null)
-        {
-            Vector3 screenPoint = RectTransformUtility.WorldToScreenPoint(
-                canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : mainCamera,
-                keyIconRect.position
-            );
-
-            screenPoint.z = Mathf.Abs(mainCamera.transform.position.z - transform.position.z);
-            targetWorldPos = mainCamera.ScreenToWorldPoint(screenPoint);
-            targetWorldPos.z = transform.position.z;
-        }
-
-        float time = 0f;
-        Vector3 endScale = startScale * endScaleMultiplier;
-
-        while (time < flyDuration)
-        {
-            float t = time / flyDuration;
-            float smoothT = Mathf.SmoothStep(0f, 1f, t);
-
-            Vector3 pos = Vector3.Lerp(startWorldPos, targetWorldPos, smoothT);
-            pos.y += Mathf.Sin(smoothT * Mathf.PI) * flyArcHeight;
-
-            transform.position = pos;
-            transform.localScale = Vector3.Lerp(startScale, endScale, smoothT);
-
-            time += Time.deltaTime;
-            yield return null;
-        }
-
-        transform.position = targetWorldPos;
-        transform.localScale = endScale;
-
-        FinishPickupInstant();
     }
 
     private void FinishPickupInstant()

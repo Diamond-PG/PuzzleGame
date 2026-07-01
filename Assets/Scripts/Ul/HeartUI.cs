@@ -1,4 +1,5 @@
 using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,26 +8,41 @@ public class HeartsUI : MonoBehaviour
     [Header("Heart Images (ВАЖНО: слева направо!)")]
     [SerializeField] private Image[] heartImages;
 
+    [Header("Bonus Hearts")]
+    [SerializeField] private GameObject bonusHeartBadge;
+    [SerializeField] private TMP_Text bonusHeartsText;
+
+    [Header("Bonus Badge Pop Animation")]
+    [SerializeField] private bool useBonusBadgePop = true;
+    [SerializeField] private float popScale = 1.15f;
+    [SerializeField] private float popDuration = 0.16f;
+
     [Header("Blink Heart")]
     [SerializeField] private int blinkCount = 3;
     [SerializeField] private float blinkInterval = 0.25f;
 
     private int shownHp;
+    private int bonusHearts;
     private Coroutine blinkRoutine;
+    private Coroutine bonusPopRoutine;
     private bool isBlinking;
+
+    private Vector3 bonusBadgeOriginalScale = Vector3.one;
 
     private void Awake()
     {
-        // если не назначили в инспекторе — пробуем собрать автоматически из детей (слева направо по иерархии)
         if (heartImages == null || heartImages.Length == 0)
             heartImages = GetComponentsInChildren<Image>(true);
 
-        // по умолчанию показываем все (пока PlayerHealth не скажет иначе)
+        if (bonusHeartBadge != null)
+            bonusBadgeOriginalScale = bonusHeartBadge.transform.localScale;
+
         shownHp = heartImages != null ? heartImages.Length : 0;
+
         Draw(shownHp);
+        SetBonusHearts(0, false);
     }
 
-    // вызывается из PlayerHealth при старте и при изменениях
     public void SetHearts(int hp)
     {
         if (isBlinking) return;
@@ -35,14 +51,96 @@ public class HeartsUI : MonoBehaviour
         Draw(shownHp);
     }
 
-    // вызывается из PlayerHealth при уроне (lostIndex = prev - 1)
+    public void SetBonusHearts(int amount)
+    {
+        SetBonusHearts(amount, true);
+    }
+
+    private void SetBonusHearts(int amount, bool playPop)
+    {
+        int previousBonusHearts = bonusHearts;
+        bonusHearts = Mathf.Max(0, amount);
+
+        if (bonusHeartBadge != null)
+            bonusHeartBadge.SetActive(bonusHearts > 0);
+
+        if (bonusHeartsText != null)
+            bonusHeartsText.text = "x" + bonusHearts;
+
+        if (playPop && useBonusBadgePop && bonusHearts > 0 && bonusHearts > previousBonusHearts)
+            PlayBonusBadgePop();
+    }
+
+    public void AddBonusHeart()
+    {
+        SetBonusHearts(bonusHearts + 1, true);
+    }
+
+    public bool TryUseBonusHeart()
+    {
+        if (bonusHearts <= 0)
+            return false;
+
+        SetBonusHearts(bonusHearts - 1, false);
+        return true;
+    }
+
+    private void PlayBonusBadgePop()
+    {
+        if (bonusHeartBadge == null)
+            return;
+
+        if (bonusPopRoutine != null)
+            StopCoroutine(bonusPopRoutine);
+
+        bonusPopRoutine = StartCoroutine(BonusBadgePopRoutine());
+    }
+
+    private IEnumerator BonusBadgePopRoutine()
+    {
+        Transform badgeTransform = bonusHeartBadge.transform;
+
+        badgeTransform.localScale = bonusBadgeOriginalScale;
+
+        float halfDuration = popDuration * 0.5f;
+        float timer = 0f;
+
+        Vector3 bigScale = bonusBadgeOriginalScale * popScale;
+
+        while (timer < halfDuration)
+        {
+            timer += Time.unscaledDeltaTime;
+            float t = Mathf.Clamp01(timer / halfDuration);
+            float smoothT = Mathf.SmoothStep(0f, 1f, t);
+
+            badgeTransform.localScale = Vector3.Lerp(bonusBadgeOriginalScale, bigScale, smoothT);
+            yield return null;
+        }
+
+        timer = 0f;
+
+        while (timer < halfDuration)
+        {
+            timer += Time.unscaledDeltaTime;
+            float t = Mathf.Clamp01(timer / halfDuration);
+            float smoothT = Mathf.SmoothStep(0f, 1f, t);
+
+            badgeTransform.localScale = Vector3.Lerp(bigScale, bonusBadgeOriginalScale, smoothT);
+            yield return null;
+        }
+
+        badgeTransform.localScale = bonusBadgeOriginalScale;
+        bonusPopRoutine = null;
+    }
+
     public void BlinkAndHide(int lostIndex)
     {
         if (heartImages == null || heartImages.Length == 0) return;
         if (lostIndex < 0 || lostIndex >= heartImages.Length) return;
 
-        // стопаем предыдущую анимацию, чтобы не путалось
-        if (blinkRoutine != null) StopCoroutine(blinkRoutine);
+        if (blinkRoutine != null)
+            StopCoroutine(blinkRoutine);
+
         blinkRoutine = StartCoroutine(BlinkAndHideRoutine(lostIndex));
     }
 
@@ -57,10 +155,7 @@ public class HeartsUI : MonoBehaviour
             yield break;
         }
 
-        // фиксируем UI в текущем состоянии (чтобы "теряемое" сердце точно было видно)
         Draw(shownHp);
-
-        // делаем видимым на старте
         SetAlpha(img, 1f);
 
         for (int i = 0; i < blinkCount; i++)
@@ -72,7 +167,6 @@ public class HeartsUI : MonoBehaviour
             yield return new WaitForSeconds(blinkInterval);
         }
 
-        // финально скрываем
         SetAlpha(img, 0f);
 
         isBlinking = false;
@@ -89,8 +183,7 @@ public class HeartsUI : MonoBehaviour
         {
             if (heartImages[i] == null) continue;
 
-            // i < hp => видно, иначе прозрачное (место не двигается)
-            SetAlpha(heartImages[i], (i < hp) ? 1f : 0f);
+            SetAlpha(heartImages[i], i < hp ? 1f : 0f);
         }
     }
 

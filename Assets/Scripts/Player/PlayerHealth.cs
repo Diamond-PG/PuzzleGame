@@ -71,10 +71,9 @@ public class PlayerHealth : MonoBehaviour
 
     private int hearts;
     private bool invulnerable;
-
     private bool isDead;
-    private Coroutine restartRoutine;
 
+    private Coroutine restartRoutine;
     private Coroutine invulnRoutine;
     private Coroutine playerBlinkRoutine;
     private Coroutine hitFlashRoutine;
@@ -96,7 +95,10 @@ public class PlayerHealth : MonoBehaviour
             heartsUI = Object.FindFirstObjectByType<HeartsUI>();
 
         if (heartsUI != null)
+        {
             heartsUI.SetHearts(hearts);
+            heartsUI.SetBonusHearts(0);
+        }
 
         if (sfxSource == null)
             sfxSource = GetComponent<AudioSource>();
@@ -115,6 +117,20 @@ public class PlayerHealth : MonoBehaviour
         if (CameraShake2D.Instance != null)
             CameraShake2D.Instance.ShakeDefault();
 
+        if (heartsUI != null && heartsUI.TryUseBonusHeart())
+        {
+            PlayDamageFeedback();
+
+            invulnerable = true;
+
+            if (invulnRoutine != null)
+                StopCoroutine(invulnRoutine);
+
+            invulnRoutine = StartCoroutine(InvulnTimer(invulnTime));
+
+            return;
+        }
+
         int prev = hearts;
         hearts = Mathf.Max(0, hearts - amount);
         int lostIndex = prev - 1;
@@ -125,6 +141,24 @@ public class PlayerHealth : MonoBehaviour
             heartsUI.BlinkAndHide(lostIndex);
         }
 
+        PlayDamageFeedback();
+
+        if (hearts <= 0)
+        {
+            Die();
+            return;
+        }
+
+        invulnerable = true;
+
+        if (invulnRoutine != null)
+            StopCoroutine(invulnRoutine);
+
+        invulnRoutine = StartCoroutine(InvulnTimer(invulnTime));
+    }
+
+    private void PlayDamageFeedback()
+    {
         if (sfxSource != null && damageClip != null)
             sfxSource.PlayOneShot(damageClip, damageVolume);
 
@@ -148,19 +182,6 @@ public class PlayerHealth : MonoBehaviour
             StopCoroutine(playerBlinkRoutine);
 
         playerBlinkRoutine = StartCoroutine(BlinkPlayer());
-
-        if (hearts <= 0)
-        {
-            Die();
-            return;
-        }
-
-        invulnerable = true;
-
-        if (invulnRoutine != null)
-            StopCoroutine(invulnRoutine);
-
-        invulnRoutine = StartCoroutine(InvulnTimer(invulnTime));
     }
 
     private void Die()
