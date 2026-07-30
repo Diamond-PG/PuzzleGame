@@ -5,35 +5,62 @@ using UnityEngine.InputSystem;
 public class PlayerController : MonoBehaviour
 {
     [Header("Move")]
-    public float moveSpeed = 5f;
+    [SerializeField, Min(0f)]
+    private float moveSpeed = 5f;
 
-    private Rigidbody2D rb;
-    private Vector2 input;
+    [Header("Wall Blocking")]
+    [Tooltip(
+        "Насколько вертикальным должен быть контакт, " +
+        "чтобы считаться стеной."
+    )]
+    [SerializeField, Range(0f, 1f)]
+    private float minimumWallNormalX = 0.75f;
 
     [Header("Mobile Input (optional)")]
     [SerializeField] private MobileInput mobileInput;
 
     [Header("Timer (start on first move)")]
     [SerializeField] private LevelTimer levelTimer;
-    private bool timerNotified;
 
     [Header("Freeze after Win")]
     [SerializeField] private GameObject winPanel;
-    [SerializeField] private bool freezeWhenWinPanelActive = true;
 
+    [SerializeField]
+    private bool freezeWhenWinPanelActive = true;
+
+    [Header("Debug")]
+    [SerializeField] private bool debugWallContacts;
+
+    private Rigidbody2D rb;
+    private Vector2 input;
+
+    private bool timerNotified;
     private bool movementLocked;
+
+    /*
+     * Массив заранее создаётся один раз,
+     * чтобы не создавать мусор в памяти
+     * каждый физический кадр.
+     */
+    private readonly ContactPoint2D[] contacts =
+        new ContactPoint2D[16];
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
 
         if (mobileInput == null)
-            mobileInput = FindFirstObjectByType<MobileInput>();
+        {
+            mobileInput =
+                FindFirstObjectByType<MobileInput>();
+        }
     }
 
     private void Update()
     {
-        if (freezeWhenWinPanelActive && winPanel != null && winPanel.activeInHierarchy)
+        if (freezeWhenWinPanelActive &&
+            winPanel != null &&
+            winPanel.activeInHierarchy)
         {
             LockMovement(true);
             return;
@@ -42,32 +69,22 @@ public class PlayerController : MonoBehaviour
         if (movementLocked)
             return;
 
-        float moveX = 0f;
+        float moveX = ReadHorizontalInput();
 
-        if (mobileInput != null)
-        {
-            moveX = mobileInput.Horizontal;
-        }
-        else
-        {
-            if (Keyboard.current != null)
-            {
-                if (Keyboard.current.aKey.isPressed || Keyboard.current.leftArrowKey.isPressed)
-                    moveX = -1f;
+        input = new Vector2(
+            moveX,
+            0f
+        );
 
-                if (Keyboard.current.dKey.isPressed || Keyboard.current.rightArrowKey.isPressed)
-                    moveX = 1f;
-            }
-        }
-
-        input = new Vector2(moveX, 0f).normalized;
-
-        if (!timerNotified && input.sqrMagnitude > 0.0001f)
+        if (!timerNotified &&
+            Mathf.Abs(moveX) > 0.001f)
         {
             timerNotified = true;
 
             if (levelTimer != null)
+            {
                 levelTimer.NotifyPlayerMoved();
+            }
         }
     }
 
@@ -76,17 +93,144 @@ public class PlayerController : MonoBehaviour
         if (movementLocked)
             return;
 
-        rb.linearVelocity = new Vector2(input.x * moveSpeed, rb.linearVelocity.y);
+        float desiredVelocityX =
+            input.x * moveSpeed;
+
+        bool touchingLeftWall = false;
+        bool touchingRightWall = false;
+
+        DetectWalls(
+            ref touchingLeftWall,
+            ref touchingRightWall
+        );
+
+        /*
+         * Нормаль правой стены направлена влево.
+         * Поэтому при движении вправо блокируем X.
+         */
+        if (desiredVelocityX > 0f &&
+            touchingRightWall)
+        {
+            desiredVelocityX = 0f;
+        }
+
+        /*
+         * Нормаль левой стены направлена вправо.
+         * Поэтому при движении влево блокируем X.
+         */
+        if (desiredVelocityX < 0f &&
+            touchingLeftWall)
+        {
+            desiredVelocityX = 0f;
+        }
+
+        /*
+         * Меняем только горизонтальную скорость.
+         * Вертикальная скорость сохраняется,
+         * поэтому игрок свободно падает вдоль стены.
+         */
+        rb.linearVelocity = new Vector2(
+            desiredVelocityX,
+            rb.linearVelocity.y
+        );
     }
 
-    public void LockMovement(bool locked)
+    private float ReadHorizontalInput()
+    {
+        if (mobileInput != null)
+        {
+            return Mathf.Clamp(
+                mobileInput.Horizontal,
+                -1f,
+                1f
+            );
+        }
+
+        if (Keyboard.current == null)
+            return 0f;
+
+        bool moveLeft =
+            Keyboard.current.aKey.isPressed ||
+            Keyboard.current.leftArrowKey.isPressed;
+
+        bool moveRight =
+            Keyboard.current.dKey.isPressed ||
+            Keyboard.current.rightArrowKey.isPressed;
+
+        /*
+         * Если одновременно нажаты обе стороны,
+         * игрок не двигается.
+         */
+        if (moveLeft == moveRight)
+            return 0f;
+
+        return moveLeft ? -1f : 1f;
+    }
+
+    private void DetectWalls(
+        ref bool touchingLeftWall,
+        ref bool touchingRightWall
+    )
+    {
+        int contactCount =
+            rb.GetContacts(contacts);
+
+        for (int i = 0;
+             i < contactCount;
+             i++)
+        {
+            Vector2 normal =
+                contacts[i].normal;
+
+            /*
+             * Стена слева толкает игрока вправо:
+             * normal.x положительный.
+             */
+            if (normal.x >=
+                minimumWallNormalX)
+            {
+                touchingLeftWall = true;
+            }
+
+            /*
+             * Стена справа толкает игрока влево:
+             * normal.x отрицательный.
+             */
+            if (normal.x <=
+                -minimumWallNormalX)
+            {
+                touchingRightWall = true;
+            }
+        }
+
+        if (debugWallContacts &&
+            (touchingLeftWall ||
+             touchingRightWall))
+        {
+            Debug.Log(
+                $"PlayerController: " +
+                $"левая стена = {touchingLeftWall}, " +
+                $"правая стена = {touchingRightWall}",
+                this
+            );
+        }
+    }
+
+    public void LockMovement(
+        bool locked
+    )
     {
         movementLocked = locked;
 
         if (locked)
         {
             input = Vector2.zero;
-            rb.linearVelocity = Vector2.zero;
+
+            if (rb != null)
+            {
+                rb.linearVelocity =
+                    Vector2.zero;
+            }
         }
     }
 
@@ -101,20 +245,39 @@ public class PlayerController : MonoBehaviour
 
         if (mobileInput != null)
         {
-            vertical = mobileInput.Vertical;
+            vertical =
+                mobileInput.Vertical;
         }
-        else
+        else if (Keyboard.current != null)
         {
-            if (Keyboard.current != null)
-            {
-                if (Keyboard.current.wKey.isPressed || Keyboard.current.upArrowKey.isPressed)
-                    vertical = 1f;
+            bool moveUp =
+                Keyboard.current.wKey.isPressed ||
+                Keyboard.current.upArrowKey.isPressed;
 
-                if (Keyboard.current.sKey.isPressed || Keyboard.current.downArrowKey.isPressed)
-                    vertical = -1f;
+            bool moveDown =
+                Keyboard.current.sKey.isPressed ||
+                Keyboard.current.downArrowKey.isPressed;
+
+            if (moveUp != moveDown)
+            {
+                vertical =
+                    moveUp ? 1f : -1f;
             }
         }
 
-        return vertical;
+        return Mathf.Clamp(
+            vertical,
+            -1f,
+            1f
+        );
+    }
+
+    private void OnValidate()
+    {
+        moveSpeed =
+            Mathf.Max(
+                0f,
+                moveSpeed
+            );
     }
 }

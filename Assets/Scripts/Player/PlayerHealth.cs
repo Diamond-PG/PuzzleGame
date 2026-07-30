@@ -6,7 +6,12 @@ public class PlayerHealth : MonoBehaviour
 {
     [Header("Hearts")]
     [SerializeField] private int maxHearts = 5;
+
     public int Hearts => hearts;
+    public int MaxHearts => maxHearts;
+    public bool HasMissingHearts => hearts < maxHearts;
+    public bool IsDead => isDead;
+    public bool IsInvulnerable => invulnerable;
 
     [Header("Invulnerability")]
     [SerializeField] private float invulnTime = 0.8f;
@@ -33,7 +38,6 @@ public class PlayerHealth : MonoBehaviour
     [SerializeField] private bool useHitFlash = true;
     [SerializeField] private Color flashColor = Color.white;
     [SerializeField] private float flashDuration = 0.08f;
-    private Color _originalColor;
 
     [Header("Hit Effect (Particles)")]
     [SerializeField] private ParticleSystem hitEffectPrefab;
@@ -46,17 +50,26 @@ public class PlayerHealth : MonoBehaviour
     [SerializeField, Min(0f)] private float hitEffectSpawnDelay = 0.03f;
 
     [Header("Hit Effect Spread")]
-    [SerializeField] private Vector2 hitEffectRandomOffsetX = new Vector2(-0.15f, 0.15f);
-    [SerializeField] private Vector2 hitEffectRandomOffsetY = new Vector2(-0.10f, 0.18f);
-    [SerializeField] private Vector2 hitEffectRandomOffsetZ = new Vector2(0f, 0f);
+    [SerializeField] private Vector2 hitEffectRandomOffsetX =
+        new Vector2(-0.15f, 0.15f);
+
+    [SerializeField] private Vector2 hitEffectRandomOffsetY =
+        new Vector2(-0.10f, 0.18f);
+
+    [SerializeField] private Vector2 hitEffectRandomOffsetZ =
+        new Vector2(0f, 0f);
 
     [Header("Hit Effect Rotation")]
     [SerializeField] private bool randomizeHitEffectRotation = true;
-    [SerializeField] private Vector2 hitEffectRandomRotationZ = new Vector2(-25f, 25f);
+
+    [SerializeField] private Vector2 hitEffectRandomRotationZ =
+        new Vector2(-25f, 25f);
 
     [Header("Hit Effect Scale")]
     [SerializeField] private bool randomizeHitEffectScale = true;
-    [SerializeField] private Vector2 hitEffectRandomScale = new Vector2(0.9f, 1.25f);
+
+    [SerializeField] private Vector2 hitEffectRandomScale =
+        new Vector2(0.9f, 1.25f);
 
     [Header("Death Effect (Particles)")]
     [SerializeField] private ParticleSystem deathEffectPrefab;
@@ -72,6 +85,8 @@ public class PlayerHealth : MonoBehaviour
     private int hearts;
     private bool invulnerable;
     private bool isDead;
+
+    private Color originalColor;
 
     private Coroutine restartRoutine;
     private Coroutine invulnRoutine;
@@ -89,7 +104,7 @@ public class PlayerHealth : MonoBehaviour
             playerRenderer = GetComponent<SpriteRenderer>();
 
         if (playerRenderer != null)
-            _originalColor = playerRenderer.color;
+            originalColor = playerRenderer.color;
 
         if (heartsUI == null)
             heartsUI = Object.FindFirstObjectByType<HeartsUI>();
@@ -109,39 +124,150 @@ public class PlayerHealth : MonoBehaviour
         playerController = GetComponent<PlayerController>();
     }
 
+    /// <summary>
+    /// Восстанавливает обычные сердца,
+    /// но не превышает maxHearts.
+    /// </summary>
+    public bool TryRestoreHeart(int amount = 1)
+    {
+        if (isDead)
+            return false;
+
+        if (amount <= 0)
+            return false;
+
+        if (hearts >= maxHearts)
+            return false;
+
+        int previousHearts = hearts;
+
+        hearts = Mathf.Clamp(
+            hearts + amount,
+            0,
+            maxHearts
+        );
+
+        bool heartWasRestored =
+            hearts > previousHearts;
+
+        if (heartWasRestored &&
+            heartsUI != null)
+        {
+            heartsUI.SetHearts(hearts);
+            heartsUI.PlayRegularHeartPickupPop();
+        }
+
+        return heartWasRestored;
+    }
+
+    /// <summary>
+    /// Обычный урон от ловушек и других объектов.
+    /// Использует стандартный damageClip.
+    /// </summary>
     public void TakeDamage(int amount = 1)
     {
-        if (isDead) return;
-        if (invulnerable) return;
+        ApplyDamage(
+            amount,
+            true
+        );
+    }
+
+    /// <summary>
+    /// Урон от падения.
+    /// Стандартный damageClip не воспроизводится,
+    /// потому что звук приземления с Ow
+    /// запускает PlayerLanding.
+    /// </summary>
+    public void TakeFallDamage(int amount)
+    {
+        ApplyDamage(
+            amount,
+            false
+        );
+    }
+
+    private void ApplyDamage(
+        int amount,
+        bool playDamageSound
+    )
+    {
+        if (isDead)
+            return;
+
+        if (invulnerable)
+            return;
+
+        if (amount <= 0)
+            return;
+
+        int remainingDamage = amount;
+        int usedBonusHearts = 0;
+
+        /*
+         * Сначала по одной единице расходуются
+         * все доступные бонусные сердца.
+         */
+        if (heartsUI != null)
+        {
+            while (remainingDamage > 0 &&
+                   heartsUI.TryUseBonusHeart())
+            {
+                usedBonusHearts++;
+                remainingDamage--;
+            }
+        }
+
+        int previousHearts = hearts;
+        int lostRegularHearts = 0;
+
+        /*
+         * Оставшийся урон снимается
+         * с обычных сердец.
+         */
+        if (remainingDamage > 0)
+        {
+            hearts = Mathf.Max(
+                0,
+                hearts - remainingDamage
+            );
+
+            lostRegularHearts =
+                previousHearts - hearts;
+        }
+
+        /*
+         * Если по какой-то причине ничего не снялось,
+         * обратная связь не запускается.
+         */
+        if (usedBonusHearts <= 0 &&
+            lostRegularHearts <= 0)
+        {
+            return;
+        }
 
         if (CameraShake2D.Instance != null)
             CameraShake2D.Instance.ShakeDefault();
 
-        if (heartsUI != null && heartsUI.TryUseBonusHeart())
-        {
-            PlayDamageFeedback();
-
-            invulnerable = true;
-
-            if (invulnRoutine != null)
-                StopCoroutine(invulnRoutine);
-
-            invulnRoutine = StartCoroutine(InvulnTimer(invulnTime));
-
-            return;
-        }
-
-        int prev = hearts;
-        hearts = Mathf.Max(0, hearts - amount);
-        int lostIndex = prev - 1;
-
-        if (heartsUI != null)
+        /*
+         * Обновляем и анимируем обычные сердца.
+         */
+        if (lostRegularHearts > 0 &&
+            heartsUI != null)
         {
             heartsUI.SetHearts(hearts);
-            heartsUI.BlinkAndHide(lostIndex);
+
+            int firstLostIndex =
+                maxHearts - previousHearts;
+
+            heartsUI.BlinkAndHideMultiple(
+                firstLostIndex,
+                lostRegularHearts
+            );
         }
 
-        PlayDamageFeedback();
+        PlayDamageFeedback(
+            playDamageSound
+        );
 
         if (hearts <= 0)
         {
@@ -154,13 +280,24 @@ public class PlayerHealth : MonoBehaviour
         if (invulnRoutine != null)
             StopCoroutine(invulnRoutine);
 
-        invulnRoutine = StartCoroutine(InvulnTimer(invulnTime));
+        invulnRoutine = StartCoroutine(
+            InvulnTimer(invulnTime)
+        );
     }
 
-    private void PlayDamageFeedback()
+    private void PlayDamageFeedback(
+        bool playDamageSound
+    )
     {
-        if (sfxSource != null && damageClip != null)
-            sfxSource.PlayOneShot(damageClip, damageVolume);
+        if (playDamageSound &&
+            sfxSource != null &&
+            damageClip != null)
+        {
+            sfxSource.PlayOneShot(
+                damageClip,
+                damageVolume
+            );
+        }
 
         if (playerVisual != null)
             playerVisual.PlayHurtVisual();
@@ -168,45 +305,69 @@ public class PlayerHealth : MonoBehaviour
         if (hitEffectRoutine != null)
             StopCoroutine(hitEffectRoutine);
 
-        hitEffectRoutine = StartCoroutine(SpawnHitEffectRoutine());
+        hitEffectRoutine = StartCoroutine(
+            SpawnHitEffectRoutine()
+        );
 
-        if (useHitFlash && playerRenderer != null)
+        if (useHitFlash &&
+            playerRenderer != null)
         {
             if (hitFlashRoutine != null)
                 StopCoroutine(hitFlashRoutine);
 
-            hitFlashRoutine = StartCoroutine(HitFlash());
+            hitFlashRoutine = StartCoroutine(
+                HitFlash()
+            );
         }
 
         if (playerBlinkRoutine != null)
             StopCoroutine(playerBlinkRoutine);
 
-        playerBlinkRoutine = StartCoroutine(BlinkPlayer());
+        playerBlinkRoutine = StartCoroutine(
+            BlinkPlayer()
+        );
     }
 
     private void Die()
     {
-        if (isDead) return;
+        if (isDead)
+            return;
 
         isDead = true;
         invulnerable = true;
 
-        if (invulnRoutine != null) StopCoroutine(invulnRoutine);
-        if (playerBlinkRoutine != null) StopCoroutine(playerBlinkRoutine);
-        if (hitFlashRoutine != null) StopCoroutine(hitFlashRoutine);
-        if (hitEffectRoutine != null) StopCoroutine(hitEffectRoutine);
+        if (invulnRoutine != null)
+            StopCoroutine(invulnRoutine);
+
+        if (playerBlinkRoutine != null)
+            StopCoroutine(playerBlinkRoutine);
+
+        if (hitFlashRoutine != null)
+            StopCoroutine(hitFlashRoutine);
+
+        if (hitEffectRoutine != null)
+            StopCoroutine(hitEffectRoutine);
 
         if (playerRenderer != null)
         {
             playerRenderer.enabled = true;
-            playerRenderer.color = _originalColor;
+            playerRenderer.color = originalColor;
         }
 
-        if (disableMovementOnDeath && playerController != null)
+        if (disableMovementOnDeath &&
+            playerController != null)
+        {
             playerController.enabled = false;
+        }
 
-        if (sfxSource != null && deathClip != null)
-            sfxSource.PlayOneShot(deathClip, deathVolume);
+        if (sfxSource != null &&
+            deathClip != null)
+        {
+            sfxSource.PlayOneShot(
+                deathClip,
+                deathVolume
+            );
+        }
 
         SpawnDeathEffect();
 
@@ -214,13 +375,19 @@ public class PlayerHealth : MonoBehaviour
             StartCoroutine(HidePlayerNextFrame());
 
         float wait = deathRestartDelay;
+
         if (deathClip != null)
-            wait = Mathf.Max(wait, deathClip.length);
+            wait = Mathf.Max(
+                wait,
+                deathClip.length
+            );
 
         if (restartRoutine != null)
             StopCoroutine(restartRoutine);
 
-        restartRoutine = StartCoroutine(RestartAfterDeath(wait));
+        restartRoutine = StartCoroutine(
+            RestartAfterDeath(wait)
+        );
     }
 
     private IEnumerator HidePlayerNextFrame()
@@ -231,125 +398,249 @@ public class PlayerHealth : MonoBehaviour
             playerRenderer.enabled = false;
     }
 
-    private IEnumerator RestartAfterDeath(float delay)
+    private IEnumerator RestartAfterDeath(
+        float delay
+    )
     {
         yield return new WaitForSeconds(delay);
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+
+        SceneManager.LoadScene(
+            SceneManager
+                .GetActiveScene()
+                .buildIndex
+        );
     }
 
-    private IEnumerator InvulnTimer(float t)
+    private IEnumerator InvulnTimer(
+        float duration
+    )
     {
-        yield return new WaitForSeconds(t);
+        yield return new WaitForSeconds(duration);
+
         invulnerable = false;
+        invulnRoutine = null;
     }
 
     private IEnumerator BlinkPlayer()
     {
-        if (playerRenderer == null) yield break;
+        if (playerRenderer == null)
+            yield break;
 
-        int toggles = blinkCount * 2;
+        int toggles =
+            blinkCount * 2;
 
-        for (int i = 0; i < toggles; i++)
+        for (int i = 0;
+             i < toggles;
+             i++)
         {
-            playerRenderer.enabled = !playerRenderer.enabled;
-            yield return new WaitForSeconds(blinkInterval);
+            playerRenderer.enabled =
+                !playerRenderer.enabled;
+
+            yield return new WaitForSeconds(
+                blinkInterval
+            );
         }
 
         playerRenderer.enabled = true;
+        playerBlinkRoutine = null;
     }
 
     private IEnumerator HitFlash()
     {
-        if (playerRenderer == null) yield break;
+        if (playerRenderer == null)
+            yield break;
 
-        Color before = playerRenderer.color;
+        Color colorBeforeFlash =
+            playerRenderer.color;
 
-        playerRenderer.color = flashColor;
-        yield return new WaitForSeconds(flashDuration);
-        playerRenderer.color = before;
+        playerRenderer.color =
+            flashColor;
+
+        yield return new WaitForSeconds(
+            flashDuration
+        );
+
+        playerRenderer.color =
+            colorBeforeFlash;
+
+        hitFlashRoutine = null;
     }
 
     private IEnumerator SpawnHitEffectRoutine()
     {
-        if (hitEffectPrefab == null) yield break;
+        if (hitEffectPrefab == null)
+            yield break;
 
-        int spawnCount = Mathf.Max(1, hitEffectSpawnCount);
+        int spawnCount =
+            Mathf.Max(
+                1,
+                hitEffectSpawnCount
+            );
 
-        for (int i = 0; i < spawnCount; i++)
+        for (int i = 0;
+             i < spawnCount;
+             i++)
         {
             SpawnSingleHitEffect();
 
-            if (i < spawnCount - 1 && hitEffectSpawnDelay > 0f)
-                yield return new WaitForSeconds(hitEffectSpawnDelay);
+            if (i < spawnCount - 1 &&
+                hitEffectSpawnDelay > 0f)
+            {
+                yield return new WaitForSeconds(
+                    hitEffectSpawnDelay
+                );
+            }
         }
+
+        hitEffectRoutine = null;
     }
 
     private void SpawnSingleHitEffect()
     {
-        Vector3 randomOffset = new Vector3(
-            Random.Range(hitEffectRandomOffsetX.x, hitEffectRandomOffsetX.y),
-            Random.Range(hitEffectRandomOffsetY.x, hitEffectRandomOffsetY.y),
-            Random.Range(hitEffectRandomOffsetZ.x, hitEffectRandomOffsetZ.y)
-        );
+        Vector3 randomOffset =
+            new Vector3(
+                Random.Range(
+                    hitEffectRandomOffsetX.x,
+                    hitEffectRandomOffsetX.y
+                ),
+                Random.Range(
+                    hitEffectRandomOffsetY.x,
+                    hitEffectRandomOffsetY.y
+                ),
+                Random.Range(
+                    hitEffectRandomOffsetZ.x,
+                    hitEffectRandomOffsetZ.y
+                )
+            );
 
-        Vector3 spawnPos = transform.position + hitEffectOffset + randomOffset;
+        Vector3 spawnPosition =
+            transform.position +
+            hitEffectOffset +
+            randomOffset;
 
-        Quaternion spawnRot = Quaternion.identity;
+        Quaternion spawnRotation =
+            Quaternion.identity;
+
         if (randomizeHitEffectRotation)
         {
-            float randomZ = Random.Range(hitEffectRandomRotationZ.x, hitEffectRandomRotationZ.y);
-            spawnRot = Quaternion.Euler(0f, 0f, randomZ);
+            float randomZ =
+                Random.Range(
+                    hitEffectRandomRotationZ.x,
+                    hitEffectRandomRotationZ.y
+                );
+
+            spawnRotation =
+                Quaternion.Euler(
+                    0f,
+                    0f,
+                    randomZ
+                );
         }
 
-        ParticleSystem fx;
+        ParticleSystem effect;
+
         if (effectFollowsPlayer)
         {
-            fx = Instantiate(hitEffectPrefab, spawnPos, spawnRot, transform);
-            fx.transform.localPosition = hitEffectOffset + randomOffset;
-            fx.transform.localRotation = spawnRot;
+            effect = Instantiate(
+                hitEffectPrefab,
+                spawnPosition,
+                spawnRotation,
+                transform
+            );
+
+            effect.transform.localPosition =
+                hitEffectOffset +
+                randomOffset;
+
+            effect.transform.localRotation =
+                spawnRotation;
         }
         else
         {
-            fx = Instantiate(hitEffectPrefab, spawnPos, spawnRot);
+            effect = Instantiate(
+                hitEffectPrefab,
+                spawnPosition,
+                spawnRotation
+            );
         }
 
         if (randomizeHitEffectScale)
         {
-            float randomScale = Random.Range(hitEffectRandomScale.x, hitEffectRandomScale.y);
-            fx.transform.localScale = Vector3.one * randomScale;
+            float randomScale =
+                Random.Range(
+                    hitEffectRandomScale.x,
+                    hitEffectRandomScale.y
+                );
+
+            effect.transform.localScale =
+                Vector3.one * randomScale;
         }
 
-        fx.Play();
+        effect.Play();
 
         if (destroyEffectAfterPlay)
         {
-            float destroyDelay = fx.main.duration + fx.main.startLifetime.constantMax + 0.2f;
-            Destroy(fx.gameObject, destroyDelay);
+            float destroyDelay =
+                effect.main.duration +
+                effect.main
+                    .startLifetime
+                    .constantMax +
+                0.2f;
+
+            Destroy(
+                effect.gameObject,
+                destroyDelay
+            );
         }
     }
 
     private void SpawnDeathEffect()
     {
-        if (deathEffectPrefab == null) return;
+        if (deathEffectPrefab == null)
+            return;
 
-        Vector3 spawnPos = transform.position + deathEffectOffset;
+        Vector3 spawnPosition =
+            transform.position +
+            deathEffectOffset;
 
-        ParticleSystem fx;
+        ParticleSystem effect;
+
         if (deathEffectFollowsPlayer)
         {
-            fx = Instantiate(deathEffectPrefab, spawnPos, Quaternion.identity, transform);
-            fx.transform.localPosition = deathEffectOffset;
+            effect = Instantiate(
+                deathEffectPrefab,
+                spawnPosition,
+                Quaternion.identity,
+                transform
+            );
+
+            effect.transform.localPosition =
+                deathEffectOffset;
         }
         else
         {
-            fx = Instantiate(deathEffectPrefab, spawnPos, Quaternion.identity);
+            effect = Instantiate(
+                deathEffectPrefab,
+                spawnPosition,
+                Quaternion.identity
+            );
         }
 
-        fx.Play();
+        effect.Play();
 
         if (destroyDeathEffectAfterPlay)
         {
-            Destroy(fx.gameObject, fx.main.duration + fx.main.startLifetime.constantMax + 0.2f);
+            float destroyDelay =
+                effect.main.duration +
+                effect.main
+                    .startLifetime
+                    .constantMax +
+                0.2f;
+
+            Destroy(
+                effect.gameObject,
+                destroyDelay
+            );
         }
     }
 }

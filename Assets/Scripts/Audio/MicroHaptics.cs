@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class MicroHaptics : MonoBehaviour
 {
-    // Один ключ на весь проект — ВЕЗДЕ должен быть такой же
+    // Один ключ на весь проект — ВЕЗДЕ должен быть такой же.
     private const string PREF_KEY = "HAPTICS_ENABLED";
 
     [Header("Enable")]
@@ -14,21 +14,19 @@ public class MicroHaptics : MonoBehaviour
     [SerializeField, Range(0.02f, 0.3f)]
     private float minInterval = 0.06f;
 
-    // Эти поля в редакторе могут считаться "неиспользуемыми" из-за #if UNITY_* && !UNITY_EDITOR
-    // Поэтому отключаем предупреждение CS0414 точечно.
 #pragma warning disable CS0414
 
-    [Header("Android Pulse (ms)")]
-    [Tooltip("Длительность клика вибрации в миллисекундах (Android).")]
+    [Header("Default Android Pulse (ms)")]
+    [Tooltip("Стандартная длительность короткой вибрации на Android.")]
     [SerializeField, Range(5, 100)]
     private int tinyClickMs = 25;
 
-    [Header("iOS Haptics")]
-    [Tooltip("Тип хаптика для iOS. Selection — самый короткий и приятный для UI.")]
+    [Header("Default iOS Haptics")]
+    [Tooltip("Стандартный тип вибрации для обычного короткого нажатия.")]
     [SerializeField]
     private IOSHapticStyle iosStyle = IOSHapticStyle.Selection;
 
-    [Tooltip("Если iOS-плагин не подключён, использовать Handheld.Vibrate() как запасной вариант.")]
+    [Tooltip("Если iOS-плагин не подключён, использовать Handheld.Vibrate().")]
     [SerializeField]
     private bool iosFallbackToHandheldVibrate = true;
 
@@ -52,7 +50,6 @@ public class MicroHaptics : MonoBehaviour
 
     private void Awake()
     {
-        // Singleton
         if (instance != null && instance != this)
         {
             Destroy(gameObject);
@@ -62,7 +59,6 @@ public class MicroHaptics : MonoBehaviour
         instance = this;
         DontDestroyOnLoad(gameObject);
 
-        // Загружаем настройку игрока (по умолчанию ВКЛ)
         enableHaptics = PlayerPrefs.GetInt(PREF_KEY, 1) == 1;
 
 #if UNITY_ANDROID && !UNITY_EDITOR
@@ -70,52 +66,80 @@ public class MicroHaptics : MonoBehaviour
 #endif
     }
 
-    // Можно вызывать откуда угодно (кнопки, пауза, меню и т.д.)
+    /// <summary>
+    /// Стандартный короткий импульс.
+    /// Можно продолжать использовать для кнопок и других элементов UI.
+    /// </summary>
     public static void TinyClick()
     {
-        if (instance == null) return;
-        instance.PlayTiny();
+        if (instance == null)
+            return;
+
+        instance.PlayPulse(
+            instance.tinyClickMs,
+            instance.iosStyle
+        );
     }
 
-    // Для UI Toggle: узнать, включена ли вибрация сейчас
+    /// <summary>
+    /// Настраиваемый импульс.
+    /// Используется для пружинок и других игровых объектов.
+    /// </summary>
+    public static void Pulse(
+        int androidDurationMs,
+        IOSHapticStyle iosHapticStyle
+    )
+    {
+        if (instance == null)
+            return;
+
+        instance.PlayPulse(
+            androidDurationMs,
+            iosHapticStyle
+        );
+    }
+
     public static bool IsEnabled()
     {
-        // Берём из PlayerPrefs — так UI будет правильным даже если instance ещё не создан
         return PlayerPrefs.GetInt(PREF_KEY, 1) == 1;
     }
 
-    // Для UI Toggle: включить/выключить и сохранить
     public static void SetEnabled(bool enabled)
     {
-        // Сохраняем всегда, даже если instance == null
         PlayerPrefs.SetInt(PREF_KEY, enabled ? 1 : 0);
         PlayerPrefs.Save();
 
-        // Если инстанс уже есть — обновляем поле, чтобы работало “на лету”
         if (instance != null)
             instance.enableHaptics = enabled;
     }
 
-    private void PlayTiny()
+    private void PlayPulse(
+        int androidDurationMs,
+        IOSHapticStyle selectedIOSStyle
+    )
     {
-        if (!enableHaptics) return;
+        if (!enableHaptics)
+            return;
 
-        // Антиспам
-        if (Time.unscaledTime - lastTime < minInterval) return;
+        if (Time.unscaledTime - lastTime < minInterval)
+            return;
+
         lastTime = Time.unscaledTime;
 
+        int safeDuration = Mathf.Clamp(androidDurationMs, 5, 200);
+
 #if UNITY_ANDROID && !UNITY_EDITOR
-        AndroidVibrateMs(tinyClickMs);
+        AndroidVibrateMs(safeDuration);
 
 #elif UNITY_IOS && !UNITY_EDITOR
-        // На iOS делаем хаптики через плагин
-        bool ok = IOS_Haptic((int)iosStyle);
-        if (!ok && iosFallbackToHandheldVibrate)
+        bool success = IOS_Haptic((int)selectedIOSStyle);
+
+        if (!success && iosFallbackToHandheldVibrate)
             Handheld.Vibrate();
 
 #else
-        // Другие платформы / Editor
-        Handheld.Vibrate();
+        // В Unity Editor реальную мобильную вибрацию нормально
+        // проверить нельзя. Проверяем на телефоне.
 #endif
     }
 
@@ -126,18 +150,28 @@ public class MicroHaptics : MonoBehaviour
     {
         try
         {
-            using (var unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
+            using (var unityPlayer =
+                   new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
             {
-                var activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
+                var activity =
+                    unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
 
-                using (var contextClass = new AndroidJavaClass("android.content.Context"))
+                using (var contextClass =
+                       new AndroidJavaClass("android.content.Context"))
                 {
-                    string vibratorService = contextClass.GetStatic<string>("VIBRATOR_SERVICE");
-                    vibrator = activity.Call<AndroidJavaObject>("getSystemService", vibratorService);
+                    string vibratorService =
+                        contextClass.GetStatic<string>("VIBRATOR_SERVICE");
+
+                    vibrator =
+                        activity.Call<AndroidJavaObject>(
+                            "getSystemService",
+                            vibratorService
+                        );
                 }
             }
 
-            using (var versionClass = new AndroidJavaClass("android.os.Build$VERSION"))
+            using (var versionClass =
+                   new AndroidJavaClass("android.os.Build$VERSION"))
             {
                 sdkInt = versionClass.GetStatic<int>("SDK_INT");
             }
@@ -149,11 +183,11 @@ public class MicroHaptics : MonoBehaviour
         }
     }
 
-    private void AndroidVibrateMs(int ms)
+    private void AndroidVibrateMs(int milliseconds)
     {
-        if (ms <= 0) return;
+        if (milliseconds <= 0)
+            return;
 
-        // если вибратор не инициализирован — fallback
         if (vibrator == null)
         {
             Handheld.Vibrate();
@@ -164,18 +198,27 @@ public class MicroHaptics : MonoBehaviour
         {
             if (sdkInt >= 26)
             {
-                using (var vibrationEffectClass = new AndroidJavaClass("android.os.VibrationEffect"))
+                using (var vibrationEffectClass =
+                       new AndroidJavaClass("android.os.VibrationEffect"))
                 {
-                    int defaultAmplitude = vibrationEffectClass.GetStatic<int>("DEFAULT_AMPLITUDE");
-                    var effect = vibrationEffectClass.CallStatic<AndroidJavaObject>(
-                        "createOneShot", (long)ms, defaultAmplitude);
+                    int defaultAmplitude =
+                        vibrationEffectClass.GetStatic<int>(
+                            "DEFAULT_AMPLITUDE"
+                        );
+
+                    var effect =
+                        vibrationEffectClass.CallStatic<AndroidJavaObject>(
+                            "createOneShot",
+                            (long)milliseconds,
+                            defaultAmplitude
+                        );
 
                     vibrator.Call("vibrate", effect);
                 }
             }
             else
             {
-                vibrator.Call("vibrate", (long)ms);
+                vibrator.Call("vibrate", (long)milliseconds);
             }
         }
         catch
@@ -193,10 +236,19 @@ public class MicroHaptics : MonoBehaviour
 
     private static bool IOS_Haptic(int style)
     {
-        try { return _MicroHaptics_Haptic(style); }
-        catch { return false; }
+        try
+        {
+            return _MicroHaptics_Haptic(style);
+        }
+        catch
+        {
+            return false;
+        }
     }
 #else
-    private static bool IOS_Haptic(int style) => false;
+    private static bool IOS_Haptic(int style)
+    {
+        return false;
+    }
 #endif
 }

@@ -8,13 +8,23 @@ public class HeartsUI : MonoBehaviour
     [Header("Heart Images (ВАЖНО: слева направо!)")]
     [SerializeField] private Image[] heartImages;
 
+    [Header("Hearts Container")]
+    [SerializeField] private RectTransform heartsContainer;
+
     [Header("Bonus Hearts")]
     [SerializeField] private GameObject bonusHeartBadge;
     [SerializeField] private TMP_Text bonusHeartsText;
 
-    [Header("Bonus Badge Pop Animation")]
+    [Header("Pickup Pop Animation")]
     [SerializeField] private bool useBonusBadgePop = true;
-    [SerializeField] private float popScale = 1.15f;
+
+    [Tooltip("Насколько увеличивается рамка x1")]
+    [SerializeField] private float badgePopScale = 1.15f;
+
+    [Tooltip("Насколько увеличиваются обычные сердечки")]
+    [SerializeField] private float heartsPopScale = 1.10f;
+
+    [Tooltip("Общая длительность увеличения и возврата")]
     [SerializeField] private float popDuration = 0.16f;
 
     [Header("Blink Heart")]
@@ -23,21 +33,50 @@ public class HeartsUI : MonoBehaviour
 
     private int shownHp;
     private int bonusHearts;
+
     private Coroutine blinkRoutine;
-    private Coroutine bonusPopRoutine;
+    private Coroutine pickupPopRoutine;
+
     private bool isBlinking;
 
     private Vector3 bonusBadgeOriginalScale = Vector3.one;
+    private Vector3 heartsContainerOriginalScale = Vector3.one;
+
+    public int BonusHearts => bonusHearts;
 
     private void Awake()
     {
         if (heartImages == null || heartImages.Length == 0)
             heartImages = GetComponentsInChildren<Image>(true);
 
-        if (bonusHeartBadge != null)
-            bonusBadgeOriginalScale = bonusHeartBadge.transform.localScale;
+        if (heartsContainer == null)
+        {
+            Transform containerTransform =
+                transform.Find("HeartsContainer");
 
-        shownHp = heartImages != null ? heartImages.Length : 0;
+            if (containerTransform != null)
+            {
+                heartsContainer =
+                    containerTransform.GetComponent<RectTransform>();
+            }
+        }
+
+        if (bonusHeartBadge != null)
+        {
+            bonusBadgeOriginalScale =
+                bonusHeartBadge.transform.localScale;
+        }
+
+        if (heartsContainer != null)
+        {
+            heartsContainerOriginalScale =
+                heartsContainer.localScale;
+        }
+
+        shownHp =
+            heartImages != null
+                ? heartImages.Length
+                : 0;
 
         Draw(shownHp);
         SetBonusHearts(0, false);
@@ -45,9 +84,18 @@ public class HeartsUI : MonoBehaviour
 
     public void SetHearts(int hp)
     {
-        if (isBlinking) return;
+        if (heartImages == null)
+            return;
 
-        shownHp = Mathf.Clamp(hp, 0, heartImages.Length);
+        shownHp = Mathf.Clamp(
+            hp,
+            0,
+            heartImages.Length
+        );
+
+        if (isBlinking)
+            return;
+
         Draw(shownHp);
     }
 
@@ -56,24 +104,48 @@ public class HeartsUI : MonoBehaviour
         SetBonusHearts(amount, true);
     }
 
-    private void SetBonusHearts(int amount, bool playPop)
+    private void SetBonusHearts(
+        int amount,
+        bool playPop
+    )
     {
-        int previousBonusHearts = bonusHearts;
-        bonusHearts = Mathf.Max(0, amount);
+        int previousBonusHearts =
+            bonusHearts;
+
+        bonusHearts =
+            Mathf.Max(0, amount);
 
         if (bonusHeartBadge != null)
-            bonusHeartBadge.SetActive(bonusHearts > 0);
+        {
+            bonusHeartBadge.SetActive(
+                bonusHearts > 0
+            );
+        }
 
         if (bonusHeartsText != null)
-            bonusHeartsText.text = "x" + bonusHearts;
+        {
+            bonusHeartsText.text =
+                "x" + bonusHearts;
+        }
 
-        if (playPop && useBonusBadgePop && bonusHearts > 0 && bonusHearts > previousBonusHearts)
-            PlayBonusBadgePop();
+        bool bonusWasAdded =
+            bonusHearts > 0 &&
+            bonusHearts > previousBonusHearts;
+
+        if (playPop &&
+            useBonusBadgePop &&
+            bonusWasAdded)
+        {
+            PlayBonusPickupPop();
+        }
     }
 
     public void AddBonusHeart()
     {
-        SetBonusHearts(bonusHearts + 1, true);
+        SetBonusHearts(
+            bonusHearts + 1,
+            true
+        );
     }
 
     public bool TryUseBonusHeart()
@@ -81,39 +153,97 @@ public class HeartsUI : MonoBehaviour
         if (bonusHearts <= 0)
             return false;
 
-        SetBonusHearts(bonusHearts - 1, false);
+        SetBonusHearts(
+            bonusHearts - 1,
+            false
+        );
+
         return true;
     }
 
-    private void PlayBonusBadgePop()
+    public void PlayRegularHeartPickupPop()
     {
-        if (bonusHeartBadge == null)
-            return;
-
-        if (bonusPopRoutine != null)
-            StopCoroutine(bonusPopRoutine);
-
-        bonusPopRoutine = StartCoroutine(BonusBadgePopRoutine());
+        PlayPickupPop(false);
     }
 
-    private IEnumerator BonusBadgePopRoutine()
+    private void PlayBonusPickupPop()
     {
-        Transform badgeTransform = bonusHeartBadge.transform;
+        PlayPickupPop(true);
+    }
 
-        badgeTransform.localScale = bonusBadgeOriginalScale;
+    private void PlayPickupPop(
+        bool includeBonusBadge
+    )
+    {
+        if (heartsContainer == null &&
+            (!includeBonusBadge ||
+             bonusHeartBadge == null))
+        {
+            return;
+        }
 
-        float halfDuration = popDuration * 0.5f;
+        if (pickupPopRoutine != null)
+            StopCoroutine(pickupPopRoutine);
+
+        ResetPopScales();
+
+        pickupPopRoutine = StartCoroutine(
+            PickupPopRoutine(includeBonusBadge)
+        );
+    }
+
+    private IEnumerator PickupPopRoutine(
+        bool includeBonusBadge
+    )
+    {
+        float safeDuration =
+            Mathf.Max(0.02f, popDuration);
+
+        float halfDuration =
+            safeDuration * 0.5f;
+
+        Vector3 badgeBigScale =
+            bonusBadgeOriginalScale *
+            Mathf.Max(1f, badgePopScale);
+
+        Vector3 heartsBigScale =
+            heartsContainerOriginalScale *
+            Mathf.Max(1f, heartsPopScale);
+
         float timer = 0f;
-
-        Vector3 bigScale = bonusBadgeOriginalScale * popScale;
 
         while (timer < halfDuration)
         {
             timer += Time.unscaledDeltaTime;
-            float t = Mathf.Clamp01(timer / halfDuration);
-            float smoothT = Mathf.SmoothStep(0f, 1f, t);
 
-            badgeTransform.localScale = Vector3.Lerp(bonusBadgeOriginalScale, bigScale, smoothT);
+            float t = Mathf.Clamp01(
+                timer / halfDuration
+            );
+
+            float smoothT =
+                Mathf.SmoothStep(0f, 1f, t);
+
+            if (includeBonusBadge &&
+                bonusHeartBadge != null)
+            {
+                bonusHeartBadge.transform.localScale =
+                    Vector3.Lerp(
+                        bonusBadgeOriginalScale,
+                        badgeBigScale,
+                        smoothT
+                    );
+            }
+
+            if (heartsContainer != null)
+            {
+                heartsContainer.localScale =
+                    Vector3.Lerp(
+                        heartsContainerOriginalScale,
+                        heartsBigScale,
+                        smoothT
+                    );
+            }
+
             yield return null;
         }
 
@@ -122,75 +252,245 @@ public class HeartsUI : MonoBehaviour
         while (timer < halfDuration)
         {
             timer += Time.unscaledDeltaTime;
-            float t = Mathf.Clamp01(timer / halfDuration);
-            float smoothT = Mathf.SmoothStep(0f, 1f, t);
 
-            badgeTransform.localScale = Vector3.Lerp(bigScale, bonusBadgeOriginalScale, smoothT);
+            float t = Mathf.Clamp01(
+                timer / halfDuration
+            );
+
+            float smoothT =
+                Mathf.SmoothStep(0f, 1f, t);
+
+            if (includeBonusBadge &&
+                bonusHeartBadge != null)
+            {
+                bonusHeartBadge.transform.localScale =
+                    Vector3.Lerp(
+                        badgeBigScale,
+                        bonusBadgeOriginalScale,
+                        smoothT
+                    );
+            }
+
+            if (heartsContainer != null)
+            {
+                heartsContainer.localScale =
+                    Vector3.Lerp(
+                        heartsBigScale,
+                        heartsContainerOriginalScale,
+                        smoothT
+                    );
+            }
+
             yield return null;
         }
 
-        badgeTransform.localScale = bonusBadgeOriginalScale;
-        bonusPopRoutine = null;
+        ResetPopScales();
+        pickupPopRoutine = null;
+    }
+
+    private void ResetPopScales()
+    {
+        if (bonusHeartBadge != null)
+        {
+            bonusHeartBadge.transform.localScale =
+                bonusBadgeOriginalScale;
+        }
+
+        if (heartsContainer != null)
+        {
+            heartsContainer.localScale =
+                heartsContainerOriginalScale;
+        }
     }
 
     public void BlinkAndHide(int lostIndex)
     {
-        if (heartImages == null || heartImages.Length == 0) return;
-        if (lostIndex < 0 || lostIndex >= heartImages.Length) return;
-
-        if (blinkRoutine != null)
-            StopCoroutine(blinkRoutine);
-
-        blinkRoutine = StartCoroutine(BlinkAndHideRoutine(lostIndex));
+        BlinkAndHideMultiple(lostIndex, 1);
     }
 
-    private IEnumerator BlinkAndHideRoutine(int index)
+    public void BlinkAndHideMultiple(
+        int firstLostIndex,
+        int lostHeartCount
+    )
+    {
+        if (heartImages == null ||
+            heartImages.Length == 0)
+        {
+            return;
+        }
+
+        if (lostHeartCount <= 0)
+            return;
+
+        int safeFirstIndex =
+            Mathf.Clamp(
+                firstLostIndex,
+                0,
+                heartImages.Length - 1
+            );
+
+        int safeLostCount =
+            Mathf.Clamp(
+                lostHeartCount,
+                1,
+                heartImages.Length - safeFirstIndex
+            );
+
+        if (blinkRoutine != null)
+        {
+            StopCoroutine(blinkRoutine);
+            blinkRoutine = null;
+            isBlinking = false;
+        }
+
+        blinkRoutine = StartCoroutine(
+            BlinkAndHideMultipleRoutine(
+                safeFirstIndex,
+                safeLostCount
+            )
+        );
+    }
+
+    private IEnumerator BlinkAndHideMultipleRoutine(
+        int firstIndex,
+        int heartCount
+    )
     {
         isBlinking = true;
 
-        Image img = heartImages[index];
-        if (img == null)
+        Draw(shownHp);
+
+        for (int i = 0; i < heartCount; i++)
         {
-            isBlinking = false;
-            yield break;
+            int index = firstIndex + i;
+
+            if (index < 0 ||
+                index >= heartImages.Length)
+            {
+                continue;
+            }
+
+            Image image = heartImages[index];
+
+            if (image != null)
+                SetAlpha(image, 1f);
+        }
+
+        for (int blink = 0;
+             blink < blinkCount;
+             blink++)
+        {
+            SetLostHeartsAlpha(
+                firstIndex,
+                heartCount,
+                0f
+            );
+
+            yield return new WaitForSeconds(
+                blinkInterval
+            );
+
+            SetLostHeartsAlpha(
+                firstIndex,
+                heartCount,
+                1f
+            );
+
+            yield return new WaitForSeconds(
+                blinkInterval
+            );
         }
 
         Draw(shownHp);
-        SetAlpha(img, 1f);
-
-        for (int i = 0; i < blinkCount; i++)
-        {
-            SetAlpha(img, 0f);
-            yield return new WaitForSeconds(blinkInterval);
-
-            SetAlpha(img, 1f);
-            yield return new WaitForSeconds(blinkInterval);
-        }
-
-        SetAlpha(img, 0f);
 
         isBlinking = false;
         blinkRoutine = null;
     }
 
-    private void Draw(int hp)
+    private void SetLostHeartsAlpha(
+        int firstIndex,
+        int heartCount,
+        float alpha
+    )
     {
-        if (heartImages == null) return;
-
-        hp = Mathf.Clamp(hp, 0, heartImages.Length);
-
-        for (int i = 0; i < heartImages.Length; i++)
+        for (int i = 0; i < heartCount; i++)
         {
-            if (heartImages[i] == null) continue;
+            int index = firstIndex + i;
 
-            SetAlpha(heartImages[i], i < hp ? 1f : 0f);
+            if (index < 0 ||
+                index >= heartImages.Length)
+            {
+                continue;
+            }
+
+            Image image = heartImages[index];
+
+            if (image != null)
+                SetAlpha(image, alpha);
         }
     }
 
-    private void SetAlpha(Image img, float a)
+    private void Draw(int hp)
     {
-        Color c = img.color;
-        c.a = a;
-        img.color = c;
+        if (heartImages == null)
+            return;
+
+        hp = Mathf.Clamp(
+            hp,
+            0,
+            heartImages.Length
+        );
+
+        int hiddenHeartCount =
+            heartImages.Length - hp;
+
+        for (int i = 0;
+             i < heartImages.Length;
+             i++)
+        {
+            if (heartImages[i] == null)
+                continue;
+
+            bool shouldBeVisible =
+                i >= hiddenHeartCount;
+
+            SetAlpha(
+                heartImages[i],
+                shouldBeVisible ? 1f : 0f
+            );
+        }
+    }
+
+    private void SetAlpha(
+        Image image,
+        float alpha
+    )
+    {
+        if (image == null)
+            return;
+
+        Color color = image.color;
+        color.a = alpha;
+        image.color = color;
+    }
+
+    private void OnDisable()
+    {
+        if (blinkRoutine != null)
+        {
+            StopCoroutine(blinkRoutine);
+            blinkRoutine = null;
+        }
+
+        if (pickupPopRoutine != null)
+        {
+            StopCoroutine(pickupPopRoutine);
+            pickupPopRoutine = null;
+        }
+
+        isBlinking = false;
+
+        Draw(shownHp);
+        ResetPopScales();
     }
 }
