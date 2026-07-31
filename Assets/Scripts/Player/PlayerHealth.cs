@@ -21,6 +21,12 @@ public class PlayerHealth : MonoBehaviour
     [SerializeField] private HeartsUI heartsUI;
     [SerializeField] private PlayerVisual playerVisual;
 
+    [Header("Movement Links")]
+    [SerializeField] private Rigidbody2D playerRigidbody;
+    [SerializeField] private PlayerController playerController;
+    [SerializeField] private PlayerJump playerJump;
+    [SerializeField] private ClimbHook climbHook;
+
     [Header("Blink Player")]
     [SerializeField] private int blinkCount = 3;
     [SerializeField] private float blinkInterval = 0.15f;
@@ -82,6 +88,13 @@ public class PlayerHealth : MonoBehaviour
     [SerializeField] private bool hidePlayerOnDeath = true;
     [SerializeField] private bool disableMovementOnDeath = true;
 
+    [Tooltip(
+        "Полностью отключает физику Rigidbody2D после смерти, " +
+        "чтобы невидимый игрок не мог продолжать падать, " +
+        "прыгать или взаимодействовать с объектами."
+    )]
+    [SerializeField] private bool disablePhysicsOnDeath = true;
+
     private int hearts;
     private bool invulnerable;
     private bool isDead;
@@ -93,8 +106,6 @@ public class PlayerHealth : MonoBehaviour
     private Coroutine playerBlinkRoutine;
     private Coroutine hitFlashRoutine;
     private Coroutine hitEffectRoutine;
-
-    private PlayerController playerController;
 
     private void Awake()
     {
@@ -121,7 +132,17 @@ public class PlayerHealth : MonoBehaviour
         if (playerVisual == null)
             playerVisual = GetComponent<PlayerVisual>();
 
-        playerController = GetComponent<PlayerController>();
+        if (playerRigidbody == null)
+            playerRigidbody = GetComponent<Rigidbody2D>();
+
+        if (playerController == null)
+            playerController = GetComponent<PlayerController>();
+
+        if (playerJump == null)
+            playerJump = GetComponent<PlayerJump>();
+
+        if (climbHook == null)
+            climbHook = GetComponent<ClimbHook>();
     }
 
     /// <summary>
@@ -354,11 +375,8 @@ public class PlayerHealth : MonoBehaviour
             playerRenderer.color = originalColor;
         }
 
-        if (disableMovementOnDeath &&
-            playerController != null)
-        {
-            playerController.enabled = false;
-        }
+        if (disableMovementOnDeath)
+            DisablePlayerAfterDeath();
 
         if (sfxSource != null &&
             deathClip != null)
@@ -377,10 +395,12 @@ public class PlayerHealth : MonoBehaviour
         float wait = deathRestartDelay;
 
         if (deathClip != null)
+        {
             wait = Mathf.Max(
                 wait,
                 deathClip.length
             );
+        }
 
         if (restartRoutine != null)
             StopCoroutine(restartRoutine);
@@ -388,6 +408,46 @@ public class PlayerHealth : MonoBehaviour
         restartRoutine = StartCoroutine(
             RestartAfterDeath(wait)
         );
+    }
+
+    private void DisablePlayerAfterDeath()
+    {
+        /*
+         * Сначала корректно блокируем движение
+         * через сам PlayerController.
+         */
+        if (playerController != null)
+        {
+            playerController.LockMovement(true);
+            playerController.enabled = false;
+        }
+
+        /*
+         * Отдельно отключаем прыжок.
+         */
+        if (playerJump != null)
+            playerJump.enabled = false;
+
+        /*
+         * Отдельно отключаем цепляние и лазание.
+         */
+        if (climbHook != null)
+            climbHook.enabled = false;
+
+        /*
+         * Полностью останавливаем Rigidbody2D.
+         */
+        if (playerRigidbody != null)
+        {
+            playerRigidbody.linearVelocity =
+                Vector2.zero;
+
+            playerRigidbody.angularVelocity =
+                0f;
+
+            if (disablePhysicsOnDeath)
+                playerRigidbody.simulated = false;
+        }
     }
 
     private IEnumerator HidePlayerNextFrame()
