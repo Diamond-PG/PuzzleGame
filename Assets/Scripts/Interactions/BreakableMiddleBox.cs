@@ -9,6 +9,12 @@ public class BreakableMiddleBox : MonoBehaviour
     public Transform player;
     public float interactDistance = 1.5f;
 
+    [Header("Player Kick")]
+    [SerializeField] private PlayerKick playerKick;
+
+    [Tooltip("Через сколько секунд после начала удара нога реально попадает по ящику.")]
+    [SerializeField] private float kickImpactDelay = 0.08f;
+
     [Header("Haptics")]
     [SerializeField] private bool useHaptics = true;
 
@@ -106,6 +112,7 @@ public class BreakableMiddleBox : MonoBehaviour
     private Vector3 originalLocalPosition;
 
     private float hitEffectTimer;
+
     private bool isPlayingHitEffect;
     private bool isBreaking;
     private bool isBusy;
@@ -115,25 +122,52 @@ public class BreakableMiddleBox : MonoBehaviour
     {
         mainCamera = Camera.main;
 
-        boxSpriteRenderer = GetComponent<SpriteRenderer>();
-        boxCollider = GetComponent<Collider2D>();
+        boxSpriteRenderer =
+            GetComponent<SpriteRenderer>();
+
+        boxCollider =
+            GetComponent<Collider2D>();
 
         if (audioSource == null)
-            audioSource = GetComponent<AudioSource>();
+        {
+            audioSource =
+                GetComponent<AudioSource>();
+        }
 
         if (rewardReveal == null)
-            rewardReveal = GetComponentInChildren<GoalRevealFromBox>(true);
+        {
+            rewardReveal =
+                GetComponentInChildren<GoalRevealFromBox>(true);
+        }
 
-        if (rewardHeartPulse == null && rewardReveal != null)
-            rewardHeartPulse = rewardReveal.GetComponent<HeartPulse>();
+        if (rewardHeartPulse == null &&
+            rewardReveal != null)
+        {
+            rewardHeartPulse =
+                rewardReveal.GetComponent<HeartPulse>();
+        }
 
-        Transform background = transform.Find("Box_Background");
+        if (playerKick == null &&
+            player != null)
+        {
+            playerKick =
+                player.GetComponent<PlayerKick>();
+        }
+
+        Transform background =
+            transform.Find("Box_Background");
 
         if (background != null)
-            boxBackgroundRenderer = background.GetComponent<SpriteRenderer>();
+        {
+            boxBackgroundRenderer =
+                background.GetComponent<SpriteRenderer>();
+        }
 
-        originalLocalScale = transform.localScale;
-        originalLocalPosition = transform.localPosition;
+        originalLocalScale =
+            transform.localScale;
+
+        originalLocalPosition =
+            transform.localPosition;
     }
 
     private void Start()
@@ -155,13 +189,19 @@ public class BreakableMiddleBox : MonoBehaviour
         isBusy = false;
         isPlayingHitEffect = false;
         rewardDetached = false;
+
         hitEffectTimer = 0f;
 
-        transform.localScale = originalLocalScale;
-        transform.localPosition = originalLocalPosition;
+        transform.localScale =
+            originalLocalScale;
+
+        transform.localPosition =
+            originalLocalPosition;
 
         if (rewardHeartPulse != null)
+        {
             rewardHeartPulse.enabled = false;
+        }
 
         if (boxSpriteRenderer != null)
         {
@@ -169,23 +209,35 @@ public class BreakableMiddleBox : MonoBehaviour
             boxSpriteRenderer.color = Color.white;
 
             if (normalSprite != null)
-                boxSpriteRenderer.sprite = normalSprite;
+            {
+                boxSpriteRenderer.sprite =
+                    normalSprite;
+            }
         }
 
         if (boxBackgroundRenderer != null)
-            boxBackgroundRenderer.enabled = true;
+        {
+            boxBackgroundRenderer.enabled =
+                true;
+        }
 
         if (boxCollider != null)
+        {
             boxCollider.enabled = true;
+        }
 
         if (rewardReveal != null)
+        {
             rewardReveal.HideGoalImmediate();
+        }
     }
 
     private void Update()
     {
         if (mainCamera == null)
+        {
             mainCamera = Camera.main;
+        }
 
         UpdateHitEffect();
 
@@ -200,31 +252,72 @@ public class BreakableMiddleBox : MonoBehaviour
         if (Mouse.current != null &&
             Mouse.current.leftButton.wasPressedThisFrame)
         {
-            TryHitBox(Mouse.current.position.ReadValue());
+            TryRequestHit(
+                Mouse.current.position.ReadValue()
+            );
         }
 
-        if (Touchscreen.current != null &&
+        if (!isBusy &&
+            Touchscreen.current != null &&
             Touchscreen.current.primaryTouch.press.wasPressedThisFrame)
         {
-            TryHitBox(
-                Touchscreen.current.primaryTouch.position.ReadValue()
+            TryRequestHit(
+                Touchscreen.current
+                    .primaryTouch
+                    .position
+                    .ReadValue()
             );
         }
     }
 
-    private void TryHitBox(Vector2 screenPosition)
+    private void TryRequestHit(
+        Vector2 screenPosition
+    )
     {
+        if (!IsValidScreenPosition(screenPosition))
+        {
+            return;
+        }
+
+        float cameraDistance =
+            Mathf.Abs(
+                transform.position.z -
+                mainCamera.transform.position.z
+            );
+
+        Vector3 screenPoint =
+            new Vector3(
+                screenPosition.x,
+                screenPosition.y,
+                cameraDistance
+            );
+
         Vector3 worldPosition =
-            mainCamera.ScreenToWorldPoint(screenPosition);
+            mainCamera.ScreenToWorldPoint(
+                screenPoint
+            );
+
+        if (float.IsNaN(worldPosition.x) ||
+            float.IsNaN(worldPosition.y) ||
+            float.IsInfinity(worldPosition.x) ||
+            float.IsInfinity(worldPosition.y))
+        {
+            return;
+        }
 
         Vector2 point2D =
-            new Vector2(worldPosition.x, worldPosition.y);
+            new Vector2(
+                worldPosition.x,
+                worldPosition.y
+            );
 
         Collider2D hitCollider =
             Physics2D.OverlapPoint(point2D);
 
         if (hitCollider != boxCollider)
+        {
             return;
+        }
 
         if (player == null)
         {
@@ -248,6 +341,75 @@ public class BreakableMiddleBox : MonoBehaviour
             );
 
             return;
+        }
+
+        if (playerKick == null)
+        {
+            playerKick =
+                player.GetComponent<PlayerKick>();
+        }
+
+        if (playerKick == null)
+        {
+            Debug.LogWarning(
+                "PlayerKick не найден на Player!"
+            );
+
+            return;
+        }
+
+        bool kickStarted =
+            playerKick.KickToward(
+                transform.position
+            );
+
+        if (!kickStarted)
+        {
+            return;
+        }
+
+        isBusy = true;
+
+        StartCoroutine(
+            KickImpactSequence()
+        );
+    }
+
+    private bool IsValidScreenPosition(
+        Vector2 position
+    )
+    {
+        if (float.IsNaN(position.x) ||
+            float.IsNaN(position.y) ||
+            float.IsInfinity(position.x) ||
+            float.IsInfinity(position.y))
+        {
+            return false;
+        }
+
+        if (position.x < 0f ||
+            position.y < 0f ||
+            position.x > Screen.width ||
+            position.y > Screen.height)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    private IEnumerator KickImpactSequence()
+    {
+        if (kickImpactDelay > 0f)
+        {
+            yield return new WaitForSeconds(
+                kickImpactDelay
+            );
+        }
+
+        if (isBreaking)
+        {
+            yield break;
         }
 
         hits++;
@@ -274,13 +436,15 @@ public class BreakableMiddleBox : MonoBehaviour
                 PlaySecondHitSound();
             }
 
-            StartCoroutine(HitSequence());
+            yield return StartCoroutine(
+                HitSequence()
+            );
         }
         else
         {
-            // Здесь финальную вибрацию не запускаем.
-            // Она сработает после тряски в момент разрушения.
-            StartCoroutine(FinalBreakSequence());
+            yield return StartCoroutine(
+                FinalBreakSequence()
+            );
         }
     }
 
@@ -323,8 +487,11 @@ public class BreakableMiddleBox : MonoBehaviour
             originalLocalScale *
             hitScaleMultiplier;
 
-        hitEffectTimer = hitEffectDuration;
-        isPlayingHitEffect = true;
+        hitEffectTimer =
+            hitEffectDuration;
+
+        isPlayingHitEffect =
+            true;
     }
 
     private void UpdateHitEffect()
@@ -332,14 +499,16 @@ public class BreakableMiddleBox : MonoBehaviour
         if (!isPlayingHitEffect)
             return;
 
-        hitEffectTimer -= Time.deltaTime;
+        hitEffectTimer -=
+            Time.deltaTime;
 
         if (hitEffectTimer <= 0f)
         {
             transform.localScale =
                 originalLocalScale;
 
-            isPlayingHitEffect = false;
+            isPlayingHitEffect =
+                false;
         }
     }
 
@@ -387,8 +556,6 @@ public class BreakableMiddleBox : MonoBehaviour
 
     private IEnumerator HitSequence()
     {
-        isBusy = true;
-
         if (hits == 1)
         {
             yield return StartCoroutine(
@@ -414,8 +581,11 @@ public class BreakableMiddleBox : MonoBehaviour
 
         ApplyDamageSprite();
 
-        transform.localPosition = originalLocalPosition;
-        transform.localScale = originalLocalScale;
+        transform.localPosition =
+            originalLocalPosition;
+
+        transform.localScale =
+            originalLocalScale;
 
         isBusy = false;
     }
@@ -428,7 +598,10 @@ public class BreakableMiddleBox : MonoBehaviour
         if (hits == 1)
         {
             if (crackedSprite != null)
-                boxSpriteRenderer.sprite = crackedSprite;
+            {
+                boxSpriteRenderer.sprite =
+                    crackedSprite;
+            }
         }
         else if (hits == 2)
         {
@@ -447,7 +620,6 @@ public class BreakableMiddleBox : MonoBehaviour
 
     private IEnumerator FinalBreakSequence()
     {
-        isBusy = true;
         isBreaking = true;
 
         yield return StartCoroutine(
@@ -459,11 +631,17 @@ public class BreakableMiddleBox : MonoBehaviour
             )
         );
 
-        transform.localPosition = originalLocalPosition;
-        transform.localScale = originalLocalScale;
+        transform.localPosition =
+            originalLocalPosition;
+
+        transform.localScale =
+            originalLocalScale;
 
         if (boxBackgroundRenderer != null)
-            boxBackgroundRenderer.enabled = false;
+        {
+            boxBackgroundRenderer.enabled =
+                false;
+        }
 
         if (boxSpriteRenderer != null)
         {
@@ -484,8 +662,6 @@ public class BreakableMiddleBox : MonoBehaviour
             }
         }
 
-        // Удлинённая вибрация запускается точно
-        // вместе со звуком, пылью и щепками.
         PlayBreakHaptic();
         PlayBreakSound();
         SpawnBreakEffect();
@@ -514,7 +690,9 @@ public class BreakableMiddleBox : MonoBehaviour
                 );
         }
 
-        yield return new WaitForSeconds(safeWait);
+        yield return new WaitForSeconds(
+            safeWait
+        );
 
         HideAndFinishBreak();
     }
@@ -529,7 +707,9 @@ public class BreakableMiddleBox : MonoBehaviour
         }
 
         if (rewardHeartPulse != null)
+        {
             rewardHeartPulse.enabled = false;
+        }
 
         rewardReveal.RevealGoal();
 
@@ -563,10 +743,11 @@ public class BreakableMiddleBox : MonoBehaviour
         if (rewardReveal == null)
             return;
 
-        Transform rewardTransform =
-            rewardReveal.transform;
+        rewardReveal.transform.SetParent(
+            null,
+            true
+        );
 
-        rewardTransform.SetParent(null, true);
         rewardDetached = true;
     }
 
@@ -584,7 +765,9 @@ public class BreakableMiddleBox : MonoBehaviour
             timer += Time.deltaTime;
 
             float x =
-                Mathf.Sin(timer * speed) *
+                Mathf.Sin(
+                    timer * speed
+                ) *
                 amountX;
 
             float y =
@@ -597,7 +780,11 @@ public class BreakableMiddleBox : MonoBehaviour
 
             transform.localPosition =
                 originalLocalPosition +
-                new Vector3(x, y, 0f);
+                new Vector3(
+                    x,
+                    y,
+                    0f
+                );
 
             yield return null;
         }
@@ -611,15 +798,26 @@ public class BreakableMiddleBox : MonoBehaviour
         DetachRewardFromBox();
 
         if (boxSpriteRenderer != null)
-            boxSpriteRenderer.enabled = false;
+        {
+            boxSpriteRenderer.enabled =
+                false;
+        }
 
         if (boxBackgroundRenderer != null)
-            boxBackgroundRenderer.enabled = false;
+        {
+            boxBackgroundRenderer.enabled =
+                false;
+        }
 
         if (boxCollider != null)
-            boxCollider.enabled = false;
+        {
+            boxCollider.enabled =
+                false;
+        }
 
-        Debug.Log("Middle box broken!");
+        Debug.Log(
+            "Middle box broken!"
+        );
 
         float totalChipTime =
             chipFallDuration +
@@ -628,7 +826,10 @@ public class BreakableMiddleBox : MonoBehaviour
             chipFadeDuration +
             0.15f;
 
-        Destroy(gameObject, totalChipTime);
+        Destroy(
+            gameObject,
+            totalChipTime
+        );
     }
 
     private void SpawnBreakEffect()
@@ -656,7 +857,10 @@ public class BreakableMiddleBox : MonoBehaviour
             particleSystems[i].Play();
         }
 
-        Destroy(effect, breakEffectLifetime);
+        Destroy(
+            effect,
+            breakEffectLifetime
+        );
     }
 
     private void SpawnBrokenPieces()
@@ -715,7 +919,10 @@ public class BreakableMiddleBox : MonoBehaviour
                 Quaternion.Euler(
                     0f,
                     0f,
-                    Random.Range(-10f, 10f)
+                    Random.Range(
+                        -10f,
+                        10f
+                    )
                 );
 
             GameObject chip =
@@ -729,13 +936,19 @@ public class BreakableMiddleBox : MonoBehaviour
                 chip.GetComponent<Rigidbody2D>();
 
             if (chipRigidbody != null)
-                chipRigidbody.simulated = false;
+            {
+                chipRigidbody.simulated =
+                    false;
+            }
 
             Collider2D chipCollider =
                 chip.GetComponent<Collider2D>();
 
             if (chipCollider != null)
-                chipCollider.enabled = false;
+            {
+                chipCollider.enabled =
+                    false;
+            }
 
             StartCoroutine(
                 AnimateChip(
@@ -767,17 +980,24 @@ public class BreakableMiddleBox : MonoBehaviour
         Rigidbody2D chipRigidbody =
             chip.GetComponent<Rigidbody2D>();
 
-        Color startColor = Color.white;
+        Color startColor =
+            Color.white;
 
         if (spriteRenderer != null)
-            startColor = spriteRenderer.color;
+        {
+            startColor =
+                spriteRenderer.color;
+        }
 
         float startRotation =
             chip.transform.eulerAngles.z;
 
         float middleRotation =
             startRotation +
-            Random.Range(-18f, 18f);
+            Random.Range(
+                -18f,
+                18f
+            );
 
         float endRotation =
             index % 2 == 0
@@ -921,7 +1141,8 @@ public class BreakableMiddleBox : MonoBehaviour
 
             if (spriteRenderer != null)
             {
-                Color color = startColor;
+                Color color =
+                    startColor;
 
                 color.a =
                     Mathf.Lerp(
@@ -930,7 +1151,8 @@ public class BreakableMiddleBox : MonoBehaviour
                         progress
                     );
 
-                spriteRenderer.color = color;
+                spriteRenderer.color =
+                    color;
             }
 
             yield return null;
@@ -943,15 +1165,24 @@ public class BreakableMiddleBox : MonoBehaviour
 
             color.a = 0f;
 
-            spriteRenderer.color = color;
-            spriteRenderer.enabled = false;
+            spriteRenderer.color =
+                color;
+
+            spriteRenderer.enabled =
+                false;
         }
 
         if (chipCollider != null)
-            chipCollider.enabled = false;
+        {
+            chipCollider.enabled =
+                false;
+        }
 
         if (chipRigidbody != null)
-            chipRigidbody.simulated = false;
+        {
+            chipRigidbody.simulated =
+                false;
+        }
 
         chip.SetActive(false);
         Destroy(chip);

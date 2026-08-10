@@ -9,22 +9,24 @@ public class BreakableHardBox : MonoBehaviour
     public Transform player;
     public float interactDistance = 1.5f;
 
+    [Header("Player Kick")]
+    [SerializeField] private PlayerKick playerKick;
+
+    [Tooltip("Через сколько секунд после начала удара нога реально попадает по ящику.")]
+    [SerializeField] private float kickImpactDelay = 0.08f;
+
     [Header("Haptics")]
     [SerializeField] private bool useHaptics = true;
 
-    [Tooltip("Вибрация при первом ударе по крепкому ящику.")]
     [SerializeField, Range(5, 100)]
     private int firstHitHapticMs = 20;
 
-    [Tooltip("Вибрация при втором ударе по крепкому ящику.")]
     [SerializeField, Range(5, 120)]
     private int secondHitHapticMs = 30;
 
-    [Tooltip("Вибрация при третьем ударе по крепкому ящику.")]
     [SerializeField, Range(5, 150)]
     private int thirdHitHapticMs = 40;
 
-    [Tooltip("Удлинённая вибрация непосредственно в момент разрушения крепкого ящика.")]
     [SerializeField, Range(5, 200)]
     private int breakHapticMs = 110;
 
@@ -90,41 +92,19 @@ public class BreakableHardBox : MonoBehaviour
     [Header("Broken Pieces")]
     public GameObject[] woodChips;
 
-    [Tooltip("Время первого осыпания щепки")]
     public float chipFallDuration = 0.22f;
-
-    [Tooltip("Время дополнительного падения щепки вниз")]
     public float chipExtraFallDuration = 0.26f;
-
-    [Tooltip("Насколько ещё щепка опускается вниз после первого падения")]
     public float chipExtraDropDistance = 0.18f;
-
-    [Tooltip("Разброс по X при финальном падении")]
     public float chipHorizontalSpread = 0.06f;
-
-    [Tooltip("Сколько щепки лежат на полу до исчезновения")]
     public float chipStayDuration = 0.55f;
-
-    [Tooltip("Сколько времени щепки плавно исчезают")]
     public float chipFadeDuration = 0.25f;
-
-    [Tooltip("Минимальный финальный угол, когда щепка ложится плашмя")]
     public float chipEndRotMin = 55f;
-
-    [Tooltip("Максимальный финальный угол, когда щепка ложится плашмя")]
     public float chipEndRotMax = 125f;
-
-    [Tooltip("Небольшой подъём щепок, чтобы не проваливались визуально в пол")]
     public float chipGroundLift = 0.045f;
 
     [Header("Goal Reveal")]
-    [Tooltip("Ссылка на компонент GoalRevealFromBox на объекте Goal")]
     public GoalRevealFromBox goalReveal;
-
-    [Tooltip("Через сколько секунд после начала появления отсоединить награду от ящика")]
     public float goalDetachDelay = 0.25f;
-
-    [Tooltip("Показывать ли логи по появлению награды")]
     public bool goalDebugLogs = false;
 
     private int hits;
@@ -138,6 +118,7 @@ public class BreakableHardBox : MonoBehaviour
     private Vector3 originalLocalPosition;
 
     private float hitEffectTimer;
+
     private bool isPlayingHitEffect;
     private bool isBreaking;
     private bool isBusy;
@@ -146,13 +127,27 @@ public class BreakableHardBox : MonoBehaviour
     {
         mainCamera = Camera.main;
 
-        boxSpriteRenderer = GetComponent<SpriteRenderer>();
-        boxCollider = GetComponent<Collider2D>();
+        boxSpriteRenderer =
+            GetComponent<SpriteRenderer>();
+
+        boxCollider =
+            GetComponent<Collider2D>();
 
         if (audioSource == null)
-            audioSource = GetComponent<AudioSource>();
+        {
+            audioSource =
+                GetComponent<AudioSource>();
+        }
 
-        Transform background = transform.Find("Box_Background 2");
+        if (playerKick == null &&
+            player != null)
+        {
+            playerKick =
+                player.GetComponent<PlayerKick>();
+        }
+
+        Transform background =
+            transform.Find("Box_Background 2");
 
         if (background != null)
         {
@@ -160,8 +155,11 @@ public class BreakableHardBox : MonoBehaviour
                 background.GetComponent<SpriteRenderer>();
         }
 
-        originalLocalScale = transform.localScale;
-        originalLocalPosition = transform.localPosition;
+        originalLocalScale =
+            transform.localScale;
+
+        originalLocalPosition =
+            transform.localPosition;
     }
 
     private void Start()
@@ -182,10 +180,14 @@ public class BreakableHardBox : MonoBehaviour
         isBreaking = false;
         isBusy = false;
         isPlayingHitEffect = false;
+
         hitEffectTimer = 0f;
 
-        transform.localScale = originalLocalScale;
-        transform.localPosition = originalLocalPosition;
+        transform.localScale =
+            originalLocalScale;
+
+        transform.localPosition =
+            originalLocalPosition;
 
         if (boxSpriteRenderer != null)
         {
@@ -193,28 +195,43 @@ public class BreakableHardBox : MonoBehaviour
             boxSpriteRenderer.color = Color.white;
 
             if (normalSprite != null)
-                boxSpriteRenderer.sprite = normalSprite;
+            {
+                boxSpriteRenderer.sprite =
+                    normalSprite;
+            }
         }
 
         if (boxBackgroundRenderer != null)
-            boxBackgroundRenderer.enabled = true;
+        {
+            boxBackgroundRenderer.enabled =
+                true;
+        }
 
         if (boxCollider != null)
+        {
             boxCollider.enabled = true;
+        }
 
         if (goalReveal != null)
         {
             goalReveal.HideGoalImmediate();
 
             if (goalReveal.transform.parent != transform)
-                goalReveal.transform.SetParent(transform, true);
+            {
+                goalReveal.transform.SetParent(
+                    transform,
+                    true
+                );
+            }
         }
     }
 
     private void Update()
     {
         if (mainCamera == null)
+        {
             mainCamera = Camera.main;
+        }
 
         UpdateHitEffect();
 
@@ -229,26 +246,59 @@ public class BreakableHardBox : MonoBehaviour
         if (Mouse.current != null &&
             Mouse.current.leftButton.wasPressedThisFrame)
         {
-            Vector2 screenPosition =
-                Mouse.current.position.ReadValue();
-
-            TryHitBox(screenPosition);
+            TryRequestHit(
+                Mouse.current.position.ReadValue()
+            );
         }
 
-        if (Touchscreen.current != null &&
+        if (!isBusy &&
+            Touchscreen.current != null &&
             Touchscreen.current.primaryTouch.press.wasPressedThisFrame)
         {
-            Vector2 touchPosition =
-                Touchscreen.current.primaryTouch.position.ReadValue();
-
-            TryHitBox(touchPosition);
+            TryRequestHit(
+                Touchscreen.current
+                    .primaryTouch
+                    .position
+                    .ReadValue()
+            );
         }
     }
 
-    private void TryHitBox(Vector2 screenPosition)
+    private void TryRequestHit(
+        Vector2 screenPosition
+    )
     {
+        if (!IsValidScreenPosition(
+                screenPosition))
+        {
+            return;
+        }
+
+        float cameraDistance =
+            Mathf.Abs(
+                transform.position.z -
+                mainCamera.transform.position.z
+            );
+
+        Vector3 screenPoint =
+            new Vector3(
+                screenPosition.x,
+                screenPosition.y,
+                cameraDistance
+            );
+
         Vector3 worldPosition =
-            mainCamera.ScreenToWorldPoint(screenPosition);
+            mainCamera.ScreenToWorldPoint(
+                screenPoint
+            );
+
+        if (float.IsNaN(worldPosition.x) ||
+            float.IsNaN(worldPosition.y) ||
+            float.IsInfinity(worldPosition.x) ||
+            float.IsInfinity(worldPosition.y))
+        {
+            return;
+        }
 
         Vector2 point2D =
             new Vector2(
@@ -257,10 +307,14 @@ public class BreakableHardBox : MonoBehaviour
             );
 
         Collider2D hitCollider =
-            Physics2D.OverlapPoint(point2D);
+            Physics2D.OverlapPoint(
+                point2D
+            );
 
         if (hitCollider != boxCollider)
+        {
             return;
+        }
 
         if (player == null)
         {
@@ -277,10 +331,83 @@ public class BreakableHardBox : MonoBehaviour
                 transform.position
             );
 
-        if (distance > interactDistance)
+        if (distance >
+            interactDistance)
         {
-            Debug.Log("Слишком далеко от hard box");
+            Debug.Log(
+                "Слишком далеко от hard box"
+            );
+
             return;
+        }
+
+        if (playerKick == null)
+        {
+            playerKick =
+                player.GetComponent<PlayerKick>();
+        }
+
+        if (playerKick == null)
+        {
+            Debug.LogWarning(
+                "PlayerKick не найден на Player!"
+            );
+
+            return;
+        }
+
+        bool kickStarted =
+            playerKick.KickToward(
+                transform.position
+            );
+
+        if (!kickStarted)
+        {
+            return;
+        }
+
+        isBusy = true;
+
+        StartCoroutine(
+            KickImpactSequence()
+        );
+    }
+
+    private bool IsValidScreenPosition(
+        Vector2 position
+    )
+    {
+        if (float.IsNaN(position.x) ||
+            float.IsNaN(position.y) ||
+            float.IsInfinity(position.x) ||
+            float.IsInfinity(position.y))
+        {
+            return false;
+        }
+
+        if (position.x < 0f ||
+            position.y < 0f ||
+            position.x > Screen.width ||
+            position.y > Screen.height)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    private IEnumerator KickImpactSequence()
+    {
+        if (kickImpactDelay > 0f)
+        {
+            yield return new WaitForSeconds(
+                kickImpactDelay
+            );
+        }
+
+        if (isBreaking)
+        {
+            yield break;
         }
 
         hits++;
@@ -299,15 +426,13 @@ public class BreakableHardBox : MonoBehaviour
             PlayHitHapticByHitNumber();
             PlayHitSoundByHitNumber();
 
-            StartCoroutine(
+            yield return StartCoroutine(
                 HitSequence()
             );
         }
         else
         {
-            // Финальную вибрацию здесь не запускаем.
-            // Она сработает после тряски в момент разрушения.
-            StartCoroutine(
+            yield return StartCoroutine(
                 FinalBreakSequence()
             );
         }
@@ -360,8 +485,11 @@ public class BreakableHardBox : MonoBehaviour
             originalLocalScale *
             hitScaleMultiplier;
 
-        hitEffectTimer = hitEffectDuration;
-        isPlayingHitEffect = true;
+        hitEffectTimer =
+            hitEffectDuration;
+
+        isPlayingHitEffect =
+            true;
     }
 
     private void UpdateHitEffect()
@@ -369,14 +497,16 @@ public class BreakableHardBox : MonoBehaviour
         if (!isPlayingHitEffect)
             return;
 
-        hitEffectTimer -= Time.deltaTime;
+        hitEffectTimer -=
+            Time.deltaTime;
 
         if (hitEffectTimer <= 0f)
         {
             transform.localScale =
                 originalLocalScale;
 
-            isPlayingHitEffect = false;
+            isPlayingHitEffect =
+                false;
         }
     }
 
@@ -435,8 +565,6 @@ public class BreakableHardBox : MonoBehaviour
 
     private IEnumerator HitSequence()
     {
-        isBusy = true;
-
         if (hits == 1)
         {
             yield return StartCoroutine(
@@ -530,7 +658,6 @@ public class BreakableHardBox : MonoBehaviour
 
     private IEnumerator FinalBreakSequence()
     {
-        isBusy = true;
         isBreaking = true;
 
         yield return StartCoroutine(
@@ -572,8 +699,6 @@ public class BreakableHardBox : MonoBehaviour
             }
         }
 
-        // Вибрация, звук, пыль, щепки и награда
-        // запускаются непосредственно в момент разрушения.
         PlayBreakHaptic();
         PlayBreakSound();
         SpawnBreakEffect();
@@ -594,8 +719,7 @@ public class BreakableHardBox : MonoBehaviour
             if (goalDebugLogs)
             {
                 Debug.LogWarning(
-                    "GoalRevealFromBox не назначен " +
-                    "в BreakableHardBox."
+                    "GoalRevealFromBox не назначен в BreakableHardBox."
                 );
             }
 
@@ -645,7 +769,9 @@ public class BreakableHardBox : MonoBehaviour
             timer += Time.deltaTime;
 
             float x =
-                Mathf.Sin(timer * speed) *
+                Mathf.Sin(
+                    timer * speed
+                ) *
                 amountX;
 
             float y =
@@ -674,15 +800,26 @@ public class BreakableHardBox : MonoBehaviour
     private void HideAndFinishBreak()
     {
         if (boxSpriteRenderer != null)
-            boxSpriteRenderer.enabled = false;
+        {
+            boxSpriteRenderer.enabled =
+                false;
+        }
 
         if (boxBackgroundRenderer != null)
-            boxBackgroundRenderer.enabled = false;
+        {
+            boxBackgroundRenderer.enabled =
+                false;
+        }
 
         if (boxCollider != null)
-            boxCollider.enabled = false;
+        {
+            boxCollider.enabled =
+                false;
+        }
 
-        Debug.Log("Hard box broken!");
+        Debug.Log(
+            "Hard box broken!"
+        );
 
         float totalChipTime =
             chipFallDuration +
@@ -801,13 +938,19 @@ public class BreakableHardBox : MonoBehaviour
                 chip.GetComponent<Rigidbody2D>();
 
             if (chipRigidbody != null)
-                chipRigidbody.simulated = false;
+            {
+                chipRigidbody.simulated =
+                    false;
+            }
 
             Collider2D chipCollider =
                 chip.GetComponent<Collider2D>();
 
             if (chipCollider != null)
-                chipCollider.enabled = false;
+            {
+                chipCollider.enabled =
+                    false;
+            }
 
             StartCoroutine(
                 AnimateChip(
@@ -843,7 +986,10 @@ public class BreakableHardBox : MonoBehaviour
             Color.white;
 
         if (spriteRenderer != null)
-            startColor = spriteRenderer.color;
+        {
+            startColor =
+                spriteRenderer.color;
+        }
 
         float startRotation =
             chip.transform.eulerAngles.z;
@@ -1029,10 +1175,16 @@ public class BreakableHardBox : MonoBehaviour
         }
 
         if (chipCollider != null)
-            chipCollider.enabled = false;
+        {
+            chipCollider.enabled =
+                false;
+        }
 
         if (chipRigidbody != null)
-            chipRigidbody.simulated = false;
+        {
+            chipRigidbody.simulated =
+                false;
+        }
 
         chip.SetActive(false);
         Destroy(chip);
