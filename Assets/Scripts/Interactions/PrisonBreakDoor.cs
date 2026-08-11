@@ -30,29 +30,18 @@ public class PrisonBreakDoor : MonoBehaviour
     [SerializeField] private float kickImpactDelay = 0.08f;
 
     [Header("Cartoon Punch Animation")]
-    [Tooltip("Общая длительность короткого мультяшного выпирания.")]
     [SerializeField] private float punchDuration = 0.16f;
 
-    [Tooltip("Насколько дверь расширяется по X при первом ударе.")]
     [SerializeField] private float minPunchScaleX = 1.035f;
-
-    [Tooltip("Насколько дверь расширяется по X ближе к последним ударам.")]
     [SerializeField] private float maxPunchScaleX = 1.10f;
 
-    [Tooltip("Насколько дверь слегка сжимается по Y.")]
     [SerializeField] private float minPunchScaleY = 0.985f;
-
-    [Tooltip("Сжатие по Y на сильных ударах.")]
     [SerializeField] private float maxPunchScaleY = 0.95f;
 
-    [Tooltip("Небольшой толчок двери от игрока.")]
     [SerializeField] private float maxPunchMoveX = 0.045f;
 
     [Header("Final Break")]
-    [Tooltip("Насколько сильнее дверь выпирает на последнем ударе.")]
     [SerializeField] private float finalPunchScaleX = 1.14f;
-
-    [Tooltip("Сжатие двери по Y на последнем ударе.")]
     [SerializeField] private float finalPunchScaleY = 0.92f;
 
     [SerializeField] private float finalPunchDuration = 0.20f;
@@ -60,22 +49,78 @@ public class PrisonBreakDoor : MonoBehaviour
     [Tooltip("Небольшая пауза перед переключением на сломанную дверь.")]
     [SerializeField] private float finalBreakPause = 0.035f;
 
-    [Header("Break Effect")]
-    [Tooltip("Пыль/дым при окончательном разрушении.")]
-    [SerializeField] private GameObject breakEffect;
+    // =========================================================
+    // WOOD CHIPS - 4TH HIT
+    // =========================================================
 
-    [SerializeField] private float breakEffectLifetime = 2f;
+    [Header("Wood Chips - 4th Hit")]
 
-    [Header("Wood Chips")]
-    [Tooltip("Небольшие щепки, которые появляются при финальном ударе.")]
-    [SerializeField] private GameObject[] woodChips;
+    [Tooltip("Две маленькие щепки, которые вылетают на 4-м ударе.")]
+    [SerializeField] private Sprite[] damagedHitChips;
 
-    [SerializeField] private int woodChipCount = 5;
+    [Tooltip("Размер маленьких щепок.")]
+    [SerializeField] private float damagedChipScale = 0.08f;
 
-    [SerializeField] private float chipForceX = 1.2f;
-    [SerializeField] private float chipForceY = 1.5f;
-    [SerializeField] private float chipTorque = 120f;
-    [SerializeField] private float chipLifetime = 1.2f;
+    [Tooltip("Разброс маленьких щепок по X.")]
+    [SerializeField] private float damagedChipSpreadX = 0.10f;
+
+    [Tooltip("Насколько щепки сначала подлетают вверх.")]
+    [SerializeField] private float damagedChipLift = 0.10f;
+
+    // =========================================================
+    // WOOD CHIPS - FINAL
+    // =========================================================
+
+    [Header("Wood Chips - Final Break")]
+
+    [Tooltip("Все пять щепок, которые вылетают на последнем ударе.")]
+    [SerializeField] private Sprite[] finalBreakChips;
+
+    [Tooltip("Минимальный размер финальных щепок.")]
+    [SerializeField] private float finalChipScaleMin = 0.08f;
+
+    [Tooltip("Максимальный размер финальных щепок.")]
+    [SerializeField] private float finalChipScaleMax = 0.13f;
+
+    [Tooltip("Разброс финальных щепок по X.")]
+    [SerializeField] private float finalChipSpreadX = 0.18f;
+
+    [Tooltip("Насколько финальные щепки подлетают вверх.")]
+    [SerializeField] private float finalChipLift = 0.14f;
+
+    // =========================================================
+    // CHIP ANIMATION
+    // =========================================================
+
+    [Header("Wood Chip Animation")]
+
+    [Tooltip("Сколько длится первый короткий вылет щепки.")]
+    [SerializeField] private float chipLaunchDuration = 0.16f;
+
+    [Tooltip("Сколько длится падение щепки на пол.")]
+    [SerializeField] private float chipFallDuration = 0.34f;
+
+    [Tooltip("Сколько секунд щепка лежит на полу.")]
+    [SerializeField] private float chipStayDuration = 2.0f;
+
+    [Tooltip("Сколько длится плавное исчезновение.")]
+    [SerializeField] private float chipFadeDuration = 0.25f;
+
+    [Tooltip("Насколько ниже центра двери находится пол.")]
+    [SerializeField] private float chipFloorOffsetY = 0.42f;
+
+    [Tooltip("Небольшой подъём над полом, чтобы щепки не выглядели утопленными.")]
+    [SerializeField] private float chipGroundLift = 0.015f;
+
+    [Tooltip("Минимальный финальный угол щепки на полу.")]
+    [SerializeField] private float chipEndRotationMin = 55f;
+
+    [Tooltip("Максимальный финальный угол щепки на полу.")]
+    [SerializeField] private float chipEndRotationMax = 125f;
+
+    // =========================================================
+    // HAPTICS
+    // =========================================================
 
     [Header("Haptics")]
     [SerializeField] private bool useHaptics = true;
@@ -86,7 +131,11 @@ public class PrisonBreakDoor : MonoBehaviour
     [SerializeField, Range(5, 200)]
     private int finalHitHapticMs = 100;
 
-    [Header("Optional Door Audio")]
+    // =========================================================
+    // AUDIO
+    // =========================================================
+
+    [Header("Door Audio")]
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip hitSound;
     [SerializeField] private AudioClip breakSound;
@@ -96,6 +145,10 @@ public class PrisonBreakDoor : MonoBehaviour
 
     [Range(0f, 1f)]
     [SerializeField] private float breakVolume = 1f;
+
+    // =========================================================
+    // DEBUG
+    // =========================================================
 
     [Header("Debug")]
     [SerializeField] private bool debugLogs = false;
@@ -155,8 +208,8 @@ public class PrisonBreakDoor : MonoBehaviour
 
     private void OnValidate()
     {
-        if (hitsToBreak < 1)
-            hitsToBreak = 1;
+        if (hitsToBreak < 2)
+            hitsToBreak = 2;
 
         if (damagedSpriteHit < 1)
             damagedSpriteHit = 1;
@@ -164,8 +217,26 @@ public class PrisonBreakDoor : MonoBehaviour
         if (damagedSpriteHit >= hitsToBreak)
             damagedSpriteHit = hitsToBreak - 1;
 
-        if (woodChipCount < 0)
-            woodChipCount = 0;
+        if (damagedChipScale < 0.01f)
+            damagedChipScale = 0.01f;
+
+        if (finalChipScaleMin < 0.01f)
+            finalChipScaleMin = 0.01f;
+
+        if (finalChipScaleMax < finalChipScaleMin)
+            finalChipScaleMax = finalChipScaleMin;
+
+        if (chipLaunchDuration < 0.01f)
+            chipLaunchDuration = 0.01f;
+
+        if (chipFallDuration < 0.01f)
+            chipFallDuration = 0.01f;
+
+        if (chipStayDuration < 0f)
+            chipStayDuration = 0f;
+
+        if (chipFadeDuration < 0.01f)
+            chipFadeDuration = 0.01f;
     }
 
     private void ResetDoorState()
@@ -215,9 +286,7 @@ public class PrisonBreakDoor : MonoBehaviour
         if (Mouse.current != null &&
             Mouse.current.leftButton.wasPressedThisFrame)
         {
-            TryHitDoor(
-                Mouse.current.position.ReadValue()
-            );
+            TryHitDoor(Mouse.current.position.ReadValue());
         }
 
         if (Touchscreen.current != null &&
@@ -236,9 +305,7 @@ public class PrisonBreakDoor : MonoBehaviour
                 new Vector3(
                     screenPosition.x,
                     screenPosition.y,
-                    Mathf.Abs(
-                        mainCamera.transform.position.z
-                    )
+                    Mathf.Abs(mainCamera.transform.position.z)
                 )
             );
 
@@ -363,12 +430,16 @@ public class PrisonBreakDoor : MonoBehaviour
                 )
             );
 
-            if (hits >= damagedSpriteHit &&
-                damagedSprite != null &&
-                doorSpriteRenderer != null)
+            if (hits == damagedSpriteHit)
             {
-                doorSpriteRenderer.sprite =
-                    damagedSprite;
+                if (damagedSprite != null &&
+                    doorSpriteRenderer != null)
+                {
+                    doorSpriteRenderer.sprite =
+                        damagedSprite;
+                }
+
+                SpawnDamagedHitChips();
             }
         }
         else
@@ -402,8 +473,7 @@ public class PrisonBreakDoor : MonoBehaviour
             if (blackBackground != null)
                 blackBackground.SetActive(false);
 
-            SpawnBreakEffect();
-            SpawnWoodChips();
+            SpawnFinalBreakChips();
 
             if (doorCollider != null)
                 doorCollider.enabled = false;
@@ -450,8 +520,7 @@ public class PrisonBreakDoor : MonoBehaviour
         if (player != null)
         {
             direction =
-                player.position.x <=
-                doorVisual.position.x
+                player.position.x <= doorVisual.position.x
                     ? 1f
                     : -1f;
         }
@@ -486,12 +555,8 @@ public class PrisonBreakDoor : MonoBehaviour
 
             doorVisual.localScale =
                 new Vector3(
-                    originalLocalScale.x *
-                    currentScaleX,
-
-                    originalLocalScale.y *
-                    currentScaleY,
-
+                    originalLocalScale.x * currentScaleX,
+                    originalLocalScale.y * currentScaleY,
                     originalLocalScale.z
                 );
 
@@ -515,124 +580,370 @@ public class PrisonBreakDoor : MonoBehaviour
             originalLocalPosition;
     }
 
-    private void SpawnBreakEffect()
+    private void SpawnDamagedHitChips()
     {
-        if (breakEffect == null)
-            return;
-
-        GameObject effect =
-            Instantiate(
-                breakEffect,
-                doorVisual.position,
-                Quaternion.identity
-            );
-
-        ParticleSystem[] particleSystems =
-            effect.GetComponentsInChildren<ParticleSystem>(
-                true
-            );
-
-        for (int i = 0;
-             i < particleSystems.Length;
-             i++)
-        {
-            particleSystems[i].Clear();
-            particleSystems[i].Play();
-        }
-
-        Destroy(
-            effect,
-            breakEffectLifetime
-        );
-    }
-
-    private void SpawnWoodChips()
-    {
-        if (woodChips == null ||
-            woodChips.Length == 0)
+        if (damagedHitChips == null ||
+            damagedHitChips.Length == 0)
         {
             return;
         }
 
         int count =
             Mathf.Min(
-                woodChipCount,
-                woodChips.Length
+                2,
+                damagedHitChips.Length
             );
 
-        for (int i = 0;
-             i < count;
-             i++)
+        for (int i = 0; i < count; i++)
         {
-            GameObject prefab =
-                woodChips[i];
+            Sprite sprite =
+                damagedHitChips[i];
 
-            if (prefab == null)
+            if (sprite == null)
                 continue;
 
-            Vector3 spawnPosition =
-                doorVisual.position +
-                new Vector3(
-                    Random.Range(
-                        -0.18f,
-                        0.18f
-                    ),
-                    Random.Range(
-                        -0.18f,
-                        0.18f
-                    ),
-                    0f
+            float side =
+                i == 0 ? -1f : 1f;
+
+            SpawnAnimatedChip(
+                sprite,
+                damagedChipScale,
+                side * damagedChipSpreadX,
+                damagedChipLift,
+                i
+            );
+        }
+    }
+
+    private void SpawnFinalBreakChips()
+    {
+        if (finalBreakChips == null ||
+            finalBreakChips.Length == 0)
+        {
+            return;
+        }
+
+        int count =
+            Mathf.Min(
+                5,
+                finalBreakChips.Length
+            );
+
+        for (int i = 0; i < count; i++)
+        {
+            Sprite sprite =
+                finalBreakChips[i];
+
+            if (sprite == null)
+                continue;
+
+            float randomScale =
+                Random.Range(
+                    finalChipScaleMin,
+                    finalChipScaleMax
                 );
 
-            GameObject chip =
-                Instantiate(
-                    prefab,
-                    spawnPosition,
-                    Quaternion.Euler(
-                        0f,
-                        0f,
-                        Random.Range(
-                            -25f,
-                            25f
-                        )
+            float horizontalOffset =
+                Random.Range(
+                    -finalChipSpreadX,
+                    finalChipSpreadX
+                );
+
+            float lift =
+                Random.Range(
+                    finalChipLift * 0.70f,
+                    finalChipLift
+                );
+
+            SpawnAnimatedChip(
+                sprite,
+                randomScale,
+                horizontalOffset,
+                lift,
+                i
+            );
+        }
+    }
+
+    private void SpawnAnimatedChip(
+        Sprite sprite,
+        float scale,
+        float horizontalOffset,
+        float lift,
+        int index
+    )
+    {
+        if (sprite == null ||
+            doorVisual == null)
+        {
+            return;
+        }
+
+        GameObject chip =
+            new GameObject(
+                "DoorWoodChip"
+            );
+
+        SpriteRenderer chipRenderer =
+            chip.AddComponent<SpriteRenderer>();
+
+        chipRenderer.sprite =
+            sprite;
+
+        if (doorSpriteRenderer != null)
+        {
+            chipRenderer.sortingLayerID =
+                doorSpriteRenderer.sortingLayerID;
+
+            chipRenderer.sortingOrder =
+                doorSpriteRenderer.sortingOrder + 1;
+
+            if (doorSpriteRenderer.sharedMaterial != null)
+            {
+                chipRenderer.sharedMaterial =
+                    doorSpriteRenderer.sharedMaterial;
+            }
+        }
+
+        chip.transform.localScale =
+            Vector3.one * scale;
+
+        Vector3 startPosition =
+            doorVisual.position +
+            new Vector3(
+                Random.Range(-0.06f, 0.06f),
+                Random.Range(-0.03f, 0.07f),
+                0f
+            );
+
+        chip.transform.position =
+            startPosition;
+
+        float startRotation =
+            Random.Range(
+                -20f,
+                20f
+            );
+
+        chip.transform.rotation =
+            Quaternion.Euler(
+                0f,
+                0f,
+                startRotation
+            );
+
+        StartCoroutine(
+            AnimateDoorChip(
+                chip,
+                chipRenderer,
+                startPosition,
+                horizontalOffset,
+                lift,
+                startRotation,
+                index
+            )
+        );
+    }
+
+    private IEnumerator AnimateDoorChip(
+        GameObject chip,
+        SpriteRenderer chipRenderer,
+        Vector3 startPosition,
+        float horizontalOffset,
+        float lift,
+        float startRotation,
+        int index
+    )
+    {
+        if (chip == null)
+            yield break;
+
+        Color startColor =
+            Color.white;
+
+        if (chipRenderer != null)
+            startColor = chipRenderer.color;
+
+        Vector3 launchEndPosition =
+            startPosition +
+            new Vector3(
+                horizontalOffset,
+                lift,
+                0f
+            );
+
+        float launchRotation =
+            startRotation +
+            Random.Range(
+                -30f,
+                30f
+            );
+
+        float timer = 0f;
+
+        while (timer < chipLaunchDuration)
+        {
+            if (chip == null)
+                yield break;
+
+            timer += Time.deltaTime;
+
+            float t =
+                Mathf.Clamp01(
+                    timer /
+                    chipLaunchDuration
+                );
+
+            float eased =
+                1f -
+                Mathf.Pow(
+                    1f - t,
+                    3f
+                );
+
+            chip.transform.position =
+                Vector3.Lerp(
+                    startPosition,
+                    launchEndPosition,
+                    eased
+                );
+
+            chip.transform.rotation =
+                Quaternion.Euler(
+                    0f,
+                    0f,
+                    Mathf.Lerp(
+                        startRotation,
+                        launchRotation,
+                        t
                     )
                 );
 
-            Rigidbody2D chipRb =
-                chip.GetComponent<Rigidbody2D>();
+            yield return null;
+        }
 
-            if (chipRb != null)
-            {
-                float direction =
-                    Random.value < 0.5f
-                        ? -1f
-                        : 1f;
+        Vector3 fallStartPosition =
+            chip.transform.position;
 
-                chipRb.linearVelocity =
-                    new Vector2(
-                        direction *
-                        Random.Range(
-                            chipForceX * 0.5f,
-                            chipForceX
-                        ),
-                        Random.Range(
-                            chipForceY * 0.5f,
-                            chipForceY
-                        )
-                    );
+        float floorY =
+            doorVisual.position.y -
+            chipFloorOffsetY +
+            chipGroundLift;
 
-                chipRb.angularVelocity =
-                    Random.Range(
-                        -chipTorque,
-                        chipTorque
-                    );
-            }
+        Vector3 fallEndPosition =
+            new Vector3(
+                fallStartPosition.x +
+                Random.Range(
+                    -0.05f,
+                    0.05f
+                ),
+                floorY,
+                fallStartPosition.z
+            );
 
-            Destroy(
-                chip,
-                chipLifetime
+        float endRotation =
+            index % 2 == 0
+                ? -Random.Range(
+                    chipEndRotationMin,
+                    chipEndRotationMax
+                )
+                : Random.Range(
+                    chipEndRotationMin,
+                    chipEndRotationMax
+                );
+
+        float fallTimer = 0f;
+
+        while (fallTimer < chipFallDuration)
+        {
+            if (chip == null)
+                yield break;
+
+            fallTimer += Time.deltaTime;
+
+            float t =
+                Mathf.Clamp01(
+                    fallTimer /
+                    chipFallDuration
+                );
+
+            float fallCurve =
+                t * t;
+
+            chip.transform.position =
+                Vector3.Lerp(
+                    fallStartPosition,
+                    fallEndPosition,
+                    fallCurve
+                );
+
+            chip.transform.rotation =
+                Quaternion.Euler(
+                    0f,
+                    0f,
+                    Mathf.Lerp(
+                        launchRotation,
+                        endRotation,
+                        t
+                    )
+                );
+
+            yield return null;
+        }
+
+        chip.transform.position =
+            fallEndPosition;
+
+        chip.transform.rotation =
+            Quaternion.Euler(
+                0f,
+                0f,
+                endRotation
+            );
+
+        if (chipStayDuration > 0f)
+        {
+            yield return new WaitForSeconds(
+                chipStayDuration
             );
         }
+
+        float fadeTimer = 0f;
+
+        while (fadeTimer < chipFadeDuration)
+        {
+            if (chip == null)
+                yield break;
+
+            fadeTimer += Time.deltaTime;
+
+            float t =
+                Mathf.Clamp01(
+                    fadeTimer /
+                    chipFadeDuration
+                );
+
+            if (chipRenderer != null)
+            {
+                Color color =
+                    startColor;
+
+                color.a =
+                    Mathf.Lerp(
+                        startColor.a,
+                        0f,
+                        t
+                    );
+
+                chipRenderer.color =
+                    color;
+            }
+
+            yield return null;
+        }
+
+        if (chip != null)
+            Destroy(chip);
     }
 
     private void PlayHitHaptic()
