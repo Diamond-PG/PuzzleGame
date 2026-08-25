@@ -32,6 +32,10 @@ MonoBehaviour:
     m_Localized: QUITTER
     m_Metadata:
       m_Items: []
+  - m_Id: 72085325515534336
+    m_Localized: GALERIE
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:

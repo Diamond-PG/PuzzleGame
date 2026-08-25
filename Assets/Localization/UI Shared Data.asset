@@ -29,6 +29,20 @@ MonoBehaviour:
     m_Key: menu_quit
     m_Metadata:
       m_Items: []
+  - m_Id: 72085123094228992
+    m_Key: New Entry
+    m_Metadata:
+      m_Items: []
+  - m_Id: 72085187745230848
+    m_Key: New Entry 1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 72085325515534336
+    m_Key: 'menu_gallery
+
+'
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

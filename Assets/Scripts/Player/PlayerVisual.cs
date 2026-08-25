@@ -55,6 +55,8 @@ public class PlayerVisual : MonoBehaviour
     private float nextBlinkTime;
     private float lastInputTime;
 
+    private Sprite activeKickSprite;
+
     private Coroutine blinkRoutine;
     private Coroutine hurtRoutine;
 
@@ -87,6 +89,32 @@ public class PlayerVisual : MonoBehaviour
 
         UpdateLookDirection();
         HandleBlink();
+    }
+
+    /*
+     * Важно:
+     * пока длится удар, принудительно удерживаем
+     * Kick Sprite. Это не даёт другому визуальному
+     * коду перебить картинку удара.
+     */
+    private void LateUpdate()
+    {
+        if (!isKicking)
+            return;
+
+        if (isHurt)
+            return;
+
+        if (spriteRenderer == null)
+            return;
+
+        if (activeKickSprite == null)
+            return;
+
+        if (spriteRenderer.sprite != activeKickSprite)
+        {
+            spriteRenderer.sprite = activeKickSprite;
+        }
     }
 
     private void UpdateLookDirection()
@@ -183,10 +211,7 @@ public class PlayerVisual : MonoBehaviour
 
         if (!isHurt && !isKicking)
         {
-            if (currentDirection == LookDirection.Idle)
-                SetIdleSprite();
-            else
-                SetDirectionSprite(currentDirection);
+            RestoreCurrentSprite();
         }
 
         ScheduleBlink();
@@ -246,6 +271,14 @@ public class PlayerVisual : MonoBehaviour
             spriteRenderer.sprite = targetSprite;
     }
 
+    private void RestoreCurrentSprite()
+    {
+        if (currentDirection == LookDirection.Idle)
+            SetIdleSprite();
+        else
+            SetDirectionSprite(currentDirection);
+    }
+
     public void PlayKickRight()
     {
         PlayKick(true);
@@ -273,13 +306,24 @@ public class PlayerVisual : MonoBehaviour
         isBlinking = false;
         isKicking = true;
 
-        Sprite kickSprite =
+        activeKickSprite =
             kickRight
                 ? kickRightSprite
                 : kickLeftSprite;
 
-        if (kickSprite != null)
-            spriteRenderer.sprite = kickSprite;
+        if (activeKickSprite != null)
+        {
+            spriteRenderer.enabled = true;
+            spriteRenderer.sprite = activeKickSprite;
+        }
+        else
+        {
+            Debug.LogWarning(
+                kickRight
+                    ? "Kick Right Sprite не назначен в PlayerVisual!"
+                    : "Kick Left Sprite не назначен в PlayerVisual!"
+            );
+        }
     }
 
     public void EndKick()
@@ -288,10 +332,11 @@ public class PlayerVisual : MonoBehaviour
             return;
 
         isKicking = false;
+        activeKickSprite = null;
 
         currentDirection = LookDirection.Idle;
-        SetIdleSprite();
 
+        SetIdleSprite();
         ScheduleBlink();
     }
 
@@ -317,7 +362,10 @@ public class PlayerVisual : MonoBehaviour
     private IEnumerator HurtRoutine()
     {
         isHurt = true;
+
         isKicking = false;
+        activeKickSprite = null;
+
         isBlinking = false;
 
         if (blinkRoutine != null)
@@ -329,6 +377,7 @@ public class PlayerVisual : MonoBehaviour
         if (hurtSprite != null &&
             spriteRenderer != null)
         {
+            spriteRenderer.enabled = true;
             spriteRenderer.sprite = hurtSprite;
         }
 

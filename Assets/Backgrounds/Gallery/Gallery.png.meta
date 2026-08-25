@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: e4d291c4be8438546af40c001d1ab4b3
+guid: a43f9975056d267438908371a333d5fb
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -3459616189882576339
-    second: Player kicks left foot_0
+      213: 8336919644493979724
+    second: Gallery 3_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -51,9 +51,9 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 512
+  spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
-  spriteGenerateFallbackPhysicsShape: 0
+  spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
   alphaIsTransparency: 1
   spriteTessellationDetail: -1
@@ -75,7 +75,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -126,13 +126,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Player kicks left foot_0
+      name: Gallery 3_0
       rect:
         serializedVersion: 2
-        x: 25
-        y: 3
-        width: 487
-        height: 340
+        x: 0
+        y: 0
+        width: 1536
+        height: 1024
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: d22dbd6b769fcffc0800000000000000
-      internalID: -3459616189882576339
+      spriteID: c402a0bee30b2b370800000000000000
+      internalID: 8336919644493979724
       vertices: []
       indices: 
       edges: []
@@ -161,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Player kicks left foot_0: -3459616189882576339
+      Gallery 3_0: 8336919644493979724
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

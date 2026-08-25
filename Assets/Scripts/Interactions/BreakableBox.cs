@@ -93,6 +93,11 @@ public class BreakableBox : MonoBehaviour
     [Tooltip("Небольшой подъём щепок, чтобы не проваливались визуально в пол")]
     public float chipGroundLift = 0.045f;
 
+    [Header("Goal Reveal")]
+    public GoalRevealFromBox goalReveal;
+    public float goalDetachDelay = 0.25f;
+    public bool goalDebugLogs = false;
+
     private int hits;
     private Camera mainCamera;
 
@@ -197,6 +202,19 @@ public class BreakableBox : MonoBehaviour
         if (boxCollider != null)
         {
             boxCollider.enabled = true;
+        }
+
+        if (goalReveal != null)
+        {
+            goalReveal.HideGoalImmediate();
+
+            if (goalReveal.transform.parent != transform)
+            {
+                goalReveal.transform.SetParent(
+                    transform,
+                    true
+                );
+            }
         }
     }
 
@@ -334,10 +352,6 @@ public class BreakableBox : MonoBehaviour
             return;
         }
 
-        /*
-         * PlayerKick сам определяет,
-         * находится ящик справа или слева.
-         */
         bool kickStarted =
             playerKick.KickToward(
                 transform.position
@@ -348,10 +362,6 @@ public class BreakableBox : MonoBehaviour
             return;
         }
 
-        /*
-         * Сразу блокируем повторный клик,
-         * пока удар не обработан.
-         */
         isBusy = true;
 
         StartCoroutine(
@@ -384,10 +394,6 @@ public class BreakableBox : MonoBehaviour
 
     private IEnumerator KickImpactSequence()
     {
-        /*
-         * Сначала видим,
-         * как игрок начинает мах ногой.
-         */
         if (kickImpactDelay > 0f)
         {
             yield return new WaitForSeconds(
@@ -400,10 +406,6 @@ public class BreakableBox : MonoBehaviour
             yield break;
         }
 
-        /*
-         * Вот здесь нога реально
-         * соприкасается с ящиком.
-         */
         hits++;
 
         Debug.Log(
@@ -585,21 +587,62 @@ public class BreakableBox : MonoBehaviour
             }
         }
 
-        /*
-         * Финальная вибрация, звук,
-         * пыль и щепки идут точно
-         * в момент разрушения.
-         */
         PlayBreakHaptic();
         PlayBreakSound();
         SpawnBreakEffect();
         SpawnBrokenPieces();
+
+        // Показываем предмет из ящика.
+        RevealGoalFromBox();
 
         yield return new WaitForSeconds(
             brokenSpriteDuration
         );
 
         HideAndFinishBreak();
+    }
+
+    private void RevealGoalFromBox()
+    {
+        if (goalReveal == null)
+        {
+            if (goalDebugLogs)
+            {
+                Debug.LogWarning(
+                    "GoalRevealFromBox не назначен в BreakableBox."
+                );
+            }
+
+            return;
+        }
+
+        goalReveal.RevealGoal();
+
+        StartCoroutine(
+            DetachGoalAfterDelay()
+        );
+    }
+
+    private IEnumerator DetachGoalAfterDelay()
+    {
+        yield return new WaitForSeconds(
+            goalDetachDelay
+        );
+
+        if (goalReveal != null)
+        {
+            goalReveal.transform.SetParent(
+                null,
+                true
+            );
+
+            if (goalDebugLogs)
+            {
+                Debug.Log(
+                    "Goal отсоединён от Regular box."
+                );
+            }
+        }
     }
 
     private IEnumerator ShakeBox(
