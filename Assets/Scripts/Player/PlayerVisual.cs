@@ -45,7 +45,8 @@ public class PlayerVisual : MonoBehaviour
         Left
     }
 
-    private LookDirection currentDirection = LookDirection.Idle;
+    private LookDirection currentDirection =
+        LookDirection.Idle;
 
     private bool isBlinking;
     private bool isHurt;
@@ -76,7 +77,8 @@ public class PlayerVisual : MonoBehaviour
 
     private void Start()
     {
-        currentDirection = LookDirection.Idle;
+        currentDirection =
+            LookDirection.Idle;
 
         SetIdleSprite();
         ScheduleBlink();
@@ -84,25 +86,33 @@ public class PlayerVisual : MonoBehaviour
 
     private void Update()
     {
-        if (isHurt || isKicking)
+        /*
+         * Пока игрок бьёт ногой,
+         * никакая обычная визуальная логика
+         * не должна перебивать Kick Sprite.
+         */
+        if (isKicking)
+            return;
+
+        if (isHurt)
             return;
 
         UpdateLookDirection();
         HandleBlink();
     }
 
-    /*
-     * Важно:
-     * пока длится удар, принудительно удерживаем
-     * Kick Sprite. Это не даёт другому визуальному
-     * коду перебить картинку удара.
-     */
     private void LateUpdate()
     {
+        /*
+         * Даже если какой-либо другой скрипт
+         * попытается поменять спрайт во время удара,
+         * Kick Sprite снова ставится в конце кадра.
+         *
+         * При этом PlayerHealth всё ещё может
+         * включать/выключать SpriteRenderer,
+         * поэтому моргание после урона продолжится.
+         */
         if (!isKicking)
-            return;
-
-        if (isHurt)
             return;
 
         if (spriteRenderer == null)
@@ -111,9 +121,11 @@ public class PlayerVisual : MonoBehaviour
         if (activeKickSprite == null)
             return;
 
-        if (spriteRenderer.sprite != activeKickSprite)
+        if (spriteRenderer.sprite !=
+            activeKickSprite)
         {
-            spriteRenderer.sprite = activeKickSprite;
+            spriteRenderer.sprite =
+                activeKickSprite;
         }
     }
 
@@ -124,22 +136,34 @@ public class PlayerVisual : MonoBehaviour
 
         if (rb != null)
         {
-            if (rb.linearVelocity.y > jumpLookUpVelocity)
+            if (rb.linearVelocity.y >
+                jumpLookUpVelocity)
             {
-                currentDirection = LookDirection.Up;
+                currentDirection =
+                    LookDirection.Up;
 
                 if (!isBlinking)
-                    SetDirectionSprite(currentDirection);
+                {
+                    SetDirectionSprite(
+                        currentDirection
+                    );
+                }
 
                 return;
             }
 
-            if (rb.linearVelocity.y < fallLookDownVelocity)
+            if (rb.linearVelocity.y <
+                fallLookDownVelocity)
             {
-                currentDirection = LookDirection.Down;
+                currentDirection =
+                    LookDirection.Down;
 
                 if (!isBlinking)
-                    SetDirectionSprite(currentDirection);
+                {
+                    SetDirectionSprite(
+                        currentDirection
+                    );
+                }
 
                 return;
             }
@@ -148,39 +172,52 @@ public class PlayerVisual : MonoBehaviour
         if (playerController == null)
             return;
 
-        Vector2 input = playerController.GetInput();
+        Vector2 input =
+            playerController.GetInput();
 
-        if (input.magnitude > movementThreshold)
+        if (input.magnitude >
+            movementThreshold)
         {
-            lastInputTime = Time.time;
+            lastInputTime =
+                Time.time;
 
-            if (Mathf.Abs(input.x) > Mathf.Abs(input.y))
+            if (Mathf.Abs(input.x) >
+                Mathf.Abs(input.y))
             {
                 currentDirection =
-                    input.x > 0
+                    input.x > 0f
                         ? LookDirection.Right
                         : LookDirection.Left;
             }
             else
             {
                 currentDirection =
-                    input.y > 0
+                    input.y > 0f
                         ? LookDirection.Up
                         : LookDirection.Down;
             }
 
             if (!isBlinking)
-                SetDirectionSprite(currentDirection);
+            {
+                SetDirectionSprite(
+                    currentDirection
+                );
+            }
 
             return;
         }
 
-        if (Time.time - lastInputTime >= returnToIdleDelay)
+        if (Time.time -
+            lastInputTime >=
+            returnToIdleDelay)
         {
-            currentDirection = LookDirection.Idle;
+            currentDirection =
+                LookDirection.Idle;
 
             if (!isBlinking)
+            {
                 SetIdleSprite();
+            }
         }
     }
 
@@ -189,10 +226,16 @@ public class PlayerVisual : MonoBehaviour
         if (isBlinking)
             return;
 
-        if (Time.time < nextBlinkTime)
+        if (Time.time <
+            nextBlinkTime)
+        {
             return;
+        }
 
-        blinkRoutine = StartCoroutine(BlinkRoutine());
+        blinkRoutine =
+            StartCoroutine(
+                BlinkRoutine()
+            );
     }
 
     private IEnumerator BlinkRoutine()
@@ -202,19 +245,24 @@ public class PlayerVisual : MonoBehaviour
         if (blinkSprite != null &&
             spriteRenderer != null)
         {
-            spriteRenderer.sprite = blinkSprite;
+            spriteRenderer.sprite =
+                blinkSprite;
         }
 
-        yield return new WaitForSeconds(blinkDuration);
+        yield return new WaitForSeconds(
+            blinkDuration
+        );
 
         isBlinking = false;
 
-        if (!isHurt && !isKicking)
+        if (!isHurt &&
+            !isKicking)
         {
             RestoreCurrentSprite();
         }
 
         ScheduleBlink();
+
         blinkRoutine = null;
     }
 
@@ -223,7 +271,10 @@ public class PlayerVisual : MonoBehaviour
         nextBlinkTime =
             Time.time +
             blinkInterval +
-            Random.Range(0.1f, 0.5f);
+            Random.Range(
+                0.1f,
+                0.5f
+            );
     }
 
     private void SetIdleSprite()
@@ -231,7 +282,8 @@ public class PlayerVisual : MonoBehaviour
         if (spriteRenderer != null &&
             idleSprite != null)
         {
-            spriteRenderer.sprite = idleSprite;
+            spriteRenderer.sprite =
+                idleSprite;
         }
     }
 
@@ -242,41 +294,57 @@ public class PlayerVisual : MonoBehaviour
         if (spriteRenderer == null)
             return;
 
-        Sprite targetSprite = idleSprite;
+        Sprite targetSprite =
+            idleSprite;
 
         switch (direction)
         {
             case LookDirection.Right:
-                targetSprite = lookRightSprite;
+                targetSprite =
+                    lookRightSprite;
                 break;
 
             case LookDirection.Left:
-                targetSprite = lookLeftSprite;
+                targetSprite =
+                    lookLeftSprite;
                 break;
 
             case LookDirection.Up:
-                targetSprite = lookUpSprite;
+                targetSprite =
+                    lookUpSprite;
                 break;
 
             case LookDirection.Down:
-                targetSprite = lookDownSprite;
+                targetSprite =
+                    lookDownSprite;
                 break;
 
             case LookDirection.Idle:
-                targetSprite = idleSprite;
+                targetSprite =
+                    idleSprite;
                 break;
         }
 
         if (targetSprite != null)
-            spriteRenderer.sprite = targetSprite;
+        {
+            spriteRenderer.sprite =
+                targetSprite;
+        }
     }
 
     private void RestoreCurrentSprite()
     {
-        if (currentDirection == LookDirection.Idle)
+        if (currentDirection ==
+            LookDirection.Idle)
+        {
             SetIdleSprite();
+        }
         else
-            SetDirectionSprite(currentDirection);
+        {
+            SetDirectionSprite(
+                currentDirection
+            );
+        }
     }
 
     public void PlayKickRight()
@@ -289,17 +357,53 @@ public class PlayerVisual : MonoBehaviour
         PlayKick(false);
     }
 
-    public void PlayKick(bool kickRight)
+    public void PlayKick(
+        bool kickRight
+    )
     {
         if (spriteRenderer == null)
             return;
 
-        if (isHurt)
-            return;
+        /*
+         * ВАЖНО:
+         * раньше удар блокировался,
+         * если isHurt == true.
+         *
+         * Теперь игрок может начать удар
+         * даже во время визуальной реакции
+         * на полученный урон.
+         */
 
+        /*
+         * Если сейчас отображается Hurt Sprite,
+         * останавливаем только эту визуальную
+         * реакцию.
+         *
+         * Моргание от PlayerHealth НЕ трогаем.
+         * Оно продолжит включать и выключать
+         * SpriteRenderer как раньше.
+         */
+        if (hurtRoutine != null)
+        {
+            StopCoroutine(
+                hurtRoutine
+            );
+
+            hurtRoutine = null;
+        }
+
+        isHurt = false;
+
+        /*
+         * Обычное автоматическое моргание глаз
+         * PlayerVisual во время удара нам не нужно.
+         */
         if (blinkRoutine != null)
         {
-            StopCoroutine(blinkRoutine);
+            StopCoroutine(
+                blinkRoutine
+            );
+
             blinkRoutine = null;
         }
 
@@ -313,8 +417,19 @@ public class PlayerVisual : MonoBehaviour
 
         if (activeKickSprite != null)
         {
-            spriteRenderer.enabled = true;
-            spriteRenderer.sprite = activeKickSprite;
+            /*
+             * Не принуждаем enabled = true.
+             *
+             * Это важно:
+             * если PlayerHealth сейчас
+             * делает мигание после урона,
+             * он сам управляет enabled.
+             *
+             * Поэтому Kick Sprite будет
+             * моргать вместе с игроком.
+             */
+            spriteRenderer.sprite =
+                activeKickSprite;
         }
         else
         {
@@ -334,7 +449,8 @@ public class PlayerVisual : MonoBehaviour
         isKicking = false;
         activeKickSprite = null;
 
-        currentDirection = LookDirection.Idle;
+        currentDirection =
+            LookDirection.Idle;
 
         SetIdleSprite();
         ScheduleBlink();
@@ -342,81 +458,135 @@ public class PlayerVisual : MonoBehaviour
 
     public void PlayJumpLookUp()
     {
-        if (isKicking || isHurt)
+        if (isKicking ||
+            isHurt)
+        {
             return;
+        }
 
-        currentDirection = LookDirection.Up;
+        currentDirection =
+            LookDirection.Up;
 
         if (!isBlinking)
-            SetDirectionSprite(LookDirection.Up);
+        {
+            SetDirectionSprite(
+                LookDirection.Up
+            );
+        }
     }
 
     public void PlayHurtVisual()
     {
-        if (hurtRoutine != null)
-            StopCoroutine(hurtRoutine);
+        /*
+         * Если игрок уже сам начал удар,
+         * Hurt Sprite не перебивает ногу.
+         *
+         * Само моргание/неуязвимость
+         * по-прежнему делает PlayerHealth.
+         */
+        if (isKicking)
+            return;
 
-        hurtRoutine = StartCoroutine(HurtRoutine());
+        if (hurtRoutine != null)
+        {
+            StopCoroutine(
+                hurtRoutine
+            );
+        }
+
+        hurtRoutine =
+            StartCoroutine(
+                HurtRoutine()
+            );
     }
 
     private IEnumerator HurtRoutine()
     {
         isHurt = true;
-
-        isKicking = false;
-        activeKickSprite = null;
-
         isBlinking = false;
 
         if (blinkRoutine != null)
         {
-            StopCoroutine(blinkRoutine);
+            StopCoroutine(
+                blinkRoutine
+            );
+
             blinkRoutine = null;
         }
 
         if (hurtSprite != null &&
             spriteRenderer != null)
         {
-            spriteRenderer.enabled = true;
-            spriteRenderer.sprite = hurtSprite;
+            spriteRenderer.sprite =
+                hurtSprite;
         }
 
-        yield return new WaitForSeconds(hurtDuration);
+        yield return new WaitForSeconds(
+            hurtDuration
+        );
 
         isHurt = false;
 
-        currentDirection = LookDirection.Idle;
-        SetIdleSprite();
+        /*
+         * За время Hurt игрок мог начать удар.
+         * В таком случае ничего не перебиваем.
+         */
+        if (!isKicking)
+        {
+            currentDirection =
+                LookDirection.Idle;
 
-        ScheduleBlink();
+            SetIdleSprite();
+            ScheduleBlink();
+        }
 
         hurtRoutine = null;
     }
 
-    public void SetClimbLook(float vertical)
+    public void SetClimbLook(
+        float vertical
+    )
     {
-        if (isKicking || isHurt)
+        if (isKicking ||
+            isHurt)
+        {
             return;
+        }
 
         isClimbing = true;
 
         if (vertical > 0.1f)
-            currentDirection = LookDirection.Up;
+        {
+            currentDirection =
+                LookDirection.Up;
+        }
         else if (vertical < -0.1f)
-            currentDirection = LookDirection.Down;
+        {
+            currentDirection =
+                LookDirection.Down;
+        }
 
         if (!isBlinking)
-            SetDirectionSprite(currentDirection);
+        {
+            SetDirectionSprite(
+                currentDirection
+            );
+        }
     }
 
     public void ClearClimbLook()
     {
         isClimbing = false;
 
-        if (isKicking || isHurt)
+        if (isKicking ||
+            isHurt)
+        {
             return;
+        }
 
-        currentDirection = LookDirection.Idle;
+        currentDirection =
+            LookDirection.Idle;
+
         SetIdleSprite();
     }
 }

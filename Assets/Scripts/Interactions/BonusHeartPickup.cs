@@ -45,6 +45,7 @@ public class BonusHeartPickup : MonoBehaviour
     [SerializeField] private float sparkSpread = 0.12f;
     [SerializeField] private float sparkDrift = 0.18f;
     [SerializeField] private float sparkRotationSpeed = 280f;
+
     [SerializeField] private Color sparkColor =
         new Color(1f, 0.72f, 0.12f, 1f);
 
@@ -57,6 +58,7 @@ public class BonusHeartPickup : MonoBehaviour
     [SerializeField] private float endBurstSpread = 0.35f;
 
     private Camera mainCamera;
+
     private bool pickedUp;
     private bool shouldRestoreRegularHeart;
 
@@ -68,15 +70,24 @@ public class BonusHeartPickup : MonoBehaviour
         mainCamera = Camera.main;
 
         if (heartsUI == null)
-            heartsUI = Object.FindFirstObjectByType<HeartsUI>();
+        {
+            heartsUI =
+                Object.FindFirstObjectByType<HeartsUI>();
+        }
 
         if (playerHealth == null)
-            playerHealth = Object.FindFirstObjectByType<PlayerHealth>();
+        {
+            playerHealth =
+                Object.FindFirstObjectByType<PlayerHealth>();
+        }
 
-        if (regularHeartsTargetUI == null && heartsUI != null)
+        if (regularHeartsTargetUI == null &&
+            heartsUI != null)
         {
             Transform heartsContainer =
-                heartsUI.transform.Find("HeartsContainer");
+                heartsUI.transform.Find(
+                    "HeartsContainer"
+                );
 
             if (heartsContainer != null)
             {
@@ -91,18 +102,31 @@ public class BonusHeartPickup : MonoBehaviour
         }
 
         if (audioSource == null)
-            audioSource = GetComponent<AudioSource>();
+        {
+            audioSource =
+                GetComponent<AudioSource>();
+        }
 
         if (spriteRenderer == null)
-            spriteRenderer = GetComponent<SpriteRenderer>();
+        {
+            spriteRenderer =
+                GetComponent<SpriteRenderer>();
+        }
 
         if (pickupCollider == null)
-            pickupCollider = GetComponent<Collider2D>();
+        {
+            pickupCollider =
+                GetComponent<Collider2D>();
+        }
 
         if (heartPulse == null)
-            heartPulse = GetComponent<HeartPulse>();
+        {
+            heartPulse =
+                GetComponent<HeartPulse>();
+        }
 
-        sparkSprite = CreateWhiteSprite();
+        sparkSprite =
+            CreateWhiteSprite();
     }
 
     private void Update()
@@ -111,38 +135,130 @@ public class BonusHeartPickup : MonoBehaviour
             return;
 
         if (mainCamera == null)
-            mainCamera = Camera.main;
+        {
+            mainCamera =
+                Camera.main;
+        }
 
+        if (mainCamera == null)
+            return;
+
+        /*
+         * ПК — мышь.
+         */
         if (Mouse.current != null &&
             Mouse.current.leftButton.wasPressedThisFrame)
         {
-            TryPickup(
-                Mouse.current.position.ReadValue()
-            );
+            Vector2 mousePosition =
+                Mouse.current.position.ReadValue();
+
+            /*
+             * Защита от NaN / Infinity /
+             * позиции вне экрана.
+             */
+            if (IsValidScreenPosition(
+                    mousePosition))
+            {
+                TryPickup(
+                    mousePosition
+                );
+            }
         }
 
+        /*
+         * Android / iPhone — палец.
+         */
         if (Touchscreen.current != null &&
-            Touchscreen.current.primaryTouch.press.wasPressedThisFrame)
+            Touchscreen.current
+                .primaryTouch
+                .press
+                .wasPressedThisFrame)
         {
-            TryPickup(
-                Touchscreen.current.primaryTouch.position.ReadValue()
-            );
+            Vector2 touchPosition =
+                Touchscreen.current
+                    .primaryTouch
+                    .position
+                    .ReadValue();
+
+            /*
+             * Такая же защита
+             * для Touch Input.
+             */
+            if (IsValidScreenPosition(
+                    touchPosition))
+            {
+                TryPickup(
+                    touchPosition
+                );
+            }
         }
     }
 
-    private void TryPickup(Vector2 screenPos)
+    private void TryPickup(
+        Vector2 screenPos
+    )
     {
         if (mainCamera == null)
             return;
 
+        /*
+         * Вторая линия защиты.
+         *
+         * Даже если TryPickup когда-нибудь
+         * будет вызван из другого места,
+         * некорректные координаты всё равно
+         * не попадут в ScreenToWorldPoint.
+         */
+        if (!IsValidScreenPosition(
+                screenPos))
+        {
+            return;
+        }
+
+        float cameraDistance =
+            Mathf.Abs(
+                transform.position.z -
+                mainCamera.transform.position.z
+            );
+
+        Vector3 screenPoint =
+            new Vector3(
+                screenPos.x,
+                screenPos.y,
+                cameraDistance
+            );
+
+        if (!IsFiniteVector3(
+                screenPoint))
+        {
+            return;
+        }
+
         Vector3 worldPos =
-            mainCamera.ScreenToWorldPoint(screenPos);
+            mainCamera.ScreenToWorldPoint(
+                screenPoint
+            );
+
+        /*
+         * На всякий случай проверяем
+         * уже и результат преобразования.
+         */
+        if (!IsFiniteVector3(
+                worldPos))
+        {
+            return;
+        }
 
         Vector2 point2D =
-            new Vector2(worldPos.x, worldPos.y);
+            new Vector2(
+                worldPos.x,
+                worldPos.y
+            );
 
         Collider2D hit =
-            Physics2D.OverlapPoint(point2D);
+            Physics2D.OverlapPoint(
+                point2D
+            );
 
         if (hit == null)
             return;
@@ -151,7 +267,9 @@ public class BonusHeartPickup : MonoBehaviour
             return;
 
         GameObject player =
-            GameObject.FindGameObjectWithTag(playerTag);
+            GameObject.FindGameObjectWithTag(
+                playerTag
+            );
 
         if (player == null)
         {
@@ -162,10 +280,11 @@ public class BonusHeartPickup : MonoBehaviour
             return;
         }
 
-        float distance = Vector2.Distance(
-            player.transform.position,
-            transform.position
-        );
+        float distance =
+            Vector2.Distance(
+                player.transform.position,
+                transform.position
+            );
 
         if (distance > pickupDistance)
         {
@@ -177,7 +296,10 @@ public class BonusHeartPickup : MonoBehaviour
         }
 
         if (playerHealth == null)
-            playerHealth = player.GetComponent<PlayerHealth>();
+        {
+            playerHealth =
+                player.GetComponent<PlayerHealth>();
+        }
 
         Pickup();
     }
@@ -190,12 +312,14 @@ public class BonusHeartPickup : MonoBehaviour
         pickedUp = true;
 
         /*
-         * Запоминаем состояние здоровья именно в момент подбора.
+         * Запоминаем состояние здоровья
+         * именно в момент подбора.
          *
-         * Если хотя бы одного обычного сердца не хватает —
+         * Если хотя бы одного обычного
+         * сердца не хватает —
          * восстанавливаем обычное сердце.
          *
-         * Если обычные сердца уже заполнены —
+         * Если обычные сердца заполнены —
          * добавляем бонус x1.
          */
         shouldRestoreRegularHeart =
@@ -203,13 +327,21 @@ public class BonusHeartPickup : MonoBehaviour
             playerHealth.HasMissingHearts;
 
         if (pickupCollider != null)
-            pickupCollider.enabled = false;
+        {
+            pickupCollider.enabled =
+                false;
+        }
 
         if (heartPulse != null)
-            heartPulse.enabled = false;
+        {
+            heartPulse.enabled =
+                false;
+        }
 
         if (usePickupHaptics)
+        {
             MicroHaptics.TinyClick();
+        }
 
         if (audioSource != null &&
             pickupSound != null)
@@ -225,10 +357,13 @@ public class BonusHeartPickup : MonoBehaviour
                 ? regularHeartsTargetUI
                 : bonusHeartBadgeUI;
 
-        if (animateToUI && targetUI != null)
+        if (animateToUI &&
+            targetUI != null)
         {
             StartCoroutine(
-                AnimateHeartToUI(targetUI)
+                AnimateHeartToUI(
+                    targetUI
+                )
             );
         }
         else
@@ -242,7 +377,10 @@ public class BonusHeartPickup : MonoBehaviour
     )
     {
         if (mainCamera == null)
-            mainCamera = Camera.main;
+        {
+            mainCamera =
+                Camera.main;
+        }
 
         Vector3 startWorldPos =
             transform.position;
@@ -268,46 +406,89 @@ public class BonusHeartPickup : MonoBehaviour
             if (canvas.renderMode !=
                 RenderMode.ScreenSpaceOverlay)
             {
-                uiCamera = canvas.worldCamera;
+                uiCamera =
+                    canvas.worldCamera;
 
                 if (uiCamera == null)
-                    uiCamera = mainCamera;
+                {
+                    uiCamera =
+                        mainCamera;
+                }
             }
 
             Vector3 screenPoint =
-                RectTransformUtility.WorldToScreenPoint(
-                    uiCamera,
-                    targetRect.position
-                );
+                RectTransformUtility
+                    .WorldToScreenPoint(
+                        uiCamera,
+                        targetRect.position
+                    );
 
-            screenPoint.z = Mathf.Abs(
-                mainCamera.transform.position.z -
-                transform.position.z
-            );
+            /*
+             * Проверяем позицию UI
+             * перед использованием.
+             */
+            if (IsFiniteVector3(
+                    screenPoint))
+            {
+                screenPoint.z =
+                    Mathf.Abs(
+                        mainCamera
+                            .transform
+                            .position
+                            .z -
+                        transform
+                            .position
+                            .z
+                    );
 
-            targetWorldPos =
-                mainCamera.ScreenToWorldPoint(screenPoint);
+                if (IsFiniteVector3(
+                        screenPoint))
+                {
+                    Vector3 convertedPosition =
+                        mainCamera
+                            .ScreenToWorldPoint(
+                                screenPoint
+                            );
 
-            targetWorldPos.z =
-                transform.position.z;
+                    if (IsFiniteVector3(
+                            convertedPosition))
+                    {
+                        targetWorldPos =
+                            convertedPosition;
+
+                        targetWorldPos.z =
+                            transform.position.z;
+                    }
+                }
+            }
         }
 
         float safeFlyDuration =
-            Mathf.Max(0.01f, flyDuration);
+            Mathf.Max(
+                0.01f,
+                flyDuration
+            );
 
         float time = 0f;
         sparkTimer = 0f;
 
         Vector3 endScale =
-            startScale * endScaleMultiplier;
+            startScale *
+            endScaleMultiplier;
 
-        while (time < safeFlyDuration)
+        while (time <
+               safeFlyDuration)
         {
             float t =
-                time / safeFlyDuration;
+                time /
+                safeFlyDuration;
 
             float smoothT =
-                Mathf.SmoothStep(0f, 1f, t);
+                Mathf.SmoothStep(
+                    0f,
+                    1f,
+                    t
+                );
 
             Vector3 position =
                 Vector3.Lerp(
@@ -317,10 +498,14 @@ public class BonusHeartPickup : MonoBehaviour
                 );
 
             position.y +=
-                Mathf.Sin(smoothT * Mathf.PI) *
+                Mathf.Sin(
+                    smoothT *
+                    Mathf.PI
+                ) *
                 flyArcHeight;
 
-            transform.position = position;
+            transform.position =
+                position;
 
             transform.localScale =
                 Vector3.Lerp(
@@ -331,7 +516,8 @@ public class BonusHeartPickup : MonoBehaviour
 
             SpawnSparkTrail();
 
-            time += Time.deltaTime;
+            time +=
+                Time.deltaTime;
 
             yield return null;
         }
@@ -343,6 +529,7 @@ public class BonusHeartPickup : MonoBehaviour
             endScale;
 
         SpawnEndBurst();
+
         FinishPickupInstant();
     }
 
@@ -354,14 +541,18 @@ public class BonusHeartPickup : MonoBehaviour
         if (sparksPerSecond <= 0)
             return;
 
-        sparkTimer += Time.deltaTime;
+        sparkTimer +=
+            Time.deltaTime;
 
         float interval =
-            1f / sparksPerSecond;
+            1f /
+            sparksPerSecond;
 
-        while (sparkTimer >= interval)
+        while (sparkTimer >=
+               interval)
         {
-            sparkTimer -= interval;
+            sparkTimer -=
+                interval;
 
             SpawnStarSpark(
                 transform.position,
@@ -378,7 +569,9 @@ public class BonusHeartPickup : MonoBehaviour
         if (!useGoldenSparkTrail)
             return;
 
-        for (int i = 0; i < endBurstCount; i++)
+        for (int i = 0;
+             i < endBurstCount;
+             i++)
         {
             SpawnStarSpark(
                 transform.position,
@@ -406,20 +599,32 @@ public class BonusHeartPickup : MonoBehaviour
         sparkRoot.transform.position =
             centerPos +
             new Vector3(
-                Random.Range(-spread, spread),
-                Random.Range(-spread, spread),
+                Random.Range(
+                    -spread,
+                    spread
+                ),
+                Random.Range(
+                    -spread,
+                    spread
+                ),
                 0f
             );
 
         sparkRoot.transform.localScale =
             Vector3.one *
-            Random.Range(0.75f, 1.25f);
+            Random.Range(
+                0.75f,
+                1.25f
+            );
 
         sparkRoot.transform.rotation =
             Quaternion.Euler(
                 0f,
                 0f,
-                Random.Range(0f, 360f)
+                Random.Range(
+                    0f,
+                    360f
+                )
             );
 
         SpriteRenderer lineA =
@@ -457,9 +662,13 @@ public class BonusHeartPickup : MonoBehaviour
     )
     {
         GameObject line =
-            new GameObject("Spark_Line");
+            new GameObject(
+                "Spark_Line"
+            );
 
-        line.transform.SetParent(parent);
+        line.transform.SetParent(
+            parent
+        );
 
         line.transform.localPosition =
             Vector3.zero;
@@ -481,16 +690,21 @@ public class BonusHeartPickup : MonoBehaviour
         SpriteRenderer sprite =
             line.AddComponent<SpriteRenderer>();
 
-        sprite.sprite = sparkSprite;
-        sprite.color = sparkColor;
+        sprite.sprite =
+            sparkSprite;
+
+        sprite.color =
+            sparkColor;
 
         if (spriteRenderer != null)
         {
             sprite.sortingLayerID =
-                spriteRenderer.sortingLayerID;
+                spriteRenderer
+                    .sortingLayerID;
 
             sprite.sortingOrder =
-                spriteRenderer.sortingOrder +
+                spriteRenderer
+                    .sortingOrder +
                 sparkSortingOrderOffset;
         }
 
@@ -509,10 +723,15 @@ public class BonusHeartPickup : MonoBehaviour
             yield break;
 
         float safeLifetime =
-            Mathf.Max(0.01f, lifetime);
+            Mathf.Max(
+                0.01f,
+                lifetime
+            );
 
         Vector3 startPos =
-            sparkRoot.transform.position;
+            sparkRoot
+                .transform
+                .position;
 
         Vector3 endPos =
             startPos +
@@ -529,27 +748,37 @@ public class BonusHeartPickup : MonoBehaviour
             );
 
         Vector3 startScale =
-            sparkRoot.transform.localScale;
+            sparkRoot
+                .transform
+                .localScale;
 
         Vector3 endScale =
-            startScale * 0.2f;
+            startScale *
+            0.2f;
 
         float timer = 0f;
 
-        while (timer < safeLifetime)
+        while (timer <
+               safeLifetime)
         {
             if (sparkRoot == null)
                 yield break;
 
-            timer += Time.deltaTime;
+            timer +=
+                Time.deltaTime;
 
             float t =
                 Mathf.Clamp01(
-                    timer / safeLifetime
+                    timer /
+                    safeLifetime
                 );
 
             float smoothT =
-                Mathf.SmoothStep(0f, 1f, t);
+                Mathf.SmoothStep(
+                    0f,
+                    1f,
+                    t
+                );
 
             sparkRoot.transform.position =
                 Vector3.Lerp(
@@ -592,7 +821,9 @@ public class BonusHeartPickup : MonoBehaviour
             yield return null;
         }
 
-        Destroy(sparkRoot);
+        Destroy(
+            sparkRoot
+        );
     }
 
     private void SetRendererAlpha(
@@ -603,23 +834,41 @@ public class BonusHeartPickup : MonoBehaviour
         if (sprite == null)
             return;
 
-        Color color = sprite.color;
-        color.a = alpha;
-        sprite.color = color;
+        Color color =
+            sprite.color;
+
+        color.a =
+            alpha;
+
+        sprite.color =
+            color;
     }
 
     private Sprite CreateWhiteSprite()
     {
         Texture2D texture =
-            new Texture2D(8, 8);
+            new Texture2D(
+                8,
+                8
+            );
 
         Color[] pixels =
-            new Color[8 * 8];
+            new Color[
+                8 * 8
+            ];
 
-        for (int i = 0; i < pixels.Length; i++)
-            pixels[i] = Color.white;
+        for (int i = 0;
+             i < pixels.Length;
+             i++)
+        {
+            pixels[i] =
+                Color.white;
+        }
 
-        texture.SetPixels(pixels);
+        texture.SetPixels(
+            pixels
+        );
+
         texture.Apply();
 
         return Sprite.Create(
@@ -630,27 +879,36 @@ public class BonusHeartPickup : MonoBehaviour
                 texture.width,
                 texture.height
             ),
-            new Vector2(0.5f, 0.5f),
+            new Vector2(
+                0.5f,
+                0.5f
+            ),
             8f
         );
     }
 
     private void FinishPickupInstant()
     {
-        bool regularHeartWasRestored = false;
+        bool regularHeartWasRestored =
+            false;
 
         if (shouldRestoreRegularHeart &&
             playerHealth != null)
         {
             regularHeartWasRestored =
-                playerHealth.TryRestoreHeart();
+                playerHealth
+                    .TryRestoreHeart();
         }
 
         /*
-         * Бонус добавляется только в двух случаях:
+         * Бонус добавляется только если:
          *
-         * 1. В момент подбора обычные сердца уже были заполнены.
-         * 2. По какой-либо причине обычное сердце восстановить не удалось.
+         * 1. Обычные сердца уже были полными.
+         *
+         * ИЛИ
+         *
+         * 2. Восстановить обычное сердце
+         * по какой-либо причине не удалось.
          */
         if (!regularHeartWasRestored &&
             heartsUI != null)
@@ -659,18 +917,25 @@ public class BonusHeartPickup : MonoBehaviour
         }
 
         if (spriteRenderer != null)
-            spriteRenderer.enabled = false;
+        {
+            spriteRenderer.enabled =
+                false;
+        }
 
-        float waitTime = 0.05f;
+        float waitTime =
+            0.05f;
 
         if (pickupSound != null)
         {
             waitTime =
-                pickupSound.length + 0.05f;
+                pickupSound.length +
+                0.05f;
         }
 
         StartCoroutine(
-            DisableAfterSound(waitTime)
+            DisableAfterSound(
+                waitTime
+            )
         );
     }
 
@@ -680,11 +945,71 @@ public class BonusHeartPickup : MonoBehaviour
     {
         if (delay > 0f)
         {
-            yield return new WaitForSeconds(
-                delay
-            );
+            yield return
+                new WaitForSeconds(
+                    delay
+                );
         }
 
-        gameObject.SetActive(false);
+        gameObject.SetActive(
+            false
+        );
+    }
+
+    /*
+     * =========================================================
+     * INPUT SAFETY
+     * =========================================================
+     *
+     * Не позволяет NaN, Infinity или координатам,
+     * находящимся за пределами окна игры,
+     * попасть в Camera.ScreenToWorldPoint().
+     *
+     * Именно отсутствие этой проверки
+     * и вызвало ошибку:
+     *
+     * Screen position out of view frustum
+     * screen pos -nan(ind), -nan(ind)
+     */
+    private bool IsValidScreenPosition(
+        Vector2 position
+    )
+    {
+        if (!IsFinite(
+                position.x) ||
+            !IsFinite(
+                position.y))
+        {
+            return false;
+        }
+
+        if (position.x < 0f ||
+            position.y < 0f ||
+            position.x > Screen.width ||
+            position.y > Screen.height)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    private bool IsFiniteVector3(
+        Vector3 value
+    )
+    {
+        return
+            IsFinite(value.x) &&
+            IsFinite(value.y) &&
+            IsFinite(value.z);
+    }
+
+    private bool IsFinite(
+        float value
+    )
+    {
+        return
+            !float.IsNaN(value) &&
+            !float.IsInfinity(value);
     }
 }

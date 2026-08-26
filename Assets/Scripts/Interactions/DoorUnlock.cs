@@ -7,7 +7,34 @@ public class DoorUnlock : MonoBehaviour
     [SerializeField] private Transform doorLeft;
     [SerializeField] private Transform doorRight;
     [SerializeField] private Transform lockBar;
+
+    [Header("Door Passage Collider")]
+    [Tooltip(
+        "Коллайдер самой картинки ворот. " +
+        "Он переводится в Trigger, чтобы игрок и Guard " +
+        "могли свободно ходить перед воротами."
+    )]
     [SerializeField] private Collider2D doorCollider;
+
+    [Header("Level Exit")]
+    [Tooltip(
+        "Trigger выхода в туннель / завершения уровня. " +
+        "Пока ворота закрыты, он будет выключен. " +
+        "После открытия включится."
+    )]
+    [SerializeField] private Collider2D levelExitTrigger;
+
+    [Header("Guard Requirement")]
+    [Tooltip(
+        "Страж, которого обязательно нужно уничтожить " +
+        "перед открытием ворот."
+    )]
+    [SerializeField] private GuardEnemy requiredGuard;
+
+    [Tooltip(
+        "Если включено, дверь нельзя открыть, пока Guard жив."
+    )]
+    [SerializeField] private bool requireGuardDefeated = true;
 
     [Header("Sorting")]
     [SerializeField] private int doorOrderInLayer = 1;
@@ -16,6 +43,11 @@ public class DoorUnlock : MonoBehaviour
 
     [Header("Player")]
     [SerializeField] private string playerTag = "Player";
+
+    [Tooltip(
+        "Насколько близко игрок должен стоять к воротам, " +
+        "чтобы ключ сработал."
+    )]
     [SerializeField] private float interactDistance = 1f;
 
     [Header("Key UI")]
@@ -50,19 +82,67 @@ public class DoorUnlock : MonoBehaviour
     [SerializeField] private bool debugLogs = true;
 
     private bool isOpened;
+    private bool openingStarted;
+
+    public bool IsOpened => isOpened;
 
     private void Awake()
     {
         if (doorCollider == null)
-            doorCollider = GetComponent<Collider2D>();
+        {
+            doorCollider =
+                GetComponent<Collider2D>();
+        }
 
         if (unlockAudioSource == null)
-            unlockAudioSource = GetComponent<AudioSource>();
+        {
+            unlockAudioSource =
+                GetComponent<AudioSource>();
+        }
+
+        if (requiredGuard == null)
+        {
+            requiredGuard =
+                Object.FindFirstObjectByType<GuardEnemy>();
+        }
+
+        /*
+         * ВАЖНО.
+         *
+         * Сами ворота визуально находятся
+         * ЗА игроком и Guard.
+         *
+         * Поэтому их Collider не должен быть
+         * физической стеной в горизонтальном коридоре.
+         *
+         * Но Collider мы не удаляем.
+         * Просто переводим его в Trigger.
+         */
+        if (doorCollider != null)
+        {
+            doorCollider.isTrigger = true;
+            doorCollider.enabled = true;
+        }
+
+        /*
+         * Выход в тоннель нельзя активировать,
+         * пока дверь закрыта.
+         */
+        if (levelExitTrigger != null)
+        {
+            levelExitTrigger.enabled = false;
+        }
 
         FixSortingOrder();
 
         if (lockFlash != null)
-            lockFlash.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        {
+            lockFlash.Stop(
+                true,
+                ParticleSystemStopBehavior
+                    .StopEmittingAndClear
+            );
+        }
     }
 
     private void Start()
@@ -72,107 +152,319 @@ public class DoorUnlock : MonoBehaviour
 
     private void FixSortingOrder()
     {
-        SetOrder(doorLeft, doorOrderInLayer);
-        SetOrder(doorRight, doorOrderInLayer);
-        SetOrder(lockBar, lockOrderInLayer);
+        SetOrder(
+            doorLeft,
+            doorOrderInLayer
+        );
+
+        SetOrder(
+            doorRight,
+            doorOrderInLayer
+        );
+
+        SetOrder(
+            lockBar,
+            lockOrderInLayer
+        );
 
         if (lockFlash != null)
         {
-            ParticleSystemRenderer psRenderer = lockFlash.GetComponent<ParticleSystemRenderer>();
+            ParticleSystemRenderer psRenderer =
+                lockFlash.GetComponent<
+                    ParticleSystemRenderer
+                >();
+
             if (psRenderer != null)
-                psRenderer.sortingOrder = flashOrderInLayer;
+            {
+                psRenderer.sortingOrder =
+                    flashOrderInLayer;
+            }
         }
     }
 
-    private void SetOrder(Transform target, int order)
+    private void SetOrder(
+        Transform target,
+        int order
+    )
     {
-        if (target == null) return;
+        if (target == null)
+            return;
 
-        SpriteRenderer sr = target.GetComponent<SpriteRenderer>();
+        SpriteRenderer sr =
+            target.GetComponent<SpriteRenderer>();
+
         if (sr != null)
-            sr.sortingOrder = order;
+        {
+            sr.sortingOrder =
+                order;
+        }
     }
 
     public void TryOpenDoorWithKey()
     {
-        if (isOpened)
+        if (isOpened ||
+            openingStarted)
+        {
             return;
+        }
 
+        /*
+         * 1. Сначала обязательно проверяем Guard.
+         */
+        if (requireGuardDefeated)
+        {
+            if (requiredGuard == null)
+            {
+                requiredGuard =
+                    Object.FindFirstObjectByType<
+                        GuardEnemy
+                    >();
+            }
+
+            if (requiredGuard != null &&
+                !requiredGuard.IsDead)
+            {
+                if (debugLogs)
+                {
+                    Debug.Log(
+                        "[DOOR] Guard is still alive. " +
+                        "Door stays closed.",
+                        this
+                    );
+                }
+
+                return;
+            }
+
+            /*
+             * Если requireGuardDefeated включён,
+             * а Guard вообще не назначен и не найден,
+             * дверь тоже не открываем.
+             *
+             * Так мы не получим случайного обхода
+             * условия из-за неправильной ссылки.
+             */
+            if (requiredGuard == null)
+            {
+                if (debugLogs)
+                {
+                    Debug.LogWarning(
+                        "[DOOR] Required Guard not found. " +
+                        "Door cannot open.",
+                        this
+                    );
+                }
+
+                return;
+            }
+        }
+
+        /*
+         * 2. Проверяем ключ.
+         */
         if (!KeyPickup.PlayerHasKey())
         {
             if (debugLogs)
-                Debug.Log("[DOOR] No key. Door stays closed.", this);
+            {
+                Debug.Log(
+                    "[DOOR] No key. " +
+                    "Door stays closed.",
+                    this
+                );
+            }
 
             return;
         }
 
-        GameObject playerObj = GameObject.FindGameObjectWithTag(playerTag);
+        /*
+         * 3. Ищем игрока.
+         */
+        GameObject playerObj =
+            GameObject.FindGameObjectWithTag(
+                playerTag
+            );
 
         if (playerObj == null)
         {
             if (debugLogs)
-                Debug.LogWarning("[DOOR] Player not found.", this);
+            {
+                Debug.LogWarning(
+                    "[DOOR] Player not found.",
+                    this
+                );
+            }
 
             return;
         }
 
-        float distance = Vector2.Distance(playerObj.transform.position, transform.position);
+        /*
+         * 4. Проверяем расстояние.
+         */
+        float distance =
+            Vector2.Distance(
+                playerObj.transform.position,
+                transform.position
+            );
 
         if (debugLogs)
-            Debug.Log($"[DOOR] TryOpenDoorWithKey. Distance = {distance:F2}", this);
+        {
+            Debug.Log(
+                $"[DOOR] TryOpenDoorWithKey. " +
+                $"Distance = {distance:F2}",
+                this
+            );
+        }
 
-        if (distance > interactDistance)
+        if (distance >
+            interactDistance)
         {
             if (debugLogs)
-                Debug.Log("[DOOR] Player too far.", this);
+            {
+                Debug.Log(
+                    "[DOOR] Player too far.",
+                    this
+                );
+            }
 
             return;
         }
 
-        StartCoroutine(OpenDoorRoutine());
+        /*
+         * Все условия выполнены:
+         *
+         * Guard мёртв.
+         * Ключ есть.
+         * Игрок рядом.
+         */
+        StartCoroutine(
+            OpenDoorRoutine()
+        );
     }
 
     private IEnumerator OpenDoorRoutine()
     {
-        isOpened = true;
+        if (openingStarted ||
+            isOpened)
+        {
+            yield break;
+        }
+
+        openingStarted = true;
 
         FixSortingOrder();
 
         if (debugLogs)
-            Debug.Log("[DOOR] Door opening started.", this);
+        {
+            Debug.Log(
+                "[DOOR] Door opening started.",
+                this
+            );
+        }
 
+        /*
+         * Иконку ключа убираем.
+         */
         if (keyIconUI != null)
+        {
             keyIconUI.SetActive(false);
+        }
 
+        /*
+         * Ключ расходуется только тогда,
+         * когда дверь реально начала открываться.
+         *
+         * Если Guard жив или игрок далеко,
+         * ключ НЕ тратится.
+         */
         KeyPickup.ConsumeKey();
 
         if (useUnlockHaptics)
+        {
             MicroHaptics.TinyClick();
+        }
 
         PlayUnlockSound();
 
-        if (lockFlash != null && playFlashBeforeLockFalls)
+        /*
+         * Вспышка перед падением замка.
+         */
+        if (lockFlash != null &&
+            playFlashBeforeLockFalls)
         {
-            lockFlash.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            lockFlash.Stop(
+                true,
+                ParticleSystemStopBehavior
+                    .StopEmittingAndClear
+            );
+
             lockFlash.Play();
         }
 
+        /*
+         * Падение центрального замка.
+         */
         if (lockBar != null)
-            yield return StartCoroutine(FallLockRoutine());
-
-        if (lockFlash != null && !playFlashBeforeLockFalls)
         {
-            lockFlash.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            yield return StartCoroutine(
+                FallLockRoutine()
+            );
+        }
+
+        /*
+         * Либо вспышка после замка,
+         * если так выставлено в Inspector.
+         */
+        if (lockFlash != null &&
+            !playFlashBeforeLockFalls)
+        {
+            lockFlash.Stop(
+                true,
+                ParticleSystemStopBehavior
+                    .StopEmittingAndClear
+            );
+
             lockFlash.Play();
         }
 
-        yield return StartCoroutine(OpenWingsRoutine());
+        /*
+         * Раздвигаем створки.
+         */
+        yield return StartCoroutine(
+            OpenWingsRoutine()
+        );
 
+        /*
+         * Сам Collider картинки двери
+         * больше вообще не нужен.
+         *
+         * До открытия он был Trigger,
+         * поэтому не мешал ходить.
+         */
         if (doorCollider != null)
+        {
             doorCollider.enabled = false;
+        }
+
+        /*
+         * ТЕПЕРЬ открываем настоящий выход
+         * в туннель / LevelExitTrigger.
+         */
+        if (levelExitTrigger != null)
+        {
+            levelExitTrigger.enabled = true;
+        }
+
+        isOpened = true;
+        openingStarted = false;
 
         if (debugLogs)
-            Debug.Log("[DOOR] Door opened. Collider disabled.", this);
+        {
+            Debug.Log(
+                "[DOOR] Door opened. " +
+                "Level exit enabled.",
+                this
+            );
+        }
     }
 
     private void PlayUnlockSound()
@@ -184,94 +476,292 @@ public class DoorUnlock : MonoBehaviour
             return;
 
         if (unlockAudioSource.clip != null)
-            unlockAudioSource.PlayOneShot(unlockAudioSource.clip);
+        {
+            unlockAudioSource.PlayOneShot(
+                unlockAudioSource.clip
+            );
+        }
         else
+        {
             unlockAudioSource.Play();
+        }
     }
 
     private IEnumerator FallLockRoutine()
     {
-        Vector3 startPos = lockBar.localPosition;
-        Vector3 endPos = startPos + new Vector3(0f, -lockFallDistance, 0f);
+        Vector3 startPos =
+            lockBar.localPosition;
 
-        SpriteRenderer lockRenderer = lockBar.GetComponent<SpriteRenderer>();
-        Color startColor = lockRenderer != null ? lockRenderer.color : Color.white;
+        Vector3 endPos =
+            startPos +
+            new Vector3(
+                0f,
+                -lockFallDistance,
+                0f
+            );
+
+        SpriteRenderer lockRenderer =
+            lockBar.GetComponent<SpriteRenderer>();
+
+        Color startColor =
+            lockRenderer != null
+                ? lockRenderer.color
+                : Color.white;
+
+        float safeDuration =
+            Mathf.Max(
+                0.01f,
+                lockFallDuration
+            );
 
         float timer = 0f;
 
-        while (timer < lockFallDuration)
+        while (timer <
+               safeDuration)
         {
-            timer += Time.deltaTime;
-            float t = Mathf.Clamp01(timer / lockFallDuration);
-            t = Mathf.SmoothStep(0f, 1f, t);
+            timer +=
+                Time.deltaTime;
 
-            lockBar.localPosition = Vector3.Lerp(startPos, endPos, t);
+            float t =
+                Mathf.Clamp01(
+                    timer /
+                    safeDuration
+                );
+
+            t =
+                Mathf.SmoothStep(
+                    0f,
+                    1f,
+                    t
+                );
+
+            lockBar.localPosition =
+                Vector3.Lerp(
+                    startPos,
+                    endPos,
+                    t
+                );
 
             if (lockRenderer != null)
             {
-                Color c = startColor;
-                c.a = Mathf.Lerp(startColor.a, 0f, t);
-                lockRenderer.color = c;
+                Color c =
+                    startColor;
+
+                c.a =
+                    Mathf.Lerp(
+                        startColor.a,
+                        0f,
+                        t
+                    );
+
+                lockRenderer.color =
+                    c;
             }
 
             yield return null;
         }
 
-        lockBar.gameObject.SetActive(false);
+        lockBar.localPosition =
+            endPos;
+
+        if (lockBar != null)
+        {
+            lockBar.gameObject.SetActive(
+                false
+            );
+        }
     }
 
     private IEnumerator OpenWingsRoutine()
     {
-        if (doorLeft == null || doorRight == null)
+        if (doorLeft == null ||
+            doorRight == null)
         {
-            Debug.LogWarning("[DOOR] Door parts are not assigned.", this);
+            Debug.LogWarning(
+                "[DOOR] Door parts " +
+                "are not assigned.",
+                this
+            );
+
             yield break;
         }
 
         FixSortingOrder();
 
-        Vector3 leftStartPos = doorLeft.localPosition;
-        Vector3 rightStartPos = doorRight.localPosition;
+        Vector3 leftStartPos =
+            doorLeft.localPosition;
 
-        Vector3 leftEndPos = leftStartPos + new Vector3(leftOpenXOffset, 0f, 0f);
-        Vector3 rightEndPos = rightStartPos + new Vector3(rightOpenXOffset, 0f, 0f);
+        Vector3 rightStartPos =
+            doorRight.localPosition;
 
-        Vector3 leftStartScale = doorLeft.localScale;
-        Vector3 rightStartScale = doorRight.localScale;
+        Vector3 leftEndPos =
+            leftStartPos +
+            new Vector3(
+                leftOpenXOffset,
+                0f,
+                0f
+            );
 
-        Vector3 leftEndScale = new Vector3(openedScaleX, openedScaleY, leftStartScale.z);
-        Vector3 rightEndScale = new Vector3(openedScaleX, openedScaleY, rightStartScale.z);
+        Vector3 rightEndPos =
+            rightStartPos +
+            new Vector3(
+                rightOpenXOffset,
+                0f,
+                0f
+            );
 
-        SpriteRenderer leftRenderer = doorLeft.GetComponent<SpriteRenderer>();
-        SpriteRenderer rightRenderer = doorRight.GetComponent<SpriteRenderer>();
+        Vector3 leftStartScale =
+            doorLeft.localScale;
 
-        Color leftStartColor = leftRenderer != null ? leftRenderer.color : Color.white;
-        Color rightStartColor = rightRenderer != null ? rightRenderer.color : Color.white;
+        Vector3 rightStartScale =
+            doorRight.localScale;
 
-        Color leftEndColor = new Color(openedDarkness, openedDarkness, openedDarkness, leftStartColor.a);
-        Color rightEndColor = new Color(openedDarkness, openedDarkness, openedDarkness, rightStartColor.a);
+        Vector3 leftEndScale =
+            new Vector3(
+                openedScaleX,
+                openedScaleY,
+                leftStartScale.z
+            );
+
+        Vector3 rightEndScale =
+            new Vector3(
+                openedScaleX,
+                openedScaleY,
+                rightStartScale.z
+            );
+
+        SpriteRenderer leftRenderer =
+            doorLeft.GetComponent<SpriteRenderer>();
+
+        SpriteRenderer rightRenderer =
+            doorRight.GetComponent<SpriteRenderer>();
+
+        Color leftStartColor =
+            leftRenderer != null
+                ? leftRenderer.color
+                : Color.white;
+
+        Color rightStartColor =
+            rightRenderer != null
+                ? rightRenderer.color
+                : Color.white;
+
+        Color leftEndColor =
+            new Color(
+                openedDarkness,
+                openedDarkness,
+                openedDarkness,
+                leftStartColor.a
+            );
+
+        Color rightEndColor =
+            new Color(
+                openedDarkness,
+                openedDarkness,
+                openedDarkness,
+                rightStartColor.a
+            );
+
+        float safeDuration =
+            Mathf.Max(
+                0.01f,
+                openDuration
+            );
 
         float timer = 0f;
 
-        while (timer < openDuration)
+        while (timer <
+               safeDuration)
         {
-            timer += Time.deltaTime;
-            float t = Mathf.Clamp01(timer / openDuration);
-            t = Mathf.SmoothStep(0f, 1f, t);
+            timer +=
+                Time.deltaTime;
 
-            doorLeft.localPosition = Vector3.Lerp(leftStartPos, leftEndPos, t);
-            doorRight.localPosition = Vector3.Lerp(rightStartPos, rightEndPos, t);
+            float t =
+                Mathf.Clamp01(
+                    timer /
+                    safeDuration
+                );
 
-            doorLeft.localScale = Vector3.Lerp(leftStartScale, leftEndScale, t);
-            doorRight.localScale = Vector3.Lerp(rightStartScale, rightEndScale, t);
+            t =
+                Mathf.SmoothStep(
+                    0f,
+                    1f,
+                    t
+                );
+
+            doorLeft.localPosition =
+                Vector3.Lerp(
+                    leftStartPos,
+                    leftEndPos,
+                    t
+                );
+
+            doorRight.localPosition =
+                Vector3.Lerp(
+                    rightStartPos,
+                    rightEndPos,
+                    t
+                );
+
+            doorLeft.localScale =
+                Vector3.Lerp(
+                    leftStartScale,
+                    leftEndScale,
+                    t
+                );
+
+            doorRight.localScale =
+                Vector3.Lerp(
+                    rightStartScale,
+                    rightEndScale,
+                    t
+                );
 
             if (leftRenderer != null)
-                leftRenderer.color = Color.Lerp(leftStartColor, leftEndColor, t);
+            {
+                leftRenderer.color =
+                    Color.Lerp(
+                        leftStartColor,
+                        leftEndColor,
+                        t
+                    );
+            }
 
             if (rightRenderer != null)
-                rightRenderer.color = Color.Lerp(rightStartColor, rightEndColor, t);
+            {
+                rightRenderer.color =
+                    Color.Lerp(
+                        rightStartColor,
+                        rightEndColor,
+                        t
+                    );
+            }
 
             yield return null;
+        }
+
+        doorLeft.localPosition =
+            leftEndPos;
+
+        doorRight.localPosition =
+            rightEndPos;
+
+        doorLeft.localScale =
+            leftEndScale;
+
+        doorRight.localScale =
+            rightEndScale;
+
+        if (leftRenderer != null)
+        {
+            leftRenderer.color =
+                leftEndColor;
+        }
+
+        if (rightRenderer != null)
+        {
+            rightRenderer.color =
+                rightEndColor;
         }
 
         FixSortingOrder();
