@@ -1,129 +1,214 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class PrisonBreakDoor : MonoBehaviour
 {
-    [Header("References")]
-    [SerializeField] private Transform doorVisual;
-    [SerializeField] private SpriteRenderer doorSpriteRenderer;
-    [SerializeField] private Collider2D doorCollider;
+    // ============================================================
+    // REFERENCES
+    // ============================================================
 
-    [SerializeField] private Transform player;
-    [SerializeField] private PlayerKick playerKick;
+    [Header("REFERENCES")]
 
-    [Header("Background Behind Door")]
-    [Tooltip("Чёрный фон за решёткой. Видим у целой и повреждённой двери, скрываем после разрушения.")]
-    [SerializeField] private GameObject blackBackground;
+    [SerializeField]
+    private Transform doorVisual;
 
-    [Header("Door Sprites")]
-    [SerializeField] private Sprite intactSprite;
-    [SerializeField] private Sprite damagedSprite;
-    [SerializeField] private Sprite brokenSprite;
+    [SerializeField]
+    private SpriteRenderer doorSpriteRenderer;
 
-    [Header("Door Settings")]
-    [SerializeField] private int hitsToBreak = 8;
-    [SerializeField] private int damagedSpriteHit = 4;
-    [SerializeField] private float interactDistance = 1.6f;
+    [SerializeField]
+    private Collider2D doorCollider;
 
-    [Tooltip("Через сколько секунд после начала удара ногой дверь получает удар.")]
-    [SerializeField] private float kickImpactDelay = 0.08f;
+    /*
+     * Player здесь нужен ТОЛЬКО для того,
+     * чтобы определить, в какую сторону
+     * визуально прогибать дверь при ударе.
+     *
+     * Он больше НЕ отвечает за сам удар.
+     */
+    [SerializeField]
+    private Transform player;
 
-    [Header("Cartoon Punch Animation")]
-    [SerializeField] private float punchDuration = 0.16f;
+    [SerializeField]
+    private string playerTag = "Player";
 
-    [SerializeField] private float minPunchScaleX = 1.035f;
-    [SerializeField] private float maxPunchScaleX = 1.10f;
+    // ============================================================
+    // BACKGROUND
+    // ============================================================
 
-    [SerializeField] private float minPunchScaleY = 0.985f;
-    [SerializeField] private float maxPunchScaleY = 0.95f;
+    [Header("BACKGROUND BEHIND DOOR")]
 
-    [SerializeField] private float maxPunchMoveX = 0.045f;
+    [Tooltip(
+        "Чёрный фон за решёткой. " +
+        "После разрушения двери скрывается."
+    )]
+    [SerializeField]
+    private GameObject blackBackground;
 
-    [Header("Final Break")]
-    [SerializeField] private float finalPunchScaleX = 1.14f;
-    [SerializeField] private float finalPunchScaleY = 0.92f;
+    // ============================================================
+    // SPRITES
+    // ============================================================
 
-    [SerializeField] private float finalPunchDuration = 0.20f;
+    [Header("DOOR SPRITES")]
 
-    [Tooltip("Небольшая пауза перед переключением на сломанную дверь.")]
-    [SerializeField] private float finalBreakPause = 0.035f;
+    [SerializeField]
+    private Sprite intactSprite;
 
-    // =========================================================
-    // WOOD CHIPS - 4TH HIT
-    // =========================================================
+    [SerializeField]
+    private Sprite damagedSprite;
 
-    [Header("Wood Chips - 4th Hit")]
+    [SerializeField]
+    private Sprite brokenSprite;
 
-    [Tooltip("Две маленькие щепки, которые вылетают на 4-м ударе.")]
-    [SerializeField] private Sprite[] damagedHitChips;
+    // ============================================================
+    // DOOR SETTINGS
+    // ============================================================
 
-    [Tooltip("Размер маленьких щепок.")]
-    [SerializeField] private float damagedChipScale = 0.08f;
+    [Header("DOOR SETTINGS")]
 
-    [Tooltip("Разброс маленьких щепок по X.")]
-    [SerializeField] private float damagedChipSpreadX = 0.10f;
+    [Tooltip(
+        "Сколько ударов нужно для полного разрушения двери."
+    )]
+    [SerializeField, Min(2)]
+    private int hitsToBreak = 8;
 
-    [Tooltip("Насколько щепки сначала подлетают вверх.")]
-    [SerializeField] private float damagedChipLift = 0.10f;
+    [Tooltip(
+        "На каком ударе дверь переключается " +
+        "на повреждённый спрайт."
+    )]
+    [SerializeField, Min(1)]
+    private int damagedSpriteHit = 4;
 
-    // =========================================================
+    // ============================================================
+    // CARTOON PUNCH
+    // ============================================================
+
+    [Header("CARTOON PUNCH ANIMATION")]
+
+    [SerializeField]
+    private float punchDuration = 0.16f;
+
+    [SerializeField]
+    private float minPunchScaleX = 1.035f;
+
+    [SerializeField]
+    private float maxPunchScaleX = 1.10f;
+
+    [SerializeField]
+    private float minPunchScaleY = 0.985f;
+
+    [SerializeField]
+    private float maxPunchScaleY = 0.95f;
+
+    [SerializeField]
+    private float maxPunchMoveX = 0.045f;
+
+    // ============================================================
+    // FINAL BREAK
+    // ============================================================
+
+    [Header("FINAL BREAK")]
+
+    [SerializeField]
+    private float finalPunchScaleX = 1.14f;
+
+    [SerializeField]
+    private float finalPunchScaleY = 0.92f;
+
+    [SerializeField]
+    private float finalPunchDuration = 0.20f;
+
+    [Tooltip(
+        "Маленькая пауза перед появлением " +
+        "полностью сломанной двери."
+    )]
+    [SerializeField]
+    private float finalBreakPause = 0.035f;
+
+    // ============================================================
+    // WOOD CHIPS - DAMAGED HIT
+    // ============================================================
+
+    [Header("WOOD CHIPS - 4TH HIT")]
+
+    [Tooltip(
+        "Две маленькие щепки на ударе, " +
+        "когда появляется повреждённая дверь."
+    )]
+    [SerializeField]
+    private Sprite[] damagedHitChips;
+
+    [SerializeField]
+    private float damagedChipScale = 0.08f;
+
+    [SerializeField]
+    private float damagedChipSpreadX = 0.10f;
+
+    [SerializeField]
+    private float damagedChipLift = 0.10f;
+
+    // ============================================================
     // WOOD CHIPS - FINAL
-    // =========================================================
+    // ============================================================
 
-    [Header("Wood Chips - Final Break")]
+    [Header("WOOD CHIPS - FINAL BREAK")]
 
-    [Tooltip("Все пять щепок, которые вылетают на последнем ударе.")]
-    [SerializeField] private Sprite[] finalBreakChips;
+    [Tooltip(
+        "Щепки, которые вылетают " +
+        "при полном разрушении двери."
+    )]
+    [SerializeField]
+    private Sprite[] finalBreakChips;
 
-    [Tooltip("Минимальный размер финальных щепок.")]
-    [SerializeField] private float finalChipScaleMin = 0.08f;
+    [SerializeField]
+    private float finalChipScaleMin = 0.08f;
 
-    [Tooltip("Максимальный размер финальных щепок.")]
-    [SerializeField] private float finalChipScaleMax = 0.13f;
+    [SerializeField]
+    private float finalChipScaleMax = 0.13f;
 
-    [Tooltip("Разброс финальных щепок по X.")]
-    [SerializeField] private float finalChipSpreadX = 0.18f;
+    [SerializeField]
+    private float finalChipSpreadX = 0.18f;
 
-    [Tooltip("Насколько финальные щепки подлетают вверх.")]
-    [SerializeField] private float finalChipLift = 0.14f;
+    [SerializeField]
+    private float finalChipLift = 0.14f;
 
-    // =========================================================
+    // ============================================================
     // CHIP ANIMATION
-    // =========================================================
+    // ============================================================
 
-    [Header("Wood Chip Animation")]
+    [Header("WOOD CHIP ANIMATION")]
 
-    [Tooltip("Сколько длится первый короткий вылет щепки.")]
-    [SerializeField] private float chipLaunchDuration = 0.16f;
+    [SerializeField]
+    private float chipLaunchDuration = 0.16f;
 
-    [Tooltip("Сколько длится падение щепки на пол.")]
-    [SerializeField] private float chipFallDuration = 0.34f;
+    [SerializeField]
+    private float chipFallDuration = 0.34f;
 
-    [Tooltip("Сколько секунд щепка лежит на полу.")]
-    [SerializeField] private float chipStayDuration = 2.0f;
+    [SerializeField]
+    private float chipStayDuration = 2.0f;
 
-    [Tooltip("Сколько длится плавное исчезновение.")]
-    [SerializeField] private float chipFadeDuration = 0.25f;
+    [SerializeField]
+    private float chipFadeDuration = 0.25f;
 
-    [Tooltip("Насколько ниже центра двери находится пол.")]
-    [SerializeField] private float chipFloorOffsetY = 0.42f;
+    [SerializeField]
+    private float chipFloorOffsetY = 0.42f;
 
-    [Tooltip("Небольшой подъём над полом, чтобы щепки не выглядели утопленными.")]
-    [SerializeField] private float chipGroundLift = 0.015f;
+    [SerializeField]
+    private float chipGroundLift = 0.015f;
 
-    [Tooltip("Минимальный финальный угол щепки на полу.")]
-    [SerializeField] private float chipEndRotationMin = 55f;
+    [SerializeField]
+    private float chipEndRotationMin = 55f;
 
-    [Tooltip("Максимальный финальный угол щепки на полу.")]
-    [SerializeField] private float chipEndRotationMax = 125f;
+    [SerializeField]
+    private float chipEndRotationMax = 125f;
 
-    // =========================================================
+    // ============================================================
     // HAPTICS
-    // =========================================================
+    // ============================================================
 
-    [Header("Haptics")]
-    [SerializeField] private bool useHaptics = true;
+    [Header("HAPTICS")]
+
+    [SerializeField]
+    private bool useHaptics = true;
 
     [SerializeField, Range(5, 120)]
     private int normalHitHapticMs = 22;
@@ -131,31 +216,44 @@ public class PrisonBreakDoor : MonoBehaviour
     [SerializeField, Range(5, 200)]
     private int finalHitHapticMs = 100;
 
-    // =========================================================
+    // ============================================================
     // AUDIO
-    // =========================================================
+    // ============================================================
 
-    [Header("Door Audio")]
-    [SerializeField] private AudioSource audioSource;
-    [SerializeField] private AudioClip hitSound;
-    [SerializeField] private AudioClip breakSound;
+    [Header("DOOR AUDIO")]
+
+    [SerializeField]
+    private AudioSource audioSource;
+
+    [SerializeField]
+    private AudioClip hitSound;
+
+    [SerializeField]
+    private AudioClip breakSound;
 
     [Range(0f, 1f)]
-    [SerializeField] private float hitVolume = 1f;
+    [SerializeField]
+    private float hitVolume = 1f;
 
     [Range(0f, 1f)]
-    [SerializeField] private float breakVolume = 1f;
+    [SerializeField]
+    private float breakVolume = 1f;
 
-    // =========================================================
+    // ============================================================
     // DEBUG
-    // =========================================================
+    // ============================================================
 
-    [Header("Debug")]
-    [SerializeField] private bool debugLogs = false;
+    [Header("DEBUG")]
 
-    private Camera mainCamera;
+    [SerializeField]
+    private bool debugLogs = false;
+
+    // ============================================================
+    // PRIVATE
+    // ============================================================
 
     private int hits;
+
     private bool isBusy;
     private bool isBroken;
 
@@ -163,81 +261,161 @@ public class PrisonBreakDoor : MonoBehaviour
     private Vector3 originalLocalScale;
     private Quaternion originalLocalRotation;
 
+    public bool IsBroken => isBroken;
+
+    // ============================================================
+    // AWAKE
+    // ============================================================
+
     private void Awake()
     {
-        mainCamera = Camera.main;
-
         if (doorVisual == null)
-            doorVisual = transform;
+        {
+            doorVisual =
+                transform;
+        }
 
-        if (doorSpriteRenderer == null && doorVisual != null)
-            doorSpriteRenderer = doorVisual.GetComponent<SpriteRenderer>();
+        if (doorSpriteRenderer == null &&
+            doorVisual != null)
+        {
+            doorSpriteRenderer =
+                doorVisual.GetComponent<SpriteRenderer>();
+        }
 
         if (doorSpriteRenderer == null)
-            doorSpriteRenderer = GetComponentInChildren<SpriteRenderer>();
+        {
+            doorSpriteRenderer =
+                GetComponentInChildren<SpriteRenderer>();
+        }
 
         if (doorCollider == null)
-            doorCollider = GetComponent<Collider2D>();
+        {
+            doorCollider =
+                GetComponent<Collider2D>();
+        }
 
-        if (doorCollider == null && doorVisual != null)
-            doorCollider = doorVisual.GetComponent<Collider2D>();
-
-        if (playerKick == null && player != null)
-            playerKick = player.GetComponent<PlayerKick>();
+        if (doorCollider == null &&
+            doorVisual != null)
+        {
+            doorCollider =
+                doorVisual.GetComponent<Collider2D>();
+        }
 
         if (audioSource == null)
-            audioSource = GetComponent<AudioSource>();
+        {
+            audioSource =
+                GetComponent<AudioSource>();
+        }
+
+        FindPlayer();
 
         if (doorVisual != null)
         {
-            originalLocalPosition = doorVisual.localPosition;
-            originalLocalScale = doorVisual.localScale;
-            originalLocalRotation = doorVisual.localRotation;
+            originalLocalPosition =
+                doorVisual.localPosition;
+
+            originalLocalScale =
+                doorVisual.localScale;
+
+            originalLocalRotation =
+                doorVisual.localRotation;
         }
     }
+
+    // ============================================================
+    // START
+    // ============================================================
 
     private void Start()
     {
         ResetDoorState();
     }
 
-    private void OnEnable()
-    {
-        ResetDoorState();
-    }
+    // ============================================================
+    // VALIDATION
+    // ============================================================
 
     private void OnValidate()
     {
         if (hitsToBreak < 2)
+        {
             hitsToBreak = 2;
+        }
 
         if (damagedSpriteHit < 1)
+        {
             damagedSpriteHit = 1;
+        }
 
-        if (damagedSpriteHit >= hitsToBreak)
-            damagedSpriteHit = hitsToBreak - 1;
+        if (damagedSpriteHit >=
+            hitsToBreak)
+        {
+            damagedSpriteHit =
+                hitsToBreak - 1;
+        }
 
         if (damagedChipScale < 0.01f)
+        {
             damagedChipScale = 0.01f;
+        }
 
         if (finalChipScaleMin < 0.01f)
+        {
             finalChipScaleMin = 0.01f;
+        }
 
-        if (finalChipScaleMax < finalChipScaleMin)
-            finalChipScaleMax = finalChipScaleMin;
+        if (finalChipScaleMax <
+            finalChipScaleMin)
+        {
+            finalChipScaleMax =
+                finalChipScaleMin;
+        }
 
         if (chipLaunchDuration < 0.01f)
+        {
             chipLaunchDuration = 0.01f;
+        }
 
         if (chipFallDuration < 0.01f)
+        {
             chipFallDuration = 0.01f;
+        }
 
         if (chipStayDuration < 0f)
+        {
             chipStayDuration = 0f;
+        }
 
         if (chipFadeDuration < 0.01f)
+        {
             chipFadeDuration = 0.01f;
+        }
     }
+
+    // ============================================================
+    // FIND PLAYER
+    // ============================================================
+
+    private void FindPlayer()
+    {
+        if (player != null)
+            return;
+
+        GameObject playerObject =
+            GameObject.FindGameObjectWithTag(
+                playerTag
+            );
+
+        if (playerObject != null)
+        {
+            player =
+                playerObject.transform;
+        }
+    }
+
+    // ============================================================
+    // RESET
+    // ============================================================
 
     private void ResetDoorState()
     {
@@ -249,141 +427,106 @@ public class PrisonBreakDoor : MonoBehaviour
 
         if (doorVisual != null)
         {
-            doorVisual.localPosition = originalLocalPosition;
-            doorVisual.localScale = originalLocalScale;
-            doorVisual.localRotation = originalLocalRotation;
+            doorVisual.localPosition =
+                originalLocalPosition;
+
+            doorVisual.localScale =
+                originalLocalScale;
+
+            doorVisual.localRotation =
+                originalLocalRotation;
         }
 
         if (doorSpriteRenderer != null)
         {
-            doorSpriteRenderer.enabled = true;
-            doorSpriteRenderer.color = Color.white;
+            doorSpriteRenderer.enabled =
+                true;
+
+            doorSpriteRenderer.color =
+                Color.white;
 
             if (intactSprite != null)
-                doorSpriteRenderer.sprite = intactSprite;
+            {
+                doorSpriteRenderer.sprite =
+                    intactSprite;
+            }
         }
 
         if (doorCollider != null)
-            doorCollider.enabled = true;
+        {
+            doorCollider.enabled =
+                true;
+        }
 
         if (blackBackground != null)
-            blackBackground.SetActive(true);
+        {
+            blackBackground.SetActive(
+                true
+            );
+        }
     }
 
-    private void Update()
-    {
-        if (mainCamera == null)
-            mainCamera = Camera.main;
+    // ============================================================
+    // NEW LEG ATTACK SYSTEM
+    // ============================================================
 
+    /*
+     * Этот метод вызывается LegAttackButton.
+     *
+     * Дверь больше НЕ реагирует:
+     * - на тап непосредственно по двери;
+     * - на клик мышкой по двери.
+     *
+     * Только кнопка ноги.
+     */
+    public void ReceiveKick(
+        int damage
+    )
+    {
         if (isBroken ||
-            isBusy ||
-            mainCamera == null ||
-            doorCollider == null)
+            isBusy)
         {
             return;
         }
 
-        if (Mouse.current != null &&
-            Mouse.current.leftButton.wasPressedThisFrame)
-        {
-            TryHitDoor(Mouse.current.position.ReadValue());
-        }
-
-        if (Touchscreen.current != null &&
-            Touchscreen.current.primaryTouch.press.wasPressedThisFrame)
-        {
-            TryHitDoor(
-                Touchscreen.current.primaryTouch.position.ReadValue()
-            );
-        }
-    }
-
-    private void TryHitDoor(Vector2 screenPosition)
-    {
-        Vector3 worldPosition =
-            mainCamera.ScreenToWorldPoint(
-                new Vector3(
-                    screenPosition.x,
-                    screenPosition.y,
-                    Mathf.Abs(mainCamera.transform.position.z)
-                )
-            );
-
-        Vector2 point2D =
-            new Vector2(
-                worldPosition.x,
-                worldPosition.y
-            );
-
-        Collider2D hitCollider =
-            Physics2D.OverlapPoint(point2D);
-
-        if (hitCollider == null)
-            return;
-
-        if (hitCollider != doorCollider)
-            return;
-
-        if (player == null)
-        {
-            Debug.LogWarning(
-                "Player не назначен в PrisonBreakDoor!"
-            );
-
-            return;
-        }
-
-        if (playerKick == null)
-        {
-            playerKick =
-                player.GetComponent<PlayerKick>();
-        }
-
-        if (playerKick == null)
-        {
-            Debug.LogWarning(
-                "PlayerKick не найден на Player!"
-            );
-
-            return;
-        }
-
-        float distance =
-            Vector2.Distance(
-                player.position,
-                doorVisual.position
-            );
-
-        if (distance > interactDistance)
-        {
-            if (debugLogs)
-                Debug.Log("Слишком далеко от двери.");
-
-            return;
-        }
-
-        bool kickStarted =
-            playerKick.KickToward(
-                doorVisual.position
-            );
-
-        if (!kickStarted)
+        if (damage <= 0)
             return;
 
         StartCoroutine(
-            HitDoorSequence()
+            HitDoorSequence(
+                damage
+            )
         );
     }
 
-    private IEnumerator HitDoorSequence()
+    // ============================================================
+    // HIT DOOR
+    // ============================================================
+
+    private IEnumerator HitDoorSequence(
+        int damage
+    )
     {
         isBusy = true;
 
-        yield return new WaitForSeconds(
-            kickImpactDelay
-        );
+        /*
+         * Impact Delay здесь больше нет.
+         *
+         * Его уже контролирует общий
+         * LegAttackButton.
+         */
 
-        hits++;
+        hits +=
+            Mathf.Max(
+                1,
+                damage
+            );
+
+        hits =
+            Mathf.Min(
+                hits,
+                hitsToBreak
+            );
 
         if (debugLogs)
         {
@@ -391,11 +534,17 @@ public class PrisonBreakDoor : MonoBehaviour
                 "Door hit: " +
                 hits +
                 " / " +
-                hitsToBreak
+                hitsToBreak,
+                this
             );
         }
 
-        if (hits < hitsToBreak)
+        // ========================================================
+        // NORMAL HIT
+        // ========================================================
+
+        if (hits <
+            hitsToBreak)
         {
             PlayHitHaptic();
             PlayHitSound();
@@ -430,7 +579,18 @@ public class PrisonBreakDoor : MonoBehaviour
                 )
             );
 
-            if (hits == damagedSpriteHit)
+            /*
+             * Например:
+             *
+             * hitsToBreak = 8
+             * damagedSpriteHit = 4
+             *
+             * На четвёртом ударе
+             * появляется повреждённая дверь
+             * и две маленькие щепки.
+             */
+            if (hits ==
+                damagedSpriteHit)
             {
                 if (damagedSprite != null &&
                     doorSpriteRenderer != null)
@@ -442,6 +602,11 @@ public class PrisonBreakDoor : MonoBehaviour
                 SpawnDamagedHitChips();
             }
         }
+
+        // ========================================================
+        // FINAL HIT
+        // ========================================================
+
         else
         {
             PlayBreakHaptic();
@@ -452,7 +617,8 @@ public class PrisonBreakDoor : MonoBehaviour
                     finalPunchDuration,
                     finalPunchScaleX,
                     finalPunchScaleY,
-                    maxPunchMoveX * 1.5f
+                    maxPunchMoveX *
+                    1.5f
                 )
             );
 
@@ -470,23 +636,43 @@ public class PrisonBreakDoor : MonoBehaviour
                     brokenSprite;
             }
 
+            /*
+             * После разрушения убираем
+             * чёрный фон за дверью.
+             */
             if (blackBackground != null)
-                blackBackground.SetActive(false);
+            {
+                blackBackground.SetActive(
+                    false
+                );
+            }
 
             SpawnFinalBreakChips();
 
+            /*
+             * Открываем физический проход.
+             */
             if (doorCollider != null)
-                doorCollider.enabled = false;
+            {
+                doorCollider.enabled =
+                    false;
+            }
 
-            isBroken = true;
+            isBroken =
+                true;
 
             if (debugLogs)
             {
                 Debug.Log(
-                    "Door broken. Проход открыт."
+                    "Door broken. Проход открыт.",
+                    this
                 );
             }
         }
+
+        // ========================================================
+        // RESET VISUAL TRANSFORM
+        // ========================================================
 
         if (doorVisual != null)
         {
@@ -500,8 +686,13 @@ public class PrisonBreakDoor : MonoBehaviour
                 originalLocalRotation;
         }
 
-        isBusy = false;
+        isBusy =
+            false;
     }
+
+    // ============================================================
+    // CARTOON PUNCH
+    // ============================================================
 
     private IEnumerator CartoonPunch(
         float duration,
@@ -513,30 +704,57 @@ public class PrisonBreakDoor : MonoBehaviour
         if (doorVisual == null)
             yield break;
 
+        if (player == null)
+        {
+            FindPlayer();
+        }
+
+        float safeDuration =
+            Mathf.Max(
+                0.01f,
+                duration
+            );
+
         float timer = 0f;
 
+        /*
+         * Определяем сторону Player,
+         * чтобы дверь визуально прогибалась
+         * ОТ удара.
+         */
         float direction = 1f;
 
         if (player != null)
         {
             direction =
-                player.position.x <= doorVisual.position.x
+                player.position.x <=
+                doorVisual.position.x
                     ? 1f
                     : -1f;
         }
 
-        while (timer < duration)
+        while (timer <
+               safeDuration)
         {
-            timer += Time.deltaTime;
+            timer +=
+                Time.deltaTime;
 
             float t =
                 Mathf.Clamp01(
-                    timer / duration
+                    timer /
+                    safeDuration
                 );
 
+            /*
+             * 0 -> 1 -> 0
+             *
+             * Дверь быстро деформируется
+             * и возвращается обратно.
+             */
             float punch =
                 Mathf.Sin(
-                    t * Mathf.PI
+                    t *
+                    Mathf.PI
                 );
 
             float currentScaleX =
@@ -555,8 +773,12 @@ public class PrisonBreakDoor : MonoBehaviour
 
             doorVisual.localScale =
                 new Vector3(
-                    originalLocalScale.x * currentScaleX,
-                    originalLocalScale.y * currentScaleY,
+                    originalLocalScale.x *
+                    currentScaleX,
+
+                    originalLocalScale.y *
+                    currentScaleY,
+
                     originalLocalScale.z
                 );
 
@@ -578,7 +800,14 @@ public class PrisonBreakDoor : MonoBehaviour
 
         doorVisual.localPosition =
             originalLocalPosition;
+
+        doorVisual.localRotation =
+            originalLocalRotation;
     }
+
+    // ============================================================
+    // DAMAGED HIT CHIPS
+    // ============================================================
 
     private void SpawnDamagedHitChips()
     {
@@ -594,7 +823,9 @@ public class PrisonBreakDoor : MonoBehaviour
                 damagedHitChips.Length
             );
 
-        for (int i = 0; i < count; i++)
+        for (int i = 0;
+             i < count;
+             i++)
         {
             Sprite sprite =
                 damagedHitChips[i];
@@ -603,17 +834,24 @@ public class PrisonBreakDoor : MonoBehaviour
                 continue;
 
             float side =
-                i == 0 ? -1f : 1f;
+                i == 0
+                    ? -1f
+                    : 1f;
 
             SpawnAnimatedChip(
                 sprite,
                 damagedChipScale,
-                side * damagedChipSpreadX,
+                side *
+                damagedChipSpreadX,
                 damagedChipLift,
                 i
             );
         }
     }
+
+    // ============================================================
+    // FINAL CHIPS
+    // ============================================================
 
     private void SpawnFinalBreakChips()
     {
@@ -629,7 +867,9 @@ public class PrisonBreakDoor : MonoBehaviour
                 finalBreakChips.Length
             );
 
-        for (int i = 0; i < count; i++)
+        for (int i = 0;
+             i < count;
+             i++)
         {
             Sprite sprite =
                 finalBreakChips[i];
@@ -651,7 +891,8 @@ public class PrisonBreakDoor : MonoBehaviour
 
             float lift =
                 Random.Range(
-                    finalChipLift * 0.70f,
+                    finalChipLift *
+                    0.70f,
                     finalChipLift
                 );
 
@@ -664,6 +905,10 @@ public class PrisonBreakDoor : MonoBehaviour
             );
         }
     }
+
+    // ============================================================
+    // CREATE CHIP
+    // ============================================================
 
     private void SpawnAnimatedChip(
         Sprite sprite,
@@ -696,9 +941,11 @@ public class PrisonBreakDoor : MonoBehaviour
                 doorSpriteRenderer.sortingLayerID;
 
             chipRenderer.sortingOrder =
-                doorSpriteRenderer.sortingOrder + 1;
+                doorSpriteRenderer.sortingOrder +
+                1;
 
-            if (doorSpriteRenderer.sharedMaterial != null)
+            if (doorSpriteRenderer.sharedMaterial !=
+                null)
             {
                 chipRenderer.sharedMaterial =
                     doorSpriteRenderer.sharedMaterial;
@@ -706,13 +953,20 @@ public class PrisonBreakDoor : MonoBehaviour
         }
 
         chip.transform.localScale =
-            Vector3.one * scale;
+            Vector3.one *
+            scale;
 
         Vector3 startPosition =
             doorVisual.position +
             new Vector3(
-                Random.Range(-0.06f, 0.06f),
-                Random.Range(-0.03f, 0.07f),
+                Random.Range(
+                    -0.06f,
+                    0.06f
+                ),
+                Random.Range(
+                    -0.03f,
+                    0.07f
+                ),
                 0f
             );
 
@@ -745,6 +999,10 @@ public class PrisonBreakDoor : MonoBehaviour
         );
     }
 
+    // ============================================================
+    // CHIP ANIMATION
+    // ============================================================
+
     private IEnumerator AnimateDoorChip(
         GameObject chip,
         SpriteRenderer chipRenderer,
@@ -762,7 +1020,10 @@ public class PrisonBreakDoor : MonoBehaviour
             Color.white;
 
         if (chipRenderer != null)
-            startColor = chipRenderer.color;
+        {
+            startColor =
+                chipRenderer.color;
+        }
 
         Vector3 launchEndPosition =
             startPosition +
@@ -779,19 +1040,31 @@ public class PrisonBreakDoor : MonoBehaviour
                 30f
             );
 
+        // ========================================================
+        // LAUNCH
+        // ========================================================
+
+        float safeLaunchDuration =
+            Mathf.Max(
+                0.01f,
+                chipLaunchDuration
+            );
+
         float timer = 0f;
 
-        while (timer < chipLaunchDuration)
+        while (timer <
+               safeLaunchDuration)
         {
             if (chip == null)
                 yield break;
 
-            timer += Time.deltaTime;
+            timer +=
+                Time.deltaTime;
 
             float t =
                 Mathf.Clamp01(
                     timer /
-                    chipLaunchDuration
+                    safeLaunchDuration
                 );
 
             float eased =
@@ -821,6 +1094,10 @@ public class PrisonBreakDoor : MonoBehaviour
 
             yield return null;
         }
+
+        // ========================================================
+        // FALL
+        // ========================================================
 
         Vector3 fallStartPosition =
             chip.transform.position;
@@ -852,23 +1129,32 @@ public class PrisonBreakDoor : MonoBehaviour
                     chipEndRotationMax
                 );
 
+        float safeFallDuration =
+            Mathf.Max(
+                0.01f,
+                chipFallDuration
+            );
+
         float fallTimer = 0f;
 
-        while (fallTimer < chipFallDuration)
+        while (fallTimer <
+               safeFallDuration)
         {
             if (chip == null)
                 yield break;
 
-            fallTimer += Time.deltaTime;
+            fallTimer +=
+                Time.deltaTime;
 
             float t =
                 Mathf.Clamp01(
                     fallTimer /
-                    chipFallDuration
+                    safeFallDuration
                 );
 
             float fallCurve =
-                t * t;
+                t *
+                t;
 
             chip.transform.position =
                 Vector3.Lerp(
@@ -901,6 +1187,10 @@ public class PrisonBreakDoor : MonoBehaviour
                 endRotation
             );
 
+        // ========================================================
+        // STAY
+        // ========================================================
+
         if (chipStayDuration > 0f)
         {
             yield return new WaitForSeconds(
@@ -908,19 +1198,31 @@ public class PrisonBreakDoor : MonoBehaviour
             );
         }
 
+        // ========================================================
+        // FADE
+        // ========================================================
+
+        float safeFadeDuration =
+            Mathf.Max(
+                0.01f,
+                chipFadeDuration
+            );
+
         float fadeTimer = 0f;
 
-        while (fadeTimer < chipFadeDuration)
+        while (fadeTimer <
+               safeFadeDuration)
         {
             if (chip == null)
                 yield break;
 
-            fadeTimer += Time.deltaTime;
+            fadeTimer +=
+                Time.deltaTime;
 
             float t =
                 Mathf.Clamp01(
                     fadeTimer /
-                    chipFadeDuration
+                    safeFadeDuration
                 );
 
             if (chipRenderer != null)
@@ -943,8 +1245,16 @@ public class PrisonBreakDoor : MonoBehaviour
         }
 
         if (chip != null)
-            Destroy(chip);
+        {
+            Destroy(
+                chip
+            );
+        }
     }
+
+    // ============================================================
+    // HAPTICS
+    // ============================================================
 
     private void PlayHitHaptic()
     {
@@ -967,6 +1277,10 @@ public class PrisonBreakDoor : MonoBehaviour
             MicroHaptics.IOSHapticStyle.Heavy
         );
     }
+
+    // ============================================================
+    // AUDIO
+    // ============================================================
 
     private void PlayHitSound()
     {

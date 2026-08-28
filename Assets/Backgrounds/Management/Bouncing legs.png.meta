@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 3fb364a9af90e76409eae4db22a4c172
+guid: 24d7006557463e74eba6ed810d71c06b
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 2912147235762990277
-    second: Down_0
+      213: -8555887555450339252
+    second: Bouncing legs_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -126,12 +126,12 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Down_0
+      name: Bouncing legs_0
       rect:
         serializedVersion: 2
-        x: 17
+        x: 13
         y: 19
-        width: 477
+        width: 486
         height: 489
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -141,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 5cce9415b760a6820800000000000000
-      internalID: 2912147235762990277
+      spriteID: c40823f6991634980800000000000000
+      internalID: -8555887555450339252
       vertices: []
       indices: 
       edges: []
@@ -161,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Down_0: 2912147235762990277
+      Bouncing legs_0: -8555887555450339252
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

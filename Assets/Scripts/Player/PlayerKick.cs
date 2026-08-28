@@ -1,34 +1,32 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class PlayerKick : MonoBehaviour
 {
-    [Header("References")]
+    [Header("REFERENCES")]
     [SerializeField] private Rigidbody2D rb;
     [SerializeField] private PlayerController playerController;
     [SerializeField] private PlayerVisual playerVisual;
 
-    [Header("Kick Timing")]
+    [Header("KICK TIMING")]
     [SerializeField] private float kickDuration = 0.20f;
     [SerializeField] private float kickCooldown = 0.25f;
 
-    [Header("Movement")]
+    [Header("MOVEMENT")]
     [SerializeField] private bool stopHorizontalMovement = true;
     [SerializeField] private bool lockMovementDuringKick = true;
 
-    [Header("Kick Voice")]
+    [Header("KICK VOICE")]
     [SerializeField] private AudioSource kickAudioSource;
     [SerializeField] private AudioClip kickVoiceSound;
 
     [Range(0f, 1f)]
     [SerializeField] private float kickVoiceVolume = 1f;
 
-    [Tooltip("Через сколько секунд после начала удара прозвучит голос.")]
+    [Tooltip(
+        "Через сколько секунд после начала удара прозвучит голос."
+    )]
     [SerializeField] private float kickVoiceDelay = 0f;
-
-    [Header("Temporary PC Test")]
-    [SerializeField] private bool enableKeyboardTest = true;
 
     private bool isKicking;
     private bool facingRight = true;
@@ -41,16 +39,29 @@ public class PlayerKick : MonoBehaviour
     public bool IsKicking => isKicking;
     public bool FacingRight => facingRight;
 
+    // ============================================================
+    // AWAKE
+    // ============================================================
+
     private void Awake()
     {
         if (rb == null)
-            rb = GetComponent<Rigidbody2D>();
+        {
+            rb =
+                GetComponent<Rigidbody2D>();
+        }
 
         if (playerController == null)
-            playerController = GetComponent<PlayerController>();
+        {
+            playerController =
+                GetComponent<PlayerController>();
+        }
 
         if (playerVisual == null)
-            playerVisual = GetComponent<PlayerVisual>();
+        {
+            playerVisual =
+                GetComponent<PlayerVisual>();
+        }
 
         if (kickAudioSource == null)
         {
@@ -65,26 +76,29 @@ public class PlayerKick : MonoBehaviour
         }
     }
 
+    // ============================================================
+    // UPDATE
+    // ============================================================
+
     private void Update()
     {
+        /*
+         * Пока игрок не бьёт,
+         * запоминаем последнее направление движения.
+         *
+         * Благодаря этому, если рядом нет цели,
+         * кнопка ноги ударит туда,
+         * куда игрок сейчас смотрит.
+         */
         if (!isKicking)
+        {
             UpdateFacingDirection();
-
-        if (enableKeyboardTest)
-            HandleKeyboardTest();
+        }
     }
 
-    private void HandleKeyboardTest()
-    {
-        if (Keyboard.current == null)
-            return;
-
-        if (Keyboard.current.eKey.wasPressedThisFrame)
-            KickRight();
-
-        if (Keyboard.current.qKey.wasPressedThisFrame)
-            KickLeft();
-    }
+    // ============================================================
+    // FACING
+    // ============================================================
 
     private void UpdateFacingDirection()
     {
@@ -95,57 +109,109 @@ public class PlayerKick : MonoBehaviour
             rb.linearVelocity.x;
 
         if (horizontalSpeed > 0.05f)
+        {
             facingRight = true;
+        }
         else if (horizontalSpeed < -0.05f)
+        {
             facingRight = false;
+        }
     }
 
+    // ============================================================
+    // PUBLIC KICK COMMANDS
+    // ============================================================
+
+    /*
+     * Обычный удар в ту сторону,
+     * куда сейчас смотрит игрок.
+     */
     public bool Kick()
     {
-        return StartKick(facingRight);
+        return StartKick(
+            facingRight
+        );
     }
 
+    /*
+     * Принудительно вправо.
+     */
     public bool KickRight()
     {
-        return StartKick(true);
+        return StartKick(
+            true
+        );
     }
 
+    /*
+     * Принудительно влево.
+     */
     public bool KickLeft()
     {
-        return StartKick(false);
+        return StartKick(
+            false
+        );
     }
 
-    public bool KickToward(Vector3 worldPosition)
+    /*
+     * Удар в сторону конкретной мировой точки.
+     *
+     * Это будет использоваться кнопкой ноги,
+     * когда рядом есть враг или ящик.
+     */
+    public bool KickToward(
+        Vector3 worldPosition
+    )
     {
         bool kickToRight =
             worldPosition.x >=
             transform.position.x;
 
-        return StartKick(kickToRight);
+        return StartKick(
+            kickToRight
+        );
     }
 
-    private bool StartKick(bool kickToRight)
+    // ============================================================
+    // START KICK
+    // ============================================================
+
+    private bool StartKick(
+        bool kickToRight
+    )
     {
         if (isKicking)
             return false;
 
-        if (Time.time < nextKickTime)
+        if (Time.time <
+            nextKickTime)
+        {
             return false;
+        }
 
         if (playerVisual == null)
             return false;
 
-        facingRight = kickToRight;
+        facingRight =
+            kickToRight;
 
         kickRoutine =
             StartCoroutine(
-                KickRoutine(kickToRight)
+                KickRoutine(
+                    kickToRight
+                )
             );
 
         return true;
     }
 
-    private IEnumerator KickRoutine(bool kickToRight)
+    // ============================================================
+    // KICK ROUTINE
+    // ============================================================
+
+    private IEnumerator KickRoutine(
+        bool kickToRight
+    )
     {
         isKicking = true;
 
@@ -153,28 +219,46 @@ public class PlayerKick : MonoBehaviour
             Time.time +
             kickCooldown;
 
+        /*
+         * Во время удара останавливаем
+         * горизонтальное движение.
+         */
         if (stopHorizontalMovement &&
             rb != null)
         {
             Vector2 velocity =
                 rb.linearVelocity;
 
-            velocity.x = 0f;
+            velocity.x =
+                0f;
 
             rb.linearVelocity =
                 velocity;
         }
 
+        /*
+         * При необходимости полностью
+         * блокируем управление движением
+         * на короткое время удара.
+         */
         if (lockMovementDuringKick &&
             playerController != null)
         {
-            playerController.enabled = false;
+            playerController.enabled =
+                false;
         }
 
+        /*
+         * Включаем нужный спрайт удара.
+         */
         if (kickToRight)
+        {
             playerVisual.PlayKickRight();
+        }
         else
+        {
             playerVisual.PlayKickLeft();
+        }
 
         PlayKickVoice();
 
@@ -187,12 +271,17 @@ public class PlayerKick : MonoBehaviour
         if (lockMovementDuringKick &&
             playerController != null)
         {
-            playerController.enabled = true;
+            playerController.enabled =
+                true;
         }
 
         isKicking = false;
         kickRoutine = null;
     }
+
+    // ============================================================
+    // KICK VOICE
+    // ============================================================
 
     private void PlayKickVoice()
     {
@@ -204,7 +293,10 @@ public class PlayerKick : MonoBehaviour
 
         if (voiceRoutine != null)
         {
-            StopCoroutine(voiceRoutine);
+            StopCoroutine(
+                voiceRoutine
+            );
+
             voiceRoutine = null;
         }
 
@@ -235,27 +327,40 @@ public class PlayerKick : MonoBehaviour
         voiceRoutine = null;
     }
 
+    // ============================================================
+    // DISABLE SAFETY
+    // ============================================================
+
     private void OnDisable()
     {
         if (kickRoutine != null)
         {
-            StopCoroutine(kickRoutine);
+            StopCoroutine(
+                kickRoutine
+            );
+
             kickRoutine = null;
         }
 
         if (voiceRoutine != null)
         {
-            StopCoroutine(voiceRoutine);
+            StopCoroutine(
+                voiceRoutine
+            );
+
             voiceRoutine = null;
         }
 
         if (playerVisual != null)
+        {
             playerVisual.EndKick();
+        }
 
         if (lockMovementDuringKick &&
             playerController != null)
         {
-            playerController.enabled = true;
+            playerController.enabled =
+                true;
         }
 
         isKicking = false;

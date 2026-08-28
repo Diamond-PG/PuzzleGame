@@ -1,105 +1,186 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class BreakableBox : MonoBehaviour
 {
-    [Header("Box Settings")]
-    public int hitsToBreak = 2;
-    public Transform player;
-    public float interactDistance = 1.5f;
+    // ============================================================
+    // BOX SETTINGS
+    // ============================================================
 
-    [Header("Player Kick")]
-    [SerializeField] private PlayerKick playerKick;
+    [Header("BOX SETTINGS")]
 
-    [Tooltip("Через сколько секунд после начала анимации ноги удар реально попадает по ящику.")]
-    [SerializeField] private float kickImpactDelay = 0.08f;
+    [Tooltip("Сколько ударов ногой нужно для разрушения ящика.")]
+    [SerializeField, Min(1)]
+    private int hitsToBreak = 2;
 
-    [Header("Haptics")]
+    // ============================================================
+    // HAPTICS
+    // ============================================================
+
+    [Header("HAPTICS")]
+
     [SerializeField] private bool useHaptics = true;
 
-    [Tooltip("Вибрация при первом ударе по обычному ящику.")]
+    [Tooltip("Вибрация при обычном ударе по ящику.")]
     [SerializeField, Range(5, 100)]
     private int firstHitHapticMs = 18;
 
-    [Tooltip("Удлинённая вибрация непосредственно в момент разрушения ящика.")]
+    [Tooltip("Вибрация непосредственно в момент разрушения ящика.")]
     [SerializeField, Range(5, 200)]
     private int breakHapticMs = 75;
 
-    [Header("Effects")]
-    public GameObject breakEffect;
-    public float breakEffectLifetime = 2f;
+    // ============================================================
+    // EFFECTS
+    // ============================================================
 
-    [Header("Audio")]
-    public AudioSource audioSource;
-    public AudioClip firstHitSound;
-    public AudioClip breakSound;
+    [Header("EFFECTS")]
+
+    [SerializeField] private GameObject breakEffect;
+
+    [SerializeField]
+    private float breakEffectLifetime = 2f;
+
+    // ============================================================
+    // AUDIO
+    // ============================================================
+
+    [Header("AUDIO")]
+
+    [SerializeField] private AudioSource audioSource;
+
+    [SerializeField] private AudioClip firstHitSound;
+    [SerializeField] private AudioClip breakSound;
 
     [Range(0f, 1f)]
-    public float firstHitVolume = 1f;
+    [SerializeField] private float firstHitVolume = 1f;
 
     [Range(0f, 1f)]
-    public float breakVolume = 1f;
+    [SerializeField] private float breakVolume = 1f;
 
-    [Header("Box Sprites")]
-    public Sprite normalSprite;
-    public Sprite crackedSprite;
-    public Sprite brokenSprite;
-    public float brokenSpriteDuration = 0.22f;
+    // ============================================================
+    // BOX SPRITES
+    // ============================================================
 
-    [Header("Hit Effect")]
-    public float hitScaleMultiplier = 0.9f;
-    public float hitEffectDuration = 0.08f;
+    [Header("BOX SPRITES")]
 
-    [Header("First Hit Shake")]
-    public float firstHitShakeDuration = 0.20f;
-    public float firstHitShakeAmountX = 0.035f;
-    public float firstHitShakeAmountY = 0.008f;
-    public float firstHitShakeSpeed = 28f;
+    [SerializeField] private Sprite normalSprite;
+    [SerializeField] private Sprite crackedSprite;
+    [SerializeField] private Sprite brokenSprite;
 
-    [Header("Final Break Shake")]
-    public float finalShakeDuration = 0.45f;
-    public float finalShakeAmountX = 0.06f;
-    public float finalShakeAmountY = 0.01f;
-    public float finalShakeSpeed = 35f;
+    [SerializeField]
+    private float brokenSpriteDuration = 0.22f;
 
-    [Header("Broken Pieces")]
-    public GameObject[] woodChips;
+    // ============================================================
+    // HIT EFFECT
+    // ============================================================
 
-    [Tooltip("Время первого осыпания щепки")]
-    public float chipFallDuration = 0.22f;
+    [Header("HIT EFFECT")]
 
-    [Tooltip("Время дополнительного падения щепки вниз")]
-    public float chipExtraFallDuration = 0.26f;
+    [SerializeField]
+    private float hitScaleMultiplier = 0.9f;
 
-    [Tooltip("Насколько ещё щепка опускается вниз после первого падения")]
-    public float chipExtraDropDistance = 0.18f;
+    [SerializeField]
+    private float hitEffectDuration = 0.08f;
 
-    [Tooltip("Разброс по X при финальном падении")]
-    public float chipHorizontalSpread = 0.06f;
+    // ============================================================
+    // FIRST HIT SHAKE
+    // ============================================================
 
-    [Tooltip("Сколько щепки лежат на полу до исчезновения")]
-    public float chipStayDuration = 0.55f;
+    [Header("FIRST HIT SHAKE")]
 
-    [Tooltip("Сколько времени щепки плавно исчезают")]
-    public float chipFadeDuration = 0.25f;
+    [SerializeField]
+    private float firstHitShakeDuration = 0.20f;
 
-    [Tooltip("Минимальный финальный угол, когда щепка ложится плашмя")]
-    public float chipEndRotMin = 55f;
+    [SerializeField]
+    private float firstHitShakeAmountX = 0.035f;
 
-    [Tooltip("Максимальный финальный угол, когда щепка ложится плашмя")]
-    public float chipEndRotMax = 125f;
+    [SerializeField]
+    private float firstHitShakeAmountY = 0.008f;
 
-    [Tooltip("Небольшой подъём щепок, чтобы не проваливались визуально в пол")]
-    public float chipGroundLift = 0.045f;
+    [SerializeField]
+    private float firstHitShakeSpeed = 28f;
 
-    [Header("Goal Reveal")]
-    public GoalRevealFromBox goalReveal;
-    public float goalDetachDelay = 0.25f;
-    public bool goalDebugLogs = false;
+    // ============================================================
+    // FINAL BREAK SHAKE
+    // ============================================================
+
+    [Header("FINAL BREAK SHAKE")]
+
+    [SerializeField]
+    private float finalShakeDuration = 0.45f;
+
+    [SerializeField]
+    private float finalShakeAmountX = 0.06f;
+
+    [SerializeField]
+    private float finalShakeAmountY = 0.01f;
+
+    [SerializeField]
+    private float finalShakeSpeed = 35f;
+
+    // ============================================================
+    // BROKEN PIECES
+    // ============================================================
+
+    [Header("BROKEN PIECES")]
+
+    [SerializeField]
+    private GameObject[] woodChips;
+
+    [Tooltip("Время первого осыпания щепки.")]
+    [SerializeField]
+    private float chipFallDuration = 0.22f;
+
+    [Tooltip("Время дополнительного падения щепки вниз.")]
+    [SerializeField]
+    private float chipExtraFallDuration = 0.26f;
+
+    [Tooltip("Насколько ещё щепка опускается вниз.")]
+    [SerializeField]
+    private float chipExtraDropDistance = 0.18f;
+
+    [Tooltip("Разброс по X при финальном падении.")]
+    [SerializeField]
+    private float chipHorizontalSpread = 0.06f;
+
+    [Tooltip("Сколько щепки лежат на полу.")]
+    [SerializeField]
+    private float chipStayDuration = 0.55f;
+
+    [Tooltip("Время плавного исчезновения щепок.")]
+    [SerializeField]
+    private float chipFadeDuration = 0.25f;
+
+    [SerializeField]
+    private float chipEndRotMin = 55f;
+
+    [SerializeField]
+    private float chipEndRotMax = 125f;
+
+    [Tooltip("Маленький подъём щепок над полом.")]
+    [SerializeField]
+    private float chipGroundLift = 0.045f;
+
+    // ============================================================
+    // GOAL REVEAL
+    // ============================================================
+
+    [Header("GOAL REVEAL")]
+
+    [SerializeField]
+    private GoalRevealFromBox goalReveal;
+
+    [SerializeField]
+    private float goalDetachDelay = 0.25f;
+
+    [SerializeField]
+    private bool goalDebugLogs = false;
+
+    // ============================================================
+    // PRIVATE
+    // ============================================================
 
     private int hits;
-    private Camera mainCamera;
 
     private SpriteRenderer boxSpriteRenderer;
     private SpriteRenderer boxBackgroundRenderer;
@@ -114,10 +195,14 @@ public class BreakableBox : MonoBehaviour
     private bool isBreaking;
     private bool isBusy;
 
+    public bool IsBroken => isBreaking;
+
+    // ============================================================
+    // AWAKE
+    // ============================================================
+
     private void Awake()
     {
-        mainCamera = Camera.main;
-
         boxSpriteRenderer =
             GetComponent<SpriteRenderer>();
 
@@ -131,19 +216,14 @@ public class BreakableBox : MonoBehaviour
         }
 
         Transform background =
-            transform.Find("Box_Background");
+            transform.Find(
+                "Box_Background"
+            );
 
         if (background != null)
         {
             boxBackgroundRenderer =
                 background.GetComponent<SpriteRenderer>();
-        }
-
-        if (playerKick == null &&
-            player != null)
-        {
-            playerKick =
-                player.GetComponent<PlayerKick>();
         }
 
         originalLocalScale =
@@ -153,15 +233,27 @@ public class BreakableBox : MonoBehaviour
             transform.localPosition;
     }
 
+    // ============================================================
+    // START
+    // ============================================================
+
     private void Start()
     {
         ResetBoxState();
     }
 
-    private void OnEnable()
+    // ============================================================
+    // UPDATE
+    // ============================================================
+
+    private void Update()
     {
-        ResetBoxState();
+        UpdateHitEffect();
     }
+
+    // ============================================================
+    // RESET
+    // ============================================================
 
     private void ResetBoxState()
     {
@@ -201,14 +293,16 @@ public class BreakableBox : MonoBehaviour
 
         if (boxCollider != null)
         {
-            boxCollider.enabled = true;
+            boxCollider.enabled =
+                true;
         }
 
         if (goalReveal != null)
         {
             goalReveal.HideGoalImmediate();
 
-            if (goalReveal.transform.parent != transform)
+            if (goalReveal.transform.parent !=
+                transform)
             {
                 goalReveal.transform.SetParent(
                     transform,
@@ -218,195 +312,72 @@ public class BreakableBox : MonoBehaviour
         }
     }
 
-    private void Update()
-    {
-        if (mainCamera == null)
-        {
-            mainCamera = Camera.main;
-        }
+    // ============================================================
+    // LEG ATTACK
+    // ============================================================
 
-        UpdateHitEffect();
-
-        if (isBreaking ||
-            isBusy ||
-            mainCamera == null ||
-            boxCollider == null)
-        {
-            return;
-        }
-
-        // ПК — мышь.
-        if (Mouse.current != null &&
-            Mouse.current.leftButton.wasPressedThisFrame)
-        {
-            Vector2 screenPosition =
-                Mouse.current.position.ReadValue();
-
-            TryRequestHit(screenPosition);
-        }
-
-        // Android / iPhone — палец.
-        if (!isBusy &&
-            Touchscreen.current != null &&
-            Touchscreen.current.primaryTouch.press.wasPressedThisFrame)
-        {
-            Vector2 touchPosition =
-                Touchscreen.current
-                    .primaryTouch
-                    .position
-                    .ReadValue();
-
-            TryRequestHit(touchPosition);
-        }
-    }
-
-    private void TryRequestHit(
-        Vector2 screenPosition
+    /*
+     * Вызывается нашим LegAttackButton.
+     *
+     * Теперь ящик НЕ реагирует:
+     * - на мышь;
+     * - на тап по самому ящику.
+     *
+     * Только кнопка ноги может вызвать удар.
+     */
+    public void ReceiveKick(
+        int damage
     )
     {
-        if (!IsValidScreenPosition(
-                screenPosition))
+        if (isBreaking ||
+            isBusy)
         {
             return;
         }
 
-        float cameraDistance =
-            Mathf.Abs(
-                transform.position.z -
-                mainCamera.transform.position.z
-            );
-
-        Vector3 screenPoint =
-            new Vector3(
-                screenPosition.x,
-                screenPosition.y,
-                cameraDistance
-            );
-
-        Vector3 worldPosition =
-            mainCamera.ScreenToWorldPoint(
-                screenPoint
-            );
-
-        if (float.IsNaN(worldPosition.x) ||
-            float.IsNaN(worldPosition.y) ||
-            float.IsInfinity(worldPosition.x) ||
-            float.IsInfinity(worldPosition.y))
-        {
+        if (damage <= 0)
             return;
-        }
-
-        Vector2 point2D =
-            new Vector2(
-                worldPosition.x,
-                worldPosition.y
-            );
-
-        Collider2D hitCollider =
-            Physics2D.OverlapPoint(
-                point2D
-            );
-
-        if (hitCollider != boxCollider)
-        {
-            return;
-        }
-
-        if (player == null)
-        {
-            Debug.LogWarning(
-                "Player не назначен в BreakableBox!"
-            );
-
-            return;
-        }
-
-        float distance =
-            Vector2.Distance(
-                player.position,
-                transform.position
-            );
-
-        if (distance >
-            interactDistance)
-        {
-            Debug.Log(
-                "Слишком далеко от ящика"
-            );
-
-            return;
-        }
-
-        if (playerKick == null)
-        {
-            playerKick =
-                player.GetComponent<PlayerKick>();
-        }
-
-        if (playerKick == null)
-        {
-            Debug.LogWarning(
-                "PlayerKick не найден на Player!"
-            );
-
-            return;
-        }
-
-        bool kickStarted =
-            playerKick.KickToward(
-                transform.position
-            );
-
-        if (!kickStarted)
-        {
-            return;
-        }
 
         isBusy = true;
 
+        /*
+         * Сейчас обычный удар ноги = 1 damage.
+         *
+         * Но метод уже поддерживает больше,
+         * если позже появятся усиленные удары.
+         */
         StartCoroutine(
-            KickImpactSequence()
+            ReceiveKickRoutine(
+                damage
+            )
         );
     }
 
-    private bool IsValidScreenPosition(
-        Vector2 position
+    // ============================================================
+    // RECEIVE KICK
+    // ============================================================
+
+    private IEnumerator ReceiveKickRoutine(
+        int damage
     )
     {
-        if (float.IsNaN(position.x) ||
-            float.IsNaN(position.y) ||
-            float.IsInfinity(position.x) ||
-            float.IsInfinity(position.y))
-        {
-            return false;
-        }
-
-        if (position.x < 0f ||
-            position.y < 0f ||
-            position.x > Screen.width ||
-            position.y > Screen.height)
-        {
-            return false;
-        }
-
-        return true;
-    }
-
-    private IEnumerator KickImpactSequence()
-    {
-        if (kickImpactDelay > 0f)
-        {
-            yield return new WaitForSeconds(
-                kickImpactDelay
-            );
-        }
-
         if (isBreaking)
         {
+            isBusy = false;
             yield break;
         }
 
-        hits++;
+        hits +=
+            Mathf.Max(
+                1,
+                damage
+            );
+
+        hits =
+            Mathf.Min(
+                hits,
+                hitsToBreak
+            );
 
         Debug.Log(
             "Box hit: " +
@@ -417,7 +388,8 @@ public class BreakableBox : MonoBehaviour
 
         PlayHitEffect();
 
-        if (hits < hitsToBreak)
+        if (hits <
+            hitsToBreak)
         {
             PlayFirstHitHaptic();
             PlayFirstHitSound();
@@ -434,12 +406,14 @@ public class BreakableBox : MonoBehaviour
         }
     }
 
+    // ============================================================
+    // HAPTICS
+    // ============================================================
+
     private void PlayFirstHitHaptic()
     {
         if (!useHaptics)
-        {
             return;
-        }
 
         MicroHaptics.Pulse(
             firstHitHapticMs,
@@ -450,15 +424,17 @@ public class BreakableBox : MonoBehaviour
     private void PlayBreakHaptic()
     {
         if (!useHaptics)
-        {
             return;
-        }
 
         MicroHaptics.Pulse(
             breakHapticMs,
             MicroHaptics.IOSHapticStyle.Heavy
         );
     }
+
+    // ============================================================
+    // HIT EFFECT
+    // ============================================================
 
     private void PlayHitEffect()
     {
@@ -476,9 +452,7 @@ public class BreakableBox : MonoBehaviour
     private void UpdateHitEffect()
     {
         if (!isPlayingHitEffect)
-        {
             return;
-        }
 
         hitEffectTimer -=
             Time.deltaTime;
@@ -492,6 +466,10 @@ public class BreakableBox : MonoBehaviour
                 false;
         }
     }
+
+    // ============================================================
+    // AUDIO
+    // ============================================================
 
     private void PlayFirstHitSound()
     {
@@ -521,6 +499,10 @@ public class BreakableBox : MonoBehaviour
         );
     }
 
+    // ============================================================
+    // FIRST HIT
+    // ============================================================
+
     private IEnumerator FirstHitSequence()
     {
         yield return StartCoroutine(
@@ -547,6 +529,10 @@ public class BreakableBox : MonoBehaviour
 
         isBusy = false;
     }
+
+    // ============================================================
+    // FINAL BREAK
+    // ============================================================
 
     private IEnumerator FinalBreakSequence()
     {
@@ -589,10 +575,10 @@ public class BreakableBox : MonoBehaviour
 
         PlayBreakHaptic();
         PlayBreakSound();
+
         SpawnBreakEffect();
         SpawnBrokenPieces();
 
-        // Показываем предмет из ящика.
         RevealGoalFromBox();
 
         yield return new WaitForSeconds(
@@ -601,6 +587,10 @@ public class BreakableBox : MonoBehaviour
 
         HideAndFinishBreak();
     }
+
+    // ============================================================
+    // GOAL REVEAL
+    // ============================================================
 
     private void RevealGoalFromBox()
     {
@@ -645,6 +635,10 @@ public class BreakableBox : MonoBehaviour
         }
     }
 
+    // ============================================================
+    // SHAKE
+    // ============================================================
+
     private IEnumerator ShakeBox(
         float duration,
         float amountX,
@@ -656,11 +650,13 @@ public class BreakableBox : MonoBehaviour
 
         while (timer < duration)
         {
-            timer += Time.deltaTime;
+            timer +=
+                Time.deltaTime;
 
             float x =
                 Mathf.Sin(
-                    timer * speed
+                    timer *
+                    speed
                 ) *
                 amountX;
 
@@ -686,6 +682,10 @@ public class BreakableBox : MonoBehaviour
         transform.localPosition =
             originalLocalPosition;
     }
+
+    // ============================================================
+    // FINISH BREAK
+    // ============================================================
 
     private void HideAndFinishBreak()
     {
@@ -724,12 +724,14 @@ public class BreakableBox : MonoBehaviour
         );
     }
 
+    // ============================================================
+    // BREAK EFFECT
+    // ============================================================
+
     private void SpawnBreakEffect()
     {
         if (breakEffect == null)
-        {
             return;
-        }
 
         GameObject effect =
             Instantiate(
@@ -744,7 +746,8 @@ public class BreakableBox : MonoBehaviour
             );
 
         for (int i = 0;
-             i < particleSystems.Length;
+             i <
+             particleSystems.Length;
              i++)
         {
             particleSystems[i].Clear();
@@ -756,6 +759,10 @@ public class BreakableBox : MonoBehaviour
             breakEffectLifetime
         );
     }
+
+    // ============================================================
+    // BROKEN PIECES
+    // ============================================================
 
     private void SpawnBrokenPieces()
     {
@@ -799,9 +806,7 @@ public class BreakableBox : MonoBehaviour
                 woodChips[i];
 
             if (prefab == null)
-            {
                 continue;
-            }
 
             Vector3 startPosition =
                 transform.position +
@@ -857,6 +862,10 @@ public class BreakableBox : MonoBehaviour
         }
     }
 
+    // ============================================================
+    // CHIP ANIMATION
+    // ============================================================
+
     private IEnumerator AnimateChip(
         GameObject chip,
         Vector3 startPosition,
@@ -865,9 +874,7 @@ public class BreakableBox : MonoBehaviour
     )
     {
         if (chip == null)
-        {
             yield break;
-        }
 
         SpriteRenderer spriteRenderer =
             chip.GetComponent<SpriteRenderer>();
@@ -914,16 +921,18 @@ public class BreakableBox : MonoBehaviour
                chipFallDuration)
         {
             if (chip == null)
-            {
                 yield break;
-            }
 
-            timer += Time.deltaTime;
+            timer +=
+                Time.deltaTime;
 
             float progress =
                 Mathf.Clamp01(
                     timer /
-                    chipFallDuration
+                    Mathf.Max(
+                        0.01f,
+                        chipFallDuration
+                    )
                 );
 
             chip.transform.position =
@@ -958,7 +967,7 @@ public class BreakableBox : MonoBehaviour
                     chipHorizontalSpread
                 ),
                 -chipExtraDropDistance +
-                chipGroundLift,
+                    chipGroundLift,
                 0f
             );
 
@@ -968,9 +977,7 @@ public class BreakableBox : MonoBehaviour
                chipExtraFallDuration)
         {
             if (chip == null)
-            {
                 yield break;
-            }
 
             fallTimer +=
                 Time.deltaTime;
@@ -978,11 +985,15 @@ public class BreakableBox : MonoBehaviour
             float progress =
                 Mathf.Clamp01(
                     fallTimer /
-                    chipExtraFallDuration
+                    Mathf.Max(
+                        0.01f,
+                        chipExtraFallDuration
+                    )
                 );
 
             float curvedProgress =
-                progress * progress;
+                progress *
+                progress;
 
             chip.transform.position =
                 Vector3.Lerp(
@@ -1015,20 +1026,11 @@ public class BreakableBox : MonoBehaviour
                 endRotation
             );
 
-        float stayTimer = 0f;
-
-        while (stayTimer <
-               chipStayDuration)
+        if (chipStayDuration > 0f)
         {
-            if (chip == null)
-            {
-                yield break;
-            }
-
-            stayTimer +=
-                Time.deltaTime;
-
-            yield return null;
+            yield return new WaitForSeconds(
+                chipStayDuration
+            );
         }
 
         float fadeTimer = 0f;
@@ -1037,9 +1039,7 @@ public class BreakableBox : MonoBehaviour
                chipFadeDuration)
         {
             if (chip == null)
-            {
                 yield break;
-            }
 
             fadeTimer +=
                 Time.deltaTime;
@@ -1047,7 +1047,10 @@ public class BreakableBox : MonoBehaviour
             float progress =
                 Mathf.Clamp01(
                     fadeTimer /
-                    chipFadeDuration
+                    Mathf.Max(
+                        0.01f,
+                        chipFadeDuration
+                    )
                 );
 
             if (spriteRenderer != null)
@@ -1069,20 +1072,6 @@ public class BreakableBox : MonoBehaviour
             yield return null;
         }
 
-        if (spriteRenderer != null)
-        {
-            Color color =
-                spriteRenderer.color;
-
-            color.a = 0f;
-
-            spriteRenderer.color =
-                color;
-
-            spriteRenderer.enabled =
-                false;
-        }
-
         if (chipCollider != null)
         {
             chipCollider.enabled =
@@ -1095,7 +1084,6 @@ public class BreakableBox : MonoBehaviour
                 false;
         }
 
-        chip.SetActive(false);
         Destroy(chip);
     }
 }

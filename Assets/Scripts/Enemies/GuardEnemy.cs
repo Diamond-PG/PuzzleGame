@@ -1,6 +1,5 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(Collider2D))]
@@ -9,7 +8,6 @@ public class GuardEnemy : MonoBehaviour
     [Header("PLAYER")]
     [SerializeField] private Transform player;
     [SerializeField] private PlayerHealth playerHealth;
-    [SerializeField] private PlayerKick playerKick;
 
     [Header("VISUAL")]
     [SerializeField] private SpriteRenderer spriteRenderer;
@@ -36,6 +34,10 @@ public class GuardEnemy : MonoBehaviour
     [SerializeField] private Sprite deathWhenPlayerLeftSprite;
     [SerializeField] private Sprite deathWhenPlayerRightSprite;
 
+    // ============================================================
+    // PATROL
+    // ============================================================
+
     [Header("PATROL")]
     [SerializeField] private float patrolSpeed = 1.15f;
     [SerializeField] private float patrolDistance = 3f;
@@ -49,6 +51,10 @@ public class GuardEnemy : MonoBehaviour
     [Header("OBSTACLE DETECTION")]
     [SerializeField] private float obstacleCheckDistance = 0.05f;
 
+    // ============================================================
+    // PLAYER DETECTION
+    // ============================================================
+
     [Header("PLAYER DETECTION")]
     [SerializeField] private float detectionDistance = 1.7f;
     [SerializeField] private float detectionHeight = 0.35f;
@@ -57,19 +63,33 @@ public class GuardEnemy : MonoBehaviour
     [Header("CHASE")]
     [SerializeField] private float chaseSpeed = 1.65f;
 
+    // ============================================================
+    // GUARD HEALTH
+    // ============================================================
+
     [Header("GUARD HEALTH")]
     [SerializeField, Min(1)] private int maxHealth = 4;
-    [SerializeField] private float playerHitDistance = 0.8f;
-    [SerializeField] private float playerKickImpactDelay = 0.08f;
+
+    // ============================================================
+    // HIT BLINK
+    // ============================================================
 
     [Header("HIT BLINK")]
     [SerializeField, Min(1)] private int hitBlinkCount = 3;
     [SerializeField] private float hitBlinkInterval = 0.12f;
 
+    // ============================================================
+    // HIT KNOCKBACK
+    // ============================================================
+
     [Header("HIT KNOCKBACK")]
     [SerializeField] private float knockbackForce = 2.1f;
     [SerializeField] private float knockbackUpForce = 3f;
     [SerializeField] private float knockbackDuration = 0.18f;
+
+    // ============================================================
+    // GUARD ATTACK
+    // ============================================================
 
     [Header("GUARD ATTACK")]
     [SerializeField, Min(1)] private int damageToPlayer = 1;
@@ -79,6 +99,10 @@ public class GuardEnemy : MonoBehaviour
     [SerializeField] private float attackSpriteDuration = 0.35f;
     [SerializeField] private float attackCooldown = 1.15f;
 
+    // ============================================================
+    // HAPTICS
+    // ============================================================
+
     [Header("HAPTICS")]
     [SerializeField] private bool useHaptics = true;
 
@@ -87,6 +111,10 @@ public class GuardEnemy : MonoBehaviour
 
     [SerializeField, Range(5, 150)]
     private int guardHitsPlayerHapticMs = 40;
+
+    // ============================================================
+    // AUDIO
+    // ============================================================
 
     [Header("AUDIO - OPTIONAL")]
     [SerializeField] private AudioSource sfxSource;
@@ -118,46 +146,48 @@ public class GuardEnemy : MonoBehaviour
     [Header("WEAPON DROP")]
     [SerializeField] private GameObject weaponObject;
 
-    [Tooltip("Откуда начинается падение меча относительно Guard.")]
+    [Tooltip(
+        "Откуда начинается падение меча относительно Guard."
+    )]
     [SerializeField] private Vector2 weaponSpawnOffset =
         new Vector2(0f, 0.18f);
 
     [Tooltip(
-        "Насколько меч падает в сторону игрока. " +
-        "Если Guard у левой стены - меч идёт вправо. " +
-        "Если Guard у правой стены - меч идёт влево."
+        "Насколько меч падает в сторону игрока."
     )]
     [SerializeField] private float weaponDropDistance = 0.65f;
 
-    [Tooltip("Длительность короткого падения меча.")]
+    [Tooltip(
+        "Длительность короткого падения меча."
+    )]
     [SerializeField] private float weaponDropDuration = 0.38f;
 
     [Tooltip(
-        "Небольшая дуга падения. " +
-        "Это НЕ физический прыжок."
+        "Небольшая визуальная дуга падения."
     )]
     [SerializeField] private float weaponDropArcHeight = 0.10f;
 
     [Tooltip(
-        "Конечный угол меча. " +
-        "Для нашего Sword оставляем 90."
+        "Конечный угол меча."
     )]
     [SerializeField] private float weaponLandingRotation = 90f;
 
     [Tooltip(
-        "Маленький зазор между нижней частью картинки меча и полом."
+        "Маленький зазор между мечом и полом."
     )]
     [SerializeField] private float weaponFloorGap = 0.015f;
 
     [Tooltip(
-        "После падения Collider меча становится Trigger, " +
-        "чтобы он не мешал игроку и позже его можно было подобрать."
+        "После падения Collider меча становится Trigger."
     )]
     [SerializeField] private bool weaponColliderBecomesTrigger = true;
 
+    // ============================================================
+    // PRIVATE
+    // ============================================================
+
     private Rigidbody2D rb;
     private Collider2D bodyCollider;
-    private Camera mainCamera;
 
     private float startX;
     private float leftPatrolX;
@@ -168,7 +198,6 @@ public class GuardEnemy : MonoBehaviour
     private bool movingRight;
     private bool chasingPlayer;
     private bool patrolPaused;
-    private bool playerHitBusy;
     private bool attackBusy;
     private bool hitBlinking;
     private bool isKnockedBack;
@@ -182,13 +211,20 @@ public class GuardEnemy : MonoBehaviour
 
     public bool IsDead => isDead;
 
+    // ============================================================
+    // AWAKE
+    // ============================================================
+
     private void Awake()
     {
-        rb = GetComponent<Rigidbody2D>();
-        bodyCollider = GetComponent<Collider2D>();
+        rb =
+            GetComponent<Rigidbody2D>();
 
-        mainCamera = Camera.main;
-        currentHealth = maxHealth;
+        bodyCollider =
+            GetComponent<Collider2D>();
+
+        currentHealth =
+            maxHealth;
 
         if (spriteRenderer == null)
         {
@@ -234,66 +270,29 @@ public class GuardEnemy : MonoBehaviour
         FindPlayerLinks();
     }
 
+    // ============================================================
+    // START
+    // ============================================================
+
     private void Start()
     {
-        startX = transform.position.x;
+        startX =
+            transform.position.x;
 
         leftPatrolX =
-            startX - patrolDistance;
+            startX -
+            patrolDistance;
 
         rightPatrolX =
-            startX + patrolDistance;
+            startX +
+            patrolDistance;
 
         SetIdleFrontSprite();
     }
 
-    private void Update()
-    {
-        if (isDead)
-            return;
-
-        if (mainCamera == null)
-            mainCamera = Camera.main;
-
-        if (player == null)
-            FindPlayerLinks();
-
-        if (mainCamera == null ||
-            playerHitBusy ||
-            hitBlinking ||
-            isKnockedBack)
-        {
-            return;
-        }
-
-        if (playerHealth != null &&
-            playerHealth.IsDead)
-        {
-            return;
-        }
-
-        if (Mouse.current != null &&
-            Mouse.current.leftButton.wasPressedThisFrame)
-        {
-            TryRequestPlayerHit(
-                Mouse.current.position.ReadValue()
-            );
-        }
-
-        if (Touchscreen.current != null &&
-            Touchscreen.current
-                .primaryTouch
-                .press
-                .wasPressedThisFrame)
-        {
-            TryRequestPlayerHit(
-                Touchscreen.current
-                    .primaryTouch
-                    .position
-                    .ReadValue()
-            );
-        }
-    }
+    // ============================================================
+    // FIXED UPDATE
+    // ============================================================
 
     private void FixedUpdate()
     {
@@ -343,6 +342,10 @@ public class GuardEnemy : MonoBehaviour
         }
     }
 
+    // ============================================================
+    // PLAYER LINKS
+    // ============================================================
+
     private void FindPlayerLinks()
     {
         if (player == null)
@@ -367,144 +370,43 @@ public class GuardEnemy : MonoBehaviour
             playerHealth =
                 player.GetComponent<PlayerHealth>();
         }
-
-        if (playerKick == null)
-        {
-            playerKick =
-                player.GetComponent<PlayerKick>();
-        }
     }
 
     // ============================================================
-    // PLAYER HITS GUARD
+    // NEW LEG ATTACK SYSTEM
     // ============================================================
 
-    private void TryRequestPlayerHit(
-        Vector2 screenPosition
+    /*
+     * ЭТОТ МЕТОД ТЕПЕРЬ ВЫЗЫВАЕТ
+     * LegAttackButton.
+     *
+     * Больше никаких кликов мышкой
+     * или тапов пальцем по самому Guard.
+     */
+    public void ReceiveKick(
+        int damage
     )
     {
-        if (isDead ||
-            hitBlinking ||
-            isKnockedBack ||
-            player == null ||
-            bodyCollider == null ||
-            mainCamera == null)
+        if (isDead)
+            return;
+
+        if (damage <= 0)
+            return;
+
+        if (hitBlinking ||
+            isKnockedBack)
         {
             return;
         }
 
-        if (playerHealth != null &&
-            playerHealth.IsDead)
-        {
-            return;
-        }
-
-        if (!IsValidScreenPosition(
-                screenPosition))
-        {
-            return;
-        }
-
-        float cameraDistance =
-            Mathf.Abs(
-                transform.position.z -
-                mainCamera.transform.position.z
-            );
-
-        Vector3 worldPosition =
-            mainCamera.ScreenToWorldPoint(
-                new Vector3(
-                    screenPosition.x,
-                    screenPosition.y,
-                    cameraDistance
-                )
-            );
-
-        if (!IsFiniteVector3(
-                worldPosition))
-        {
-            return;
-        }
-
-        Collider2D[] hits =
-            Physics2D.OverlapPointAll(
-                new Vector2(
-                    worldPosition.x,
-                    worldPosition.y
-                )
-            );
-
-        bool clickedGuard = false;
-
-        foreach (Collider2D hit in hits)
-        {
-            if (hit == null)
-                continue;
-
-            if (hit == bodyCollider ||
-                hit.transform == transform ||
-                hit.transform.IsChildOf(transform))
-            {
-                clickedGuard = true;
-                break;
-            }
-        }
-
-        if (!clickedGuard)
-            return;
-
-        float distance =
-            Vector2.Distance(
-                player.position,
-                transform.position
-            );
-
-        if (distance >
-            playerHitDistance)
-        {
-            return;
-        }
-
-        if (playerKick == null)
-        {
-            playerKick =
-                player.GetComponent<PlayerKick>();
-        }
-
-        if (playerKick == null)
-            return;
-
-        bool kickStarted =
-            playerKick.KickToward(
-                transform.position
-            );
-
-        if (!kickStarted)
-            return;
-
-        playerHitBusy = true;
-
-        StartCoroutine(
-            PlayerKickImpactRoutine()
+        ReceivePlayerHit(
+            damage
         );
     }
 
-    private IEnumerator PlayerKickImpactRoutine()
-    {
-        if (playerKickImpactDelay > 0f)
-        {
-            yield return new WaitForSeconds(
-                playerKickImpactDelay
-            );
-        }
-
-        if (!isDead)
-        {
-            ReceivePlayerHit(1);
-        }
-
-        playerHitBusy = false;
-    }
+    // ============================================================
+    // RECEIVE DAMAGE
+    // ============================================================
 
     private void ReceivePlayerHit(
         int damage
@@ -521,7 +423,8 @@ public class GuardEnemy : MonoBehaviour
         currentHealth =
             Mathf.Max(
                 0,
-                currentHealth - damage
+                currentHealth -
+                damage
             );
 
         PlayPlayerHitsGuardHaptic();
@@ -542,8 +445,9 @@ public class GuardEnemy : MonoBehaviour
         }
 
         /*
-         * Если Guard ударили со спины,
-         * сразу разворачиваемся к игроку.
+         * После удара Guard сразу
+         * становится агрессивным
+         * и поворачивается к Player.
          */
         AggroAndFacePlayerAfterHit();
 
@@ -584,6 +488,10 @@ public class GuardEnemy : MonoBehaviour
             );
     }
 
+    // ============================================================
+    // AGGRO AFTER HIT
+    // ============================================================
+
     private void AggroAndFacePlayerAfterHit()
     {
         if (player == null)
@@ -609,6 +517,10 @@ public class GuardEnemy : MonoBehaviour
             SetChaseRightSprite();
         }
     }
+
+    // ============================================================
+    // KNOCKBACK
+    // ============================================================
 
     private IEnumerator KnockbackRoutine()
     {
@@ -652,6 +564,10 @@ public class GuardEnemy : MonoBehaviour
         knockbackCoroutine = null;
     }
 
+    // ============================================================
+    // HIT BLINK
+    // ============================================================
+
     private IEnumerator HitBlinkRoutine()
     {
         hitBlinking = true;
@@ -679,7 +595,8 @@ public class GuardEnemy : MonoBehaviour
 
         if (spriteRenderer != null)
         {
-            spriteRenderer.enabled = true;
+            spriteRenderer.enabled =
+                true;
         }
 
         hitBlinking = false;
@@ -715,7 +632,9 @@ public class GuardEnemy : MonoBehaviour
             transform.position.x;
 
         float horizontalDistance =
-            Mathf.Abs(differenceX);
+            Mathf.Abs(
+                differenceX
+            );
 
         float verticalDistance =
             Mathf.Abs(
@@ -751,7 +670,8 @@ public class GuardEnemy : MonoBehaviour
             if (horizontalDistance >
                     losePlayerDistance ||
                 verticalDistance >
-                    detectionHeight * 1.5f ||
+                    detectionHeight *
+                    1.5f ||
                 !HasClearLineOfSightToPlayer())
             {
                 StopChasingPlayer();
@@ -800,7 +720,9 @@ public class GuardEnemy : MonoBehaviour
             transform.position.x;
 
         float distanceX =
-            Mathf.Abs(differenceX);
+            Mathf.Abs(
+                differenceX
+            );
 
         float distanceY =
             Mathf.Abs(
@@ -825,8 +747,10 @@ public class GuardEnemy : MonoBehaviour
             return;
         }
 
-        if (distanceX <= attackDistance &&
-            distanceY <= attackHeight)
+        if (distanceX <=
+                attackDistance &&
+            distanceY <=
+                attackHeight)
         {
             StopHorizontalMovement();
             StartGuardAttack();
@@ -834,11 +758,14 @@ public class GuardEnemy : MonoBehaviour
         }
 
         float direction =
-            Mathf.Sign(differenceX);
+            Mathf.Sign(
+                differenceX
+            );
 
         rb.linearVelocity =
             new Vector2(
-                direction * chaseSpeed,
+                direction *
+                chaseSpeed,
                 rb.linearVelocity.y
             );
     }
@@ -986,8 +913,10 @@ public class GuardEnemy : MonoBehaviour
             );
 
         return
-            distanceX <= attackDistance &&
-            distanceY <= attackHeight &&
+            distanceX <=
+                attackDistance &&
+            distanceY <=
+                attackHeight &&
             HasClearLineOfSightToPlayer();
     }
 
@@ -1102,36 +1031,48 @@ public class GuardEnemy : MonoBehaviour
 
         StopHorizontalMovement();
 
-        if (movingRight)
-            SetLookRightSprite();
-        else
-            SetLookLeftSprite();
+        /*
+         * Смотрит перед собой,
+         * а не в стену.
+         */
+        SetIdleFrontSprite();
 
         yield return new WaitForSeconds(
             pauseBeforeBlink
         );
 
+        /*
+         * Моргает.
+         */
         SetBlinkSprite();
 
         yield return new WaitForSeconds(
             blinkDuration
         );
 
-        if (movingRight)
-            SetLookRightSprite();
-        else
-            SetLookLeftSprite();
+        /*
+         * Снова смотрит перед собой.
+         */
+        SetIdleFrontSprite();
 
         yield return new WaitForSeconds(
             pauseAfterBlink
         );
 
-        movingRight = !movingRight;
+        /*
+         * Разворачивается.
+         */
+        movingRight =
+            !movingRight;
 
         if (movingRight)
-            SetLookRightSprite();
+        {
+            SetWalkRightSprite();
+        }
         else
-            SetLookLeftSprite();
+        {
+            SetWalkLeftSprite();
+        }
 
         patrolPaused = false;
         patrolPauseCoroutine = null;
@@ -1173,9 +1114,13 @@ public class GuardEnemy : MonoBehaviour
             startX;
 
         if (movingRight)
+        {
             SetLookRightSprite();
+        }
         else
+        {
             SetLookLeftSprite();
+        }
     }
 
     // ============================================================
@@ -1252,7 +1197,7 @@ public class GuardEnemy : MonoBehaviour
     }
 
     // ============================================================
-    // OBSTACLES
+    // OBSTACLE DETECTION
     // ============================================================
 
     private bool ObstacleAhead()
@@ -1278,14 +1223,16 @@ public class GuardEnemy : MonoBehaviour
 
         float lowY =
             bounds.min.y +
-            height * 0.20f;
+            height *
+            0.20f;
 
         float middleY =
             bounds.center.y;
 
         float highY =
             bounds.min.y +
-            height * 0.80f;
+            height *
+            0.80f;
 
         return
             ObstacleRay(
@@ -1348,6 +1295,10 @@ public class GuardEnemy : MonoBehaviour
         return false;
     }
 
+    // ============================================================
+    // COLLISION
+    // ============================================================
+
     private void OnCollisionEnter2D(
         Collision2D collision
     )
@@ -1394,16 +1345,6 @@ public class GuardEnemy : MonoBehaviour
         if (isDead)
             return;
 
-        /*
-         * ВАЖНО.
-         *
-         * Сохраняем уровень пола ДО того,
-         * как отключим Collider стражника.
-         *
-         * Guard уже стоит на настоящем полу,
-         * поэтому bounds.min.y — это именно
-         * уровень поверхности под его ногами.
-         */
         float floorY =
             bodyCollider != null
                 ? bodyCollider.bounds.min.y
@@ -1453,12 +1394,14 @@ public class GuardEnemy : MonoBehaviour
             rb.linearVelocity =
                 Vector2.zero;
 
-            rb.angularVelocity = 0f;
+            rb.angularVelocity =
+                0f;
         }
 
         if (spriteRenderer != null)
         {
-            spriteRenderer.enabled = true;
+            spriteRenderer.enabled =
+                true;
 
             if (playerIsLeft)
             {
@@ -1480,12 +1423,14 @@ public class GuardEnemy : MonoBehaviour
 
         if (bodyCollider != null)
         {
-            bodyCollider.enabled = false;
+            bodyCollider.enabled =
+                false;
         }
 
         if (rb != null)
         {
-            rb.simulated = false;
+            rb.simulated =
+                false;
         }
 
         if (sfxSource != null &&
@@ -1497,10 +1442,6 @@ public class GuardEnemy : MonoBehaviour
             );
         }
 
-        /*
-         * Теперь запускаем полностью
-         * контролируемое падение меча.
-         */
         StartCoroutine(
             DropWeaponRoutine(
                 playerIsLeft,
@@ -1526,15 +1467,14 @@ public class GuardEnemy : MonoBehaviour
 
         weaponDropped = true;
 
-        /*
-         * Отделяем Weapon от Guard.
-         */
         weaponObject.transform.SetParent(
             null,
             true
         );
 
-        weaponObject.SetActive(true);
+        weaponObject.SetActive(
+            true
+        );
 
         Collider2D weaponCollider =
             weaponObject.GetComponent<Collider2D>();
@@ -1542,13 +1482,6 @@ public class GuardEnemy : MonoBehaviour
         Rigidbody2D weaponRb =
             weaponObject.GetComponent<Rigidbody2D>();
 
-        /*
-         * ВАЖНО:
-         *
-         * Никакой физики падения.
-         * Rigidbody не имеет права толкать,
-         * бросать или выталкивать меч.
-         */
         if (weaponRb != null)
         {
             weaponRb.linearVelocity =
@@ -1557,17 +1490,14 @@ public class GuardEnemy : MonoBehaviour
             weaponRb.angularVelocity =
                 0f;
 
-            weaponRb.simulated = false;
+            weaponRb.simulated =
+                false;
         }
 
-        /*
-         * Во время анимации Collider выключен,
-         * поэтому ни пол, ни стены не могут
-         * физически вытолкнуть меч.
-         */
         if (weaponCollider != null)
         {
-            weaponCollider.enabled = false;
+            weaponCollider.enabled =
+                false;
         }
 
         Vector3 startPosition =
@@ -1581,17 +1511,6 @@ public class GuardEnemy : MonoBehaviour
         weaponObject.transform.position =
             startPosition;
 
-        /*
-         * Если Player находится слева,
-         * значит Guard обычно погиб возле
-         * ПРАВОЙ стены -> меч идёт ВЛЕВО.
-         *
-         * Если Player находится справа,
-         * Guard погиб возле ЛЕВОЙ стены ->
-         * меч идёт ВПРАВО.
-         *
-         * То есть меч падает НА СТОРОНУ PLAYER.
-         */
         float dropDirection;
 
         if (player != null)
@@ -1600,11 +1519,14 @@ public class GuardEnemy : MonoBehaviour
                 player.position.x -
                 transform.position.x;
 
-            if (Mathf.Abs(difference) >
+            if (Mathf.Abs(
+                    difference) >
                 0.01f)
             {
                 dropDirection =
-                    Mathf.Sign(difference);
+                    Mathf.Sign(
+                        difference
+                    );
             }
             else
             {
@@ -1627,13 +1549,6 @@ public class GuardEnemy : MonoBehaviour
             dropDirection *
             weaponDropDistance;
 
-        /*
-         * Вычисляем правильный Y НЕ ПО COLLIDER,
-         * а по настоящей видимой картинке Sword.
-         *
-         * Поэтому Rotation 90 больше никогда
-         * не сможет изменить высоту пола.
-         */
         float targetY =
             CalculateWeaponLandingY(
                 floorY
@@ -1667,7 +1582,8 @@ public class GuardEnemy : MonoBehaviour
         while (timer <
             safeDuration)
         {
-            timer += Time.deltaTime;
+            timer +=
+                Time.deltaTime;
 
             float t =
                 Mathf.Clamp01(
@@ -1689,11 +1605,6 @@ public class GuardEnemy : MonoBehaviour
                     smoothT
                 );
 
-            /*
-             * Только маленькая визуальная дуга.
-             * Это Transform-анимация,
-             * а НЕ физический прыжок.
-             */
             position.y +=
                 Mathf.Sin(
                     smoothT *
@@ -1714,27 +1625,12 @@ public class GuardEnemy : MonoBehaviour
             yield return null;
         }
 
-        /*
-         * ЖЁСТКО ставим финальную точку.
-         *
-         * После этой строки меч уже
-         * ничего не может изменить.
-         */
         weaponObject.transform.position =
             endPosition;
 
         weaponObject.transform.rotation =
             endRotation;
 
-        /*
-         * Rigidbody остаётся выключенным.
-         *
-         * То есть:
-         * - не провалится;
-         * - не подпрыгнет;
-         * - не уедет;
-         * - не залетит в стену.
-         */
         if (weaponRb != null)
         {
             weaponRb.linearVelocity =
@@ -1743,23 +1639,19 @@ public class GuardEnemy : MonoBehaviour
             weaponRb.angularVelocity =
                 0f;
 
-            weaponRb.simulated = false;
+            weaponRb.simulated =
+                false;
         }
 
-        /*
-         * Collider снова включаем,
-         * но делаем Trigger.
-         *
-         * Позже на нём удобно сделаем
-         * подбор меча.
-         */
         if (weaponCollider != null)
         {
-            weaponCollider.enabled = true;
+            weaponCollider.enabled =
+                true;
 
             if (weaponColliderBecomesTrigger)
             {
-                weaponCollider.isTrigger = true;
+                weaponCollider.isTrigger =
+                    true;
             }
         }
     }
@@ -1780,17 +1672,13 @@ public class GuardEnemy : MonoBehaviour
         }
 
         SpriteRenderer weaponRenderer =
-            weaponObject.GetComponent<
-                SpriteRenderer
-            >();
+            weaponObject.GetComponent<SpriteRenderer>();
 
         if (weaponRenderer == null)
         {
             weaponRenderer =
                 weaponObject
-                    .GetComponentInChildren<
-                        SpriteRenderer
-                    >();
+                    .GetComponentInChildren<SpriteRenderer>();
         }
 
         if (weaponRenderer == null)
@@ -1800,15 +1688,6 @@ public class GuardEnemy : MonoBehaviour
                 weaponFloorGap;
         }
 
-        /*
-         * Временно ставим Sword в угол 90,
-         * чтобы узнать настоящую нижнюю точку
-         * именно ЛЕЖАЩЕЙ картинки.
-         *
-         * Это происходит мгновенно внутри
-         * одного кадра и игрок этого
-         * промежуточного действия не увидит.
-         */
         Vector3 savedPosition =
             weaponObject.transform.position;
 
@@ -1827,18 +1706,10 @@ public class GuardEnemy : MonoBehaviour
         Bounds visualBounds =
             weaponRenderer.bounds;
 
-        /*
-         * Расстояние от Pivot объекта
-         * до самого низа видимого Sprite.
-         */
         float pivotToBottom =
             weaponObject.transform.position.y -
             visualBounds.min.y;
 
-        /*
-         * Возвращаем исходную позу
-         * перед началом анимации.
-         */
         weaponObject.transform.position =
             savedPosition;
 
@@ -1847,12 +1718,6 @@ public class GuardEnemy : MonoBehaviour
 
         Physics2D.SyncTransforms();
 
-        /*
-         * Теперь гарантированно:
-         *
-         * НИЗ ВИДИМОГО МЕЧА =
-         * ПОВЕРХНОСТЬ ПОЛА + МАЛЕНЬКИЙ ЗАЗОР.
-         */
         return
             floorY +
             pivotToBottom +
@@ -1886,7 +1751,7 @@ public class GuardEnemy : MonoBehaviour
     }
 
     // ============================================================
-    // SPRITES
+    // MOVEMENT / SPRITES
     // ============================================================
 
     private void StopHorizontalMovement()
@@ -1904,9 +1769,13 @@ public class GuardEnemy : MonoBehaviour
     private void UpdateWalkingSprite()
     {
         if (movingRight)
+        {
             SetWalkRightSprite();
+        }
         else
+        {
             SetWalkLeftSprite();
+        }
     }
 
     private void UpdateChaseSprite()
@@ -2063,41 +1932,5 @@ public class GuardEnemy : MonoBehaviour
             target == player ||
             target.IsChildOf(player) ||
             player.IsChildOf(target);
-    }
-
-    private bool IsValidScreenPosition(
-        Vector2 position
-    )
-    {
-        if (!IsFinite(position.x) ||
-            !IsFinite(position.y))
-        {
-            return false;
-        }
-
-        return
-            position.x >= 0f &&
-            position.y >= 0f &&
-            position.x <= Screen.width &&
-            position.y <= Screen.height;
-    }
-
-    private bool IsFiniteVector3(
-        Vector3 value
-    )
-    {
-        return
-            IsFinite(value.x) &&
-            IsFinite(value.y) &&
-            IsFinite(value.z);
-    }
-
-    private bool IsFinite(
-        float value
-    )
-    {
-        return
-            !float.IsNaN(value) &&
-            !float.IsInfinity(value);
     }
 }

@@ -1,22 +1,26 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class BreakableHardBox : MonoBehaviour
 {
-    [Header("Box Settings")]
-    public int hitsToBreak = 4;
-    public Transform player;
-    public float interactDistance = 1.5f;
+    // ============================================================
+    // BOX SETTINGS
+    // ============================================================
 
-    [Header("Player Kick")]
-    [SerializeField] private PlayerKick playerKick;
+    [Header("BOX SETTINGS")]
 
-    [Tooltip("Через сколько секунд после начала удара нога реально попадает по ящику.")]
-    [SerializeField] private float kickImpactDelay = 0.08f;
+    [Tooltip("Сколько ударов нужно для разрушения тяжёлого ящика.")]
+    [SerializeField, Min(1)]
+    private int hitsToBreak = 4;
 
-    [Header("Haptics")]
-    [SerializeField] private bool useHaptics = true;
+    // ============================================================
+    // HAPTICS
+    // ============================================================
+
+    [Header("HAPTICS")]
+
+    [SerializeField]
+    private bool useHaptics = true;
 
     [SerializeField, Range(5, 100)]
     private int firstHitHapticMs = 20;
@@ -30,85 +34,219 @@ public class BreakableHardBox : MonoBehaviour
     [SerializeField, Range(5, 200)]
     private int breakHapticMs = 110;
 
-    [Header("Effects")]
-    public GameObject breakEffect;
-    public float breakEffectLifetime = 2f;
+    // ============================================================
+    // EFFECTS
+    // ============================================================
 
-    [Header("Audio")]
-    public AudioSource audioSource;
-    public AudioClip firstHitSound;
-    public AudioClip secondHitSound;
-    public AudioClip thirdHitSound;
-    public AudioClip breakSound;
+    [Header("EFFECTS")]
+
+    [SerializeField]
+    private GameObject breakEffect;
+
+    [SerializeField]
+    private float breakEffectLifetime = 2f;
+
+    // ============================================================
+    // AUDIO
+    // ============================================================
+
+    [Header("AUDIO")]
+
+    [SerializeField]
+    private AudioSource audioSource;
+
+    [SerializeField]
+    private AudioClip firstHitSound;
+
+    [SerializeField]
+    private AudioClip secondHitSound;
+
+    [SerializeField]
+    private AudioClip thirdHitSound;
+
+    [SerializeField]
+    private AudioClip breakSound;
 
     [Range(0f, 1f)]
-    public float firstHitVolume = 1f;
+    [SerializeField]
+    private float firstHitVolume = 1f;
 
     [Range(0f, 1f)]
-    public float secondHitVolume = 1f;
+    [SerializeField]
+    private float secondHitVolume = 1f;
 
     [Range(0f, 1f)]
-    public float thirdHitVolume = 1f;
+    [SerializeField]
+    private float thirdHitVolume = 1f;
 
     [Range(0f, 1f)]
-    public float breakVolume = 1f;
+    [SerializeField]
+    private float breakVolume = 1f;
 
-    [Header("Box Sprites")]
-    public Sprite normalSprite;
-    public Sprite crackedSprite1;
-    public Sprite crackedSprite2;
-    public Sprite crackedSprite3;
-    public Sprite brokenSprite;
-    public float brokenSpriteDuration = 0.22f;
+    // ============================================================
+    // BOX SPRITES
+    // ============================================================
 
-    [Header("Hit Effect")]
-    public float hitScaleMultiplier = 0.9f;
-    public float hitEffectDuration = 0.08f;
+    [Header("BOX SPRITES")]
 
-    [Header("First Hit Shake")]
-    public float firstHitShakeDuration = 0.18f;
-    public float firstHitShakeAmountX = 0.030f;
-    public float firstHitShakeAmountY = 0.006f;
-    public float firstHitShakeSpeed = 26f;
+    [SerializeField]
+    private Sprite normalSprite;
 
-    [Header("Second Hit Shake")]
-    public float secondHitShakeDuration = 0.22f;
-    public float secondHitShakeAmountX = 0.040f;
-    public float secondHitShakeAmountY = 0.008f;
-    public float secondHitShakeSpeed = 28f;
+    [SerializeField]
+    private Sprite crackedSprite1;
 
-    [Header("Third Hit Shake")]
-    public float thirdHitShakeDuration = 0.28f;
-    public float thirdHitShakeAmountX = 0.052f;
-    public float thirdHitShakeAmountY = 0.011f;
-    public float thirdHitShakeSpeed = 31f;
+    [SerializeField]
+    private Sprite crackedSprite2;
 
-    [Header("Final Break Shake")]
-    public float finalShakeDuration = 0.48f;
-    public float finalShakeAmountX = 0.070f;
-    public float finalShakeAmountY = 0.014f;
-    public float finalShakeSpeed = 36f;
+    [SerializeField]
+    private Sprite crackedSprite3;
 
-    [Header("Broken Pieces")]
-    public GameObject[] woodChips;
+    [SerializeField]
+    private Sprite brokenSprite;
 
-    public float chipFallDuration = 0.22f;
-    public float chipExtraFallDuration = 0.26f;
-    public float chipExtraDropDistance = 0.18f;
-    public float chipHorizontalSpread = 0.06f;
-    public float chipStayDuration = 0.55f;
-    public float chipFadeDuration = 0.25f;
-    public float chipEndRotMin = 55f;
-    public float chipEndRotMax = 125f;
-    public float chipGroundLift = 0.045f;
+    [SerializeField]
+    private float brokenSpriteDuration = 0.22f;
 
-    [Header("Goal Reveal")]
-    public GoalRevealFromBox goalReveal;
-    public float goalDetachDelay = 0.25f;
-    public bool goalDebugLogs = false;
+    // ============================================================
+    // HIT EFFECT
+    // ============================================================
+
+    [Header("HIT EFFECT")]
+
+    [SerializeField]
+    private float hitScaleMultiplier = 0.9f;
+
+    [SerializeField]
+    private float hitEffectDuration = 0.08f;
+
+    // ============================================================
+    // FIRST HIT SHAKE
+    // ============================================================
+
+    [Header("FIRST HIT SHAKE")]
+
+    [SerializeField]
+    private float firstHitShakeDuration = 0.18f;
+
+    [SerializeField]
+    private float firstHitShakeAmountX = 0.030f;
+
+    [SerializeField]
+    private float firstHitShakeAmountY = 0.006f;
+
+    [SerializeField]
+    private float firstHitShakeSpeed = 26f;
+
+    // ============================================================
+    // SECOND HIT SHAKE
+    // ============================================================
+
+    [Header("SECOND HIT SHAKE")]
+
+    [SerializeField]
+    private float secondHitShakeDuration = 0.22f;
+
+    [SerializeField]
+    private float secondHitShakeAmountX = 0.040f;
+
+    [SerializeField]
+    private float secondHitShakeAmountY = 0.008f;
+
+    [SerializeField]
+    private float secondHitShakeSpeed = 28f;
+
+    // ============================================================
+    // THIRD HIT SHAKE
+    // ============================================================
+
+    [Header("THIRD HIT SHAKE")]
+
+    [SerializeField]
+    private float thirdHitShakeDuration = 0.28f;
+
+    [SerializeField]
+    private float thirdHitShakeAmountX = 0.052f;
+
+    [SerializeField]
+    private float thirdHitShakeAmountY = 0.011f;
+
+    [SerializeField]
+    private float thirdHitShakeSpeed = 31f;
+
+    // ============================================================
+    // FINAL BREAK SHAKE
+    // ============================================================
+
+    [Header("FINAL BREAK SHAKE")]
+
+    [SerializeField]
+    private float finalShakeDuration = 0.48f;
+
+    [SerializeField]
+    private float finalShakeAmountX = 0.070f;
+
+    [SerializeField]
+    private float finalShakeAmountY = 0.014f;
+
+    [SerializeField]
+    private float finalShakeSpeed = 36f;
+
+    // ============================================================
+    // BROKEN PIECES
+    // ============================================================
+
+    [Header("BROKEN PIECES")]
+
+    [SerializeField]
+    private GameObject[] woodChips;
+
+    [SerializeField]
+    private float chipFallDuration = 0.22f;
+
+    [SerializeField]
+    private float chipExtraFallDuration = 0.26f;
+
+    [SerializeField]
+    private float chipExtraDropDistance = 0.18f;
+
+    [SerializeField]
+    private float chipHorizontalSpread = 0.06f;
+
+    [SerializeField]
+    private float chipStayDuration = 0.55f;
+
+    [SerializeField]
+    private float chipFadeDuration = 0.25f;
+
+    [SerializeField]
+    private float chipEndRotMin = 55f;
+
+    [SerializeField]
+    private float chipEndRotMax = 125f;
+
+    [SerializeField]
+    private float chipGroundLift = 0.045f;
+
+    // ============================================================
+    // GOAL REVEAL
+    // ============================================================
+
+    [Header("GOAL REVEAL")]
+
+    [SerializeField]
+    private GoalRevealFromBox goalReveal;
+
+    [SerializeField]
+    private float goalDetachDelay = 0.25f;
+
+    [SerializeField]
+    private bool goalDebugLogs = false;
+
+    // ============================================================
+    // PRIVATE
+    // ============================================================
 
     private int hits;
-    private Camera mainCamera;
 
     private SpriteRenderer boxSpriteRenderer;
     private SpriteRenderer boxBackgroundRenderer;
@@ -123,10 +261,14 @@ public class BreakableHardBox : MonoBehaviour
     private bool isBreaking;
     private bool isBusy;
 
+    public bool IsBroken => isBreaking;
+
+    // ============================================================
+    // AWAKE
+    // ============================================================
+
     private void Awake()
     {
-        mainCamera = Camera.main;
-
         boxSpriteRenderer =
             GetComponent<SpriteRenderer>();
 
@@ -139,15 +281,10 @@ public class BreakableHardBox : MonoBehaviour
                 GetComponent<AudioSource>();
         }
 
-        if (playerKick == null &&
-            player != null)
-        {
-            playerKick =
-                player.GetComponent<PlayerKick>();
-        }
-
         Transform background =
-            transform.Find("Box_Background 2");
+            transform.Find(
+                "Box_Background 2"
+            );
 
         if (background != null)
         {
@@ -162,15 +299,27 @@ public class BreakableHardBox : MonoBehaviour
             transform.localPosition;
     }
 
+    // ============================================================
+    // START
+    // ============================================================
+
     private void Start()
     {
         ResetBoxState();
     }
 
-    private void OnEnable()
+    // ============================================================
+    // UPDATE
+    // ============================================================
+
+    private void Update()
     {
-        ResetBoxState();
+        UpdateHitEffect();
     }
+
+    // ============================================================
+    // RESET
+    // ============================================================
 
     private void ResetBoxState()
     {
@@ -209,14 +358,16 @@ public class BreakableHardBox : MonoBehaviour
 
         if (boxCollider != null)
         {
-            boxCollider.enabled = true;
+            boxCollider.enabled =
+                true;
         }
 
         if (goalReveal != null)
         {
             goalReveal.HideGoalImmediate();
 
-            if (goalReveal.transform.parent != transform)
+            if (goalReveal.transform.parent !=
+                transform)
             {
                 goalReveal.transform.SetParent(
                     transform,
@@ -226,191 +377,57 @@ public class BreakableHardBox : MonoBehaviour
         }
     }
 
-    private void Update()
-    {
-        if (mainCamera == null)
-        {
-            mainCamera = Camera.main;
-        }
+    // ============================================================
+    // LEG ATTACK
+    // ============================================================
 
-        UpdateHitEffect();
-
-        if (isBreaking ||
-            isBusy ||
-            mainCamera == null ||
-            boxCollider == null)
-        {
-            return;
-        }
-
-        if (Mouse.current != null &&
-            Mouse.current.leftButton.wasPressedThisFrame)
-        {
-            TryRequestHit(
-                Mouse.current.position.ReadValue()
-            );
-        }
-
-        if (!isBusy &&
-            Touchscreen.current != null &&
-            Touchscreen.current.primaryTouch.press.wasPressedThisFrame)
-        {
-            TryRequestHit(
-                Touchscreen.current
-                    .primaryTouch
-                    .position
-                    .ReadValue()
-            );
-        }
-    }
-
-    private void TryRequestHit(
-        Vector2 screenPosition
+    public void ReceiveKick(
+        int damage
     )
     {
-        if (!IsValidScreenPosition(
-                screenPosition))
+        if (isBreaking ||
+            isBusy)
         {
             return;
         }
 
-        float cameraDistance =
-            Mathf.Abs(
-                transform.position.z -
-                mainCamera.transform.position.z
-            );
-
-        Vector3 screenPoint =
-            new Vector3(
-                screenPosition.x,
-                screenPosition.y,
-                cameraDistance
-            );
-
-        Vector3 worldPosition =
-            mainCamera.ScreenToWorldPoint(
-                screenPoint
-            );
-
-        if (float.IsNaN(worldPosition.x) ||
-            float.IsNaN(worldPosition.y) ||
-            float.IsInfinity(worldPosition.x) ||
-            float.IsInfinity(worldPosition.y))
-        {
+        if (damage <= 0)
             return;
-        }
-
-        Vector2 point2D =
-            new Vector2(
-                worldPosition.x,
-                worldPosition.y
-            );
-
-        Collider2D hitCollider =
-            Physics2D.OverlapPoint(
-                point2D
-            );
-
-        if (hitCollider != boxCollider)
-        {
-            return;
-        }
-
-        if (player == null)
-        {
-            Debug.LogWarning(
-                "Player не назначен в BreakableHardBox!"
-            );
-
-            return;
-        }
-
-        float distance =
-            Vector2.Distance(
-                player.position,
-                transform.position
-            );
-
-        if (distance >
-            interactDistance)
-        {
-            Debug.Log(
-                "Слишком далеко от hard box"
-            );
-
-            return;
-        }
-
-        if (playerKick == null)
-        {
-            playerKick =
-                player.GetComponent<PlayerKick>();
-        }
-
-        if (playerKick == null)
-        {
-            Debug.LogWarning(
-                "PlayerKick не найден на Player!"
-            );
-
-            return;
-        }
-
-        bool kickStarted =
-            playerKick.KickToward(
-                transform.position
-            );
-
-        if (!kickStarted)
-        {
-            return;
-        }
 
         isBusy = true;
 
         StartCoroutine(
-            KickImpactSequence()
+            ReceiveKickRoutine(
+                damage
+            )
         );
     }
 
-    private bool IsValidScreenPosition(
-        Vector2 position
+    // ============================================================
+    // RECEIVE KICK
+    // ============================================================
+
+    private IEnumerator ReceiveKickRoutine(
+        int damage
     )
     {
-        if (float.IsNaN(position.x) ||
-            float.IsNaN(position.y) ||
-            float.IsInfinity(position.x) ||
-            float.IsInfinity(position.y))
-        {
-            return false;
-        }
-
-        if (position.x < 0f ||
-            position.y < 0f ||
-            position.x > Screen.width ||
-            position.y > Screen.height)
-        {
-            return false;
-        }
-
-        return true;
-    }
-
-    private IEnumerator KickImpactSequence()
-    {
-        if (kickImpactDelay > 0f)
-        {
-            yield return new WaitForSeconds(
-                kickImpactDelay
-            );
-        }
-
         if (isBreaking)
         {
+            isBusy = false;
             yield break;
         }
 
-        hits++;
+        hits +=
+            Mathf.Max(
+                1,
+                damage
+            );
+
+        hits =
+            Mathf.Min(
+                hits,
+                hitsToBreak
+            );
 
         Debug.Log(
             "Hard box hit: " +
@@ -421,7 +438,8 @@ public class BreakableHardBox : MonoBehaviour
 
         PlayHitEffect();
 
-        if (hits < hitsToBreak)
+        if (hits <
+            hitsToBreak)
         {
             PlayHitHapticByHitNumber();
             PlayHitSoundByHitNumber();
@@ -437,6 +455,10 @@ public class BreakableHardBox : MonoBehaviour
             );
         }
     }
+
+    // ============================================================
+    // HAPTICS
+    // ============================================================
 
     private void PlayHitHapticByHitNumber()
     {
@@ -479,6 +501,10 @@ public class BreakableHardBox : MonoBehaviour
         );
     }
 
+    // ============================================================
+    // HIT EFFECT
+    // ============================================================
+
     private void PlayHitEffect()
     {
         transform.localScale =
@@ -509,6 +535,10 @@ public class BreakableHardBox : MonoBehaviour
                 false;
         }
     }
+
+    // ============================================================
+    // AUDIO
+    // ============================================================
 
     private void PlayHitSoundByHitNumber()
     {
@@ -562,6 +592,10 @@ public class BreakableHardBox : MonoBehaviour
             breakVolume
         );
     }
+
+    // ============================================================
+    // DAMAGE STAGES
+    // ============================================================
 
     private IEnumerator HitSequence()
     {
@@ -656,6 +690,10 @@ public class BreakableHardBox : MonoBehaviour
         }
     }
 
+    // ============================================================
+    // FINAL BREAK
+    // ============================================================
+
     private IEnumerator FinalBreakSequence()
     {
         isBreaking = true;
@@ -674,6 +712,12 @@ public class BreakableHardBox : MonoBehaviour
 
         transform.localScale =
             originalLocalScale;
+
+        if (boxBackgroundRenderer != null)
+        {
+            boxBackgroundRenderer.enabled =
+                false;
+        }
 
         if (boxSpriteRenderer != null)
         {
@@ -701,6 +745,7 @@ public class BreakableHardBox : MonoBehaviour
 
         PlayBreakHaptic();
         PlayBreakSound();
+
         SpawnBreakEffect();
         SpawnBrokenPieces();
         RevealGoalFromBox();
@@ -711,6 +756,10 @@ public class BreakableHardBox : MonoBehaviour
 
         HideAndFinishBreak();
     }
+
+    // ============================================================
+    // GOAL REVEAL
+    // ============================================================
 
     private void RevealGoalFromBox()
     {
@@ -755,6 +804,10 @@ public class BreakableHardBox : MonoBehaviour
         }
     }
 
+    // ============================================================
+    // SHAKE
+    // ============================================================
+
     private IEnumerator ShakeBox(
         float duration,
         float amountX,
@@ -766,11 +819,13 @@ public class BreakableHardBox : MonoBehaviour
 
         while (timer < duration)
         {
-            timer += Time.deltaTime;
+            timer +=
+                Time.deltaTime;
 
             float x =
                 Mathf.Sin(
-                    timer * speed
+                    timer *
+                    speed
                 ) *
                 amountX;
 
@@ -796,6 +851,10 @@ public class BreakableHardBox : MonoBehaviour
         transform.localPosition =
             originalLocalPosition;
     }
+
+    // ============================================================
+    // FINISH BREAK
+    // ============================================================
 
     private void HideAndFinishBreak()
     {
@@ -834,6 +893,10 @@ public class BreakableHardBox : MonoBehaviour
         );
     }
 
+    // ============================================================
+    // BREAK EFFECT
+    // ============================================================
+
     private void SpawnBreakEffect()
     {
         if (breakEffect == null)
@@ -847,9 +910,9 @@ public class BreakableHardBox : MonoBehaviour
             );
 
         ParticleSystem[] particleSystems =
-            effect.GetComponentsInChildren<ParticleSystem>(
-                true
-            );
+            effect.GetComponentsInChildren<
+                ParticleSystem
+            >(true);
 
         for (int i = 0;
              i < particleSystems.Length;
@@ -864,6 +927,10 @@ public class BreakableHardBox : MonoBehaviour
             breakEffectLifetime
         );
     }
+
+    // ============================================================
+    // BROKEN PIECES
+    // ============================================================
 
     private void SpawnBrokenPieces()
     {
@@ -963,6 +1030,10 @@ public class BreakableHardBox : MonoBehaviour
         }
     }
 
+    // ============================================================
+    // CHIP ANIMATION
+    // ============================================================
+
     private IEnumerator AnimateChip(
         GameObject chip,
         Vector3 startPosition,
@@ -973,7 +1044,7 @@ public class BreakableHardBox : MonoBehaviour
         if (chip == null)
             yield break;
 
-        SpriteRenderer spriteRenderer =
+        SpriteRenderer chipRenderer =
             chip.GetComponent<SpriteRenderer>();
 
         Collider2D chipCollider =
@@ -985,10 +1056,10 @@ public class BreakableHardBox : MonoBehaviour
         Color startColor =
             Color.white;
 
-        if (spriteRenderer != null)
+        if (chipRenderer != null)
         {
             startColor =
-                spriteRenderer.color;
+                chipRenderer.color;
         }
 
         float startRotation =
@@ -1012,19 +1083,27 @@ public class BreakableHardBox : MonoBehaviour
                     chipEndRotMax
                 );
 
+        float safeFallDuration =
+            Mathf.Max(
+                0.01f,
+                chipFallDuration
+            );
+
         float timer = 0f;
 
-        while (timer < chipFallDuration)
+        while (timer <
+               safeFallDuration)
         {
             if (chip == null)
                 yield break;
 
-            timer += Time.deltaTime;
+            timer +=
+                Time.deltaTime;
 
             float progress =
                 Mathf.Clamp01(
                     timer /
-                    chipFallDuration
+                    safeFallDuration
                 );
 
             chip.transform.position =
@@ -1059,28 +1138,36 @@ public class BreakableHardBox : MonoBehaviour
                     chipHorizontalSpread
                 ),
                 -chipExtraDropDistance +
-                chipGroundLift,
+                    chipGroundLift,
                 0f
+            );
+
+        float safeExtraFallDuration =
+            Mathf.Max(
+                0.01f,
+                chipExtraFallDuration
             );
 
         float fallTimer = 0f;
 
         while (fallTimer <
-               chipExtraFallDuration)
+               safeExtraFallDuration)
         {
             if (chip == null)
                 yield break;
 
-            fallTimer += Time.deltaTime;
+            fallTimer +=
+                Time.deltaTime;
 
             float progress =
                 Mathf.Clamp01(
                     fallTimer /
-                    chipExtraFallDuration
+                    safeExtraFallDuration
                 );
 
             float curvedProgress =
-                progress * progress;
+                progress *
+                progress;
 
             chip.transform.position =
                 Vector3.Lerp(
@@ -1113,35 +1200,37 @@ public class BreakableHardBox : MonoBehaviour
                 endRotation
             );
 
-        float stayTimer = 0f;
-
-        while (stayTimer <
-               chipStayDuration)
+        if (chipStayDuration > 0f)
         {
-            if (chip == null)
-                yield break;
-
-            stayTimer += Time.deltaTime;
-            yield return null;
+            yield return new WaitForSeconds(
+                chipStayDuration
+            );
         }
+
+        float safeFadeDuration =
+            Mathf.Max(
+                0.01f,
+                chipFadeDuration
+            );
 
         float fadeTimer = 0f;
 
         while (fadeTimer <
-               chipFadeDuration)
+               safeFadeDuration)
         {
             if (chip == null)
                 yield break;
 
-            fadeTimer += Time.deltaTime;
+            fadeTimer +=
+                Time.deltaTime;
 
             float progress =
                 Mathf.Clamp01(
                     fadeTimer /
-                    chipFadeDuration
+                    safeFadeDuration
                 );
 
-            if (spriteRenderer != null)
+            if (chipRenderer != null)
             {
                 Color color =
                     startColor;
@@ -1153,25 +1242,11 @@ public class BreakableHardBox : MonoBehaviour
                         progress
                     );
 
-                spriteRenderer.color =
+                chipRenderer.color =
                     color;
             }
 
             yield return null;
-        }
-
-        if (spriteRenderer != null)
-        {
-            Color color =
-                spriteRenderer.color;
-
-            color.a = 0f;
-
-            spriteRenderer.color =
-                color;
-
-            spriteRenderer.enabled =
-                false;
         }
 
         if (chipCollider != null)
@@ -1186,7 +1261,8 @@ public class BreakableHardBox : MonoBehaviour
                 false;
         }
 
-        chip.SetActive(false);
-        Destroy(chip);
+        Destroy(
+            chip
+        );
     }
 }
