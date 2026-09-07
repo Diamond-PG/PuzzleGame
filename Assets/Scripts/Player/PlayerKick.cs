@@ -7,6 +7,7 @@ public class PlayerKick : MonoBehaviour
     [SerializeField] private Rigidbody2D rb;
     [SerializeField] private PlayerController playerController;
     [SerializeField] private PlayerVisual playerVisual;
+    [SerializeField] private PlayerHealth playerHealth;
 
     [Header("KICK TIMING")]
     [SerializeField] private float kickDuration = 0.20f;
@@ -63,6 +64,12 @@ public class PlayerKick : MonoBehaviour
                 GetComponent<PlayerVisual>();
         }
 
+        if (playerHealth == null)
+        {
+            playerHealth =
+                GetComponent<PlayerHealth>();
+        }
+
         if (kickAudioSource == null)
         {
             AudioSource[] sources =
@@ -83,17 +90,27 @@ public class PlayerKick : MonoBehaviour
     private void Update()
     {
         /*
-         * Пока игрок не бьёт,
-         * запоминаем последнее направление движения.
-         *
-         * Благодаря этому, если рядом нет цели,
-         * кнопка ноги ударит туда,
-         * куда игрок сейчас смотрит.
+         * После смерти вообще больше
+         * не обновляем направление удара.
          */
+        if (PlayerIsDead())
+            return;
+
         if (!isKicking)
         {
             UpdateFacingDirection();
         }
+    }
+
+    // ============================================================
+    // DEAD CHECK
+    // ============================================================
+
+    public bool PlayerIsDead()
+    {
+        return
+            playerHealth != null &&
+            playerHealth.IsDead;
     }
 
     // ============================================================
@@ -122,47 +139,43 @@ public class PlayerKick : MonoBehaviour
     // PUBLIC KICK COMMANDS
     // ============================================================
 
-    /*
-     * Обычный удар в ту сторону,
-     * куда сейчас смотрит игрок.
-     */
     public bool Kick()
     {
+        if (PlayerIsDead())
+            return false;
+
         return StartKick(
             facingRight
         );
     }
 
-    /*
-     * Принудительно вправо.
-     */
     public bool KickRight()
     {
+        if (PlayerIsDead())
+            return false;
+
         return StartKick(
             true
         );
     }
 
-    /*
-     * Принудительно влево.
-     */
     public bool KickLeft()
     {
+        if (PlayerIsDead())
+            return false;
+
         return StartKick(
             false
         );
     }
 
-    /*
-     * Удар в сторону конкретной мировой точки.
-     *
-     * Это будет использоваться кнопкой ноги,
-     * когда рядом есть враг или ящик.
-     */
     public bool KickToward(
         Vector3 worldPosition
     )
     {
+        if (PlayerIsDead())
+            return false;
+
         bool kickToRight =
             worldPosition.x >=
             transform.position.x;
@@ -180,6 +193,9 @@ public class PlayerKick : MonoBehaviour
         bool kickToRight
     )
     {
+        if (PlayerIsDead())
+            return false;
+
         if (isKicking)
             return false;
 
@@ -213,16 +229,17 @@ public class PlayerKick : MonoBehaviour
         bool kickToRight
     )
     {
+        if (PlayerIsDead())
+        {
+            yield break;
+        }
+
         isKicking = true;
 
         nextKickTime =
             Time.time +
             kickCooldown;
 
-        /*
-         * Во время удара останавливаем
-         * горизонтальное движение.
-         */
         if (stopHorizontalMovement &&
             rb != null)
         {
@@ -236,11 +253,6 @@ public class PlayerKick : MonoBehaviour
                 velocity;
         }
 
-        /*
-         * При необходимости полностью
-         * блокируем управление движением
-         * на короткое время удара.
-         */
         if (lockMovementDuringKick &&
             playerController != null)
         {
@@ -249,8 +261,15 @@ public class PlayerKick : MonoBehaviour
         }
 
         /*
-         * Включаем нужный спрайт удара.
+         * Ещё одна проверка непосредственно
+         * перед спрайтом и голосом.
          */
+        if (PlayerIsDead())
+        {
+            FinishKickAfterDeath();
+            yield break;
+        }
+
         if (kickToRight)
         {
             playerVisual.PlayKickRight();
@@ -262,9 +281,26 @@ public class PlayerKick : MonoBehaviour
 
         PlayKickVoice();
 
-        yield return new WaitForSeconds(
-            kickDuration
-        );
+        float timer = 0f;
+
+        while (timer < kickDuration)
+        {
+            /*
+             * Если игрок умер прямо
+             * во время анимации удара,
+             * сразу всё прекращаем.
+             */
+            if (PlayerIsDead())
+            {
+                FinishKickAfterDeath();
+                yield break;
+            }
+
+            timer +=
+                Time.deltaTime;
+
+            yield return null;
+        }
 
         playerVisual.EndKick();
 
@@ -285,6 +321,9 @@ public class PlayerKick : MonoBehaviour
 
     private void PlayKickVoice()
     {
+        if (PlayerIsDead())
+            return;
+
         if (kickAudioSource == null)
             return;
 
@@ -310,9 +349,28 @@ public class PlayerKick : MonoBehaviour
     {
         if (kickVoiceDelay > 0f)
         {
-            yield return new WaitForSeconds(
-                kickVoiceDelay
-            );
+            float timer = 0f;
+
+            while (timer <
+                   kickVoiceDelay)
+            {
+                if (PlayerIsDead())
+                {
+                    voiceRoutine = null;
+                    yield break;
+                }
+
+                timer +=
+                    Time.deltaTime;
+
+                yield return null;
+            }
+        }
+
+        if (PlayerIsDead())
+        {
+            voiceRoutine = null;
+            yield break;
         }
 
         if (kickAudioSource != null &&
@@ -325,6 +383,49 @@ public class PlayerKick : MonoBehaviour
         }
 
         voiceRoutine = null;
+    }
+
+    // ============================================================
+    // DEATH SAFETY
+    // ============================================================
+
+    private void FinishKickAfterDeath()
+    {
+        if (voiceRoutine != null)
+        {
+            StopCoroutine(
+                voiceRoutine
+            );
+
+            voiceRoutine = null;
+        }
+
+        /*
+         * Если сам голос уже успел запуститься,
+         * останавливаем AudioSource.
+         *
+         * Это гарантирует тишину после смерти.
+         */
+        if (kickAudioSource != null)
+        {
+            kickAudioSource.Stop();
+        }
+
+        if (playerVisual != null)
+        {
+            playerVisual.EndKick();
+        }
+
+        /*
+         * ВАЖНО:
+         * после смерти специально НЕ включаем
+         * PlayerController обратно.
+         *
+         * Иначе можно случайно вернуть управление
+         * мёртвому игроку.
+         */
+        isKicking = false;
+        kickRoutine = null;
     }
 
     // ============================================================
@@ -351,12 +452,23 @@ public class PlayerKick : MonoBehaviour
             voiceRoutine = null;
         }
 
+        if (kickAudioSource != null &&
+            PlayerIsDead())
+        {
+            kickAudioSource.Stop();
+        }
+
         if (playerVisual != null)
         {
             playerVisual.EndKick();
         }
 
-        if (lockMovementDuringKick &&
+        /*
+         * Контроллер возвращаем только
+         * если Player ещё жив.
+         */
+        if (!PlayerIsDead() &&
+            lockMovementDuringKick &&
             playerController != null)
         {
             playerController.enabled =

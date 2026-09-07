@@ -6,25 +6,71 @@ using UnityEngine.UI;
 [RequireComponent(typeof(Collider2D))]
 public class SwordPickup : MonoBehaviour, IHandInteractable
 {
+    // ============================================================
+    // PLAYER
+    // ============================================================
+
     [Header("PLAYER")]
     [SerializeField] private Transform player;
     [SerializeField] private float pickupDistance = 1f;
+
+    // ============================================================
+    // INVENTORY
+    // ============================================================
 
     [Header("INVENTORY")]
     [SerializeField] private InventoryUI inventoryUI;
     [SerializeField] private Sprite inventorySprite;
 
+    // ============================================================
+    // INVENTORY ICON LOOK
+    // ============================================================
+
     [Header("INVENTORY ICON LOOK")]
-    [SerializeField] private Vector2 inventoryIconSize =
+
+    [SerializeField]
+    private Vector2 inventoryIconSize =
         new Vector2(115f, 115f);
 
-    [SerializeField] private float inventoryRotationZ = 0f;
+    [SerializeField]
+    private float inventoryRotationZ = 0f;
 
-    [SerializeField] private Vector2 inventoryIconOffset =
+    [SerializeField]
+    private Vector2 inventoryIconOffset =
         Vector2.zero;
 
     [SerializeField, Min(0.1f)]
     private float inventoryIconScale = 1.3f;
+
+    // ============================================================
+    // WEAPON SLOT SETTINGS
+    // ============================================================
+
+    [Header("WEAPON SLOT SETTINGS")]
+
+    [Tooltip("Уникальное имя этого оружия.")]
+    [SerializeField]
+    private string weaponId = "Sword";
+
+    [Tooltip(
+        "Размер меча внутри большой круглой WeaponButton."
+    )]
+    [SerializeField]
+    private Vector2 weaponButtonIconSize =
+        new Vector2(190f, 190f);
+
+    [Tooltip(
+        "Поворот меча внутри большой WeaponButton."
+    )]
+    [SerializeField]
+    private float weaponButtonIconRotation = 0f;
+
+    [Tooltip(
+        "Смещение меча внутри большой WeaponButton."
+    )]
+    [SerializeField]
+    private Vector2 weaponButtonIconOffset =
+        Vector2.zero;
 
     // ============================================================
     // INVENTORY GLOW
@@ -33,39 +79,44 @@ public class SwordPickup : MonoBehaviour, IHandInteractable
     [Header("INVENTORY GLOW")]
 
     [Tooltip("Soft glow для меча внутри инвентаря.")]
-    [SerializeField] private Sprite inventoryGlowSprite;
+    [SerializeField]
+    private Sprite inventoryGlowSprite;
 
-    [SerializeField] private Color inventoryGlowColor =
+    [SerializeField]
+    private Color inventoryGlowColor =
         new Color(
             0.45f,
             0.85f,
             1f,
-            0.80f
+            0.85f
         );
 
-    [SerializeField] private Vector2 inventoryGlowSize =
+    [SerializeField]
+    private Vector2 inventoryGlowSize =
         new Vector2(
-            155f,
-            210f
+            165f,
+            220f
         );
 
-    [Tooltip("Смещение glow относительно меча. Y двигает вдоль направления меча.")]
-    [SerializeField] private Vector2 inventoryGlowOffset =
+    [SerializeField]
+    private Vector2 inventoryGlowOffset =
         Vector2.zero;
 
-    [SerializeField] private float inventoryGlowPulseSpeed =
+    [SerializeField]
+    private float inventoryGlowPulseSpeed =
         1.4f;
 
-    [SerializeField] private float inventoryGlowScaleAmount =
-        0.08f;
+    [SerializeField]
+    private float inventoryGlowScaleAmount =
+        0.10f;
 
     [SerializeField, Range(0f, 1f)]
     private float inventoryGlowMinAlpha =
-        0.50f;
+        0.55f;
 
     [SerializeField, Range(0f, 1f)]
     private float inventoryGlowMaxAlpha =
-        0.85f;
+        0.90f;
 
     // ============================================================
     // WORLD SWORD
@@ -97,16 +148,22 @@ public class SwordPickup : MonoBehaviour, IHandInteractable
     // ============================================================
 
     [Header("FLY TO INVENTORY")]
-    [SerializeField] private float flyDuration = 0.45f;
-    [SerializeField] private float flyArcHeight = 80f;
 
-    [SerializeField] private Vector2 flyIconSize =
+    [SerializeField]
+    private float flyDuration = 0.48f;
+
+    [SerializeField]
+    private float flyArcHeight = 90f;
+
+    [SerializeField]
+    private Vector2 flyIconSize =
         new Vector2(
-            100f,
-            100f
+            105f,
+            105f
         );
 
-    [SerializeField] private float endScale = 1f;
+    [SerializeField]
+    private float endScale = 1f;
 
     // ============================================================
     // FLY GLOW
@@ -117,25 +174,27 @@ public class SwordPickup : MonoBehaviour, IHandInteractable
     [Tooltip("Soft glow, который летит вместе с мечом.")]
     [SerializeField] private Sprite flyGlowSprite;
 
-    [SerializeField] private Color flyGlowColor =
+    [SerializeField]
+    private Color flyGlowColor =
         new Color(
             0.45f,
             0.85f,
             1f,
-            0.85f
+            0.95f
         );
 
-    [SerializeField] private Vector2 flyGlowSize =
+    [SerializeField]
+    private Vector2 flyGlowSize =
         new Vector2(
-            150f,
-            150f
+            185f,
+            185f
         );
 
-    [SerializeField] private float flyGlowPulseSpeed =
-        5f;
+    [SerializeField]
+    private float flyGlowPulseSpeed = 6f;
 
-    [SerializeField] private float flyGlowPulseAmount =
-        0.12f;
+    [SerializeField]
+    private float flyGlowPulseAmount = 0.18f;
 
     // ============================================================
     // FLY TRAIL
@@ -143,50 +202,91 @@ public class SwordPickup : MonoBehaviour, IHandInteractable
 
     [Header("FLY TRAIL")]
 
-    [SerializeField] private bool useFlyTrail = true;
+    [SerializeField]
+    private bool useFlyTrail = true;
 
-    [SerializeField] private float trailSpawnInterval =
-        0.045f;
+    [Tooltip("Чем меньше значение, тем плотнее шлейф.")]
+    [SerializeField]
+    private float trailSpawnInterval = 0.022f;
 
-    [SerializeField] private float trailLifetime =
-        0.20f;
+    [Tooltip("Сколько живёт одна частица шлейфа.")]
+    [SerializeField]
+    private float trailLifetime = 0.34f;
 
     [SerializeField, Range(0f, 1f)]
-    private float trailStartAlpha =
-        0.32f;
+    private float trailStartAlpha = 0.58f;
 
-    [SerializeField] private Vector2 trailGlowSize =
+    [SerializeField]
+    private Vector2 trailGlowSize =
         new Vector2(
-            115f,
-            115f
+            150f,
+            150f
         );
 
-    [SerializeField] private float trailStartScale =
-        0.90f;
+    [SerializeField]
+    private float trailStartScale = 1.00f;
 
-    [SerializeField] private float trailEndScale =
-        0.45f;
+    [SerializeField]
+    private float trailEndScale = 0.30f;
+
+    // ============================================================
+    // EXTRA TRAIL LAYER
+    // ============================================================
+
+    [Header("EXTRA TRAIL LAYER")]
+
+    [Tooltip(
+        "Вторая, более маленькая и яркая часть шлейфа."
+    )]
+    [SerializeField]
+    private bool useInnerTrail = true;
+
+    [SerializeField]
+    private Vector2 innerTrailSize =
+        new Vector2(
+            90f,
+            90f
+        );
+
+    [SerializeField, Range(0f, 1f)]
+    private float innerTrailAlpha = 0.72f;
+
+    [SerializeField]
+    private float innerTrailStartScale = 0.85f;
+
+    [SerializeField]
+    private float innerTrailEndScale = 0.20f;
 
     // ============================================================
     // FLASH
     // ============================================================
 
     [Header("PICKUP FLASH")]
-    [SerializeField] private float startFlashDuration =
-        0.10f;
 
-    [SerializeField] private float startFlashScale =
-        1.35f;
+    [SerializeField]
+    private float startFlashDuration = 0.13f;
+
+    [SerializeField]
+    private float startFlashScale = 1.55f;
 
     [Header("ARRIVAL FLASH")]
-    [SerializeField] private float arrivalFlashDuration =
-        0.12f;
 
-    [SerializeField] private float arrivalFlashScale =
-        1.35f;
+    [SerializeField]
+    private float arrivalFlashDuration = 0.18f;
+
+    [SerializeField]
+    private float arrivalFlashScale = 1.70f;
+
+    // ============================================================
+    // DEBUG
+    // ============================================================
 
     [Header("DEBUG")]
     [SerializeField] private bool debugLogs = true;
+
+    // ============================================================
+    // PRIVATE
+    // ============================================================
 
     private Camera mainCamera;
     private bool pickupBusy;
@@ -198,6 +298,8 @@ public class SwordPickup : MonoBehaviour, IHandInteractable
         public Image image;
         public float age;
         public Color baseColor;
+        public float startScale;
+        public float endScale;
     }
 
     private readonly List<TrailGhost> trailGhosts =
@@ -212,13 +314,22 @@ public class SwordPickup : MonoBehaviour, IHandInteractable
         mainCamera = Camera.main;
 
         if (swordCollider == null)
-            swordCollider = GetComponent<Collider2D>();
+        {
+            swordCollider =
+                GetComponent<Collider2D>();
+        }
 
         if (swordRigidbody == null)
-            swordRigidbody = GetComponent<Rigidbody2D>();
+        {
+            swordRigidbody =
+                GetComponent<Rigidbody2D>();
+        }
 
         if (swordRenderer == null)
-            swordRenderer = GetComponent<SpriteRenderer>();
+        {
+            swordRenderer =
+                GetComponent<SpriteRenderer>();
+        }
 
         if (weaponGlow == null)
         {
@@ -226,11 +337,17 @@ public class SwordPickup : MonoBehaviour, IHandInteractable
                 transform.Find("WeaponGlow");
 
             if (glow != null)
-                weaponGlow = glow.gameObject;
+            {
+                weaponGlow =
+                    glow.gameObject;
+            }
         }
 
         if (sfxSource == null)
-            sfxSource = GetComponent<AudioSource>();
+        {
+            sfxSource =
+                GetComponent<AudioSource>();
+        }
 
         FindPlayer();
 
@@ -248,11 +365,14 @@ public class SwordPickup : MonoBehaviour, IHandInteractable
     private void FindPlayer()
     {
         GameObject playerObject =
-            GameObject.FindGameObjectWithTag("Player");
+            GameObject.FindGameObjectWithTag(
+                "Player"
+            );
 
         if (playerObject != null)
         {
-            player = playerObject.transform;
+            player =
+                playerObject.transform;
         }
     }
 
@@ -287,7 +407,8 @@ public class SwordPickup : MonoBehaviour, IHandInteractable
                     transform.position
                 );
 
-            return distance <= pickupDistance;
+            return distance <=
+                   pickupDistance;
         }
     }
 
@@ -371,7 +492,10 @@ public class SwordPickup : MonoBehaviour, IHandInteractable
         PlayPickupSound();
 
         if (swordCollider != null)
-            swordCollider.enabled = false;
+        {
+            swordCollider.enabled =
+                false;
+        }
 
         if (swordRigidbody != null)
         {
@@ -439,7 +563,8 @@ public class SwordPickup : MonoBehaviour, IHandInteractable
 
             float timer = 0f;
 
-            while (timer < startFlashDuration)
+            while (timer <
+                   startFlashDuration)
             {
                 timer +=
                     Time.unscaledDeltaTime;
@@ -453,11 +578,18 @@ public class SwordPickup : MonoBehaviour, IHandInteractable
                         )
                     );
 
+                float punch =
+                    Mathf.Sin(
+                        t *
+                        Mathf.PI *
+                        0.5f
+                    );
+
                 float scale =
                     Mathf.Lerp(
                         1f,
                         startFlashScale,
-                        t
+                        punch
                     );
 
                 weaponGlow.transform.localScale =
@@ -501,8 +633,13 @@ public class SwordPickup : MonoBehaviour, IHandInteractable
             );
 
             Destroy(gameObject);
-
             yield break;
+        }
+
+        if (mainCamera == null)
+        {
+            mainCamera =
+                Camera.main;
         }
 
         RectTransform canvasRect =
@@ -554,16 +691,29 @@ public class SwordPickup : MonoBehaviour, IHandInteractable
             flyRoot.GetComponent<RectTransform>();
 
         flyRootRect.anchorMin =
-            new Vector2(0.5f, 0.5f);
+            new Vector2(
+                0.5f,
+                0.5f
+            );
 
         flyRootRect.anchorMax =
-            new Vector2(0.5f, 0.5f);
+            new Vector2(
+                0.5f,
+                0.5f
+            );
 
         flyRootRect.pivot =
-            new Vector2(0.5f, 0.5f);
+            new Vector2(
+                0.5f,
+                0.5f
+            );
 
         flyRootRect.anchoredPosition =
             startLocal;
+
+        // ========================================================
+        // FLY GLOW
+        // ========================================================
 
         RectTransform glowRect = null;
         Image glowImage = null;
@@ -590,13 +740,22 @@ public class SwordPickup : MonoBehaviour, IHandInteractable
                 glowObject.GetComponent<Image>();
 
             glowRect.anchorMin =
-                new Vector2(0.5f, 0.5f);
+                new Vector2(
+                    0.5f,
+                    0.5f
+                );
 
             glowRect.anchorMax =
-                new Vector2(0.5f, 0.5f);
+                new Vector2(
+                    0.5f,
+                    0.5f
+                );
 
             glowRect.pivot =
-                new Vector2(0.5f, 0.5f);
+                new Vector2(
+                    0.5f,
+                    0.5f
+                );
 
             glowRect.anchoredPosition =
                 Vector2.zero;
@@ -613,6 +772,10 @@ public class SwordPickup : MonoBehaviour, IHandInteractable
             glowImage.raycastTarget =
                 false;
         }
+
+        // ========================================================
+        // FLY SWORD
+        // ========================================================
 
         GameObject swordFlyObject =
             new GameObject(
@@ -634,13 +797,22 @@ public class SwordPickup : MonoBehaviour, IHandInteractable
             swordFlyObject.GetComponent<Image>();
 
         swordFlyRect.anchorMin =
-            new Vector2(0.5f, 0.5f);
+            new Vector2(
+                0.5f,
+                0.5f
+            );
 
         swordFlyRect.anchorMax =
-            new Vector2(0.5f, 0.5f);
+            new Vector2(
+                0.5f,
+                0.5f
+            );
 
         swordFlyRect.pivot =
-            new Vector2(0.5f, 0.5f);
+            new Vector2(
+                0.5f,
+                0.5f
+            );
 
         swordFlyRect.anchoredPosition =
             Vector2.zero;
@@ -661,7 +833,10 @@ public class SwordPickup : MonoBehaviour, IHandInteractable
             false;
 
         if (swordRenderer != null)
-            swordRenderer.enabled = false;
+        {
+            swordRenderer.enabled =
+                false;
+        }
 
         float timer = 0f;
         float trailTimer = 0f;
@@ -738,20 +913,43 @@ public class SwordPickup : MonoBehaviour, IHandInteractable
 
             if (useFlyTrail &&
                 flyGlowSprite != null &&
-                trailTimer >= trailSpawnInterval)
+                trailTimer >=
+                Mathf.Max(
+                    0.005f,
+                    trailSpawnInterval
+                ))
             {
                 trailTimer = 0f;
 
                 CreateTrailGhost(
                     canvas,
-                    position
+                    position,
+                    trailGlowSize,
+                    trailStartAlpha,
+                    trailStartScale,
+                    trailEndScale
                 );
+
+                if (useInnerTrail)
+                {
+                    CreateTrailGhost(
+                        canvas,
+                        position,
+                        innerTrailSize,
+                        innerTrailAlpha,
+                        innerTrailStartScale,
+                        innerTrailEndScale
+                    );
+                }
             }
 
             UpdateTrailGhosts();
 
             yield return null;
         }
+
+        flyRootRect.anchoredPosition =
+            targetLocal;
 
         // ========================================================
         // ARRIVAL FLASH
@@ -782,11 +980,17 @@ public class SwordPickup : MonoBehaviour, IHandInteractable
                         )
                     );
 
+                float punch =
+                    Mathf.Sin(
+                        t *
+                        Mathf.PI
+                    );
+
                 float scale =
                     Mathf.Lerp(
                         1f,
                         arrivalFlashScale,
-                        t
+                        punch
                     );
 
                 glowRect.localScale =
@@ -835,7 +1039,11 @@ public class SwordPickup : MonoBehaviour, IHandInteractable
 
     private void CreateTrailGhost(
         Canvas canvas,
-        Vector2 anchoredPosition
+        Vector2 anchoredPosition,
+        Vector2 size,
+        float alpha,
+        float startScale,
+        float endScale
     )
     {
         GameObject ghostObject =
@@ -858,29 +1066,38 @@ public class SwordPickup : MonoBehaviour, IHandInteractable
             ghostObject.GetComponent<Image>();
 
         rect.anchorMin =
-            new Vector2(0.5f, 0.5f);
+            new Vector2(
+                0.5f,
+                0.5f
+            );
 
         rect.anchorMax =
-            new Vector2(0.5f, 0.5f);
+            new Vector2(
+                0.5f,
+                0.5f
+            );
 
         rect.pivot =
-            new Vector2(0.5f, 0.5f);
+            new Vector2(
+                0.5f,
+                0.5f
+            );
 
         rect.anchoredPosition =
             anchoredPosition;
 
         rect.sizeDelta =
-            trailGlowSize;
+            size;
 
         rect.localScale =
             Vector3.one *
-            trailStartScale;
+            startScale;
 
         Color color =
             flyGlowColor;
 
         color.a =
-            trailStartAlpha;
+            alpha;
 
         image.sprite =
             flyGlowSprite;
@@ -894,11 +1111,26 @@ public class SwordPickup : MonoBehaviour, IHandInteractable
         TrailGhost ghost =
             new TrailGhost
             {
-                gameObject = ghostObject,
-                rect = rect,
-                image = image,
-                age = 0f,
-                baseColor = color
+                gameObject =
+                    ghostObject,
+
+                rect =
+                    rect,
+
+                image =
+                    image,
+
+                age =
+                    0f,
+
+                baseColor =
+                    color,
+
+                startScale =
+                    startScale,
+
+                endScale =
+                    endScale
             };
 
         trailGhosts.Add(
@@ -912,7 +1144,8 @@ public class SwordPickup : MonoBehaviour, IHandInteractable
 
     private void UpdateTrailGhosts()
     {
-        for (int i = trailGhosts.Count - 1;
+        for (int i =
+                 trailGhosts.Count - 1;
              i >= 0;
              i--)
         {
@@ -922,7 +1155,10 @@ public class SwordPickup : MonoBehaviour, IHandInteractable
             if (ghost == null ||
                 ghost.gameObject == null)
             {
-                trailGhosts.RemoveAt(i);
+                trailGhosts.RemoveAt(
+                    i
+                );
+
                 continue;
             }
 
@@ -943,7 +1179,7 @@ public class SwordPickup : MonoBehaviour, IHandInteractable
 
             color.a =
                 Mathf.Lerp(
-                    trailStartAlpha,
+                    ghost.baseColor.a,
                     0f,
                     t
                 );
@@ -953,8 +1189,8 @@ public class SwordPickup : MonoBehaviour, IHandInteractable
 
             float scale =
                 Mathf.Lerp(
-                    trailStartScale,
-                    trailEndScale,
+                    ghost.startScale,
+                    ghost.endScale,
                     t
                 );
 
@@ -968,7 +1204,9 @@ public class SwordPickup : MonoBehaviour, IHandInteractable
                     ghost.gameObject
                 );
 
-                trailGhosts.RemoveAt(i);
+                trailGhosts.RemoveAt(
+                    i
+                );
             }
         }
     }
@@ -1003,24 +1241,69 @@ public class SwordPickup : MonoBehaviour, IHandInteractable
         Sprite itemSprite
     )
     {
-        inventoryUI.ShowItemInSlot(
+        if (inventoryUI == null ||
+            targetSlot == null ||
+            itemSprite == null)
+        {
+            return;
+        }
+
+        bool placed =
+            inventoryUI.ShowItemInSlot(
+                targetSlot,
+                itemSprite,
+
+                inventoryIconSize,
+                inventoryRotationZ,
+                inventoryIconOffset,
+                inventoryIconScale,
+
+                inventoryGlowSprite,
+                inventoryGlowColor,
+                inventoryGlowSize,
+                inventoryGlowOffset,
+
+                inventoryGlowPulseSpeed,
+                inventoryGlowScaleAmount,
+                inventoryGlowMinAlpha,
+                inventoryGlowMaxAlpha
+            );
+
+        if (!placed)
+        {
+            Debug.LogWarning(
+                "[SWORD PICKUP] Failed to put sword into slot.",
+                this
+            );
+
+            return;
+        }
+
+        /*
+         * САМОЕ ВАЖНОЕ:
+         *
+         * Какая ячейка оказалась свободной —
+         * именно она теперь становится
+         * оружейной ячейкой Sword.
+         *
+         * Никакой привязки к номеру слота нет.
+         */
+        inventoryUI.ConfigureWeaponSlot(
             targetSlot,
             itemSprite,
-
-            inventoryIconSize,
-            inventoryRotationZ,
-            inventoryIconOffset,
-            inventoryIconScale,
-
-            inventoryGlowSprite,
-            inventoryGlowColor,
-            inventoryGlowSize,
-            inventoryGlowOffset,
-
-            inventoryGlowPulseSpeed,
-            inventoryGlowScaleAmount,
-            inventoryGlowMinAlpha,
-            inventoryGlowMaxAlpha
+            weaponId,
+            weaponButtonIconSize,
+            weaponButtonIconRotation,
+            weaponButtonIconOffset
         );
+
+        if (debugLogs)
+        {
+            Debug.Log(
+                "[SWORD PICKUP] Slot configured for weapon: " +
+                targetSlot.name,
+                this
+            );
+        }
     }
 }

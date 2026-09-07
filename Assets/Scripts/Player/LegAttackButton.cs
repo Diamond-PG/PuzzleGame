@@ -17,6 +17,9 @@ public class LegAttackButton : MonoBehaviour
     [SerializeField]
     private PlayerKick playerKick;
 
+    [SerializeField]
+    private PlayerHealth playerHealth;
+
     [Tooltip(
         "Если Player не назначен вручную, " +
         "скрипт найдёт объект с Tag = Player."
@@ -30,28 +33,15 @@ public class LegAttackButton : MonoBehaviour
 
     [Header("ATTACK ZONE")]
 
-    [Tooltip(
-        "Как далеко удар ногой достаёт перед игроком."
-    )]
     [SerializeField]
     private float attackDistance = 0.85f;
 
-    [Tooltip(
-        "Ширина области удара."
-    )]
     [SerializeField]
     private float attackWidth = 0.75f;
 
-    [Tooltip(
-        "Высота области удара."
-    )]
     [SerializeField]
     private float attackHeight = 0.85f;
 
-    [Tooltip(
-        "Смещение центра зоны удара по высоте " +
-        "относительно Player."
-    )]
     [SerializeField]
     private float attackVerticalOffset = 0f;
 
@@ -61,17 +51,9 @@ public class LegAttackButton : MonoBehaviour
 
     [Header("DAMAGE")]
 
-    [Tooltip(
-        "Сколько урона наносит один удар ногой."
-    )]
     [SerializeField, Min(1)]
     private int kickDamage = 1;
 
-    [Tooltip(
-        "Через сколько секунд после нажатия " +
-        "реально применяется удар. " +
-        "Нужно для совпадения со спрайтом ноги."
-    )]
     [SerializeField]
     private float impactDelay = 0.08f;
 
@@ -81,19 +63,9 @@ public class LegAttackButton : MonoBehaviour
 
     [Header("DETECTION")]
 
-    [Tooltip(
-        "Какие слои вообще могут получать удар. " +
-        "Пока можно оставить Everything. " +
-        "Позже сделаем отдельный слой KickTarget."
-    )]
     [SerializeField]
     private LayerMask hittableLayers = ~0;
 
-    [Tooltip(
-        "Не позволяет одному объекту получить " +
-        "несколько ударов от разных Collider2D " +
-        "за одно нажатие."
-    )]
     [SerializeField]
     private bool hitEachObjectOnlyOnce = true;
 
@@ -119,6 +91,28 @@ public class LegAttackButton : MonoBehaviour
     private int kickHapticMs = 18;
 
     // ============================================================
+    // KICK IMPACT AUDIO
+    // ============================================================
+
+    [Header("KICK IMPACT AUDIO")]
+
+    [Tooltip(
+        "AudioSource для звука реального попадания ногой по врагу."
+    )]
+    [SerializeField]
+    private AudioSource kickImpactAudioSource;
+
+    [Tooltip(
+        "Звук удара ноги по Guard / Skeleton."
+    )]
+    [SerializeField]
+    private AudioClip kickImpactClip;
+
+    [Range(0f, 1f)]
+    [SerializeField]
+    private float kickImpactVolume = 1f;
+
+    // ============================================================
     // DEBUG
     // ============================================================
 
@@ -135,6 +129,7 @@ public class LegAttackButton : MonoBehaviour
     // ============================================================
 
     private bool attackBusy;
+    private Coroutine attackRoutine;
 
     // ============================================================
     // AWAKE
@@ -151,10 +146,17 @@ public class LegAttackButton : MonoBehaviour
         FindPlayer();
 
         /*
-         * OnClick в Inspector можно оставить пустым.
-         *
-         * Скрипт сам подключает кнопку ноги.
+         * Если AudioSource для попадания
+         * не назначен вручную,
+         * пробуем взять AudioSource с Player.
          */
+        if (kickImpactAudioSource == null &&
+            player != null)
+        {
+            kickImpactAudioSource =
+                player.GetComponent<AudioSource>();
+        }
+
         if (legButton != null)
         {
             legButton.onClick.RemoveListener(
@@ -187,12 +189,42 @@ public class LegAttackButton : MonoBehaviour
             }
         }
 
-        if (player != null &&
-            playerKick == null)
+        if (player != null)
         {
-            playerKick =
-                player.GetComponent<PlayerKick>();
+            if (playerKick == null)
+            {
+                playerKick =
+                    player.GetComponent<PlayerKick>();
+            }
+
+            if (playerHealth == null)
+            {
+                playerHealth =
+                    player.GetComponent<PlayerHealth>();
+            }
+
+            if (kickImpactAudioSource == null)
+            {
+                kickImpactAudioSource =
+                    player.GetComponent<AudioSource>();
+            }
         }
+    }
+
+    // ============================================================
+    // DEAD CHECK
+    // ============================================================
+
+    private bool PlayerIsDead()
+    {
+        if (playerHealth == null)
+        {
+            FindPlayer();
+        }
+
+        return
+            playerHealth != null &&
+            playerHealth.IsDead;
     }
 
     // ============================================================
@@ -201,11 +233,25 @@ public class LegAttackButton : MonoBehaviour
 
     public void OnLegButtonPressed()
     {
+        if (PlayerIsDead())
+        {
+            if (debugLogs)
+            {
+                Debug.Log(
+                    "[LEG ATTACK] Игрок мёртв. Удар запрещён.",
+                    this
+                );
+            }
+
+            return;
+        }
+
         if (attackBusy)
             return;
 
         if (player == null ||
-            playerKick == null)
+            playerKick == null ||
+            playerHealth == null)
         {
             FindPlayer();
         }
@@ -221,19 +267,21 @@ public class LegAttackButton : MonoBehaviour
             return;
         }
 
-        /*
-         * Сначала запускаем сам визуальный удар игрока.
-         *
-         * PlayerKick уже знает,
-         * куда в последний раз смотрел Player.
-         */
+        if (PlayerIsDead())
+            return;
+
         bool kickStarted =
             playerKick.Kick();
 
         if (!kickStarted)
             return;
 
-        if (useKickHaptics)
+        /*
+         * Старая вибрация самого удара.
+         * Оставляем как есть.
+         */
+        if (!PlayerIsDead() &&
+            useKickHaptics)
         {
             MicroHaptics.Pulse(
                 kickHapticMs,
@@ -241,9 +289,10 @@ public class LegAttackButton : MonoBehaviour
             );
         }
 
-        StartCoroutine(
-            AttackRoutine()
-        );
+        attackRoutine =
+            StartCoroutine(
+                AttackRoutine()
+            );
     }
 
     // ============================================================
@@ -254,28 +303,38 @@ public class LegAttackButton : MonoBehaviour
     {
         attackBusy = true;
 
-        /*
-         * Ждём момента,
-         * когда нога на спрайте реально долетает
-         * до объекта.
-         */
         if (impactDelay > 0f)
         {
-            yield return new WaitForSeconds(
-                impactDelay
-            );
+            float timer = 0f;
+
+            while (timer <
+                   impactDelay)
+            {
+                if (PlayerIsDead())
+                {
+                    attackBusy = false;
+                    attackRoutine = null;
+                    yield break;
+                }
+
+                timer +=
+                    Time.deltaTime;
+
+                yield return null;
+            }
+        }
+
+        if (PlayerIsDead())
+        {
+            attackBusy = false;
+            attackRoutine = null;
+            yield break;
         }
 
         PerformKickHit();
 
-        /*
-         * Отдельный большой cooldown здесь
-         * не нужен.
-         *
-         * PlayerKick уже сам контролирует
-         * Kick Cooldown.
-         */
         attackBusy = false;
+        attackRoutine = null;
     }
 
     // ============================================================
@@ -284,6 +343,9 @@ public class LegAttackButton : MonoBehaviour
 
     private void PerformKickHit()
     {
+        if (PlayerIsDead())
+            return;
+
         if (player == null ||
             playerKick == null)
         {
@@ -295,9 +357,6 @@ public class LegAttackButton : MonoBehaviour
                 ? 1f
                 : -1f;
 
-        /*
-         * Центр зоны находится ПЕРЕД игроком.
-         */
         Vector2 attackCenter =
             new Vector2(
                 player.position.x +
@@ -336,37 +395,31 @@ public class LegAttackButton : MonoBehaviour
             return;
         }
 
-        System.Collections.Generic.HashSet<
-            GameObject
-        > alreadyHit =
-            new System.Collections.Generic.HashSet<
-                GameObject
-            >();
+        System.Collections.Generic.HashSet<GameObject>
+            alreadyHit =
+                new System.Collections.Generic.HashSet<GameObject>();
+
+        /*
+         * За одно нажатие звук попадания
+         * по телу проигрываем максимум один раз.
+         */
+        bool enemyImpactSoundPlayed =
+            false;
 
         foreach (Collider2D hit in hits)
         {
+            if (PlayerIsDead())
+                return;
+
             if (hit == null)
                 continue;
 
-            /*
-             * Игрок самого себя ногой не бьёт.
-             */
             if (hit.transform == player ||
                 hit.transform.IsChildOf(player))
             {
                 continue;
             }
 
-            /*
-             * Ищем корневой объект,
-             * которому принадлежит Collider.
-             *
-             * Это важно для:
-             * - GuardEnemy;
-             * - SkeletonEnemy;
-             * - ящиков;
-             * - будущих врагов.
-             */
             GameObject target =
                 FindKickTargetObject(
                     hit
@@ -387,23 +440,36 @@ public class LegAttackButton : MonoBehaviour
             }
 
             /*
-             * Универсальная команда.
+             * Проверяем:
+             * это живой враг или другой объект?
              *
-             * Любой объект, который должен
-             * реагировать на удар ногой,
-             * будет иметь метод:
-             *
-             * ReceiveKick(int damage)
-             *
-             * Поэтому эта кнопка будет работать
-             * и со стражником, и со скелетом,
-             * и с ящиком, и с будущими объектами.
+             * Только Guard / Skeleton
+             * получают отдельный звук удара по телу.
              */
+            bool isEnemyTarget =
+                IsEnemyTarget(
+                    target
+                );
+
             target.SendMessage(
                 "ReceiveKick",
                 kickDamage,
                 SendMessageOptions.DontRequireReceiver
             );
+
+            /*
+             * Ящики сюда НЕ проходят.
+             * Поэтому у них остаются
+             * только собственные звуки.
+             */
+            if (isEnemyTarget &&
+                !enemyImpactSoundPlayed)
+            {
+                PlayKickImpactSound();
+
+                enemyImpactSoundPlayed =
+                    true;
+            }
 
             if (debugLogs)
             {
@@ -413,6 +479,86 @@ public class LegAttackButton : MonoBehaviour
                     target
                 );
             }
+        }
+    }
+
+    // ============================================================
+    // ENEMY CHECK
+    // ============================================================
+
+    private bool IsEnemyTarget(
+        GameObject target
+    )
+    {
+        if (target == null)
+            return false;
+
+        /*
+         * GuardEnemy проверяем напрямую.
+         */
+        GuardEnemy guard =
+            target.GetComponent<GuardEnemy>();
+
+        if (guard != null)
+        {
+            return !guard.IsDead;
+        }
+
+        /*
+         * SkeletonEnemy проверяем по имени класса.
+         *
+         * Так LegAttackButton не зависит
+         * жёстко от реализации SkeletonEnemy.
+         */
+        MonoBehaviour[] behaviours =
+            target.GetComponents<MonoBehaviour>();
+
+        foreach (MonoBehaviour behaviour
+                 in behaviours)
+        {
+            if (behaviour == null)
+                continue;
+
+            if (behaviour.GetType().Name ==
+                "SkeletonEnemy")
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    // ============================================================
+    // KICK IMPACT SOUND
+    // ============================================================
+
+    private void PlayKickImpactSound()
+    {
+        if (PlayerIsDead())
+            return;
+
+        if (kickImpactClip == null)
+            return;
+
+        if (kickImpactAudioSource != null)
+        {
+            kickImpactAudioSource.PlayOneShot(
+                kickImpactClip,
+                kickImpactVolume
+            );
+        }
+        else if (player != null)
+        {
+            /*
+             * Запасной вариант,
+             * если AudioSource не назначен.
+             */
+            AudioSource.PlayClipAtPoint(
+                kickImpactClip,
+                player.position,
+                kickImpactVolume
+            );
         }
     }
 
@@ -430,34 +576,12 @@ public class LegAttackButton : MonoBehaviour
         Transform current =
             hit.transform;
 
-        /*
-         * Проверяем сам объект
-         * и несколько родителей.
-         *
-         * Это пригодится, например,
-         * если Collider находится
-         * на дочернем объекте врага.
-         */
         while (current != null)
         {
-            /*
-             * GuardEnemy.
-             */
             if (current.GetComponent<GuardEnemy>() != null)
             {
                 return current.gameObject;
             }
-
-            /*
-             * Другие объекты специально
-             * не привязываем здесь жёстко
-             * к названию класса.
-             *
-             * Если у Skeleton или Box
-             * ReceiveKick находится
-             * именно на этом объекте,
-             * SendMessage сработает.
-             */
 
             MonoBehaviour[] behaviours =
                 current.GetComponents<MonoBehaviour>();
@@ -489,15 +613,25 @@ public class LegAttackButton : MonoBehaviour
                 current.parent;
         }
 
-        /*
-         * Если специального объекта не нашли,
-         * возвращаем объект Collider.
-         *
-         * Если у него нет ReceiveKick,
-         * ничего страшного:
-         * DontRequireReceiver не выдаст ошибку.
-         */
         return hit.gameObject;
+    }
+
+    // ============================================================
+    // DISABLE SAFETY
+    // ============================================================
+
+    private void OnDisable()
+    {
+        if (attackRoutine != null)
+        {
+            StopCoroutine(
+                attackRoutine
+            );
+
+            attackRoutine = null;
+        }
+
+        attackBusy = false;
     }
 
     // ============================================================

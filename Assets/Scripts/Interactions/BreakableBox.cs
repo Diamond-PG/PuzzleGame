@@ -9,9 +9,81 @@ public class BreakableBox : MonoBehaviour
 
     [Header("BOX SETTINGS")]
 
-    [Tooltip("Сколько ударов ногой нужно для разрушения ящика.")]
+    [Tooltip("Сколько ударов нужно для разрушения ящика.")]
     [SerializeField, Min(1)]
     private int hitsToBreak = 2;
+
+    // ============================================================
+    // PLAYER
+    // ============================================================
+
+    [Header("PLAYER")]
+
+    [SerializeField]
+    private string playerTag = "Player";
+
+    [SerializeField]
+    private Transform player;
+
+    [SerializeField]
+    private Collider2D playerCollider;
+
+    // ============================================================
+    // SIDE KICK
+    // ============================================================
+
+    [Header("SIDE KICK")]
+
+    [Tooltip(
+        "Если включено, обычный удар ногой не повреждает ящик, " +
+        "когда игрок стоит сверху на нём."
+    )]
+    [SerializeField]
+    private bool blockKickFromAbove = true;
+
+    [Tooltip(
+        "Допуск определения, что ноги игрока находятся на верхней поверхности ящика."
+    )]
+    [SerializeField, Min(0f)]
+    private float playerAboveTolerance = 0.12f;
+
+    // ============================================================
+    // TOP LANDING HIT
+    // ============================================================
+
+    [Header("TOP LANDING HIT")]
+
+    [Tooltip(
+        "Разрешить разбивать ящик приземлением сверху после прыжка."
+    )]
+    [SerializeField]
+    private bool enableTopLandingHit = true;
+
+    [Tooltip(
+        "Сколько урона получает ящик при одном приземлении сверху."
+    )]
+    [SerializeField, Min(1)]
+    private int topLandingDamage = 1;
+
+    [Tooltip(
+        "Минимальная вертикальная скорость столкновения, " +
+        "чтобы обычное вставание на ящик не считалось ударом."
+    )]
+    [SerializeField, Min(0f)]
+    private float minimumTopImpactSpeed = 0.8f;
+
+    [Tooltip(
+        "Допуск по высоте для определения контакта именно с верхом ящика."
+    )]
+    [SerializeField, Min(0f)]
+    private float topContactTolerance = 0.12f;
+
+    [Tooltip(
+        "Минимальная пауза между ударами сверху. " +
+        "Защищает от двойного срабатывания одного приземления."
+    )]
+    [SerializeField, Min(0f)]
+    private float topHitCooldown = 0.15f;
 
     // ============================================================
     // HAPTICS
@@ -19,7 +91,8 @@ public class BreakableBox : MonoBehaviour
 
     [Header("HAPTICS")]
 
-    [SerializeField] private bool useHaptics = true;
+    [SerializeField]
+    private bool useHaptics = true;
 
     [Tooltip("Вибрация при обычном ударе по ящику.")]
     [SerializeField, Range(5, 100)]
@@ -35,7 +108,8 @@ public class BreakableBox : MonoBehaviour
 
     [Header("EFFECTS")]
 
-    [SerializeField] private GameObject breakEffect;
+    [SerializeField]
+    private GameObject breakEffect;
 
     [SerializeField]
     private float breakEffectLifetime = 2f;
@@ -46,16 +120,22 @@ public class BreakableBox : MonoBehaviour
 
     [Header("AUDIO")]
 
-    [SerializeField] private AudioSource audioSource;
+    [SerializeField]
+    private AudioSource audioSource;
 
-    [SerializeField] private AudioClip firstHitSound;
-    [SerializeField] private AudioClip breakSound;
+    [SerializeField]
+    private AudioClip firstHitSound;
+
+    [SerializeField]
+    private AudioClip breakSound;
 
     [Range(0f, 1f)]
-    [SerializeField] private float firstHitVolume = 1f;
+    [SerializeField]
+    private float firstHitVolume = 1f;
 
     [Range(0f, 1f)]
-    [SerializeField] private float breakVolume = 1f;
+    [SerializeField]
+    private float breakVolume = 1f;
 
     // ============================================================
     // BOX SPRITES
@@ -63,9 +143,14 @@ public class BreakableBox : MonoBehaviour
 
     [Header("BOX SPRITES")]
 
-    [SerializeField] private Sprite normalSprite;
-    [SerializeField] private Sprite crackedSprite;
-    [SerializeField] private Sprite brokenSprite;
+    [SerializeField]
+    private Sprite normalSprite;
+
+    [SerializeField]
+    private Sprite crackedSprite;
+
+    [SerializeField]
+    private Sprite brokenSprite;
 
     [SerializeField]
     private float brokenSpriteDuration = 0.22f;
@@ -127,27 +212,21 @@ public class BreakableBox : MonoBehaviour
     [SerializeField]
     private GameObject[] woodChips;
 
-    [Tooltip("Время первого осыпания щепки.")]
     [SerializeField]
     private float chipFallDuration = 0.22f;
 
-    [Tooltip("Время дополнительного падения щепки вниз.")]
     [SerializeField]
     private float chipExtraFallDuration = 0.26f;
 
-    [Tooltip("Насколько ещё щепка опускается вниз.")]
     [SerializeField]
     private float chipExtraDropDistance = 0.18f;
 
-    [Tooltip("Разброс по X при финальном падении.")]
     [SerializeField]
     private float chipHorizontalSpread = 0.06f;
 
-    [Tooltip("Сколько щепки лежат на полу.")]
     [SerializeField]
     private float chipStayDuration = 0.55f;
 
-    [Tooltip("Время плавного исчезновения щепок.")]
     [SerializeField]
     private float chipFadeDuration = 0.25f;
 
@@ -157,7 +236,6 @@ public class BreakableBox : MonoBehaviour
     [SerializeField]
     private float chipEndRotMax = 125f;
 
-    [Tooltip("Маленький подъём щепок над полом.")]
     [SerializeField]
     private float chipGroundLift = 0.045f;
 
@@ -177,6 +255,15 @@ public class BreakableBox : MonoBehaviour
     private bool goalDebugLogs = false;
 
     // ============================================================
+    // DEBUG
+    // ============================================================
+
+    [Header("DEBUG")]
+
+    [SerializeField]
+    private bool debugHits = false;
+
+    // ============================================================
     // PRIVATE
     // ============================================================
 
@@ -190,6 +277,7 @@ public class BreakableBox : MonoBehaviour
     private Vector3 originalLocalPosition;
 
     private float hitEffectTimer;
+    private float nextTopHitTime;
 
     private bool isPlayingHitEffect;
     private bool isBreaking;
@@ -216,15 +304,15 @@ public class BreakableBox : MonoBehaviour
         }
 
         Transform background =
-            transform.Find(
-                "Box_Background"
-            );
+            transform.Find("Box_Background");
 
         if (background != null)
         {
             boxBackgroundRenderer =
                 background.GetComponent<SpriteRenderer>();
         }
+
+        FindPlayer();
 
         originalLocalScale =
             transform.localScale;
@@ -249,6 +337,39 @@ public class BreakableBox : MonoBehaviour
     private void Update()
     {
         UpdateHitEffect();
+
+        if (player == null)
+        {
+            FindPlayer();
+        }
+    }
+
+    // ============================================================
+    // FIND PLAYER
+    // ============================================================
+
+    private void FindPlayer()
+    {
+        GameObject playerObject =
+            GameObject.FindGameObjectWithTag(playerTag);
+
+        if (playerObject == null)
+            return;
+
+        player =
+            playerObject.transform;
+
+        if (playerCollider == null)
+        {
+            playerCollider =
+                playerObject.GetComponent<Collider2D>();
+
+            if (playerCollider == null)
+            {
+                playerCollider =
+                    playerObject.GetComponentInChildren<Collider2D>();
+            }
+        }
     }
 
     // ============================================================
@@ -266,6 +387,7 @@ public class BreakableBox : MonoBehaviour
         isPlayingHitEffect = false;
 
         hitEffectTimer = 0f;
+        nextTopHitTime = 0f;
 
         transform.localScale =
             originalLocalScale;
@@ -275,8 +397,11 @@ public class BreakableBox : MonoBehaviour
 
         if (boxSpriteRenderer != null)
         {
-            boxSpriteRenderer.enabled = true;
-            boxSpriteRenderer.color = Color.white;
+            boxSpriteRenderer.enabled =
+                true;
+
+            boxSpriteRenderer.color =
+                Color.white;
 
             if (normalSprite != null)
             {
@@ -301,8 +426,7 @@ public class BreakableBox : MonoBehaviour
         {
             goalReveal.HideGoalImmediate();
 
-            if (goalReveal.transform.parent !=
-                transform)
+            if (goalReveal.transform.parent != transform)
             {
                 goalReveal.transform.SetParent(
                     transform,
@@ -316,48 +440,320 @@ public class BreakableBox : MonoBehaviour
     // LEG ATTACK
     // ============================================================
 
-    /*
-     * Вызывается нашим LegAttackButton.
-     *
-     * Теперь ящик НЕ реагирует:
-     * - на мышь;
-     * - на тап по самому ящику.
-     *
-     * Только кнопка ноги может вызвать удар.
-     */
-    public void ReceiveKick(
-        int damage
-    )
+    public void ReceiveKick(int damage)
     {
         if (isBreaking ||
+            isBusy ||
+            damage <= 0)
+        {
+            return;
+        }
+
+        /*
+         * Если игрок стоит НА ящике,
+         * обычная кнопка ноги ящик не повреждает.
+         */
+        if (blockKickFromAbove &&
+            PlayerIsStandingAboveBox())
+        {
+            if (debugHits)
+            {
+                Debug.Log(
+                    "[BOX] Kick blocked: player is above box.",
+                    this
+                );
+            }
+
+            return;
+        }
+
+        ReceiveHit(damage);
+    }
+
+    // ============================================================
+    // GENERIC HIT
+    // ============================================================
+
+    /*
+     * Универсальный метод нанесения урона.
+     *
+     * Его могут использовать:
+     * - нога;
+     * - приземление сверху;
+     * - меч;
+     * - палка;
+     * - топор;
+     * - любое будущее оружие.
+     */
+    public void ReceiveHit(int damage)
+    {
+        if (isBreaking ||
+            isBusy ||
+            damage <= 0)
+        {
+            return;
+        }
+
+        isBusy = true;
+
+        StartCoroutine(
+            ReceiveHitRoutine(damage)
+        );
+    }
+
+    // ============================================================
+    // PLAYER ABOVE CHECK
+    // ============================================================
+
+    private bool PlayerIsStandingAboveBox()
+    {
+        if (boxCollider == null)
+            return false;
+
+        if (player == null)
+        {
+            FindPlayer();
+        }
+
+        if (player == null)
+            return false;
+
+        float boxTop =
+            boxCollider.bounds.max.y;
+
+        if (playerCollider != null)
+        {
+            float playerBottom =
+                playerCollider.bounds.min.y;
+
+            bool playerFeetAreAtTop =
+                playerBottom >=
+                boxTop -
+                playerAboveTolerance;
+
+            bool playerCenterIsAbove =
+                playerCollider.bounds.center.y >
+                boxCollider.bounds.center.y;
+
+            return
+                playerFeetAreAtTop &&
+                playerCenterIsAbove;
+        }
+
+        return
+            player.position.y >
+            boxCollider.bounds.center.y;
+    }
+
+    // ============================================================
+    // TOP LANDING COLLISION
+    // ============================================================
+
+    private void OnCollisionEnter2D(
+        Collision2D collision
+    )
+    {
+        if (!enableTopLandingHit ||
+            isBreaking ||
             isBusy)
         {
             return;
         }
 
-        if (damage <= 0)
+        if (Time.time <
+            nextTopHitTime)
+        {
             return;
+        }
 
-        isBusy = true;
+        if (!IsPlayerCollision(collision))
+        {
+            return;
+        }
 
         /*
-         * Сейчас обычный удар ноги = 1 damage.
+         * ВАЖНО:
+         * Сначала проверяем, что игрок действительно
+         * находится НАД ящиком.
          *
-         * Но метод уже поддерживает больше,
-         * если позже появятся усиленные удары.
+         * Это предотвращает ложный удар,
+         * когда игрок прыгает рядом и касается
+         * боковой стенки ящика.
          */
-        StartCoroutine(
-            ReceiveKickRoutine(
-                damage
-            )
+        if (!CollisionIsOnTop(collision))
+        {
+            return;
+        }
+
+        float verticalImpactSpeed =
+            Mathf.Abs(
+                collision.relativeVelocity.y
+            );
+
+        if (verticalImpactSpeed <
+            minimumTopImpactSpeed)
+        {
+            if (debugHits)
+            {
+                Debug.Log(
+                    "[BOX] Top contact ignored. Impact speed = " +
+                    verticalImpactSpeed.ToString("F2"),
+                    this
+                );
+            }
+
+            return;
+        }
+
+        nextTopHitTime =
+            Time.time +
+            topHitCooldown;
+
+        if (debugHits)
+        {
+            Debug.Log(
+                "[BOX] TRUE TOP LANDING. Damage = " +
+                topLandingDamage +
+                ", speed = " +
+                verticalImpactSpeed.ToString("F2"),
+                this
+            );
+        }
+
+        ReceiveHit(
+            topLandingDamage
         );
     }
 
     // ============================================================
-    // RECEIVE KICK
+    // IS PLAYER COLLISION
     // ============================================================
 
-    private IEnumerator ReceiveKickRoutine(
+    private bool IsPlayerCollision(
+        Collision2D collision
+    )
+    {
+        if (collision == null ||
+            collision.collider == null)
+        {
+            return false;
+        }
+
+        Transform hitTransform =
+            collision.collider.transform;
+
+        if (hitTransform.CompareTag(playerTag))
+        {
+            return true;
+        }
+
+        Transform root =
+            hitTransform.root;
+
+        if (root != null &&
+            root.CompareTag(playerTag))
+        {
+            return true;
+        }
+
+        if (player != null)
+        {
+            return
+                hitTransform == player ||
+                hitTransform.IsChildOf(player);
+        }
+
+        return false;
+    }
+
+    // ============================================================
+    // IS COLLISION REALLY ON TOP
+    // ============================================================
+
+    private bool CollisionIsOnTop(
+        Collision2D collision
+    )
+    {
+        if (boxCollider == null ||
+            collision == null ||
+            collision.collider == null)
+        {
+            return false;
+        }
+
+        Collider2D otherCollider =
+            collision.collider;
+
+        /*
+         * Ноги игрока должны находиться
+         * примерно на уровне верхней поверхности ящика.
+         *
+         * Если игрок ударился в БОК ящика,
+         * его нижняя граница будет слишком низко,
+         * и такой контакт будет отклонён.
+         */
+        float boxTop =
+            boxCollider.bounds.max.y;
+
+        float playerBottom =
+            otherCollider.bounds.min.y;
+
+        if (playerBottom <
+            boxTop -
+            topContactTolerance)
+        {
+            return false;
+        }
+
+        /*
+         * Центр игрока обязательно должен
+         * находиться выше центра ящика.
+         */
+        if (otherCollider.bounds.center.y <=
+            boxCollider.bounds.center.y)
+        {
+            return false;
+        }
+
+        /*
+         * Дополнительно проверяем нормаль контакта.
+         *
+         * Для настоящего приземления игрока
+         * на верх ящика нормаль со стороны ящика
+         * должна в основном смотреть вниз.
+         *
+         * Боковые контакты сюда не проходят.
+         */
+        for (int i = 0;
+             i < collision.contactCount;
+             i++)
+        {
+            ContactPoint2D contact =
+                collision.GetContact(i);
+
+            bool contactNearTop =
+                contact.point.y >=
+                boxTop -
+                topContactTolerance;
+
+            bool topNormal =
+                contact.normal.y < -0.5f;
+
+            if (contactNearTop &&
+                topNormal)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    // ============================================================
+    // RECEIVE HIT ROUTINE
+    // ============================================================
+
+    private IEnumerator ReceiveHitRoutine(
         int damage
     )
     {
@@ -379,12 +775,16 @@ public class BreakableBox : MonoBehaviour
                 hitsToBreak
             );
 
-        Debug.Log(
-            "Box hit: " +
-            hits +
-            " / " +
-            hitsToBreak
-        );
+        if (debugHits)
+        {
+            Debug.Log(
+                "[BOX] Hit: " +
+                hits +
+                " / " +
+                hitsToBreak,
+                this
+            );
+        }
 
         PlayHitEffect();
 
@@ -537,6 +937,24 @@ public class BreakableBox : MonoBehaviour
     private IEnumerator FinalBreakSequence()
     {
         isBreaking = true;
+
+        /*
+         * КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ:
+         *
+         * Ящик уже получил последний удар,
+         * поэтому физически его больше нет.
+         *
+         * Отключаем Collider СРАЗУ.
+         *
+         * Если Player стоял сверху,
+         * он сразу начинает падать,
+         * не ожидая окончания shake-анимации.
+         */
+        if (boxCollider != null)
+        {
+            boxCollider.enabled =
+                false;
+        }
 
         yield return StartCoroutine(
             ShakeBox(
@@ -701,15 +1119,24 @@ public class BreakableBox : MonoBehaviour
                 false;
         }
 
+        /*
+         * Collider уже отключён
+         * в самом начале FinalBreakSequence.
+         * Здесь оставляем страховочную проверку.
+         */
         if (boxCollider != null)
         {
             boxCollider.enabled =
                 false;
         }
 
-        Debug.Log(
-            "Box broken!"
-        );
+        if (debugHits)
+        {
+            Debug.Log(
+                "[BOX] Box broken!",
+                this
+            );
+        }
 
         float totalChipTime =
             chipFallDuration +
@@ -746,8 +1173,7 @@ public class BreakableBox : MonoBehaviour
             );
 
         for (int i = 0;
-             i <
-             particleSystems.Length;
+             i < particleSystems.Length;
              i++)
         {
             particleSystems[i].Clear();

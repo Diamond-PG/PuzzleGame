@@ -14,6 +14,89 @@ public class BreakableHardBox : MonoBehaviour
     private int hitsToBreak = 4;
 
     // ============================================================
+    // PLAYER
+    // ============================================================
+
+    [Header("PLAYER")]
+
+    [SerializeField]
+    private string playerTag = "Player";
+
+    [SerializeField]
+    private Transform player;
+
+    [SerializeField]
+    private Collider2D playerCollider;
+
+    // ============================================================
+    // SIDE KICK
+    // ============================================================
+
+    [Header("SIDE KICK")]
+
+    [Tooltip(
+        "Если включено, обычный удар ногой не повреждает ящик, " +
+        "когда игрок находится сверху."
+    )]
+    [SerializeField]
+    private bool blockKickFromAbove = true;
+
+    [Tooltip(
+        "Допуск определения положения ног игрока относительно верхней поверхности ящика."
+    )]
+    [SerializeField, Min(0f)]
+    private float playerAboveTolerance = 0.12f;
+
+    // ============================================================
+    // TOP LANDING HIT
+    // ============================================================
+
+    [Header("TOP LANDING HIT")]
+
+    [Tooltip(
+        "Разрешить повреждать ящик приземлением сверху."
+    )]
+    [SerializeField]
+    private bool enableTopLandingHit = true;
+
+    [Tooltip(
+        "Сколько урона наносит одно настоящее приземление сверху."
+    )]
+    [SerializeField, Min(1)]
+    private int topLandingDamage = 1;
+
+    [Tooltip(
+        "Минимальная скорость падения для засчитывания удара."
+    )]
+    [SerializeField, Min(0f)]
+    private float minimumTopImpactSpeed = 0.8f;
+
+    [Tooltip(
+        "Допуск определения контакта с верхней крышкой ящика."
+    )]
+    [SerializeField, Min(0f)]
+    private float topContactTolerance = 0.12f;
+
+    [Tooltip(
+        "Насколько контакт должен быть вертикальным."
+    )]
+    [SerializeField, Range(0f, 1f)]
+    private float minimumTopContactNormalY = 0.65f;
+
+    [Tooltip(
+        "Минимальное перекрытие игрока и ящика по горизонтали. " +
+        "Защищает от ложного удара при касании боковой стенки."
+    )]
+    [SerializeField, Min(0f)]
+    private float minimumHorizontalOverlap = 0.05f;
+
+    [Tooltip(
+        "Защита от двойного засчитывания одного приземления."
+    )]
+    [SerializeField, Min(0f)]
+    private float topHitCooldown = 0.15f;
+
+    // ============================================================
     // HAPTICS
     // ============================================================
 
@@ -243,6 +326,15 @@ public class BreakableHardBox : MonoBehaviour
     private bool goalDebugLogs = false;
 
     // ============================================================
+    // DEBUG
+    // ============================================================
+
+    [Header("DEBUG")]
+
+    [SerializeField]
+    private bool debugHits = false;
+
+    // ============================================================
     // PRIVATE
     // ============================================================
 
@@ -256,6 +348,7 @@ public class BreakableHardBox : MonoBehaviour
     private Vector3 originalLocalPosition;
 
     private float hitEffectTimer;
+    private float nextTopHitTime;
 
     private bool isPlayingHitEffect;
     private bool isBreaking;
@@ -292,6 +385,8 @@ public class BreakableHardBox : MonoBehaviour
                 background.GetComponent<SpriteRenderer>();
         }
 
+        FindPlayer();
+
         originalLocalScale =
             transform.localScale;
 
@@ -315,6 +410,42 @@ public class BreakableHardBox : MonoBehaviour
     private void Update()
     {
         UpdateHitEffect();
+
+        if (player == null)
+        {
+            FindPlayer();
+        }
+    }
+
+    // ============================================================
+    // FIND PLAYER
+    // ============================================================
+
+    private void FindPlayer()
+    {
+        GameObject playerObject =
+            GameObject.FindGameObjectWithTag(
+                playerTag
+            );
+
+        if (playerObject == null)
+            return;
+
+        player =
+            playerObject.transform;
+
+        if (playerCollider == null)
+        {
+            playerCollider =
+                playerObject.GetComponent<Collider2D>();
+
+            if (playerCollider == null)
+            {
+                playerCollider =
+                    playerObject
+                        .GetComponentInChildren<Collider2D>();
+            }
+        }
     }
 
     // ============================================================
@@ -326,11 +457,13 @@ public class BreakableHardBox : MonoBehaviour
         StopAllCoroutines();
 
         hits = 0;
+
         isBreaking = false;
         isBusy = false;
         isPlayingHitEffect = false;
 
         hitEffectTimer = 0f;
+        nextTopHitTime = 0f;
 
         transform.localScale =
             originalLocalScale;
@@ -340,8 +473,11 @@ public class BreakableHardBox : MonoBehaviour
 
         if (boxSpriteRenderer != null)
         {
-            boxSpriteRenderer.enabled = true;
-            boxSpriteRenderer.color = Color.white;
+            boxSpriteRenderer.enabled =
+                true;
+
+            boxSpriteRenderer.color =
+                Color.white;
 
             if (normalSprite != null)
             {
@@ -386,28 +522,385 @@ public class BreakableHardBox : MonoBehaviour
     )
     {
         if (isBreaking ||
-            isBusy)
+            isBusy ||
+            damage <= 0)
         {
             return;
         }
 
-        if (damage <= 0)
+        if (blockKickFromAbove &&
+            PlayerIsStandingAboveBox())
+        {
+            if (debugHits)
+            {
+                Debug.Log(
+                    "[HARD BOX] Kick blocked from above.",
+                    this
+                );
+            }
+
             return;
+        }
+
+        ReceiveHit(
+            damage
+        );
+    }
+
+    // ============================================================
+    // GENERIC HIT
+    // ============================================================
+
+    /*
+     * Универсальный метод урона.
+     *
+     * Сейчас:
+     * - нога;
+     * - прыжок сверху.
+     *
+     * Позже:
+     * - меч;
+     * - палка;
+     * - топор;
+     * - другое оружие.
+     */
+    public void ReceiveHit(
+        int damage
+    )
+    {
+        if (isBreaking ||
+            isBusy ||
+            damage <= 0)
+        {
+            return;
+        }
 
         isBusy = true;
 
         StartCoroutine(
-            ReceiveKickRoutine(
+            ReceiveHitRoutine(
                 damage
             )
         );
     }
 
     // ============================================================
-    // RECEIVE KICK
+    // PLAYER ABOVE CHECK
     // ============================================================
 
-    private IEnumerator ReceiveKickRoutine(
+    private bool PlayerIsStandingAboveBox()
+    {
+        if (boxCollider == null)
+            return false;
+
+        if (player == null)
+        {
+            FindPlayer();
+        }
+
+        if (player == null)
+            return false;
+
+        float boxTop =
+            boxCollider.bounds.max.y;
+
+        if (playerCollider != null)
+        {
+            float playerBottom =
+                playerCollider.bounds.min.y;
+
+            bool playerFeetAreAtTop =
+                playerBottom >=
+                boxTop -
+                playerAboveTolerance;
+
+            bool playerCenterIsAbove =
+                playerCollider.bounds.center.y >
+                boxCollider.bounds.center.y;
+
+            bool horizontalOverlap =
+                GetHorizontalOverlap() >
+                0f;
+
+            return
+                playerFeetAreAtTop &&
+                playerCenterIsAbove &&
+                horizontalOverlap;
+        }
+
+        return
+            player.position.y >
+            boxCollider.bounds.center.y;
+    }
+
+    // ============================================================
+    // TOP LANDING
+    // ============================================================
+
+    private void OnCollisionEnter2D(
+        Collision2D collision
+    )
+    {
+        if (!enableTopLandingHit ||
+            isBreaking ||
+            isBusy)
+        {
+            return;
+        }
+
+        if (Time.time <
+            nextTopHitTime)
+        {
+            return;
+        }
+
+        if (!IsPlayerCollision(
+                collision))
+        {
+            return;
+        }
+
+        if (!CollisionIsRealTopLanding(
+                collision))
+        {
+            return;
+        }
+
+        float verticalImpactSpeed =
+            Mathf.Abs(
+                collision.relativeVelocity.y
+            );
+
+        if (verticalImpactSpeed <
+            minimumTopImpactSpeed)
+        {
+            if (debugHits)
+            {
+                Debug.Log(
+                    "[HARD BOX] Weak top contact ignored. " +
+                    "Impact = " +
+                    verticalImpactSpeed.ToString("F2"),
+                    this
+                );
+            }
+
+            return;
+        }
+
+        nextTopHitTime =
+            Time.time +
+            topHitCooldown;
+
+        if (debugHits)
+        {
+            Debug.Log(
+                "[HARD BOX] REAL TOP LANDING! " +
+                "Impact = " +
+                verticalImpactSpeed.ToString("F2"),
+                this
+            );
+        }
+
+        ReceiveHit(
+            topLandingDamage
+        );
+    }
+
+    // ============================================================
+    // REAL TOP LANDING CHECK
+    // ============================================================
+
+    private bool CollisionIsRealTopLanding(
+        Collision2D collision
+    )
+    {
+        if (boxCollider == null ||
+            collision == null ||
+            collision.collider == null)
+        {
+            return false;
+        }
+
+        if (playerCollider == null)
+        {
+            playerCollider =
+                collision.collider;
+        }
+
+        Bounds currentPlayerBounds =
+            playerCollider != null
+                ? playerCollider.bounds
+                : collision.collider.bounds;
+
+        Bounds boxBounds =
+            boxCollider.bounds;
+
+        /*
+         * Игрок должен находиться выше центра ящика.
+         */
+        if (currentPlayerBounds.center.y <=
+            boxBounds.center.y)
+        {
+            return false;
+        }
+
+        /*
+         * Проверяем реальное перекрытие по X.
+         *
+         * При касании только боковой стенки
+         * перекрытие будет почти нулевым.
+         */
+        float horizontalOverlap =
+            Mathf.Min(
+                currentPlayerBounds.max.x,
+                boxBounds.max.x
+            ) -
+            Mathf.Max(
+                currentPlayerBounds.min.x,
+                boxBounds.min.x
+            );
+
+        if (horizontalOverlap <
+            minimumHorizontalOverlap)
+        {
+            if (debugHits)
+            {
+                Debug.Log(
+                    "[HARD BOX] Side collision ignored. " +
+                    "Overlap = " +
+                    horizontalOverlap.ToString("F3"),
+                    this
+                );
+            }
+
+            return false;
+        }
+
+        /*
+         * Ноги игрока должны быть около крышки.
+         */
+        float boxTop =
+            boxBounds.max.y;
+
+        float playerBottom =
+            currentPlayerBounds.min.y;
+
+        if (playerBottom <
+            boxTop -
+            topContactTolerance)
+        {
+            return false;
+        }
+
+        /*
+         * Ищем вертикальный контакт
+         * именно около верхней поверхности.
+         */
+        for (int i = 0;
+             i < collision.contactCount;
+             i++)
+        {
+            ContactPoint2D contact =
+                collision.GetContact(i);
+
+            bool contactNearTop =
+                contact.point.y >=
+                boxTop -
+                topContactTolerance;
+
+            bool contactIsVertical =
+                Mathf.Abs(
+                    contact.normal.y
+                ) >=
+                minimumTopContactNormalY;
+
+            if (contactNearTop &&
+                contactIsVertical)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    // ============================================================
+    // HORIZONTAL OVERLAP
+    // ============================================================
+
+    private float GetHorizontalOverlap()
+    {
+        if (playerCollider == null ||
+            boxCollider == null)
+        {
+            return 0f;
+        }
+
+        Bounds playerBounds =
+            playerCollider.bounds;
+
+        Bounds boxBounds =
+            boxCollider.bounds;
+
+        return
+            Mathf.Min(
+                playerBounds.max.x,
+                boxBounds.max.x
+            ) -
+            Mathf.Max(
+                playerBounds.min.x,
+                boxBounds.min.x
+            );
+    }
+
+    // ============================================================
+    // PLAYER COLLISION CHECK
+    // ============================================================
+
+    private bool IsPlayerCollision(
+        Collision2D collision
+    )
+    {
+        if (collision == null ||
+            collision.collider == null)
+        {
+            return false;
+        }
+
+        Transform hitTransform =
+            collision.collider.transform;
+
+        if (hitTransform.CompareTag(
+                playerTag))
+        {
+            return true;
+        }
+
+        Transform root =
+            hitTransform.root;
+
+        if (root != null &&
+            root.CompareTag(
+                playerTag))
+        {
+            return true;
+        }
+
+        if (player != null)
+        {
+            return
+                hitTransform == player ||
+                hitTransform.IsChildOf(player);
+        }
+
+        return false;
+    }
+
+    // ============================================================
+    // RECEIVE HIT
+    // ============================================================
+
+    private IEnumerator ReceiveHitRoutine(
         int damage
     )
     {
@@ -429,12 +922,16 @@ public class BreakableHardBox : MonoBehaviour
                 hitsToBreak
             );
 
-        Debug.Log(
-            "Hard box hit: " +
-            hits +
-            " / " +
-            hitsToBreak
-        );
+        if (debugHits)
+        {
+            Debug.Log(
+                "[HARD BOX] Hit: " +
+                hits +
+                " / " +
+                hitsToBreak,
+                this
+            );
+        }
 
         PlayHitEffect();
 
@@ -698,6 +1195,19 @@ public class BreakableHardBox : MonoBehaviour
     {
         isBreaking = true;
 
+        /*
+         * Последний удар уже произошёл.
+         * Физическую опору убираем сразу.
+         *
+         * Если игрок стоит сверху,
+         * он сразу начинает падать.
+         */
+        if (boxCollider != null)
+        {
+            boxCollider.enabled =
+                false;
+        }
+
         yield return StartCoroutine(
             ShakeBox(
                 finalShakeDuration,
@@ -876,9 +1386,13 @@ public class BreakableHardBox : MonoBehaviour
                 false;
         }
 
-        Debug.Log(
-            "Hard box broken!"
-        );
+        if (debugHits)
+        {
+            Debug.Log(
+                "[HARD BOX] Broken!",
+                this
+            );
+        }
 
         float totalChipTime =
             chipFallDuration +

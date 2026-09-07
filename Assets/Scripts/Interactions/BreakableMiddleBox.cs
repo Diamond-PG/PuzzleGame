@@ -14,6 +14,90 @@ public class BreakableMiddleBox : MonoBehaviour
     private int hitsToBreak = 3;
 
     // ============================================================
+    // PLAYER
+    // ============================================================
+
+    [Header("PLAYER")]
+
+    [SerializeField]
+    private string playerTag = "Player";
+
+    [SerializeField]
+    private Transform player;
+
+    [SerializeField]
+    private Collider2D playerCollider;
+
+    // ============================================================
+    // SIDE KICK
+    // ============================================================
+
+    [Header("SIDE KICK")]
+
+    [Tooltip(
+        "Если включено, обычный удар ногой не повреждает ящик, " +
+        "когда игрок находится сверху."
+    )]
+    [SerializeField]
+    private bool blockKickFromAbove = true;
+
+    [Tooltip(
+        "Допуск положения ног игрока относительно верхней поверхности ящика."
+    )]
+    [SerializeField, Min(0f)]
+    private float playerAboveTolerance = 0.12f;
+
+    // ============================================================
+    // TOP LANDING HIT
+    // ============================================================
+
+    [Header("TOP LANDING HIT")]
+
+    [Tooltip(
+        "Разрешить повреждать ящик приземлением сверху."
+    )]
+    [SerializeField]
+    private bool enableTopLandingHit = true;
+
+    [Tooltip(
+        "Сколько урона наносит одно приземление сверху."
+    )]
+    [SerializeField, Min(1)]
+    private int topLandingDamage = 1;
+
+    [Tooltip(
+        "Минимальная скорость столкновения для засчитывания удара сверху."
+    )]
+    [SerializeField, Min(0f)]
+    private float minimumTopImpactSpeed = 0.8f;
+
+    [Tooltip(
+        "Допуск точки контакта относительно верхней крышки ящика."
+    )]
+    [SerializeField, Min(0f)]
+    private float topContactTolerance = 0.12f;
+
+    [Tooltip(
+        "Насколько контакт должен быть вертикальным. " +
+        "Чем ближе к 1, тем строже определяется настоящее приземление сверху."
+    )]
+    [SerializeField, Range(0f, 1f)]
+    private float minimumTopContactNormalY = 0.65f;
+
+    [Tooltip(
+        "Минимальное перекрытие игрока и ящика по горизонтали. " +
+        "Не позволяет удару срабатывать при касании боковой стенки."
+    )]
+    [SerializeField, Min(0f)]
+    private float minimumHorizontalOverlap = 0.05f;
+
+    [Tooltip(
+        "Защита от двойного засчитывания одного приземления."
+    )]
+    [SerializeField, Min(0f)]
+    private float topHitCooldown = 0.15f;
+
+    // ============================================================
     // HAPTICS
     // ============================================================
 
@@ -226,6 +310,15 @@ public class BreakableMiddleBox : MonoBehaviour
     private float chipGroundLift = 0.045f;
 
     // ============================================================
+    // DEBUG
+    // ============================================================
+
+    [Header("DEBUG")]
+
+    [SerializeField]
+    private bool debugHits = false;
+
+    // ============================================================
     // PRIVATE
     // ============================================================
 
@@ -239,6 +332,7 @@ public class BreakableMiddleBox : MonoBehaviour
     private Vector3 originalLocalPosition;
 
     private float hitEffectTimer;
+    private float nextTopHitTime;
 
     private bool isPlayingHitEffect;
     private bool isBreaking;
@@ -277,8 +371,7 @@ public class BreakableMiddleBox : MonoBehaviour
             rewardReveal != null)
         {
             rewardHeartPulse =
-                rewardReveal
-                    .GetComponent<HeartPulse>();
+                rewardReveal.GetComponent<HeartPulse>();
         }
 
         Transform background =
@@ -289,9 +382,10 @@ public class BreakableMiddleBox : MonoBehaviour
         if (background != null)
         {
             boxBackgroundRenderer =
-                background
-                    .GetComponent<SpriteRenderer>();
+                background.GetComponent<SpriteRenderer>();
         }
+
+        FindPlayer();
 
         originalLocalScale =
             transform.localScale;
@@ -316,6 +410,42 @@ public class BreakableMiddleBox : MonoBehaviour
     private void Update()
     {
         UpdateHitEffect();
+
+        if (player == null)
+        {
+            FindPlayer();
+        }
+    }
+
+    // ============================================================
+    // FIND PLAYER
+    // ============================================================
+
+    private void FindPlayer()
+    {
+        GameObject playerObject =
+            GameObject.FindGameObjectWithTag(
+                playerTag
+            );
+
+        if (playerObject == null)
+            return;
+
+        player =
+            playerObject.transform;
+
+        if (playerCollider == null)
+        {
+            playerCollider =
+                playerObject.GetComponent<Collider2D>();
+
+            if (playerCollider == null)
+            {
+                playerCollider =
+                    playerObject
+                        .GetComponentInChildren<Collider2D>();
+            }
+        }
     }
 
     // ============================================================
@@ -334,6 +464,7 @@ public class BreakableMiddleBox : MonoBehaviour
         rewardDetached = false;
 
         hitEffectTimer = 0f;
+        nextTopHitTime = 0f;
 
         transform.localScale =
             originalLocalScale;
@@ -384,40 +515,418 @@ public class BreakableMiddleBox : MonoBehaviour
     // LEG ATTACK
     // ============================================================
 
-    /*
-     * Теперь средний ящик получает удар
-     * ТОЛЬКО от LegAttackButton.
-     *
-     * Никакого тапа по самому ящику.
-     * Никакой мышки по ящику.
-     */
     public void ReceiveKick(
         int damage
     )
     {
         if (isBreaking ||
-            isBusy)
+            isBusy ||
+            damage <= 0)
         {
             return;
         }
 
-        if (damage <= 0)
+        /*
+         * Если игрок находится сверху,
+         * обычный боковой удар ногой
+         * не повреждает ящик.
+         */
+        if (blockKickFromAbove &&
+            PlayerIsStandingAboveBox())
+        {
+            if (debugHits)
+            {
+                Debug.Log(
+                    "[MIDDLE BOX] Kick blocked from above.",
+                    this
+                );
+            }
+
             return;
+        }
+
+        ReceiveHit(
+            damage
+        );
+    }
+
+    // ============================================================
+    // GENERIC HIT
+    // ============================================================
+
+    /*
+     * Универсальная точка получения урона.
+     *
+     * Сейчас:
+     * - удар ногой;
+     * - приземление сверху.
+     *
+     * Позже:
+     * - меч;
+     * - палка;
+     * - топор;
+     * - другое оружие.
+     */
+    public void ReceiveHit(
+        int damage
+    )
+    {
+        if (isBreaking ||
+            isBusy ||
+            damage <= 0)
+        {
+            return;
+        }
 
         isBusy = true;
 
         StartCoroutine(
-            ReceiveKickRoutine(
+            ReceiveHitRoutine(
                 damage
             )
         );
     }
 
     // ============================================================
-    // RECEIVE KICK
+    // PLAYER ABOVE CHECK
     // ============================================================
 
-    private IEnumerator ReceiveKickRoutine(
+    private bool PlayerIsStandingAboveBox()
+    {
+        if (boxCollider == null)
+            return false;
+
+        if (player == null)
+        {
+            FindPlayer();
+        }
+
+        if (player == null)
+            return false;
+
+        float boxTop =
+            boxCollider.bounds.max.y;
+
+        if (playerCollider != null)
+        {
+            float playerBottom =
+                playerCollider.bounds.min.y;
+
+            bool playerFeetAreAtTop =
+                playerBottom >=
+                boxTop -
+                playerAboveTolerance;
+
+            bool playerCenterIsAbove =
+                playerCollider.bounds.center.y >
+                boxCollider.bounds.center.y;
+
+            bool horizontalOverlap =
+                GetHorizontalOverlap() >
+                0f;
+
+            return
+                playerFeetAreAtTop &&
+                playerCenterIsAbove &&
+                horizontalOverlap;
+        }
+
+        return
+            player.position.y >
+            boxCollider.bounds.center.y;
+    }
+
+    // ============================================================
+    // TOP LANDING
+    // ============================================================
+
+    private void OnCollisionEnter2D(
+        Collision2D collision
+    )
+    {
+        if (!enableTopLandingHit ||
+            isBreaking ||
+            isBusy)
+        {
+            return;
+        }
+
+        if (Time.time <
+            nextTopHitTime)
+        {
+            return;
+        }
+
+        if (!IsPlayerCollision(
+                collision))
+        {
+            return;
+        }
+
+        /*
+         * Самая важная проверка.
+         *
+         * Здесь мы убеждаемся, что Player
+         * действительно ПРИЗЕМЛИЛСЯ НА КРЫШКУ,
+         * а не просто прыгнул рядом
+         * и задел бок ящика.
+         */
+        if (!CollisionIsRealTopLanding(
+                collision))
+        {
+            return;
+        }
+
+        float verticalImpactSpeed =
+            Mathf.Abs(
+                collision.relativeVelocity.y
+            );
+
+        if (verticalImpactSpeed <
+            minimumTopImpactSpeed)
+        {
+            if (debugHits)
+            {
+                Debug.Log(
+                    "[MIDDLE BOX] Top collision ignored. " +
+                    "Impact too weak: " +
+                    verticalImpactSpeed.ToString("F2"),
+                    this
+                );
+            }
+
+            return;
+        }
+
+        nextTopHitTime =
+            Time.time +
+            topHitCooldown;
+
+        if (debugHits)
+        {
+            Debug.Log(
+                "[MIDDLE BOX] REAL TOP LANDING! " +
+                "Impact = " +
+                verticalImpactSpeed.ToString("F2"),
+                this
+            );
+        }
+
+        ReceiveHit(
+            topLandingDamage
+        );
+    }
+
+    // ============================================================
+    // REAL TOP LANDING CHECK
+    // ============================================================
+
+    private bool CollisionIsRealTopLanding(
+        Collision2D collision
+    )
+    {
+        if (boxCollider == null ||
+            collision == null ||
+            collision.collider == null)
+        {
+            return false;
+        }
+
+        if (playerCollider == null)
+        {
+            playerCollider =
+                collision.collider;
+        }
+
+        /*
+         * 1.
+         * Центр игрока обязательно должен
+         * находиться выше центра ящика.
+         */
+        Bounds currentPlayerBounds =
+            playerCollider != null
+                ? playerCollider.bounds
+                : collision.collider.bounds;
+
+        Bounds boxBounds =
+            boxCollider.bounds;
+
+        if (currentPlayerBounds.center.y <=
+            boxBounds.center.y)
+        {
+            return false;
+        }
+
+        /*
+         * 2.
+         * Игрок должен реально перекрывать
+         * верх ящика по горизонтали.
+         *
+         * Если он просто трётся о бок,
+         * overlap будет около нуля.
+         */
+        float horizontalOverlap =
+            Mathf.Min(
+                currentPlayerBounds.max.x,
+                boxBounds.max.x
+            ) -
+            Mathf.Max(
+                currentPlayerBounds.min.x,
+                boxBounds.min.x
+            );
+
+        if (horizontalOverlap <
+            minimumHorizontalOverlap)
+        {
+            if (debugHits)
+            {
+                Debug.Log(
+                    "[MIDDLE BOX] Side collision ignored. " +
+                    "Horizontal overlap = " +
+                    horizontalOverlap.ToString("F3"),
+                    this
+                );
+            }
+
+            return false;
+        }
+
+        /*
+         * 3.
+         * Ноги игрока должны находиться
+         * около верхней крышки ящика.
+         *
+         * Это ещё одна защита от бокового контакта.
+         */
+        float boxTop =
+            boxBounds.max.y;
+
+        float playerBottom =
+            currentPlayerBounds.min.y;
+
+        if (playerBottom <
+            boxTop -
+            topContactTolerance)
+        {
+            return false;
+        }
+
+        /*
+         * 4.
+         * Ищем настоящий ВЕРТИКАЛЬНЫЙ контакт
+         * именно около крышки ящика.
+         *
+         * При касании боковой стены normal.y
+         * будет маленьким.
+         *
+         * При настоящем приземлении сверху
+         * normal.y будет близок к 1 или -1.
+         */
+        for (int i = 0;
+             i < collision.contactCount;
+             i++)
+        {
+            ContactPoint2D contact =
+                collision.GetContact(i);
+
+            bool contactNearTop =
+                contact.point.y >=
+                boxTop -
+                topContactTolerance;
+
+            bool contactIsVertical =
+                Mathf.Abs(
+                    contact.normal.y
+                ) >=
+                minimumTopContactNormalY;
+
+            if (contactNearTop &&
+                contactIsVertical)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    // ============================================================
+    // HORIZONTAL OVERLAP
+    // ============================================================
+
+    private float GetHorizontalOverlap()
+    {
+        if (playerCollider == null ||
+            boxCollider == null)
+        {
+            return 0f;
+        }
+
+        Bounds playerBounds =
+            playerCollider.bounds;
+
+        Bounds boxBounds =
+            boxCollider.bounds;
+
+        return
+            Mathf.Min(
+                playerBounds.max.x,
+                boxBounds.max.x
+            ) -
+            Mathf.Max(
+                playerBounds.min.x,
+                boxBounds.min.x
+            );
+    }
+
+    // ============================================================
+    // PLAYER COLLISION CHECK
+    // ============================================================
+
+    private bool IsPlayerCollision(
+        Collision2D collision
+    )
+    {
+        if (collision == null ||
+            collision.collider == null)
+        {
+            return false;
+        }
+
+        Transform hitTransform =
+            collision.collider.transform;
+
+        if (hitTransform.CompareTag(
+                playerTag))
+        {
+            return true;
+        }
+
+        Transform root =
+            hitTransform.root;
+
+        if (root != null &&
+            root.CompareTag(
+                playerTag))
+        {
+            return true;
+        }
+
+        if (player != null)
+        {
+            return
+                hitTransform == player ||
+                hitTransform.IsChildOf(player);
+        }
+
+        return false;
+    }
+
+    // ============================================================
+    // RECEIVE HIT ROUTINE
+    // ============================================================
+
+    private IEnumerator ReceiveHitRoutine(
         int damage
     )
     {
@@ -439,12 +948,16 @@ public class BreakableMiddleBox : MonoBehaviour
                 hitsToBreak
             );
 
-        Debug.Log(
-            "Middle box hit: " +
-            hits +
-            " / " +
-            hitsToBreak
-        );
+        if (debugHits)
+        {
+            Debug.Log(
+                "[MIDDLE BOX] Hit: " +
+                hits +
+                " / " +
+                hitsToBreak,
+                this
+            );
+        }
 
         PlayHitEffect();
 
@@ -683,6 +1196,16 @@ public class BreakableMiddleBox : MonoBehaviour
         transform.localScale =
             originalLocalScale;
 
+        /*
+         * После финального разрушения
+         * сразу убираем физическую опору.
+         */
+        if (boxCollider != null)
+        {
+            boxCollider.enabled =
+                false;
+        }
+
         if (boxBackgroundRenderer != null)
         {
             boxBackgroundRenderer.enabled =
@@ -881,9 +1404,13 @@ public class BreakableMiddleBox : MonoBehaviour
                 false;
         }
 
-        Debug.Log(
-            "Middle box broken!"
-        );
+        if (debugHits)
+        {
+            Debug.Log(
+                "[MIDDLE BOX] Broken!",
+                this
+            );
+        }
 
         float totalChipTime =
             chipFallDuration +
@@ -1088,13 +1615,13 @@ public class BreakableMiddleBox : MonoBehaviour
                     chipEndRotMax
                 );
 
-        float timer = 0f;
-
         float safeFallDuration =
             Mathf.Max(
                 0.01f,
                 chipFallDuration
             );
+
+        float timer = 0f;
 
         while (timer <
                safeFallDuration)
@@ -1147,13 +1674,13 @@ public class BreakableMiddleBox : MonoBehaviour
                 0f
             );
 
-        float fallTimer = 0f;
-
         float safeExtraFallDuration =
             Mathf.Max(
                 0.01f,
                 chipExtraFallDuration
             );
+
+        float fallTimer = 0f;
 
         while (fallTimer <
                safeExtraFallDuration)
@@ -1212,13 +1739,13 @@ public class BreakableMiddleBox : MonoBehaviour
             );
         }
 
-        float fadeTimer = 0f;
-
         float safeFadeDuration =
             Mathf.Max(
                 0.01f,
                 chipFadeDuration
             );
+
+        float fadeTimer = 0f;
 
         while (fadeTimer <
                safeFadeDuration)
@@ -1266,6 +1793,8 @@ public class BreakableMiddleBox : MonoBehaviour
                 false;
         }
 
-        Destroy(chip);
+        Destroy(
+            chip
+        );
     }
 }

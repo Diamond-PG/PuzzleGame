@@ -119,21 +119,43 @@ public class GuardEnemy : MonoBehaviour
     [Header("AUDIO - OPTIONAL")]
     [SerializeField] private AudioSource sfxSource;
 
+    [Header("AUDIO - DETECT")]
+    [Tooltip(
+        "Короткий звук, когда Guard сам замечает игрока спереди."
+    )]
     [SerializeField] private AudioClip detectClip;
 
     [Range(0f, 1f)]
     [SerializeField] private float detectVolume = 1f;
 
+    [Header("AUDIO - CHASE")]
+    [Tooltip(
+        "Короткий боевой крик, когда Guard после обнаружения начинает погоню."
+    )]
+    [SerializeField] private AudioClip chaseClip;
+
+    [Range(0f, 1f)]
+    [SerializeField] private float chaseVolume = 1f;
+
+    [Tooltip(
+        "Задержка между Detect Clip и Chase Clip."
+    )]
+    [SerializeField, Min(0f)]
+    private float chaseVoiceDelay = 0.18f;
+
+    [Header("AUDIO - HURT")]
     [SerializeField] private AudioClip hurtClip;
 
     [Range(0f, 1f)]
     [SerializeField] private float hurtVolume = 1f;
 
+    [Header("AUDIO - SWING")]
     [SerializeField] private AudioClip swingClip;
 
     [Range(0f, 1f)]
     [SerializeField] private float swingVolume = 1f;
 
+    [Header("AUDIO - DEATH")]
     [SerializeField] private AudioClip deathClip;
 
     [Range(0f, 1f)]
@@ -146,40 +168,14 @@ public class GuardEnemy : MonoBehaviour
     [Header("WEAPON DROP")]
     [SerializeField] private GameObject weaponObject;
 
-    [Tooltip(
-        "Откуда начинается падение меча относительно Guard."
-    )]
     [SerializeField] private Vector2 weaponSpawnOffset =
         new Vector2(0f, 0.18f);
 
-    [Tooltip(
-        "Насколько меч падает в сторону игрока."
-    )]
     [SerializeField] private float weaponDropDistance = 0.65f;
-
-    [Tooltip(
-        "Длительность короткого падения меча."
-    )]
     [SerializeField] private float weaponDropDuration = 0.38f;
-
-    [Tooltip(
-        "Небольшая визуальная дуга падения."
-    )]
     [SerializeField] private float weaponDropArcHeight = 0.10f;
-
-    [Tooltip(
-        "Конечный угол меча."
-    )]
     [SerializeField] private float weaponLandingRotation = 90f;
-
-    [Tooltip(
-        "Маленький зазор между мечом и полом."
-    )]
     [SerializeField] private float weaponFloorGap = 0.015f;
-
-    [Tooltip(
-        "После падения Collider меча становится Trigger."
-    )]
     [SerializeField] private bool weaponColliderBecomesTrigger = true;
 
     // ============================================================
@@ -204,10 +200,26 @@ public class GuardEnemy : MonoBehaviour
     private bool isDead;
     private bool weaponDropped;
 
+    /*
+     * ВАЖНО:
+     * true только если Guard сам увидел Player.
+     * Если Player первым ударил со спины,
+     * сюда true НЕ ставим.
+     */
+    private bool detectedPlayerNaturally;
+
+    /*
+     * Чтобы Detect и Chase звуки
+     * не повторялись каждый FixedUpdate.
+     */
+    private bool detectionVoicePlayed;
+    private bool chaseVoicePlayed;
+
     private Coroutine patrolPauseCoroutine;
     private Coroutine hitBlinkCoroutine;
     private Coroutine knockbackCoroutine;
     private Coroutine attackCoroutine;
+    private Coroutine chaseVoiceCoroutine;
 
     public bool IsDead => isDead;
 
@@ -373,16 +385,9 @@ public class GuardEnemy : MonoBehaviour
     }
 
     // ============================================================
-    // NEW LEG ATTACK SYSTEM
+    // LEG ATTACK SYSTEM
     // ============================================================
 
-    /*
-     * ЭТОТ МЕТОД ТЕПЕРЬ ВЫЗЫВАЕТ
-     * LegAttackButton.
-     *
-     * Больше никаких кликов мышкой
-     * или тапов пальцем по самому Guard.
-     */
     public void ReceiveKick(
         int damage
     )
@@ -445,10 +450,23 @@ public class GuardEnemy : MonoBehaviour
         }
 
         /*
-         * После удара Guard сразу
-         * становится агрессивным
-         * и поворачивается к Player.
+         * Если игрок первым ударил Guard,
+         * это НЕ считается естественным обнаружением.
+         *
+         * Поэтому Detect / Chase voice
+         * здесь специально НЕ запускаются.
          */
+        detectedPlayerNaturally = false;
+
+        if (chaseVoiceCoroutine != null)
+        {
+            StopCoroutine(
+                chaseVoiceCoroutine
+            );
+
+            chaseVoiceCoroutine = null;
+        }
+
         AggroAndFacePlayerAfterHit();
 
         CancelPatrolPause();
@@ -656,13 +674,19 @@ public class GuardEnemy : MonoBehaviour
                     detectionHeight &&
                 HasClearLineOfSightToPlayer())
             {
+                /*
+                 * Вот здесь Guard САМ увидел игрока.
+                 */
+                detectedPlayerNaturally = true;
+
                 chasingPlayer = true;
 
                 CancelPatrolPause();
                 StopHorizontalMovement();
 
                 UpdateChaseSprite();
-                PlayDetectSound();
+
+                PlayNaturalDetectionVoices();
             }
         }
         else
@@ -676,6 +700,39 @@ public class GuardEnemy : MonoBehaviour
             {
                 StopChasingPlayer();
             }
+        }
+    }
+
+    // ============================================================
+    // DETECT + CHASE VOICES
+    // ============================================================
+
+    private void PlayNaturalDetectionVoices()
+    {
+        if (!detectedPlayerNaturally)
+            return;
+
+        if (!detectionVoicePlayed)
+        {
+            PlayDetectSound();
+
+            detectionVoicePlayed = true;
+        }
+
+        if (!chaseVoicePlayed &&
+            chaseClip != null)
+        {
+            if (chaseVoiceCoroutine != null)
+            {
+                StopCoroutine(
+                    chaseVoiceCoroutine
+                );
+            }
+
+            chaseVoiceCoroutine =
+                StartCoroutine(
+                    ChaseVoiceAfterDelayRoutine()
+                );
         }
     }
 
@@ -697,6 +754,49 @@ public class GuardEnemy : MonoBehaviour
             detectClip,
             detectVolume
         );
+    }
+
+    private IEnumerator ChaseVoiceAfterDelayRoutine()
+    {
+        if (chaseVoiceDelay > 0f)
+        {
+            yield return new WaitForSeconds(
+                chaseVoiceDelay
+            );
+        }
+
+        /*
+         * За время задержки игрок мог:
+         * - умереть;
+         * - исчезнуть;
+         * - ударить Guard;
+         * - Guard мог потерять игрока.
+         *
+         * В этих случаях Chase Voice не нужен.
+         */
+        if (isDead ||
+            !chasingPlayer ||
+            !detectedPlayerNaturally ||
+            player == null ||
+            (playerHealth != null &&
+             playerHealth.IsDead))
+        {
+            chaseVoiceCoroutine = null;
+            yield break;
+        }
+
+        if (sfxSource != null &&
+            chaseClip != null)
+        {
+            sfxSource.PlayOneShot(
+                chaseClip,
+                chaseVolume
+            );
+
+            chaseVoicePlayed = true;
+        }
+
+        chaseVoiceCoroutine = null;
     }
 
     // ============================================================
@@ -943,6 +1043,15 @@ public class GuardEnemy : MonoBehaviour
             attackCoroutine = null;
         }
 
+        if (chaseVoiceCoroutine != null)
+        {
+            StopCoroutine(
+                chaseVoiceCoroutine
+            );
+
+            chaseVoiceCoroutine = null;
+        }
+
         attackBusy = false;
 
         StopHorizontalMovement();
@@ -1031,37 +1140,24 @@ public class GuardEnemy : MonoBehaviour
 
         StopHorizontalMovement();
 
-        /*
-         * Смотрит перед собой,
-         * а не в стену.
-         */
         SetIdleFrontSprite();
 
         yield return new WaitForSeconds(
             pauseBeforeBlink
         );
 
-        /*
-         * Моргает.
-         */
         SetBlinkSprite();
 
         yield return new WaitForSeconds(
             blinkDuration
         );
 
-        /*
-         * Снова смотрит перед собой.
-         */
         SetIdleFrontSprite();
 
         yield return new WaitForSeconds(
             pauseAfterBlink
         );
 
-        /*
-         * Разворачивается.
-         */
         movingRight =
             !movingRight;
 
@@ -1103,6 +1199,15 @@ public class GuardEnemy : MonoBehaviour
             );
 
             attackCoroutine = null;
+        }
+
+        if (chaseVoiceCoroutine != null)
+        {
+            StopCoroutine(
+                chaseVoiceCoroutine
+            );
+
+            chaseVoiceCoroutine = null;
         }
 
         attackBusy = false;
@@ -1380,9 +1485,17 @@ public class GuardEnemy : MonoBehaviour
             );
         }
 
+        if (chaseVoiceCoroutine != null)
+        {
+            StopCoroutine(
+                chaseVoiceCoroutine
+            );
+        }
+
         hitBlinkCoroutine = null;
         knockbackCoroutine = null;
         attackCoroutine = null;
+        chaseVoiceCoroutine = null;
 
         chasingPlayer = false;
         attackBusy = false;
