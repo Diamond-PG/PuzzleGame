@@ -18,13 +18,6 @@ public class PrisonBreakDoor : MonoBehaviour
     [SerializeField]
     private Collider2D doorCollider;
 
-    /*
-     * Player здесь нужен ТОЛЬКО для того,
-     * чтобы определить, в какую сторону
-     * визуально прогибать дверь при ударе.
-     *
-     * Он больше НЕ отвечает за сам удар.
-     */
     [SerializeField]
     private Transform player;
 
@@ -217,7 +210,7 @@ public class PrisonBreakDoor : MonoBehaviour
     private int finalHitHapticMs = 100;
 
     // ============================================================
-    // AUDIO
+    // DOOR AUDIO
     // ============================================================
 
     [Header("DOOR AUDIO")]
@@ -238,6 +231,61 @@ public class PrisonBreakDoor : MonoBehaviour
     [Range(0f, 1f)]
     [SerializeField]
     private float breakVolume = 1f;
+
+    // ============================================================
+    // PLAYER CELEBRATION AUDIO
+    // ============================================================
+
+    [Header("PLAYER CELEBRATION AUDIO")]
+
+    [Tooltip(
+        "Включить радостный крик героя " +
+        "после полного разрушения двери."
+    )]
+    [SerializeField]
+    private bool usePlayerCelebrationSound = true;
+
+    [Tooltip(
+        "Отдельный AudioSource для голоса героя. " +
+        "Можно оставить None — тогда используется Door AudioSource."
+    )]
+    [SerializeField]
+    private AudioSource playerCelebrationAudioSource;
+
+    [Tooltip(
+        "Радостный крик героя, например 'Woo-hoo!'."
+    )]
+    [SerializeField]
+    private AudioClip playerCelebrationSound;
+
+    [Tooltip(
+        "Громкость радостного крика героя."
+    )]
+    [SerializeField, Range(0f, 1f)]
+    private float playerCelebrationVolume = 1f;
+
+    [Tooltip(
+        "Задержка после разрушения двери до крика героя. " +
+        "Позволяет точно попасть в момент, когда он поднимает руки."
+    )]
+    [SerializeField, Min(0f)]
+    private float playerCelebrationDelay = 0f;
+
+    // ============================================================
+    // EDITOR TESTING
+    // ============================================================
+
+    [Header("EDITOR TEST START")]
+
+    [Tooltip(
+        "Только для тестирования в Unity Editor. " +
+        "Если включено, вступление в темнице пропускается, " +
+        "дверь сразу считается разрушенной, а герой начинает " +
+        "в обычном игровом состоянии там, куда он установлен в Scene. " +
+        "В собранной игре этот переключатель игнорируется."
+    )]
+    [SerializeField]
+    private bool skipPrisonIntroForTesting = false;
 
     // ============================================================
     // DEBUG
@@ -320,6 +368,18 @@ public class PrisonBreakDoor : MonoBehaviour
             originalLocalRotation =
                 doorVisual.localRotation;
         }
+
+        /*
+         * Устанавливаем тестовое состояние уже в Awake.
+         *
+         * Благодаря этому PlayerVisual в своём Start()
+         * сразу увидит IsBroken = true и включит обычный
+         * спрайт без грустного лица и без празднования.
+         */
+        if (ShouldSkipPrisonIntroForTesting())
+        {
+            ApplyBrokenStateForTesting();
+        }
     }
 
     // ============================================================
@@ -328,7 +388,95 @@ public class PrisonBreakDoor : MonoBehaviour
 
     private void Start()
     {
+        if (ShouldSkipPrisonIntroForTesting())
+        {
+            /*
+             * Повторно закрепляем тестовое состояние,
+             * чтобы другие Start-методы не восстановили дверь.
+             */
+            ApplyBrokenStateForTesting();
+            return;
+        }
+
         ResetDoorState();
+    }
+
+    // ============================================================
+    // EDITOR TESTING
+    // ============================================================
+
+    private bool ShouldSkipPrisonIntroForTesting()
+    {
+        /*
+         * В собранной игре Application.isEditor будет false.
+         * Поэтому даже забытая галочка не пропустит вступление.
+         */
+        return
+            Application.isEditor &&
+            skipPrisonIntroForTesting;
+    }
+
+    private void ApplyBrokenStateForTesting()
+    {
+        StopAllCoroutines();
+
+        hits =
+            hitsToBreak;
+
+        isBusy =
+            false;
+
+        isBroken =
+            true;
+
+        if (doorVisual != null)
+        {
+            doorVisual.localPosition =
+                originalLocalPosition;
+
+            doorVisual.localScale =
+                originalLocalScale;
+
+            doorVisual.localRotation =
+                originalLocalRotation;
+        }
+
+        if (doorSpriteRenderer != null)
+        {
+            doorSpriteRenderer.enabled =
+                true;
+
+            doorSpriteRenderer.color =
+                Color.white;
+
+            if (brokenSprite != null)
+            {
+                doorSpriteRenderer.sprite =
+                    brokenSprite;
+            }
+        }
+
+        if (doorCollider != null)
+        {
+            doorCollider.enabled =
+                false;
+        }
+
+        if (blackBackground != null)
+        {
+            blackBackground.SetActive(
+                false
+            );
+        }
+
+        if (debugLogs)
+        {
+            Debug.Log(
+                "PrisonBreakDoor: включён тестовый старт. " +
+                "Вступление пропущено, дверь считается разрушенной.",
+                this
+            );
+        }
     }
 
     // ============================================================
@@ -389,6 +537,11 @@ public class PrisonBreakDoor : MonoBehaviour
         if (chipFadeDuration < 0.01f)
         {
             chipFadeDuration = 0.01f;
+        }
+
+        if (playerCelebrationDelay < 0f)
+        {
+            playerCelebrationDelay = 0f;
         }
     }
 
@@ -470,15 +623,6 @@ public class PrisonBreakDoor : MonoBehaviour
     // NEW LEG ATTACK SYSTEM
     // ============================================================
 
-    /*
-     * Этот метод вызывается LegAttackButton.
-     *
-     * Дверь больше НЕ реагирует:
-     * - на тап непосредственно по двери;
-     * - на клик мышкой по двери.
-     *
-     * Только кнопка ноги.
-     */
     public void ReceiveKick(
         int damage
     )
@@ -509,13 +653,6 @@ public class PrisonBreakDoor : MonoBehaviour
     {
         isBusy = true;
 
-        /*
-         * Impact Delay здесь больше нет.
-         *
-         * Его уже контролирует общий
-         * LegAttackButton.
-         */
-
         hits +=
             Mathf.Max(
                 1,
@@ -538,10 +675,6 @@ public class PrisonBreakDoor : MonoBehaviour
                 this
             );
         }
-
-        // ========================================================
-        // NORMAL HIT
-        // ========================================================
 
         if (hits <
             hitsToBreak)
@@ -579,16 +712,6 @@ public class PrisonBreakDoor : MonoBehaviour
                 )
             );
 
-            /*
-             * Например:
-             *
-             * hitsToBreak = 8
-             * damagedSpriteHit = 4
-             *
-             * На четвёртом ударе
-             * появляется повреждённая дверь
-             * и две маленькие щепки.
-             */
             if (hits ==
                 damagedSpriteHit)
             {
@@ -602,11 +725,6 @@ public class PrisonBreakDoor : MonoBehaviour
                 SpawnDamagedHitChips();
             }
         }
-
-        // ========================================================
-        // FINAL HIT
-        // ========================================================
-
         else
         {
             PlayBreakHaptic();
@@ -636,10 +754,6 @@ public class PrisonBreakDoor : MonoBehaviour
                     brokenSprite;
             }
 
-            /*
-             * После разрушения убираем
-             * чёрный фон за дверью.
-             */
             if (blackBackground != null)
             {
                 blackBackground.SetActive(
@@ -649,9 +763,6 @@ public class PrisonBreakDoor : MonoBehaviour
 
             SpawnFinalBreakChips();
 
-            /*
-             * Открываем физический проход.
-             */
             if (doorCollider != null)
             {
                 doorCollider.enabled =
@@ -661,6 +772,14 @@ public class PrisonBreakDoor : MonoBehaviour
             isBroken =
                 true;
 
+            if (usePlayerCelebrationSound &&
+                playerCelebrationSound != null)
+            {
+                StartCoroutine(
+                    PlayPlayerCelebrationSoundRoutine()
+                );
+            }
+
             if (debugLogs)
             {
                 Debug.Log(
@@ -669,10 +788,6 @@ public class PrisonBreakDoor : MonoBehaviour
                 );
             }
         }
-
-        // ========================================================
-        // RESET VISUAL TRANSFORM
-        // ========================================================
 
         if (doorVisual != null)
         {
@@ -688,6 +803,61 @@ public class PrisonBreakDoor : MonoBehaviour
 
         isBusy =
             false;
+    }
+
+    // ============================================================
+    // PLAYER CELEBRATION SOUND
+    // ============================================================
+
+    private IEnumerator PlayPlayerCelebrationSoundRoutine()
+    {
+        if (playerCelebrationDelay > 0f)
+        {
+            yield return new WaitForSeconds(
+                playerCelebrationDelay
+            );
+        }
+
+        if (playerCelebrationSound == null)
+        {
+            yield break;
+        }
+
+        if (playerCelebrationAudioSource != null)
+        {
+            playerCelebrationAudioSource.PlayOneShot(
+                playerCelebrationSound,
+                playerCelebrationVolume
+            );
+        }
+        else if (audioSource != null)
+        {
+            audioSource.PlayOneShot(
+                playerCelebrationSound,
+                playerCelebrationVolume
+            );
+        }
+        else
+        {
+            Vector3 soundPosition =
+                player != null
+                    ? player.position
+                    : transform.position;
+
+            AudioSource.PlayClipAtPoint(
+                playerCelebrationSound,
+                soundPosition,
+                playerCelebrationVolume
+            );
+        }
+
+        if (debugLogs)
+        {
+            Debug.Log(
+                "Player celebration sound played.",
+                this
+            );
+        }
     }
 
     // ============================================================
@@ -717,11 +887,6 @@ public class PrisonBreakDoor : MonoBehaviour
 
         float timer = 0f;
 
-        /*
-         * Определяем сторону Player,
-         * чтобы дверь визуально прогибалась
-         * ОТ удара.
-         */
         float direction = 1f;
 
         if (player != null)
@@ -745,12 +910,6 @@ public class PrisonBreakDoor : MonoBehaviour
                     safeDuration
                 );
 
-            /*
-             * 0 -> 1 -> 0
-             *
-             * Дверь быстро деформируется
-             * и возвращается обратно.
-             */
             float punch =
                 Mathf.Sin(
                     t *
@@ -1040,10 +1199,6 @@ public class PrisonBreakDoor : MonoBehaviour
                 30f
             );
 
-        // ========================================================
-        // LAUNCH
-        // ========================================================
-
         float safeLaunchDuration =
             Mathf.Max(
                 0.01f,
@@ -1094,10 +1249,6 @@ public class PrisonBreakDoor : MonoBehaviour
 
             yield return null;
         }
-
-        // ========================================================
-        // FALL
-        // ========================================================
 
         Vector3 fallStartPosition =
             chip.transform.position;
@@ -1187,20 +1338,12 @@ public class PrisonBreakDoor : MonoBehaviour
                 endRotation
             );
 
-        // ========================================================
-        // STAY
-        // ========================================================
-
         if (chipStayDuration > 0f)
         {
             yield return new WaitForSeconds(
                 chipStayDuration
             );
         }
-
-        // ========================================================
-        // FADE
-        // ========================================================
 
         float safeFadeDuration =
             Mathf.Max(

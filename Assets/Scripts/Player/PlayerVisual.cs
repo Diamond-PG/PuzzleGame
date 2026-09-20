@@ -1,230 +1,1176 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class PlayerVisual : MonoBehaviour
 {
-    [Header("References")]
-    [SerializeField] private SpriteRenderer spriteRenderer;
-    [SerializeField] private Rigidbody2D rb;
-    [SerializeField] private PlayerController playerController;
+    // ============================================================
+    // REFERENCES
+    // ============================================================
 
-    [Header("Sprites")]
-    [SerializeField] private Sprite idleSprite;
-    [SerializeField] private Sprite blinkSprite;
-    [SerializeField] private Sprite lookRightSprite;
-    [SerializeField] private Sprite lookUpSprite;
-    [SerializeField] private Sprite lookLeftSprite;
-    [SerializeField] private Sprite lookDownSprite;
-    [SerializeField] private Sprite hurtSprite;
+    [Header("REFERENCES")]
 
-    [Header("Kick Sprites")]
-    [SerializeField] private Sprite kickRightSprite;
-    [SerializeField] private Sprite kickLeftSprite;
+    [SerializeField]
+    private SpriteRenderer spriteRenderer;
 
-    [Header("Look Settings")]
-    [SerializeField] private float movementThreshold = 0.05f;
-    [SerializeField] private float returnToIdleDelay = 0.20f;
+    [SerializeField]
+    private Rigidbody2D rb;
 
-    [Header("Jump / Fall Look")]
-    [SerializeField] private float jumpLookUpVelocity = 0.15f;
-    [SerializeField] private float fallLookDownVelocity = -0.15f;
+    [SerializeField]
+    private PlayerController playerController;
 
-    [Header("Blink Settings")]
-    [SerializeField] private float blinkInterval = 2.2f;
-    [SerializeField] private float blinkDuration = 0.1f;
+    [SerializeField]
+    private PlayerJump playerJump;
 
-    [Header("Hurt Settings")]
-    [SerializeField] private float hurtDuration = 0.45f;
+    [SerializeField]
+    private PrisonBreakDoor prisonBreakDoor;
 
-    private enum LookDirection
+
+    // ============================================================
+    // NORMAL IDLE
+    // ============================================================
+
+    [Header("NORMAL IDLE")]
+
+    [FormerlySerializedAs("idleSprite")]
+    [SerializeField]
+    private Sprite idleSprite;
+
+    [FormerlySerializedAs("blinkSprite")]
+    [SerializeField]
+    private Sprite idleBlinkSprite;
+
+
+    // ============================================================
+    // WALK LEFT
+    // ============================================================
+
+    [Header("WALK LEFT")]
+
+    [FormerlySerializedAs("lookLeftSprite")]
+    [SerializeField]
+    private Sprite walkLeftSprite;
+
+    [SerializeField]
+    private Sprite walkLeftBlinkSprite;
+
+
+    // ============================================================
+    // WALK RIGHT
+    // ============================================================
+
+    [Header("WALK RIGHT")]
+
+    [FormerlySerializedAs("lookRightSprite")]
+    [SerializeField]
+    private Sprite walkRightSprite;
+
+    [SerializeField]
+    private Sprite walkRightBlinkSprite;
+
+
+    // ============================================================
+    // JUMP / FALL
+    // ============================================================
+
+    [Header("JUMP / FALL")]
+
+    [FormerlySerializedAs("lookUpSprite")]
+    [SerializeField]
+    private Sprite jumpSprite;
+
+    [FormerlySerializedAs("lookDownSprite")]
+    [SerializeField]
+    private Sprite fallSprite;
+
+    [SerializeField, Min(0f)]
+    private float fallVisualDelay = 0.08f;
+
+    [SerializeField]
+    private float fallVelocityThreshold = -0.10f;
+
+
+    // ============================================================
+    // HURT
+    // ============================================================
+
+    [Header("HURT")]
+
+    [FormerlySerializedAs("hurtSprite")]
+    [SerializeField]
+    private Sprite hurtSprite;
+
+    [SerializeField]
+    private float hurtDuration = 0.45f;
+
+
+    // ============================================================
+    // KICK
+    // ============================================================
+
+    [Header("KICK SPRITES")]
+
+    [SerializeField]
+    private Sprite kickRightSprite;
+
+    [SerializeField]
+    private Sprite kickLeftSprite;
+
+
+    // ============================================================
+    // SWORD - JUMP / FALL
+    // ============================================================
+
+    [Header("SWORD - JUMP / FALL")]
+
+    [Tooltip("Игрок прыгает с экипированным мечом.")]
+    [SerializeField]
+    private Sprite swordJumpSprite;
+
+    [Tooltip("Игрок падает с экипированным мечом.")]
+    [SerializeField]
+    private Sprite swordFallSprite;
+
+
+    // ============================================================
+    // SWORD - HURT
+    // ============================================================
+
+    [Header("SWORD - HURT")]
+
+    [SerializeField]
+    private Sprite swordHurtLeftSprite;
+
+    [SerializeField]
+    private Sprite swordHurtRightSprite;
+
+
+    // ============================================================
+    // SWORD - KICK
+    // ============================================================
+
+    [Header("SWORD - KICK")]
+
+    [SerializeField]
+    private Sprite swordKickRightSprite;
+
+    [SerializeField]
+    private Sprite swordKickLeftSprite;
+
+
+    // ============================================================
+    // SWORD - IDLE LEFT
+    // ============================================================
+
+    [Header("SWORD - IDLE LEFT")]
+
+    [FormerlySerializedAs("swordIdleSprite")]
+    [SerializeField]
+    private Sprite swordIdleLeftSprite;
+
+    [SerializeField]
+    private Sprite swordIdleLeftBlinkSprite;
+
+
+    // ============================================================
+    // SWORD - IDLE RIGHT
+    // ============================================================
+
+    [Header("SWORD - IDLE RIGHT")]
+
+    [SerializeField]
+    private Sprite swordIdleRightSprite;
+
+    [SerializeField]
+    private Sprite swordIdleRightBlinkSprite;
+
+
+    // ============================================================
+    // SWORD - WALK LEFT
+    // ============================================================
+
+    [Header("SWORD - WALK LEFT")]
+
+    [SerializeField]
+    private Sprite swordWalkLeftSprite;
+
+    [SerializeField]
+    private Sprite swordWalkLeftBlinkSprite;
+
+
+    // ============================================================
+    // SWORD - WALK RIGHT
+    // ============================================================
+
+    [Header("SWORD - WALK RIGHT")]
+
+    [SerializeField]
+    private Sprite swordWalkRightSprite;
+
+    [SerializeField]
+    private Sprite swordWalkRightBlinkSprite;
+
+
+    // ============================================================
+    // SWORD - ATTACK
+    // ============================================================
+
+    [Header("SWORD - ATTACK")]
+
+    [SerializeField]
+    private Sprite swordSwingLeftSprite;
+
+    [SerializeField]
+    private Sprite swordSwingRightSprite;
+
+    [SerializeField]
+    private Sprite swordStrikeLeftSprite;
+
+    [SerializeField]
+    private Sprite swordStrikeRightSprite;
+
+
+    // ============================================================
+    // PRISON
+    // ============================================================
+
+    [Header("PRISON BEFORE DOOR BREAK")]
+
+    [SerializeField]
+    private Sprite prisonSadSprite;
+
+    [SerializeField]
+    private Sprite prisonSadBlinkSprite;
+
+
+    // ============================================================
+    // DOOR BREAK
+    // ============================================================
+
+    [Header("DOOR BREAK REACTION")]
+
+    [SerializeField]
+    private Sprite doorBreakReactionSprite;
+
+    [SerializeField, Min(0f)]
+    private float doorBreakReactionDuration = 0.85f;
+
+
+    // ============================================================
+    // CLIMB UP
+    // ============================================================
+
+    [Header("CLIMB UP")]
+
+    [SerializeField]
+    private Sprite climbUpLeftSprite;
+
+    [SerializeField]
+    private Sprite climbUpRightSprite;
+
+    [SerializeField]
+    private Sprite climbUpLeftBlinkSprite;
+
+    [SerializeField]
+    private Sprite climbUpRightBlinkSprite;
+
+
+    // ============================================================
+    // CLIMB DOWN
+    // ============================================================
+
+    [Header("CLIMB DOWN")]
+
+    [SerializeField]
+    private Sprite climbDownLeftSprite;
+
+    [SerializeField]
+    private Sprite climbDownRightSprite;
+
+    [SerializeField]
+    private Sprite climbDownLeftBlinkSprite;
+
+    [SerializeField]
+    private Sprite climbDownRightBlinkSprite;
+
+
+    // ============================================================
+    // MOVEMENT
+    // ============================================================
+
+    [Header("MOVEMENT SETTINGS")]
+
+    [SerializeField]
+    private float movementThreshold = 0.05f;
+
+
+    // ============================================================
+    // BLINK
+    // ============================================================
+
+    [Header("BLINK SETTINGS")]
+
+    [SerializeField]
+    private float blinkInterval = 2.2f;
+
+    [SerializeField]
+    private float blinkDuration = 0.1f;
+
+    [SerializeField]
+    private Vector2 blinkRandomDelay =
+        new Vector2(
+            0.1f,
+            0.5f
+        );
+
+
+    // ============================================================
+    // CLIMB EXIT
+    // ============================================================
+
+    [Header("CLIMB SETTINGS")]
+
+    [SerializeField, Min(0f)]
+    private float climbExitVisualGrace = 0.10f;
+
+
+    // ============================================================
+    // STATE
+    // ============================================================
+
+    private enum VisualState
     {
         Idle,
-        Down,
-        Right,
-        Up,
-        Left
+        WalkLeft,
+        WalkRight,
+        Jump,
+        Fall,
+        ClimbUp,
+        ClimbDown
     }
 
-    private LookDirection currentDirection =
-        LookDirection.Idle;
+    private VisualState currentState =
+        VisualState.Idle;
 
     private bool isBlinking;
     private bool isHurt;
-    private bool isClimbing;
     private bool isKicking;
+    private bool isClimbing;
+    private bool isCelebrating;
+
+    private bool swordEquipped;
+    private bool swordFacingRight;
+    private bool isSwordAttacking;
+
+    private Sprite activeSwordAttackSprite;
+
+    private bool climbHookOnRight;
+    private float climbVertical;
+
+    private bool prisonWasLocked;
 
     private float nextBlinkTime;
-    private float lastInputTime;
+    private float climbExitGraceUntil;
+
+    private float ungroundedSince =
+        -1f;
 
     private Sprite activeKickSprite;
 
     private Coroutine blinkRoutine;
     private Coroutine hurtRoutine;
+    private Coroutine celebrationRoutine;
 
-    public bool IsKicking => isKicking;
+
+    // ============================================================
+    // PUBLIC
+    // ============================================================
+
+    public bool IsKicking =>
+        isKicking;
+
+    public bool IsCelebrating =>
+        isCelebrating;
+
+    public bool IsClimbing =>
+        isClimbing;
+
+    public bool IsSwordEquipped =>
+        swordEquipped;
+
+    public bool IsSwordAttacking =>
+        isSwordAttacking;
+
+    public bool SwordFacingRight =>
+        swordFacingRight;
+
+    public bool GameplayActionsLocked =>
+        isCelebrating;
+
+
+    // ============================================================
+    // AWAKE
+    // ============================================================
 
     private void Awake()
     {
         if (spriteRenderer == null)
-            spriteRenderer = GetComponent<SpriteRenderer>();
+        {
+            spriteRenderer =
+                GetComponent<SpriteRenderer>();
+        }
 
         if (rb == null)
-            rb = GetComponent<Rigidbody2D>();
+        {
+            rb =
+                GetComponent<Rigidbody2D>();
+        }
 
         if (playerController == null)
-            playerController = GetComponent<PlayerController>();
+        {
+            playerController =
+                GetComponent<PlayerController>();
+        }
+
+        if (playerJump == null)
+        {
+            playerJump =
+                GetComponent<PlayerJump>();
+        }
+
+        if (prisonBreakDoor == null)
+        {
+            prisonBreakDoor =
+                FindFirstObjectByType<
+                    PrisonBreakDoor
+                >();
+        }
     }
+
+
+    // ============================================================
+    // START
+    // ============================================================
 
     private void Start()
     {
-        currentDirection =
-            LookDirection.Idle;
+        currentState =
+            VisualState.Idle;
 
-        SetIdleSprite();
+        swordEquipped =
+            false;
+
+        swordFacingRight =
+            false;
+
+        prisonWasLocked =
+            IsPrisonLocked();
+
+        if (prisonWasLocked)
+        {
+            SetSprite(
+                prisonSadSprite
+            );
+        }
+        else
+        {
+            SetSprite(
+                idleSprite
+            );
+        }
+
         ScheduleBlink();
     }
 
+
+    // ============================================================
+    // UPDATE
+    // ============================================================
+
     private void Update()
     {
-        /*
-         * Пока игрок бьёт ногой,
-         * никакая обычная визуальная логика
-         * не должна перебивать Kick Sprite.
-         */
+        UpdatePrisonDoorState();
+
         if (isKicking)
+            return;
+
+        if (isCelebrating)
             return;
 
         if (isHurt)
             return;
 
-        UpdateLookDirection();
-        HandleBlink();
-    }
-
-    private void LateUpdate()
-    {
-        /*
-         * Даже если какой-либо другой скрипт
-         * попытается поменять спрайт во время удара,
-         * Kick Sprite снова ставится в конце кадра.
-         *
-         * При этом PlayerHealth всё ещё может
-         * включать/выключать SpriteRenderer,
-         * поэтому моргание после урона продолжится.
-         */
-        if (!isKicking)
+        if (isSwordAttacking)
             return;
 
-        if (spriteRenderer == null)
-            return;
-
-        if (activeKickSprite == null)
-            return;
-
-        if (spriteRenderer.sprite !=
-            activeKickSprite)
+        if (IsPrisonLocked())
         {
-            spriteRenderer.sprite =
-                activeKickSprite;
-        }
-    }
-
-    private void UpdateLookDirection()
-    {
-        if (isClimbing)
-            return;
-
-        if (rb != null)
-        {
-            if (rb.linearVelocity.y >
-                jumpLookUpVelocity)
-            {
-                currentDirection =
-                    LookDirection.Up;
-
-                if (!isBlinking)
-                {
-                    SetDirectionSprite(
-                        currentDirection
-                    );
-                }
-
-                return;
-            }
-
-            if (rb.linearVelocity.y <
-                fallLookDownVelocity)
-            {
-                currentDirection =
-                    LookDirection.Down;
-
-                if (!isBlinking)
-                {
-                    SetDirectionSprite(
-                        currentDirection
-                    );
-                }
-
-                return;
-            }
-        }
-
-        if (playerController == null)
-            return;
-
-        Vector2 input =
-            playerController.GetInput();
-
-        if (input.magnitude >
-            movementThreshold)
-        {
-            lastInputTime =
-                Time.time;
-
-            if (Mathf.Abs(input.x) >
-                Mathf.Abs(input.y))
-            {
-                currentDirection =
-                    input.x > 0f
-                        ? LookDirection.Right
-                        : LookDirection.Left;
-            }
-            else
-            {
-                currentDirection =
-                    input.y > 0f
-                        ? LookDirection.Up
-                        : LookDirection.Down;
-            }
+            currentState =
+                VisualState.Idle;
 
             if (!isBlinking)
             {
-                SetDirectionSprite(
-                    currentDirection
+                SetSprite(
+                    prisonSadSprite
                 );
             }
 
+            HandleBlink();
             return;
         }
 
-        if (Time.time -
-            lastInputTime >=
-            returnToIdleDelay)
+        if (isClimbing)
         {
-            currentDirection =
-                LookDirection.Idle;
+            UpdateClimbVisual();
+            HandleBlink();
 
-            if (!isBlinking)
-            {
-                SetIdleSprite();
-            }
+            return;
+        }
+
+        if (Time.time <
+            climbExitGraceUntil)
+        {
+            return;
+        }
+
+        UpdateNormalState();
+        HandleBlink();
+    }
+
+
+    // ============================================================
+    // LATE UPDATE
+    // ============================================================
+
+    private void LateUpdate()
+    {
+        if (isKicking &&
+            spriteRenderer != null &&
+            activeKickSprite != null)
+        {
+            spriteRenderer.sprite =
+                activeKickSprite;
+
+            return;
+        }
+
+        if (isCelebrating &&
+            spriteRenderer != null &&
+            doorBreakReactionSprite != null)
+        {
+            spriteRenderer.sprite =
+                doorBreakReactionSprite;
+
+            return;
+        }
+
+        if (isSwordAttacking &&
+            spriteRenderer != null &&
+            activeSwordAttackSprite != null)
+        {
+            spriteRenderer.sprite =
+                activeSwordAttackSprite;
         }
     }
 
+
+    // ============================================================
+    // SWORD EQUIPMENT
+    // ============================================================
+
+    public void SetSwordEquipped(
+        bool equipped
+    )
+    {
+        if (swordEquipped ==
+            equipped)
+        {
+            return;
+        }
+
+        if (!equipped &&
+            isSwordAttacking)
+        {
+            ClearSwordAttackState();
+        }
+
+        swordEquipped =
+            equipped;
+
+        StopBlinkRoutine();
+
+        if (isKicking ||
+            isHurt ||
+            isCelebrating ||
+            IsPrisonLocked() ||
+            isClimbing ||
+            Time.time <
+                climbExitGraceUntil)
+        {
+            ScheduleBlink();
+            return;
+        }
+
+        UpdateNormalState();
+        ScheduleBlink();
+    }
+
+
+    // ============================================================
+    // SWORD ATTACK VISUAL
+    // ============================================================
+
+    public void PlaySwordSwingLeft()
+    {
+        PlaySwordSwing(
+            false
+        );
+    }
+
+    public void PlaySwordSwingRight()
+    {
+        PlaySwordSwing(
+            true
+        );
+    }
+
+    public void PlaySwordSwing(
+        bool attackRight
+    )
+    {
+        /*
+         * НОВОЕ:
+         *
+         * Если Player только что получил урон
+         * и сейчас показывает Hurt-спрайт,
+         * нажатие меча сразу прекращает Hurt-визуал.
+         *
+         * PlayerHealth / invulnerability /
+         * мигание здоровья здесь НЕ отключаются.
+         */
+        CancelHurtForAction();
+
+        if (!CanShowSwordAttack())
+        {
+            return;
+        }
+
+        swordFacingRight =
+            attackRight;
+
+        Sprite target =
+            attackRight
+                ? swordSwingRightSprite
+                : swordSwingLeftSprite;
+
+        if (target == null)
+        {
+            return;
+        }
+
+        StopBlinkRoutine();
+
+        isSwordAttacking =
+            true;
+
+        activeSwordAttackSprite =
+            target;
+
+        SetSprite(
+            target
+        );
+    }
+
+    public void PlaySwordStrikeLeft()
+    {
+        PlaySwordStrike(
+            false
+        );
+    }
+
+    public void PlaySwordStrikeRight()
+    {
+        PlaySwordStrike(
+            true
+        );
+    }
+
+    public void PlaySwordStrike(
+        bool attackRight
+    )
+    {
+        CancelHurtForAction();
+
+        if (!CanShowSwordAttack())
+        {
+            return;
+        }
+
+        swordFacingRight =
+            attackRight;
+
+        Sprite target =
+            attackRight
+                ? swordStrikeRightSprite
+                : swordStrikeLeftSprite;
+
+        if (target == null)
+        {
+            return;
+        }
+
+        StopBlinkRoutine();
+
+        isSwordAttacking =
+            true;
+
+        activeSwordAttackSprite =
+            target;
+
+        SetSprite(
+            target
+        );
+    }
+
+    public void EndSwordAttackVisual()
+    {
+        if (!isSwordAttacking)
+        {
+            return;
+        }
+
+        ClearSwordAttackState();
+
+        if (!isKicking &&
+            !isHurt &&
+            !isCelebrating &&
+            !IsPrisonLocked() &&
+            !isClimbing)
+        {
+            RestoreCurrentSprite();
+            ScheduleBlink();
+        }
+    }
+
+    public void CancelSwordAttackVisual()
+    {
+        EndSwordAttackVisual();
+    }
+
+    private bool CanShowSwordAttack()
+    {
+        if (spriteRenderer == null)
+        {
+            return false;
+        }
+
+        if (!swordEquipped)
+        {
+            return false;
+        }
+
+        if (isKicking ||
+            isHurt ||
+            isCelebrating ||
+            IsPrisonLocked() ||
+            isClimbing ||
+            Time.time <
+                climbExitGraceUntil)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    private void ClearSwordAttackState()
+    {
+        isSwordAttacking =
+            false;
+
+        activeSwordAttackSprite =
+            null;
+    }
+
+
+    // ============================================================
+    // CANCEL HURT FOR PLAYER ACTION
+    // ============================================================
+
+    private void CancelHurtForAction()
+    {
+        if (!isHurt &&
+            hurtRoutine == null)
+        {
+            return;
+        }
+
+        if (hurtRoutine != null)
+        {
+            StopCoroutine(
+                hurtRoutine
+            );
+
+            hurtRoutine =
+                null;
+        }
+
+        isHurt =
+            false;
+    }
+
+
+    // ============================================================
+    // PRISON
+    // ============================================================
+
+    private bool IsPrisonLocked()
+    {
+        return
+            prisonBreakDoor != null &&
+            !prisonBreakDoor.IsBroken;
+    }
+
+    private void UpdatePrisonDoorState()
+    {
+        bool lockedNow =
+            IsPrisonLocked();
+
+        if (prisonWasLocked &&
+            !lockedNow)
+        {
+            StartDoorBreakReaction();
+        }
+
+        prisonWasLocked =
+            lockedNow;
+    }
+
+
+    // ============================================================
+    // NORMAL STATE
+    // ============================================================
+
+    private void UpdateNormalState()
+    {
+        bool grounded =
+            playerJump != null
+                ? playerJump.IsGrounded()
+                : true;
+
+        if (playerJump != null &&
+            playerJump.IsJumpInProgress)
+        {
+            ungroundedSince =
+                -1f;
+
+            if (rb != null &&
+                rb.linearVelocity.y <
+                fallVelocityThreshold)
+            {
+                currentState =
+                    VisualState.Fall;
+            }
+            else
+            {
+                currentState =
+                    VisualState.Jump;
+            }
+
+            if (!isBlinking)
+            {
+                ApplyCurrentSprite();
+            }
+
+            return;
+        }
+
+        if (!grounded)
+        {
+            if (ungroundedSince < 0f)
+            {
+                ungroundedSince =
+                    Time.time;
+            }
+
+            bool delayPassed =
+                Time.time -
+                ungroundedSince >=
+                fallVisualDelay;
+
+            bool movingDown =
+                rb == null ||
+                rb.linearVelocity.y <
+                fallVelocityThreshold;
+
+            if (delayPassed &&
+                movingDown)
+            {
+                currentState =
+                    VisualState.Fall;
+
+                if (!isBlinking)
+                {
+                    ApplyCurrentSprite();
+                }
+            }
+
+            return;
+        }
+
+        ungroundedSince =
+            -1f;
+
+        float velocityX =
+            rb != null
+                ? rb.linearVelocity.x
+                : 0f;
+
+        if (velocityX >
+            movementThreshold)
+        {
+            swordFacingRight =
+                true;
+
+            currentState =
+                VisualState.WalkRight;
+
+            if (!isBlinking)
+            {
+                ApplyCurrentSprite();
+            }
+
+            return;
+        }
+
+        if (velocityX <
+            -movementThreshold)
+        {
+            swordFacingRight =
+                false;
+
+            currentState =
+                VisualState.WalkLeft;
+
+            if (!isBlinking)
+            {
+                ApplyCurrentSprite();
+            }
+
+            return;
+        }
+
+        currentState =
+            VisualState.Idle;
+
+        if (!isBlinking)
+        {
+            ApplyCurrentSprite();
+        }
+    }
+
+
+    // ============================================================
+    // APPLY CURRENT
+    // ============================================================
+
+    private void ApplyCurrentSprite()
+    {
+        Sprite target =
+            idleSprite;
+
+        switch (currentState)
+        {
+            case VisualState.Idle:
+
+                if (swordEquipped)
+                {
+                    Sprite swordTarget =
+                        GetSwordIdleSprite(
+                            false
+                        );
+
+                    target =
+                        swordTarget != null
+                            ? swordTarget
+                            : idleSprite;
+                }
+                else
+                {
+                    target =
+                        idleSprite;
+                }
+
+                break;
+
+            case VisualState.WalkLeft:
+
+                if (swordEquipped &&
+                    swordWalkLeftSprite != null)
+                {
+                    target =
+                        swordWalkLeftSprite;
+                }
+                else
+                {
+                    target =
+                        walkLeftSprite;
+                }
+
+                break;
+
+            case VisualState.WalkRight:
+
+                if (swordEquipped &&
+                    swordWalkRightSprite != null)
+                {
+                    target =
+                        swordWalkRightSprite;
+                }
+                else
+                {
+                    target =
+                        walkRightSprite;
+                }
+
+                break;
+
+            case VisualState.Jump:
+
+                if (swordEquipped &&
+                    swordJumpSprite != null)
+                {
+                    target =
+                        swordJumpSprite;
+                }
+                else
+                {
+                    target =
+                        jumpSprite;
+                }
+
+                break;
+
+            case VisualState.Fall:
+
+                if (swordEquipped &&
+                    swordFallSprite != null)
+                {
+                    target =
+                        swordFallSprite;
+                }
+                else
+                {
+                    target =
+                        fallSprite;
+                }
+
+                break;
+
+            case VisualState.ClimbUp:
+
+                target =
+                    climbHookOnRight
+                        ? climbUpRightSprite
+                        : climbUpLeftSprite;
+
+                break;
+
+            case VisualState.ClimbDown:
+
+                target =
+                    climbHookOnRight
+                        ? climbDownRightSprite
+                        : climbDownLeftSprite;
+
+                break;
+        }
+
+        SetSprite(
+            target
+        );
+    }
+
+
+    // ============================================================
+    // SWORD IDLE HELPERS
+    // ============================================================
+
+    private Sprite GetSwordIdleSprite(
+        bool blink
+    )
+    {
+        Sprite preferred;
+        Sprite opposite;
+
+        if (swordFacingRight)
+        {
+            preferred =
+                blink
+                    ? swordIdleRightBlinkSprite
+                    : swordIdleRightSprite;
+
+            opposite =
+                blink
+                    ? swordIdleLeftBlinkSprite
+                    : swordIdleLeftSprite;
+        }
+        else
+        {
+            preferred =
+                blink
+                    ? swordIdleLeftBlinkSprite
+                    : swordIdleLeftSprite;
+
+            opposite =
+                blink
+                    ? swordIdleRightBlinkSprite
+                    : swordIdleRightSprite;
+        }
+
+        if (preferred != null)
+        {
+            return preferred;
+        }
+
+        return opposite;
+    }
+
+    private Sprite GetSwordHurtSprite()
+    {
+        Sprite preferred =
+            swordFacingRight
+                ? swordHurtRightSprite
+                : swordHurtLeftSprite;
+
+        if (preferred != null)
+        {
+            return preferred;
+        }
+
+        Sprite opposite =
+            swordFacingRight
+                ? swordHurtLeftSprite
+                : swordHurtRightSprite;
+
+        return opposite;
+    }
+
+
+    // ============================================================
+    // BLINK
+    // ============================================================
+
     private void HandleBlink()
     {
-        if (isBlinking)
+        if (isBlinking ||
+            isKicking ||
+            isHurt ||
+            isCelebrating ||
+            isSwordAttacking)
+        {
             return;
+        }
 
         if (Time.time <
             nextBlinkTime)
@@ -232,213 +1178,225 @@ public class PlayerVisual : MonoBehaviour
             return;
         }
 
+        Sprite blinkSprite =
+            GetCurrentBlinkSprite();
+
+        if (blinkSprite == null)
+        {
+            ScheduleBlink();
+            return;
+        }
+
         blinkRoutine =
             StartCoroutine(
-                BlinkRoutine()
+                BlinkRoutine(
+                    blinkSprite
+                )
             );
     }
 
-    private IEnumerator BlinkRoutine()
+    private IEnumerator BlinkRoutine(
+        Sprite blinkSprite
+    )
     {
-        isBlinking = true;
+        isBlinking =
+            true;
 
-        if (blinkSprite != null &&
-            spriteRenderer != null)
-        {
-            spriteRenderer.sprite =
-                blinkSprite;
-        }
+        SetSprite(
+            blinkSprite
+        );
 
         yield return new WaitForSeconds(
             blinkDuration
         );
 
-        isBlinking = false;
+        isBlinking =
+            false;
 
-        if (!isHurt &&
-            !isKicking)
+        if (!isKicking &&
+            !isHurt &&
+            !isCelebrating &&
+            !isSwordAttacking)
         {
             RestoreCurrentSprite();
         }
 
         ScheduleBlink();
 
-        blinkRoutine = null;
+        blinkRoutine =
+            null;
+    }
+
+    private Sprite GetCurrentBlinkSprite()
+    {
+        if (IsPrisonLocked())
+        {
+            return
+                prisonSadBlinkSprite;
+        }
+
+        if (isClimbing)
+        {
+            if (climbVertical > 0.1f)
+            {
+                return
+                    climbHookOnRight
+                        ? climbUpRightBlinkSprite
+                        : climbUpLeftBlinkSprite;
+            }
+
+            if (climbVertical < -0.1f)
+            {
+                return
+                    climbHookOnRight
+                        ? climbDownRightBlinkSprite
+                        : climbDownLeftBlinkSprite;
+            }
+
+            return null;
+        }
+
+        if (swordEquipped)
+        {
+            switch (currentState)
+            {
+                case VisualState.Idle:
+                    return
+                        GetSwordIdleSprite(
+                            true
+                        );
+
+                case VisualState.WalkLeft:
+                    return
+                        swordWalkLeftBlinkSprite;
+
+                case VisualState.WalkRight:
+                    return
+                        swordWalkRightBlinkSprite;
+            }
+
+            return null;
+        }
+
+        switch (currentState)
+        {
+            case VisualState.Idle:
+                return
+                    idleBlinkSprite;
+
+            case VisualState.WalkLeft:
+                return
+                    walkLeftBlinkSprite;
+
+            case VisualState.WalkRight:
+                return
+                    walkRightBlinkSprite;
+        }
+
+        return null;
     }
 
     private void ScheduleBlink()
     {
+        float minimum =
+            Mathf.Min(
+                blinkRandomDelay.x,
+                blinkRandomDelay.y
+            );
+
+        float maximum =
+            Mathf.Max(
+                blinkRandomDelay.x,
+                blinkRandomDelay.y
+            );
+
         nextBlinkTime =
             Time.time +
             blinkInterval +
             Random.Range(
-                0.1f,
-                0.5f
+                minimum,
+                maximum
             );
     }
 
-    private void SetIdleSprite()
+    private void StopBlinkRoutine()
     {
-        if (spriteRenderer != null &&
-            idleSprite != null)
-        {
-            spriteRenderer.sprite =
-                idleSprite;
-        }
-    }
-
-    private void SetDirectionSprite(
-        LookDirection direction
-    )
-    {
-        if (spriteRenderer == null)
-            return;
-
-        Sprite targetSprite =
-            idleSprite;
-
-        switch (direction)
-        {
-            case LookDirection.Right:
-                targetSprite =
-                    lookRightSprite;
-                break;
-
-            case LookDirection.Left:
-                targetSprite =
-                    lookLeftSprite;
-                break;
-
-            case LookDirection.Up:
-                targetSprite =
-                    lookUpSprite;
-                break;
-
-            case LookDirection.Down:
-                targetSprite =
-                    lookDownSprite;
-                break;
-
-            case LookDirection.Idle:
-                targetSprite =
-                    idleSprite;
-                break;
-        }
-
-        if (targetSprite != null)
-        {
-            spriteRenderer.sprite =
-                targetSprite;
-        }
-    }
-
-    private void RestoreCurrentSprite()
-    {
-        if (currentDirection ==
-            LookDirection.Idle)
-        {
-            SetIdleSprite();
-        }
-        else
-        {
-            SetDirectionSprite(
-                currentDirection
-            );
-        }
-    }
-
-    public void PlayKickRight()
-    {
-        PlayKick(true);
-    }
-
-    public void PlayKickLeft()
-    {
-        PlayKick(false);
-    }
-
-    public void PlayKick(
-        bool kickRight
-    )
-    {
-        if (spriteRenderer == null)
-            return;
-
-        /*
-         * ВАЖНО:
-         * раньше удар блокировался,
-         * если isHurt == true.
-         *
-         * Теперь игрок может начать удар
-         * даже во время визуальной реакции
-         * на полученный урон.
-         */
-
-        /*
-         * Если сейчас отображается Hurt Sprite,
-         * останавливаем только эту визуальную
-         * реакцию.
-         *
-         * Моргание от PlayerHealth НЕ трогаем.
-         * Оно продолжит включать и выключать
-         * SpriteRenderer как раньше.
-         */
-        if (hurtRoutine != null)
-        {
-            StopCoroutine(
-                hurtRoutine
-            );
-
-            hurtRoutine = null;
-        }
-
-        isHurt = false;
-
-        /*
-         * Обычное автоматическое моргание глаз
-         * PlayerVisual во время удара нам не нужно.
-         */
         if (blinkRoutine != null)
         {
             StopCoroutine(
                 blinkRoutine
             );
 
-            blinkRoutine = null;
+            blinkRoutine =
+                null;
         }
 
-        isBlinking = false;
-        isKicking = true;
+        isBlinking =
+            false;
+    }
 
-        activeKickSprite =
+
+    // ============================================================
+    // KICK
+    // ============================================================
+
+    public void PlayKickRight()
+    {
+        PlayKick(
+            true
+        );
+    }
+
+    public void PlayKickLeft()
+    {
+        PlayKick(
+            false
+        );
+    }
+
+    public void PlayKick(
+        bool kickRight
+    )
+    {
+        if (spriteRenderer == null ||
+            isCelebrating ||
+            isSwordAttacking)
+        {
+            return;
+        }
+
+        CancelHurtForAction();
+
+        StopBlinkRoutine();
+
+        isKicking =
+            true;
+
+        Sprite normalKickSprite =
             kickRight
                 ? kickRightSprite
                 : kickLeftSprite;
 
-        if (activeKickSprite != null)
+        Sprite swordKickSprite =
+            kickRight
+                ? swordKickRightSprite
+                : swordKickLeftSprite;
+
+        if (swordEquipped &&
+            swordKickSprite != null)
         {
-            /*
-             * Не принуждаем enabled = true.
-             *
-             * Это важно:
-             * если PlayerHealth сейчас
-             * делает мигание после урона,
-             * он сам управляет enabled.
-             *
-             * Поэтому Kick Sprite будет
-             * моргать вместе с игроком.
-             */
-            spriteRenderer.sprite =
-                activeKickSprite;
+            activeKickSprite =
+                swordKickSprite;
         }
         else
         {
-            Debug.LogWarning(
-                kickRight
-                    ? "Kick Right Sprite не назначен в PlayerVisual!"
-                    : "Kick Left Sprite не назначен в PlayerVisual!"
-            );
+            activeKickSprite =
+                normalKickSprite;
         }
+
+        SetSprite(
+            activeKickSprite
+        );
     }
 
     public void EndKick()
@@ -446,46 +1404,61 @@ public class PlayerVisual : MonoBehaviour
         if (!isKicking)
             return;
 
-        isKicking = false;
-        activeKickSprite = null;
+        isKicking =
+            false;
 
-        currentDirection =
-            LookDirection.Idle;
+        activeKickSprite =
+            null;
 
-        SetIdleSprite();
-        ScheduleBlink();
+        if (!isCelebrating)
+        {
+            RestoreCurrentSprite();
+            ScheduleBlink();
+        }
     }
+
+
+    // ============================================================
+    // JUMP
+    // ============================================================
 
     public void PlayJumpLookUp()
     {
         if (isKicking ||
-            isHurt)
+            isHurt ||
+            isCelebrating ||
+            isSwordAttacking ||
+            IsPrisonLocked() ||
+            isClimbing)
         {
             return;
         }
 
-        currentDirection =
-            LookDirection.Up;
+        currentState =
+            VisualState.Jump;
 
-        if (!isBlinking)
-        {
-            SetDirectionSprite(
-                LookDirection.Up
-            );
-        }
+        StopBlinkRoutine();
+
+        ApplyCurrentSprite();
     }
+
+
+    // ============================================================
+    // HURT
+    // ============================================================
 
     public void PlayHurtVisual()
     {
-        /*
-         * Если игрок уже сам начал удар,
-         * Hurt Sprite не перебивает ногу.
-         *
-         * Само моргание/неуязвимость
-         * по-прежнему делает PlayerHealth.
-         */
-        if (isKicking)
+        if (isKicking ||
+            isCelebrating)
+        {
             return;
+        }
+
+        if (isSwordAttacking)
+        {
+            ClearSwordAttackState();
+        }
 
         if (hurtRoutine != null)
         {
@@ -502,91 +1475,370 @@ public class PlayerVisual : MonoBehaviour
 
     private IEnumerator HurtRoutine()
     {
-        isHurt = true;
-        isBlinking = false;
+        isHurt =
+            true;
 
-        if (blinkRoutine != null)
+        StopBlinkRoutine();
+
+        Sprite target =
+            hurtSprite;
+
+        if (swordEquipped)
         {
-            StopCoroutine(
-                blinkRoutine
-            );
+            Sprite swordHurt =
+                GetSwordHurtSprite();
 
-            blinkRoutine = null;
+            if (swordHurt != null)
+            {
+                target =
+                    swordHurt;
+            }
         }
 
-        if (hurtSprite != null &&
-            spriteRenderer != null)
-        {
-            spriteRenderer.sprite =
-                hurtSprite;
-        }
+        SetSprite(
+            target
+        );
 
         yield return new WaitForSeconds(
             hurtDuration
         );
 
-        isHurt = false;
+        isHurt =
+            false;
 
-        /*
-         * За время Hurt игрок мог начать удар.
-         * В таком случае ничего не перебиваем.
-         */
-        if (!isKicking)
+        if (!isKicking &&
+            !isCelebrating)
         {
-            currentDirection =
-                LookDirection.Idle;
-
-            SetIdleSprite();
+            RestoreCurrentSprite();
             ScheduleBlink();
         }
 
-        hurtRoutine = null;
+        hurtRoutine =
+            null;
     }
+
+
+    // ============================================================
+    // CLIMB
+    // ============================================================
 
     public void SetClimbLook(
         float vertical
     )
     {
+        SetClimbLook(
+            vertical,
+            climbHookOnRight
+        );
+    }
+
+    public void SetClimbLook(
+        float vertical,
+        bool hookOnRight
+    )
+    {
         if (isKicking ||
-            isHurt)
+            isHurt ||
+            isCelebrating ||
+            isSwordAttacking ||
+            IsPrisonLocked())
         {
             return;
         }
 
-        isClimbing = true;
+        climbExitGraceUntil =
+            0f;
+
+        bool justStarted =
+            !isClimbing;
+
+        isClimbing =
+            true;
+
+        climbHookOnRight =
+            hookOnRight;
+
+        climbVertical =
+            vertical;
+
+        if (justStarted)
+        {
+            StopBlinkRoutine();
+        }
 
         if (vertical > 0.1f)
         {
-            currentDirection =
-                LookDirection.Up;
+            currentState =
+                VisualState.ClimbUp;
         }
         else if (vertical < -0.1f)
         {
-            currentDirection =
-                LookDirection.Down;
+            currentState =
+                VisualState.ClimbDown;
+        }
+
+        if (Mathf.Abs(vertical) >
+            0.1f &&
+            !isBlinking)
+        {
+            ApplyCurrentSprite();
+        }
+    }
+
+    private void UpdateClimbVisual()
+    {
+        if (Mathf.Abs(climbVertical) <=
+            0.1f)
+        {
+            return;
         }
 
         if (!isBlinking)
         {
-            SetDirectionSprite(
-                currentDirection
-            );
+            ApplyCurrentSprite();
         }
     }
 
     public void ClearClimbLook()
     {
-        isClimbing = false;
+        if (!isClimbing)
+            return;
 
-        if (isKicking ||
-            isHurt)
+        isClimbing =
+            false;
+
+        climbVertical =
+            0f;
+
+        climbExitGraceUntil =
+            Time.time +
+            climbExitVisualGrace;
+
+        ScheduleBlink();
+    }
+
+
+    // ============================================================
+    // DOOR BREAK
+    // ============================================================
+
+    private void StartDoorBreakReaction()
+    {
+        if (celebrationRoutine != null)
+        {
+            StopCoroutine(
+                celebrationRoutine
+            );
+        }
+
+        if (isSwordAttacking)
+        {
+            ClearSwordAttackState();
+        }
+
+        celebrationRoutine =
+            StartCoroutine(
+                DoorBreakReactionRoutine()
+            );
+    }
+
+    private IEnumerator DoorBreakReactionRoutine()
+    {
+        isCelebrating =
+            true;
+
+        if (playerController != null)
+        {
+            playerController.SetActionLock(
+                true
+            );
+        }
+
+        StopBlinkRoutine();
+
+        while (isKicking)
+        {
+            yield return null;
+        }
+
+        SetSprite(
+            doorBreakReactionSprite
+        );
+
+        yield return new WaitForSeconds(
+            doorBreakReactionDuration
+        );
+
+        isCelebrating =
+            false;
+
+        if (playerController != null)
+        {
+            playerController.SetActionLock(
+                false
+            );
+        }
+
+        celebrationRoutine =
+            null;
+
+        currentState =
+            VisualState.Idle;
+
+        ungroundedSince =
+            -1f;
+
+        RestoreCurrentSprite();
+        ScheduleBlink();
+    }
+
+
+    // ============================================================
+    // RESTORE
+    // ============================================================
+
+    private void RestoreCurrentSprite()
+    {
+        if (isKicking)
+        {
+            SetSprite(
+                activeKickSprite
+            );
+
+            return;
+        }
+
+        if (isCelebrating)
+        {
+            SetSprite(
+                doorBreakReactionSprite
+            );
+
+            return;
+        }
+
+        if (isHurt)
+        {
+            Sprite target =
+                hurtSprite;
+
+            if (swordEquipped)
+            {
+                Sprite swordHurt =
+                    GetSwordHurtSprite();
+
+                if (swordHurt != null)
+                {
+                    target =
+                        swordHurt;
+                }
+            }
+
+            SetSprite(
+                target
+            );
+
+            return;
+        }
+
+        if (isSwordAttacking)
+        {
+            SetSprite(
+                activeSwordAttackSprite
+            );
+
+            return;
+        }
+
+        if (IsPrisonLocked())
+        {
+            SetSprite(
+                prisonSadSprite
+            );
+
+            return;
+        }
+
+        if (isClimbing ||
+            Time.time <
+            climbExitGraceUntil)
         {
             return;
         }
 
-        currentDirection =
-            LookDirection.Idle;
+        UpdateNormalState();
+    }
 
-        SetIdleSprite();
+
+    // ============================================================
+    // SET SPRITE
+    // ============================================================
+
+    private void SetSprite(
+        Sprite sprite
+    )
+    {
+        if (spriteRenderer == null ||
+            sprite == null)
+        {
+            return;
+        }
+
+        if (spriteRenderer.sprite !=
+            sprite)
+        {
+            spriteRenderer.sprite =
+                sprite;
+        }
+    }
+
+
+    // ============================================================
+    // VALIDATE
+    // ============================================================
+
+    private void OnValidate()
+    {
+        movementThreshold =
+            Mathf.Max(
+                0.001f,
+                movementThreshold
+            );
+
+        blinkInterval =
+            Mathf.Max(
+                0.1f,
+                blinkInterval
+            );
+
+        blinkDuration =
+            Mathf.Max(
+                0.01f,
+                blinkDuration
+            );
+
+        hurtDuration =
+            Mathf.Max(
+                0.01f,
+                hurtDuration
+            );
+
+        fallVisualDelay =
+            Mathf.Max(
+                0f,
+                fallVisualDelay
+            );
+
+        climbExitVisualGrace =
+            Mathf.Max(
+                0f,
+                climbExitVisualGrace
+            );
+
+        doorBreakReactionDuration =
+            Mathf.Max(
+                0f,
+                doorBreakReactionDuration
+            );
     }
 }

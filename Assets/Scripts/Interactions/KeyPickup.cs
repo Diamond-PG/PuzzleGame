@@ -4,8 +4,58 @@ using UnityEngine.UI;
 
 public class KeyPickup : MonoBehaviour, IHandInteractable
 {
-    [Header("UI")]
-    [SerializeField] private GameObject keyIconUI;
+    // ============================================================
+    // INVENTORY
+    // ============================================================
+
+    [Header("INVENTORY")]
+
+    [SerializeField]
+    private InventoryUI inventoryUI;
+
+    [Tooltip(
+        "Старый Item_Key используется только как источник " +
+        "спрайта и размера ключа."
+    )]
+    [SerializeField]
+    private GameObject keyIconUI;
+
+    [Tooltip(
+        "DoorUnlock, который должен срабатывать " +
+        "при нажатии на ключ в инвентаре."
+    )]
+    [SerializeField]
+    private DoorUnlock doorUnlock;
+
+
+    // ============================================================
+    // KEY ICON IN SLOT
+    // ============================================================
+
+    [Header("KEY ICON IN SLOT")]
+
+    [Tooltip(
+        "Смещение ключа внутри любой динамической ячейки. " +
+        "0 / 0 = строго по центру."
+    )]
+    [SerializeField]
+    private Vector2 inventoryKeyIconOffset =
+        Vector2.zero;
+
+    [Tooltip(
+        "Дополнительный поворот ключа внутри ячейки."
+    )]
+    [SerializeField]
+    private float inventoryKeyIconRotationOffset =
+        0f;
+
+    [Tooltip(
+        "Дополнительный масштаб ключа внутри ячейки."
+    )]
+    [SerializeField, Min(0.01f)]
+    private float inventoryKeyIconScaleMultiplier =
+        1f;
+
 
     // ============================================================
     // INVENTORY GLOW
@@ -13,11 +63,11 @@ public class KeyPickup : MonoBehaviour, IHandInteractable
 
     [Header("INVENTORY GLOW")]
 
-    [Tooltip("Наш Soft glow для ключа в инвентаре.")]
-    [SerializeField] private Sprite inventoryGlowSprite;
+    [SerializeField]
+    private Sprite inventoryGlowSprite;
 
-    [Tooltip("Цвет свечения ключа.")]
-    [SerializeField] private Color inventoryGlowColor =
+    [SerializeField]
+    private Color inventoryGlowColor =
         new Color(
             1.00f,
             0.75f,
@@ -25,26 +75,31 @@ public class KeyPickup : MonoBehaviour, IHandInteractable
             0.85f
         );
 
-    [Tooltip("Размер свечения.")]
-    [SerializeField] private Vector2 inventoryGlowSize =
+    [SerializeField]
+    private Vector2 inventoryGlowSize =
         new Vector2(
-            155f,
+            175f,
             190f
         );
 
-    [Tooltip("Смещение свечения относительно ключа.")]
-    [SerializeField] private Vector2 inventoryGlowOffset =
-        Vector2.zero;
+    [SerializeField]
+    private Vector2 inventoryGlowOffset =
+        new Vector2(
+            -10f,
+            -12f
+        );
 
-    [Tooltip("Дополнительный поворот свечения.")]
-    [SerializeField] private float inventoryGlowRotationOffset =
+    [SerializeField]
+    private float inventoryGlowRotationOffset =
         0f;
 
-    [SerializeField] private float inventoryGlowPulseSpeed =
+    [SerializeField]
+    private float inventoryGlowPulseSpeed =
         1.4f;
 
-    [SerializeField] private float inventoryGlowScaleAmount =
-        0.08f;
+    [SerializeField]
+    private float inventoryGlowScaleAmount =
+        0.12f;
 
     [SerializeField, Range(0f, 1f)]
     private float inventoryGlowMinAlpha =
@@ -54,68 +109,88 @@ public class KeyPickup : MonoBehaviour, IHandInteractable
     private float inventoryGlowMaxAlpha =
         0.85f;
 
+
     // ============================================================
     // OPTIONAL VISUALS
     // ============================================================
 
     [Header("OPTIONAL VISUALS")]
-    [SerializeField] private GameObject keyGlowObject;
-    [SerializeField] private MonoBehaviour keyPulseScript;
+
+    [SerializeField]
+    private GameObject keyGlowObject;
+
+    [SerializeField]
+    private MonoBehaviour keyPulseScript;
+
 
     // ============================================================
     // PLAYER
     // ============================================================
 
     [Header("PLAYER")]
-    [SerializeField] private string playerTag = "Player";
 
-    [Tooltip(
-        "Расстояние, на котором ключ можно подобрать кнопкой руки."
-    )]
-    [SerializeField] private float pickupDistance = 1.2f;
+    [SerializeField]
+    private string playerTag = "Player";
+
+    [SerializeField]
+    private float pickupDistance = 1.2f;
+
 
     // ============================================================
     // SOUND
     // ============================================================
 
     [Header("PICKUP SOUND")]
-    [SerializeField] private AudioSource pickupAudioSource;
-    [SerializeField] private bool playPickupSound = true;
+
+    [SerializeField]
+    private AudioSource pickupAudioSource;
+
+    [SerializeField]
+    private bool playPickupSound = true;
+
 
     // ============================================================
     // HAPTICS
     // ============================================================
 
     [Header("PICKUP HAPTICS")]
-    [SerializeField] private bool usePickupHaptics = true;
+
+    [SerializeField]
+    private bool usePickupHaptics = true;
+
 
     // ============================================================
     // FLY
     // ============================================================
 
     [Header("FLY TO UI ANIMATION")]
-    [SerializeField] private bool animateToUI = true;
+
+    [SerializeField]
+    private bool animateToUI = true;
+
 
     // ============================================================
     // DEBUG
     // ============================================================
 
     [Header("DEBUG")]
-    [SerializeField] private bool debugLogs = true;
+
+    [SerializeField]
+    private bool debugLogs = true;
+
 
     // ============================================================
     // PUBLIC KEY STATE
     // ============================================================
 
-    public static bool HasKey { get; private set; }
+    public static bool HasKey
+    {
+        get;
+        private set;
+    }
 
-    /*
-     * Сохраняем ссылку на текущий ключ.
-     * Это позволяет статическому ConsumeKey()
-     * убрать не только HasKey,
-     * но и UI ключа + его glow.
-     */
     private static KeyPickup currentInstance;
+
 
     // ============================================================
     // PRIVATE
@@ -130,7 +205,41 @@ public class KeyPickup : MonoBehaviour, IHandInteractable
 
     private PickupFlyEffect flyEffect;
 
-    private GameObject createdInventoryGlow;
+
+    // ============================================================
+    // CACHED KEY VISUAL
+    // ============================================================
+
+    private Sprite cachedKeySprite;
+
+    private Vector2 cachedKeyIconSize =
+        new Vector2(
+            100f,
+            100f
+        );
+
+    private float cachedKeyIconRotation;
+
+    private float cachedKeyIconScale =
+        1f;
+
+    private bool keyVisualCached;
+
+
+    // ============================================================
+    // CURRENT INVENTORY SLOT
+    // ============================================================
+
+    private GameObject currentInventorySlot;
+
+    private Transform currentInventoryItemTransform;
+
+    private Image currentInventoryItemImage;
+
+    private GameObject currentInventoryGlowObject;
+
+    private Button currentInventorySlotButton;
+
 
     // ============================================================
     // AWAKE
@@ -138,7 +247,8 @@ public class KeyPickup : MonoBehaviour, IHandInteractable
 
     private void Awake()
     {
-        currentInstance = this;
+        currentInstance =
+            this;
 
         keyCollider =
             GetComponent<Collider2D>();
@@ -155,26 +265,101 @@ public class KeyPickup : MonoBehaviour, IHandInteractable
                 GetComponent<AudioSource>();
         }
 
-        FindPlayer();
+        if (inventoryUI == null)
+        {
+            inventoryUI =
+                FindFirstObjectByType<InventoryUI>();
+        }
 
-        HasKey = false;
+        if (doorUnlock == null)
+        {
+            doorUnlock =
+                FindFirstObjectByType<DoorUnlock>();
+        }
 
+        CacheKeyInventoryVisual();
+
+        /*
+         * Старый Item_Key больше не является
+         * настоящей активной иконкой инвентаря.
+         */
         if (keyIconUI != null)
         {
-            keyIconUI.SetActive(false);
-        }
-
-        RemoveInventoryGlow();
-
-        if (debugLogs)
-        {
-            Debug.Log(
-                $"[KEY] Awake. keyIconUI=" +
-                $"{(keyIconUI != null ? "OK" : "NULL")}",
-                this
+            keyIconUI.SetActive(
+                false
             );
         }
+
+        FindPlayer();
+
+        HasKey =
+            false;
     }
+
+
+    // ============================================================
+    // CACHE KEY VISUAL
+    // ============================================================
+
+    private void CacheKeyInventoryVisual()
+    {
+        keyVisualCached =
+            false;
+
+        if (keyIconUI == null)
+        {
+            Debug.LogError(
+                "[KEY] KeyIconUI is missing.",
+                this
+            );
+
+            return;
+        }
+
+        Image keyImage =
+            keyIconUI.GetComponent<Image>();
+
+        RectTransform keyRect =
+            keyIconUI.GetComponent<RectTransform>();
+
+        if (keyImage == null ||
+            keyImage.sprite == null)
+        {
+            Debug.LogError(
+                "[KEY] KeyIconUI has no key sprite.",
+                keyIconUI
+            );
+
+            return;
+        }
+
+        cachedKeySprite =
+            keyImage.sprite;
+
+        if (keyRect != null)
+        {
+            /*
+             * Размер старого ключа сохраняем,
+             * но его СТАРУЮ ПОЗИЦИЮ
+             * специально не используем.
+             */
+            cachedKeyIconSize =
+                keyRect.sizeDelta;
+
+            cachedKeyIconRotation =
+                keyRect.localEulerAngles.z;
+
+            cachedKeyIconScale =
+                Mathf.Max(
+                    0.01f,
+                    keyRect.localScale.x
+                );
+        }
+
+        keyVisualCached =
+            true;
+    }
+
 
     // ============================================================
     // FIND PLAYER
@@ -194,6 +379,7 @@ public class KeyPickup : MonoBehaviour, IHandInteractable
         }
     }
 
+
     // ============================================================
     // HAND INTERACTION
     // ============================================================
@@ -203,7 +389,9 @@ public class KeyPickup : MonoBehaviour, IHandInteractable
         get
         {
             if (pickedUp)
+            {
                 return false;
+            }
 
             if (keyCollider == null ||
                 !keyCollider.enabled)
@@ -217,7 +405,9 @@ public class KeyPickup : MonoBehaviour, IHandInteractable
             }
 
             if (playerTransform == null)
+            {
                 return false;
+            }
 
             float distance =
                 Vector2.Distance(
@@ -225,25 +415,23 @@ public class KeyPickup : MonoBehaviour, IHandInteractable
                     transform.position
                 );
 
-            return distance <= pickupDistance;
+            return
+                distance <=
+                pickupDistance;
         }
     }
+
 
     public void HandInteract()
     {
         if (!CanHandInteract)
-            return;
-
-        if (debugLogs)
         {
-            Debug.Log(
-                "[KEY] Picked up with HAND button.",
-                this
-            );
+            return;
         }
 
         PickupKey();
     }
+
 
     // ============================================================
     // PICKUP KEY
@@ -252,22 +440,25 @@ public class KeyPickup : MonoBehaviour, IHandInteractable
     private void PickupKey()
     {
         if (pickedUp)
-            return;
-
-        pickedUp = true;
-        HasKey = true;
-
-        if (debugLogs)
         {
-            Debug.Log(
-                "[KEY] Key picked up successfully.",
-                this
-            );
+            return;
         }
+
+        if (!PrepareInventorySlot())
+        {
+            return;
+        }
+
+        pickedUp =
+            true;
+
+        HasKey =
+            true;
 
         if (keyCollider != null)
         {
-            keyCollider.enabled = false;
+            keyCollider.enabled =
+                false;
         }
 
         if (usePickupHaptics)
@@ -286,21 +477,24 @@ public class KeyPickup : MonoBehaviour, IHandInteractable
 
         if (keyGlowObject != null)
         {
-            keyGlowObject.SetActive(false);
+            keyGlowObject.SetActive(
+                false
+            );
         }
 
         if (keyPulseScript != null)
         {
-            keyPulseScript.enabled = false;
+            keyPulseScript.enabled =
+                false;
         }
 
         if (animateToUI &&
-            keyIconUI != null &&
-            flyEffect != null)
+            flyEffect != null &&
+            currentInventoryItemTransform != null)
         {
             StartCoroutine(
                 flyEffect.FlyToUI(
-                    keyIconUI,
+                    currentInventoryItemTransform.gameObject,
                     FinishPickupInstant
                 )
             );
@@ -311,38 +505,319 @@ public class KeyPickup : MonoBehaviour, IHandInteractable
         }
     }
 
+
+    // ============================================================
+    // PREPARE INVENTORY SLOT
+    // ============================================================
+
+    private bool PrepareInventorySlot()
+    {
+        if (inventoryUI == null)
+        {
+            inventoryUI =
+                FindFirstObjectByType<InventoryUI>();
+        }
+
+        if (inventoryUI == null)
+        {
+            Debug.LogError(
+                "[KEY] InventoryUI not found.",
+                this
+            );
+
+            return false;
+        }
+
+        if (!keyVisualCached)
+        {
+            CacheKeyInventoryVisual();
+        }
+
+        if (!keyVisualCached ||
+            cachedKeySprite == null)
+        {
+            return false;
+        }
+
+
+        // --------------------------------------------------------
+        // FIRST FREE SLOT
+        // --------------------------------------------------------
+
+        currentInventorySlot =
+            inventoryUI.GetOrCreateFreeSlot();
+
+        if (currentInventorySlot == null)
+        {
+            return false;
+        }
+
+
+        // --------------------------------------------------------
+        // REMOVE OLD WEAPON BEHAVIOUR
+        // --------------------------------------------------------
+
+        /*
+         * Ячейка могла секунду назад
+         * содержать меч.
+         *
+         * Теперь она должна стать
+         * полностью нейтральной.
+         */
+        InventoryWeaponSlot oldWeaponSlot =
+            currentInventorySlot
+                .GetComponent<InventoryWeaponSlot>();
+
+        if (oldWeaponSlot != null)
+        {
+            oldWeaponSlot.ClearWeaponData();
+        }
+
+
+        // --------------------------------------------------------
+        // PLACE KEY
+        // --------------------------------------------------------
+
+        float finalRotation =
+            cachedKeyIconRotation +
+            inventoryKeyIconRotationOffset;
+
+        float finalScale =
+            cachedKeyIconScale *
+            Mathf.Max(
+                0.01f,
+                inventoryKeyIconScaleMultiplier
+            );
+
+        bool placed =
+            inventoryUI.ShowItemInSlot(
+                currentInventorySlot,
+                cachedKeySprite,
+                cachedKeyIconSize,
+                finalRotation,
+
+                /*
+                 * Ключ теперь позиционируется
+                 * относительно ЦЕНТРА
+                 * новой динамической ячейки.
+                 */
+                inventoryKeyIconOffset,
+
+                finalScale,
+                inventoryGlowSprite,
+                inventoryGlowColor,
+                inventoryGlowSize,
+                inventoryGlowOffset,
+                inventoryGlowPulseSpeed,
+                inventoryGlowScaleAmount,
+                inventoryGlowMinAlpha,
+                inventoryGlowMaxAlpha
+            );
+
+        if (!placed)
+        {
+            currentInventorySlot =
+                null;
+
+            return false;
+        }
+
+
+        // --------------------------------------------------------
+        // REAL ITEM
+        // --------------------------------------------------------
+
+        currentInventoryItemTransform =
+            inventoryUI.GetItemTransform(
+                currentInventorySlot
+            );
+
+        if (currentInventoryItemTransform != null)
+        {
+            currentInventoryItemImage =
+                currentInventoryItemTransform
+                    .GetComponent<Image>();
+        }
+
+
+        // --------------------------------------------------------
+        // REAL GLOW
+        // --------------------------------------------------------
+
+        Transform glowTransform =
+            currentInventorySlot
+                .transform
+                .Find(
+                    "ItemGlow"
+                );
+
+        if (glowTransform != null)
+        {
+            currentInventoryGlowObject =
+                glowTransform.gameObject;
+
+            RectTransform glowRect =
+                glowTransform as RectTransform;
+
+            if (glowRect != null)
+            {
+                glowRect.localRotation =
+                    Quaternion.Euler(
+                        0f,
+                        0f,
+                        finalRotation +
+                        inventoryGlowRotationOffset
+                    );
+            }
+        }
+
+
+        // --------------------------------------------------------
+        // KEY CLICK BEHAVIOUR
+        // --------------------------------------------------------
+
+        ConfigureKeySlotButton();
+
+
+        // --------------------------------------------------------
+        // HIDE FINAL ICON WHILE FLYING
+        // --------------------------------------------------------
+
+        if (animateToUI)
+        {
+            SetInventoryItemVisible(
+                false
+            );
+
+            if (currentInventoryGlowObject != null)
+            {
+                currentInventoryGlowObject.SetActive(
+                    false
+                );
+            }
+        }
+
+        if (debugLogs)
+        {
+            Debug.Log(
+                "[KEY] Key placed into: " +
+                currentInventorySlot.name,
+                this
+            );
+        }
+
+        return true;
+    }
+
+
+    // ============================================================
+    // CONFIGURE KEY SLOT BUTTON
+    // ============================================================
+
+    private void ConfigureKeySlotButton()
+    {
+        if (currentInventorySlot == null)
+        {
+            return;
+        }
+
+        currentInventorySlotButton =
+            currentInventorySlot
+                .GetComponent<Button>();
+
+        if (currentInventorySlotButton == null)
+        {
+            Debug.LogWarning(
+                "[KEY] Inventory slot has no Button.",
+                currentInventorySlot
+            );
+
+            return;
+        }
+
+        /*
+         * Удаляем только НАШ старый ключевой listener,
+         * если по какой-то причине он уже был.
+         */
+        currentInventorySlotButton
+            .onClick
+            .RemoveListener(
+                OnInventoryKeyPressed
+            );
+
+        currentInventorySlotButton
+            .onClick
+            .AddListener(
+                OnInventoryKeyPressed
+            );
+    }
+
+
+    // ============================================================
+    // KEY PRESSED IN INVENTORY
+    // ============================================================
+
+    private void OnInventoryKeyPressed()
+    {
+        if (!HasKey)
+        {
+            return;
+        }
+
+        if (currentInventorySlot == null)
+        {
+            return;
+        }
+
+        if (doorUnlock == null)
+        {
+            doorUnlock =
+                FindFirstObjectByType<DoorUnlock>();
+        }
+
+        if (doorUnlock == null)
+        {
+            Debug.LogWarning(
+                "[KEY] DoorUnlock not found.",
+                this
+            );
+
+            return;
+        }
+
+        /*
+         * САМОЕ ГЛАВНОЕ:
+         *
+         * ключ НИКУДА не экипируется.
+         *
+         * Нажатие просто говорит двери:
+         * "Попробуй открыться этим ключом".
+         */
+        doorUnlock.TryOpenDoorWithKey();
+    }
+
+
     // ============================================================
     // FINISH PICKUP
     // ============================================================
 
     private void FinishPickupInstant()
     {
-        if (keyIconUI != null)
-        {
-            keyIconUI.SetActive(true);
+        SetInventoryItemVisible(
+            true
+        );
 
-            CreateInventoryGlow();
-
-            if (debugLogs)
-            {
-                Debug.Log(
-                    "[KEY] KeyIcon UI enabled.",
-                    this
-                );
-            }
-        }
-        else
+        if (currentInventoryGlowObject != null)
         {
-            Debug.LogWarning(
-                "[KEY] keyIconUI is NULL. " +
-                "Assign KeyIcon in Inspector.",
-                this
+            currentInventoryGlowObject.SetActive(
+                true
             );
         }
 
         HideWorldKeyVisuals();
 
-        float waitTime = 0f;
+        float waitTime =
+            0f;
 
         if (playPickupSound &&
             pickupAudioSource != null &&
@@ -359,231 +834,81 @@ public class KeyPickup : MonoBehaviour, IHandInteractable
         );
     }
 
+
     // ============================================================
-    // CREATE INVENTORY GLOW
+    // ITEM VISIBILITY
     // ============================================================
 
-    private void CreateInventoryGlow()
+    private void SetInventoryItemVisible(
+        bool visible
+    )
     {
-        if (keyIconUI == null)
-            return;
-
-        if (inventoryGlowSprite == null)
-            return;
-
-        Transform parent =
-            keyIconUI.transform.parent;
-
-        if (parent == null)
-            return;
-
-        /*
-         * Если старый glow почему-то существует,
-         * сначала полностью его убираем.
-         */
-        RemoveInventoryGlow();
-
-        createdInventoryGlow =
-            new GameObject(
-                "KeyItemGlow",
-                typeof(RectTransform),
-                typeof(CanvasRenderer),
-                typeof(Image),
-                typeof(InventoryItemGlow)
-            );
-
-        createdInventoryGlow.transform.SetParent(
-            parent,
-            false
-        );
-
-        RectTransform glowRect =
-            createdInventoryGlow
-                .GetComponent<RectTransform>();
-
-        Image glowImage =
-            createdInventoryGlow
-                .GetComponent<Image>();
-
-        InventoryItemGlow glowPulse =
-            createdInventoryGlow
-                .GetComponent<InventoryItemGlow>();
-
-        RectTransform keyRect =
-            keyIconUI
-                .GetComponent<RectTransform>();
-
-        glowRect.anchorMin =
-            new Vector2(
-                0.5f,
-                0.5f
-            );
-
-        glowRect.anchorMax =
-            new Vector2(
-                0.5f,
-                0.5f
-            );
-
-        glowRect.pivot =
-            new Vector2(
-                0.5f,
-                0.5f
-            );
-
-        glowRect.anchoredPosition =
-            inventoryGlowOffset;
-
-        glowRect.sizeDelta =
-            inventoryGlowSize;
-
-        float keyRotation = 0f;
-
-        if (keyRect != null)
+        if (currentInventoryItemImage == null)
         {
-            keyRotation =
-                keyRect.localEulerAngles.z;
+            return;
         }
 
-        glowRect.localRotation =
-            Quaternion.Euler(
-                0f,
-                0f,
-                keyRotation +
-                inventoryGlowRotationOffset
-            );
+        Color color =
+            currentInventoryItemImage.color;
 
-        glowRect.localScale =
-            Vector3.one;
+        color.a =
+            visible
+                ? 1f
+                : 0f;
 
-        glowImage.sprite =
-            inventoryGlowSprite;
-
-        glowImage.color =
-            inventoryGlowColor;
-
-        glowImage.preserveAspect =
-            false;
-
-        glowImage.raycastTarget =
-            false;
-
-        if (glowPulse != null)
-        {
-            glowPulse.Setup(
-                inventoryGlowPulseSpeed,
-                inventoryGlowScaleAmount,
-                inventoryGlowMinAlpha,
-                inventoryGlowMaxAlpha
-            );
-        }
-
-        int keyIndex =
-            keyIconUI
-                .transform
-                .GetSiblingIndex();
-
-        createdInventoryGlow
-            .transform
-            .SetSiblingIndex(
-                Mathf.Max(
-                    0,
-                    keyIndex
-                )
-            );
-
-        keyIconUI
-            .transform
-            .SetSiblingIndex(
-                createdInventoryGlow
-                    .transform
-                    .GetSiblingIndex() + 1
-            );
-
-        createdInventoryGlow.SetActive(true);
+        currentInventoryItemImage.color =
+            color;
     }
 
-    // ============================================================
-    // REMOVE INVENTORY GLOW
-    // ============================================================
-
-    private void RemoveInventoryGlow()
-    {
-        /*
-         * Сначала используем сохранённую ссылку.
-         */
-        if (createdInventoryGlow != null)
-        {
-            /*
-             * SetActive(false) убирает glow
-             * сразу в этом же кадре.
-             */
-            createdInventoryGlow.SetActive(false);
-
-            Destroy(
-                createdInventoryGlow
-            );
-
-            createdInventoryGlow = null;
-        }
-
-        if (keyIconUI == null)
-            return;
-
-        Transform parent =
-            keyIconUI.transform.parent;
-
-        if (parent == null)
-            return;
-
-        /*
-         * Дополнительная защита:
-         * если ссылка потерялась,
-         * ищем glow по имени.
-         */
-        Transform oldGlow =
-            parent.Find(
-                "KeyItemGlow"
-            );
-
-        if (oldGlow != null)
-        {
-            oldGlow.gameObject.SetActive(false);
-
-            Destroy(
-                oldGlow.gameObject
-            );
-        }
-    }
 
     // ============================================================
-    // CLEAR KEY INVENTORY VISUALS
+    // REMOVE KEY
     // ============================================================
 
     private void ClearKeyInventoryVisuals()
     {
         /*
-         * Убираем сам ключ из ячейки.
+         * Сначала удаляем кнопочное поведение ключа.
          */
-        if (keyIconUI != null)
+        if (currentInventorySlotButton != null)
         {
-            keyIconUI.SetActive(false);
+            currentInventorySlotButton
+                .onClick
+                .RemoveListener(
+                    OnInventoryKeyPressed
+                );
         }
 
-        /*
-         * И одновременно убираем
-         * золотое свечение.
-         */
-        RemoveInventoryGlow();
-
-        if (debugLogs)
+        if (inventoryUI == null)
         {
-            Debug.Log(
-                "[KEY] Key icon and inventory glow removed.",
-                this
+            inventoryUI =
+                FindFirstObjectByType<InventoryUI>();
+        }
+
+        if (inventoryUI != null &&
+            currentInventorySlot != null)
+        {
+            inventoryUI.RemoveItemFromSlot(
+                currentInventorySlot
             );
         }
+
+        currentInventorySlot =
+            null;
+
+        currentInventoryItemTransform =
+            null;
+
+        currentInventoryItemImage =
+            null;
+
+        currentInventoryGlowObject =
+            null;
+
+        currentInventorySlotButton =
+            null;
     }
+
 
     // ============================================================
     // HIDE WORLD KEY
@@ -592,17 +917,21 @@ public class KeyPickup : MonoBehaviour, IHandInteractable
     private void HideWorldKeyVisuals()
     {
         if (spriteRenderers == null)
+        {
             return;
+        }
 
         foreach (SpriteRenderer sr
                  in spriteRenderers)
         {
             if (sr != null)
             {
-                sr.enabled = false;
+                sr.enabled =
+                    false;
             }
         }
     }
+
 
     // ============================================================
     // DISABLE AFTER SOUND
@@ -619,14 +948,11 @@ public class KeyPickup : MonoBehaviour, IHandInteractable
             );
         }
 
-        /*
-         * Сам объект ключа выключается,
-         * но currentInstance остаётся доступен,
-         * поэтому ConsumeKey всё ещё сможет
-         * убрать UI и glow.
-         */
-        gameObject.SetActive(false);
+        gameObject.SetActive(
+            false
+        );
     }
+
 
     // ============================================================
     // PUBLIC KEY STATE
@@ -637,16 +963,12 @@ public class KeyPickup : MonoBehaviour, IHandInteractable
         return HasKey;
     }
 
+
     public static void ConsumeKey()
     {
-        HasKey = false;
+        HasKey =
+            false;
 
-        /*
-         * ВАЖНО:
-         * теперь при расходовании ключа
-         * исчезает не только иконка,
-         * но и его золотой glow.
-         */
         if (currentInstance != null)
         {
             currentInstance
@@ -654,15 +976,75 @@ public class KeyPickup : MonoBehaviour, IHandInteractable
         }
     }
 
+
     // ============================================================
     // DESTROY
     // ============================================================
 
     private void OnDestroy()
     {
+        if (currentInventorySlotButton != null)
+        {
+            currentInventorySlotButton
+                .onClick
+                .RemoveListener(
+                    OnInventoryKeyPressed
+                );
+        }
+
         if (currentInstance == this)
         {
-            currentInstance = null;
+            currentInstance =
+                null;
+        }
+    }
+
+
+    // ============================================================
+    // VALIDATE
+    // ============================================================
+
+    private void OnValidate()
+    {
+        pickupDistance =
+            Mathf.Max(
+                0f,
+                pickupDistance
+            );
+
+        inventoryKeyIconScaleMultiplier =
+            Mathf.Max(
+                0.01f,
+                inventoryKeyIconScaleMultiplier
+            );
+
+        inventoryGlowPulseSpeed =
+            Mathf.Max(
+                0f,
+                inventoryGlowPulseSpeed
+            );
+
+        inventoryGlowScaleAmount =
+            Mathf.Max(
+                0f,
+                inventoryGlowScaleAmount
+            );
+
+        inventoryGlowMinAlpha =
+            Mathf.Clamp01(
+                inventoryGlowMinAlpha
+            );
+
+        inventoryGlowMaxAlpha =
+            Mathf.Clamp01(
+                inventoryGlowMaxAlpha
+            );
+
+        if (inventoryGlowMaxAlpha <
+            inventoryGlowMinAlpha)
+        {
+            inventoryGlowMaxAlpha =
+                inventoryGlowMinAlpha;
         }
     }
 }

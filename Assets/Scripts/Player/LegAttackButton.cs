@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -20,12 +21,18 @@ public class LegAttackButton : MonoBehaviour
     [SerializeField]
     private PlayerHealth playerHealth;
 
-    [Tooltip(
-        "Если Player не назначен вручную, " +
-        "скрипт найдёт объект с Tag = Player."
-    )]
+    [SerializeField]
+    private PlayerController playerController;
+
+    [SerializeField]
+    private PlayerVisual playerVisual;
+
+    [SerializeField]
+    private Collider2D playerCollider;
+
     [SerializeField]
     private string playerTag = "Player";
+
 
     // ============================================================
     // ATTACK ZONE
@@ -33,17 +40,74 @@ public class LegAttackButton : MonoBehaviour
 
     [Header("ATTACK ZONE")]
 
+    [Tooltip(
+        "Насколько центр зоны удара смещён " +
+        "в сторону пинка."
+    )]
     [SerializeField]
     private float attackDistance = 0.85f;
 
+    [Tooltip(
+        "Ширина зоны пинка."
+    )]
     [SerializeField]
     private float attackWidth = 0.75f;
 
+    [Tooltip(
+        "Высота зоны пинка."
+    )]
     [SerializeField]
     private float attackHeight = 0.85f;
 
+    [Tooltip(
+        "Вертикальное смещение зоны пинка."
+    )]
     [SerializeField]
     private float attackVerticalOffset = 0f;
+
+    [Tooltip(
+        "Минимальное расстояние центра цели " +
+        "от центра Player по X, чтобы цель считалась " +
+        "на правильной стороне. " +
+        "Защищает от попадания по врагу за спиной."
+    )]
+    [SerializeField, Min(0f)]
+    private float minimumTargetSideDistance = 0.03f;
+
+
+    // ============================================================
+    // BOX COMBO ASSIST
+    // ============================================================
+
+    [Header("BOX COMBO ASSIST")]
+
+    [Tooltip(
+        "Даёт небольшой дополнительный допуск " +
+        "ТОЛЬКО для повторного удара по тому же ящику. " +
+        "На Guard / Skeleton не влияет."
+    )]
+    [SerializeField]
+    private bool useBoxComboAssist = true;
+
+    [Tooltip(
+        "Дополнительное расстояние только для ящика, " +
+        "который был успешно ударен предыдущим ударом."
+    )]
+    [SerializeField, Min(0f)]
+    private float boxComboExtraReach = 0.30f;
+
+    [Tooltip(
+        "Сколько секунд помнить последний ударенный ящик."
+    )]
+    [SerializeField, Min(0f)]
+    private float boxComboMemoryTime = 0.9f;
+
+    [Tooltip(
+        "Допустимая разница по высоте между Player и ящиком."
+    )]
+    [SerializeField, Min(0f)]
+    private float boxComboMaxVerticalDifference = 0.75f;
+
 
     // ============================================================
     // DAMAGE
@@ -57,6 +121,7 @@ public class LegAttackButton : MonoBehaviour
     [SerializeField]
     private float impactDelay = 0.08f;
 
+
     // ============================================================
     // DETECTION
     // ============================================================
@@ -69,6 +134,7 @@ public class LegAttackButton : MonoBehaviour
     [SerializeField]
     private bool hitEachObjectOnlyOnce = true;
 
+
     // ============================================================
     // BUTTON
     // ============================================================
@@ -77,6 +143,7 @@ public class LegAttackButton : MonoBehaviour
 
     [SerializeField]
     private Button legButton;
+
 
     // ============================================================
     // HAPTICS
@@ -90,27 +157,23 @@ public class LegAttackButton : MonoBehaviour
     [SerializeField, Range(5, 100)]
     private int kickHapticMs = 18;
 
+
     // ============================================================
     // KICK IMPACT AUDIO
     // ============================================================
 
     [Header("KICK IMPACT AUDIO")]
 
-    [Tooltip(
-        "AudioSource для звука реального попадания ногой по врагу."
-    )]
     [SerializeField]
     private AudioSource kickImpactAudioSource;
 
-    [Tooltip(
-        "Звук удара ноги по Guard / Skeleton."
-    )]
     [SerializeField]
     private AudioClip kickImpactClip;
 
     [Range(0f, 1f)]
     [SerializeField]
     private float kickImpactVolume = 1f;
+
 
     // ============================================================
     // DEBUG
@@ -124,12 +187,22 @@ public class LegAttackButton : MonoBehaviour
     [SerializeField]
     private bool drawAttackZone = true;
 
+
     // ============================================================
     // PRIVATE
     // ============================================================
 
     private bool attackBusy;
+
     private Coroutine attackRoutine;
+
+    /*
+     * Последний реально ударенный ящик.
+     */
+    private GameObject rememberedBox;
+
+    private float rememberedBoxHitTime;
+
 
     // ============================================================
     // AWAKE
@@ -145,11 +218,6 @@ public class LegAttackButton : MonoBehaviour
 
         FindPlayer();
 
-        /*
-         * Если AudioSource для попадания
-         * не назначен вручную,
-         * пробуем взять AudioSource с Player.
-         */
         if (kickImpactAudioSource == null &&
             player != null)
         {
@@ -168,6 +236,7 @@ public class LegAttackButton : MonoBehaviour
             );
         }
     }
+
 
     // ============================================================
     // FIND PLAYER
@@ -189,30 +258,57 @@ public class LegAttackButton : MonoBehaviour
             }
         }
 
-        if (player != null)
+        if (player == null)
+            return;
+
+        if (playerKick == null)
         {
-            if (playerKick == null)
-            {
-                playerKick =
-                    player.GetComponent<PlayerKick>();
-            }
+            playerKick =
+                player.GetComponent<PlayerKick>();
+        }
 
-            if (playerHealth == null)
-            {
-                playerHealth =
-                    player.GetComponent<PlayerHealth>();
-            }
+        if (playerHealth == null)
+        {
+            playerHealth =
+                player.GetComponent<PlayerHealth>();
+        }
 
-            if (kickImpactAudioSource == null)
+        if (playerController == null)
+        {
+            playerController =
+                player.GetComponent<PlayerController>();
+        }
+
+        if (playerVisual == null)
+        {
+            playerVisual =
+                player.GetComponent<PlayerVisual>();
+        }
+
+        if (playerCollider == null)
+        {
+            playerCollider =
+                player.GetComponent<Collider2D>();
+
+            if (playerCollider == null)
             {
-                kickImpactAudioSource =
-                    player.GetComponent<AudioSource>();
+                playerCollider =
+                    player.GetComponentInChildren<
+                        Collider2D
+                    >();
             }
+        }
+
+        if (kickImpactAudioSource == null)
+        {
+            kickImpactAudioSource =
+                player.GetComponent<AudioSource>();
         }
     }
 
+
     // ============================================================
-    // DEAD CHECK
+    // CHECKS
     // ============================================================
 
     private bool PlayerIsDead()
@@ -227,18 +323,39 @@ public class LegAttackButton : MonoBehaviour
             playerHealth.IsDead;
     }
 
+    private bool GameplayActionsLocked()
+    {
+        if (PlayerIsDead())
+            return true;
+
+        if (playerVisual != null &&
+            playerVisual.GameplayActionsLocked)
+        {
+            return true;
+        }
+
+        if (playerController != null &&
+            playerController.IsActionLocked)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+
     // ============================================================
-    // BUTTON PRESSED
+    // BUTTON
     // ============================================================
 
     public void OnLegButtonPressed()
     {
-        if (PlayerIsDead())
+        if (GameplayActionsLocked())
         {
             if (debugLogs)
             {
                 Debug.Log(
-                    "[LEG ATTACK] Игрок мёртв. Удар запрещён.",
+                    "[LEG ATTACK] Action locked.",
                     this
                 );
             }
@@ -250,8 +367,7 @@ public class LegAttackButton : MonoBehaviour
             return;
 
         if (player == null ||
-            playerKick == null ||
-            playerHealth == null)
+            playerKick == null)
         {
             FindPlayer();
         }
@@ -267,21 +383,13 @@ public class LegAttackButton : MonoBehaviour
             return;
         }
 
-        if (PlayerIsDead())
-            return;
-
         bool kickStarted =
             playerKick.Kick();
 
         if (!kickStarted)
             return;
 
-        /*
-         * Старая вибрация самого удара.
-         * Оставляем как есть.
-         */
-        if (!PlayerIsDead() &&
-            useKickHaptics)
+        if (useKickHaptics)
         {
             MicroHaptics.Pulse(
                 kickHapticMs,
@@ -295,25 +403,32 @@ public class LegAttackButton : MonoBehaviour
             );
     }
 
+
     // ============================================================
-    // ATTACK ROUTINE
+    // ROUTINE
     // ============================================================
 
     private IEnumerator AttackRoutine()
     {
-        attackBusy = true;
+        attackBusy =
+            true;
 
         if (impactDelay > 0f)
         {
-            float timer = 0f;
+            float timer =
+                0f;
 
             while (timer <
                    impactDelay)
             {
-                if (PlayerIsDead())
+                if (GameplayActionsLocked())
                 {
-                    attackBusy = false;
-                    attackRoutine = null;
+                    attackBusy =
+                        false;
+
+                    attackRoutine =
+                        null;
+
                     yield break;
                 }
 
@@ -324,18 +439,18 @@ public class LegAttackButton : MonoBehaviour
             }
         }
 
-        if (PlayerIsDead())
+        if (!GameplayActionsLocked())
         {
-            attackBusy = false;
-            attackRoutine = null;
-            yield break;
+            PerformKickHit();
         }
 
-        PerformKickHit();
+        attackBusy =
+            false;
 
-        attackBusy = false;
-        attackRoutine = null;
+        attackRoutine =
+            null;
     }
+
 
     // ============================================================
     // PERFORM HIT
@@ -343,7 +458,7 @@ public class LegAttackButton : MonoBehaviour
 
     private void PerformKickHit()
     {
-        if (PlayerIsDead())
+        if (GameplayActionsLocked())
             return;
 
         if (player == null ||
@@ -381,13 +496,381 @@ public class LegAttackButton : MonoBehaviour
                 hittableLayers
             );
 
-        if (hits == null ||
-            hits.Length == 0)
+        HashSet<GameObject>
+            alreadyHit =
+                new HashSet<GameObject>();
+
+        bool anyRealTargetHit =
+            false;
+
+        bool enemyImpactSoundPlayed =
+            false;
+
+        if (hits != null)
+        {
+            foreach (Collider2D hit in hits)
+            {
+                if (GameplayActionsLocked())
+                    return;
+
+                if (hit == null)
+                    continue;
+
+                if (hit.transform == player ||
+                    hit.transform.IsChildOf(player))
+                {
+                    continue;
+                }
+
+                GameObject target =
+                    FindKickTargetObject(
+                        hit
+                    );
+
+                if (target == null)
+                    continue;
+
+                /*
+                 * =================================================
+                 * ВАЖНО:
+                 *
+                 * Даже если Collider цели случайно залез
+                 * в OverlapBox с противоположной стороны,
+                 * урон не проходит.
+                 *
+                 * Пинок вправо = только цель справа.
+                 * Пинок влево  = только цель слева.
+                 * =================================================
+                 */
+                if (!IsTargetOnKickSide(
+                        target,
+                        direction))
+                {
+                    if (debugLogs)
+                    {
+                        Debug.Log(
+                            "[LEG ATTACK] Target ignored: " +
+                            target.name +
+                            " is on the WRONG SIDE.",
+                            target
+                        );
+                    }
+
+                    continue;
+                }
+
+                if (hitEachObjectOnlyOnce &&
+                    alreadyHit.Contains(
+                        target))
+                {
+                    continue;
+                }
+
+                if (hitEachObjectOnlyOnce)
+                {
+                    alreadyHit.Add(
+                        target
+                    );
+                }
+
+                bool hasKickReceiver =
+                    HasReceiveKick(
+                        target
+                    );
+
+                if (!hasKickReceiver)
+                    continue;
+
+                bool isEnemyTarget =
+                    IsEnemyTarget(
+                        target
+                    );
+
+                bool isBoxTarget =
+                    IsBreakableBoxTarget(
+                        target
+                    );
+
+                target.SendMessage(
+                    "ReceiveKick",
+                    kickDamage,
+                    SendMessageOptions.DontRequireReceiver
+                );
+
+                anyRealTargetHit =
+                    true;
+
+                if (isBoxTarget)
+                {
+                    RememberBox(
+                        target
+                    );
+                }
+
+                if (isEnemyTarget &&
+                    !enemyImpactSoundPlayed)
+                {
+                    PlayKickImpactSound();
+
+                    enemyImpactSoundPlayed =
+                        true;
+                }
+
+                if (debugLogs)
+                {
+                    Debug.Log(
+                        "[LEG ATTACK] Kick -> " +
+                        target.name,
+                        target
+                    );
+                }
+            }
+        }
+
+        if (!anyRealTargetHit)
+        {
+            TryHitRememberedBox(
+                direction,
+                alreadyHit
+            );
+        }
+    }
+
+
+    // ============================================================
+    // STRICT KICK SIDE CHECK
+    // ============================================================
+
+    private bool IsTargetOnKickSide(
+        GameObject target,
+        float direction
+    )
+    {
+        if (target == null ||
+            player == null)
+        {
+            return false;
+        }
+
+        float playerCenterX =
+            GetPlayerCenterX();
+
+        float targetCenterX =
+            GetTargetCenterX(
+                target
+            );
+
+        float relativeX =
+            targetCenterX -
+            playerCenterX;
+
+        if (direction > 0f)
+        {
+            return
+                relativeX >
+                minimumTargetSideDistance;
+        }
+
+        return
+            relativeX <
+            -minimumTargetSideDistance;
+    }
+
+
+    // ============================================================
+    // PLAYER CENTER
+    // ============================================================
+
+    private float GetPlayerCenterX()
+    {
+        if (playerCollider != null)
+        {
+            return
+                playerCollider.bounds.center.x;
+        }
+
+        if (player != null)
+        {
+            return
+                player.position.x;
+        }
+
+        return
+            transform.position.x;
+    }
+
+
+    // ============================================================
+    // TARGET CENTER
+    // ============================================================
+
+    private float GetTargetCenterX(
+        GameObject target
+    )
+    {
+        if (target == null)
+        {
+            return 0f;
+        }
+
+        Collider2D targetCollider =
+            target.GetComponent<Collider2D>();
+
+        if (targetCollider == null)
+        {
+            targetCollider =
+                target.GetComponentInChildren<
+                    Collider2D
+                >();
+        }
+
+        if (targetCollider != null)
+        {
+            return
+                targetCollider.bounds.center.x;
+        }
+
+        return
+            target.transform.position.x;
+    }
+
+
+    // ============================================================
+    // BOX COMBO
+    // ============================================================
+
+    private void RememberBox(
+        GameObject box
+    )
+    {
+        if (!useBoxComboAssist ||
+            box == null)
+        {
+            return;
+        }
+
+        rememberedBox =
+            box;
+
+        rememberedBoxHitTime =
+            Time.time;
+    }
+
+    private void TryHitRememberedBox(
+        float direction,
+        HashSet<GameObject> alreadyHit
+    )
+    {
+        if (!useBoxComboAssist)
+            return;
+
+        if (rememberedBox == null)
+            return;
+
+        if (Time.time -
+            rememberedBoxHitTime >
+            boxComboMemoryTime)
+        {
+            rememberedBox =
+                null;
+
+            return;
+        }
+
+        if (!IsBreakableBoxTarget(
+                rememberedBox))
+        {
+            rememberedBox =
+                null;
+
+            return;
+        }
+
+        if (alreadyHit != null &&
+            alreadyHit.Contains(
+                rememberedBox))
+        {
+            return;
+        }
+
+        /*
+         * Даже Box Combo Assist теперь
+         * обязательно соблюдает сторону удара.
+         */
+        if (!IsTargetOnKickSide(
+                rememberedBox,
+                direction))
+        {
+            return;
+        }
+
+        Collider2D boxCollider =
+            rememberedBox
+                .GetComponent<Collider2D>();
+
+        if (boxCollider == null)
+        {
+            boxCollider =
+                rememberedBox
+                    .GetComponentInChildren<
+                        Collider2D
+                    >();
+        }
+
+        if (boxCollider == null)
+            return;
+
+        float verticalDifference =
+            Mathf.Abs(
+                boxCollider.bounds.center.y -
+                (
+                    player.position.y +
+                    attackVerticalOffset
+                )
+            );
+
+        if (verticalDifference >
+            boxComboMaxVerticalDifference)
+        {
+            return;
+        }
+
+        float nearEdgeDistance;
+
+        float playerCenterX =
+            GetPlayerCenterX();
+
+        if (direction > 0f)
+        {
+            nearEdgeDistance =
+                boxCollider.bounds.min.x -
+                playerCenterX;
+        }
+        else
+        {
+            nearEdgeDistance =
+                playerCenterX -
+                boxCollider.bounds.max.x;
+        }
+
+        float normalMaximumReach =
+            attackDistance +
+            attackWidth *
+            0.5f;
+
+        float allowedReach =
+            normalMaximumReach +
+            boxComboExtraReach;
+
+        if (nearEdgeDistance >
+            allowedReach)
         {
             if (debugLogs)
             {
                 Debug.Log(
-                    "[LEG ATTACK] Удар в воздух.",
+                    "[LEG ATTACK] " +
+                    "Remembered box too far. Distance = " +
+                    nearEdgeDistance.ToString("F2"),
                     this
                 );
             }
@@ -395,92 +878,110 @@ public class LegAttackButton : MonoBehaviour
             return;
         }
 
-        System.Collections.Generic.HashSet<GameObject>
-            alreadyHit =
-                new System.Collections.Generic.HashSet<GameObject>();
+        rememberedBox.SendMessage(
+            "ReceiveKick",
+            kickDamage,
+            SendMessageOptions.DontRequireReceiver
+        );
 
-        /*
-         * За одно нажатие звук попадания
-         * по телу проигрываем максимум один раз.
-         */
-        bool enemyImpactSoundPlayed =
-            false;
+        rememberedBoxHitTime =
+            Time.time;
 
-        foreach (Collider2D hit in hits)
+        if (debugLogs)
         {
-            if (PlayerIsDead())
-                return;
-
-            if (hit == null)
-                continue;
-
-            if (hit.transform == player ||
-                hit.transform.IsChildOf(player))
-            {
-                continue;
-            }
-
-            GameObject target =
-                FindKickTargetObject(
-                    hit
-                );
-
-            if (target == null)
-                continue;
-
-            if (hitEachObjectOnlyOnce &&
-                alreadyHit.Contains(target))
-            {
-                continue;
-            }
-
-            if (hitEachObjectOnlyOnce)
-            {
-                alreadyHit.Add(target);
-            }
-
-            /*
-             * Проверяем:
-             * это живой враг или другой объект?
-             *
-             * Только Guard / Skeleton
-             * получают отдельный звук удара по телу.
-             */
-            bool isEnemyTarget =
-                IsEnemyTarget(
-                    target
-                );
-
-            target.SendMessage(
-                "ReceiveKick",
-                kickDamage,
-                SendMessageOptions.DontRequireReceiver
+            Debug.Log(
+                "[LEG ATTACK] BOX COMBO ASSIST -> " +
+                rememberedBox.name +
+                " | distance = " +
+                nearEdgeDistance.ToString("F2"),
+                rememberedBox
             );
-
-            /*
-             * Ящики сюда НЕ проходят.
-             * Поэтому у них остаются
-             * только собственные звуки.
-             */
-            if (isEnemyTarget &&
-                !enemyImpactSoundPlayed)
-            {
-                PlayKickImpactSound();
-
-                enemyImpactSoundPlayed =
-                    true;
-            }
-
-            if (debugLogs)
-            {
-                Debug.Log(
-                    "[LEG ATTACK] Kick -> " +
-                    target.name,
-                    target
-                );
-            }
         }
     }
+
+
+    // ============================================================
+    // RECEIVE KICK CHECK
+    // ============================================================
+
+    private bool HasReceiveKick(
+        GameObject target
+    )
+    {
+        if (target == null)
+            return false;
+
+        MonoBehaviour[] behaviours =
+            target.GetComponents<
+                MonoBehaviour
+            >();
+
+        foreach (MonoBehaviour behaviour
+                 in behaviours)
+        {
+            if (behaviour == null)
+                continue;
+
+            System.Reflection.MethodInfo method =
+                behaviour
+                    .GetType()
+                    .GetMethod(
+                        "ReceiveKick",
+                        new System.Type[]
+                        {
+                            typeof(int)
+                        }
+                    );
+
+            if (method != null)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
+    // ============================================================
+    // BOX CHECK
+    // ============================================================
+
+    private bool IsBreakableBoxTarget(
+        GameObject target
+    )
+    {
+        if (target == null)
+            return false;
+
+        MonoBehaviour[] behaviours =
+            target.GetComponents<
+                MonoBehaviour
+            >();
+
+        foreach (MonoBehaviour behaviour
+                 in behaviours)
+        {
+            if (behaviour == null)
+                continue;
+
+            string typeName =
+                behaviour
+                    .GetType()
+                    .Name;
+
+            if (typeName.Contains(
+                    "Breakable") &&
+                typeName.Contains(
+                    "Box"))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 
     // ============================================================
     // ENEMY CHECK
@@ -493,9 +994,6 @@ public class LegAttackButton : MonoBehaviour
         if (target == null)
             return false;
 
-        /*
-         * GuardEnemy проверяем напрямую.
-         */
         GuardEnemy guard =
             target.GetComponent<GuardEnemy>();
 
@@ -504,14 +1002,10 @@ public class LegAttackButton : MonoBehaviour
             return !guard.IsDead;
         }
 
-        /*
-         * SkeletonEnemy проверяем по имени класса.
-         *
-         * Так LegAttackButton не зависит
-         * жёстко от реализации SkeletonEnemy.
-         */
         MonoBehaviour[] behaviours =
-            target.GetComponents<MonoBehaviour>();
+            target.GetComponents<
+                MonoBehaviour
+            >();
 
         foreach (MonoBehaviour behaviour
                  in behaviours)
@@ -519,7 +1013,9 @@ public class LegAttackButton : MonoBehaviour
             if (behaviour == null)
                 continue;
 
-            if (behaviour.GetType().Name ==
+            if (behaviour
+                    .GetType()
+                    .Name ==
                 "SkeletonEnemy")
             {
                 return true;
@@ -529,13 +1025,14 @@ public class LegAttackButton : MonoBehaviour
         return false;
     }
 
+
     // ============================================================
-    // KICK IMPACT SOUND
+    // IMPACT AUDIO
     // ============================================================
 
     private void PlayKickImpactSound()
     {
-        if (PlayerIsDead())
+        if (GameplayActionsLocked())
             return;
 
         if (kickImpactClip == null)
@@ -550,10 +1047,6 @@ public class LegAttackButton : MonoBehaviour
         }
         else if (player != null)
         {
-            /*
-             * Запасной вариант,
-             * если AudioSource не назначен.
-             */
             AudioSource.PlayClipAtPoint(
                 kickImpactClip,
                 player.position,
@@ -561,6 +1054,7 @@ public class LegAttackButton : MonoBehaviour
             );
         }
     }
+
 
     // ============================================================
     // FIND TARGET ROOT
@@ -578,13 +1072,17 @@ public class LegAttackButton : MonoBehaviour
 
         while (current != null)
         {
-            if (current.GetComponent<GuardEnemy>() != null)
+            if (current.GetComponent<
+                    GuardEnemy
+                >() != null)
             {
                 return current.gameObject;
             }
 
             MonoBehaviour[] behaviours =
-                current.GetComponents<MonoBehaviour>();
+                current.GetComponents<
+                    MonoBehaviour
+                >();
 
             foreach (MonoBehaviour behaviour
                      in behaviours)
@@ -616,8 +1114,9 @@ public class LegAttackButton : MonoBehaviour
         return hit.gameObject;
     }
 
+
     // ============================================================
-    // DISABLE SAFETY
+    // DISABLE
     // ============================================================
 
     private void OnDisable()
@@ -628,14 +1127,17 @@ public class LegAttackButton : MonoBehaviour
                 attackRoutine
             );
 
-            attackRoutine = null;
+            attackRoutine =
+                null;
         }
 
-        attackBusy = false;
+        attackBusy =
+            false;
     }
 
+
     // ============================================================
-    // CLEANUP
+    // DESTROY
     // ============================================================
 
     private void OnDestroy()
@@ -648,8 +1150,9 @@ public class LegAttackButton : MonoBehaviour
         }
     }
 
+
     // ============================================================
-    // DEBUG ATTACK ZONE
+    // GIZMO
     // ============================================================
 
     private void OnDrawGizmosSelected()
@@ -663,7 +1166,8 @@ public class LegAttackButton : MonoBehaviour
         if (targetPlayer == null)
             return;
 
-        bool right = true;
+        bool right =
+            true;
 
         if (playerKick != null)
         {
@@ -672,7 +1176,9 @@ public class LegAttackButton : MonoBehaviour
         }
 
         float direction =
-            right ? 1f : -1f;
+            right
+                ? 1f
+                : -1f;
 
         Vector3 center =
             new Vector3(
@@ -694,5 +1200,72 @@ public class LegAttackButton : MonoBehaviour
                 0.01f
             )
         );
+    }
+
+
+    // ============================================================
+    // VALIDATE
+    // ============================================================
+
+    private void OnValidate()
+    {
+        attackDistance =
+            Mathf.Max(
+                0f,
+                attackDistance
+            );
+
+        attackWidth =
+            Mathf.Max(
+                0.01f,
+                attackWidth
+            );
+
+        attackHeight =
+            Mathf.Max(
+                0.01f,
+                attackHeight
+            );
+
+        minimumTargetSideDistance =
+            Mathf.Max(
+                0f,
+                minimumTargetSideDistance
+            );
+
+        kickDamage =
+            Mathf.Max(
+                1,
+                kickDamage
+            );
+
+        impactDelay =
+            Mathf.Max(
+                0f,
+                impactDelay
+            );
+
+        boxComboExtraReach =
+            Mathf.Max(
+                0f,
+                boxComboExtraReach
+            );
+
+        boxComboMemoryTime =
+            Mathf.Max(
+                0f,
+                boxComboMemoryTime
+            );
+
+        boxComboMaxVerticalDifference =
+            Mathf.Max(
+                0f,
+                boxComboMaxVerticalDifference
+            );
+
+        kickImpactVolume =
+            Mathf.Clamp01(
+                kickImpactVolume
+            );
     }
 }

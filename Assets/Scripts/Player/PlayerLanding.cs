@@ -35,10 +35,10 @@ public class PlayerLanding : MonoBehaviour
     [Header("Landing Audio")]
     [SerializeField] private AudioSource landingAudioSource;
 
-    [Tooltip("Обычный звук приземления без Ow.")]
+    [Tooltip("Звук касания земли. В Inspector сюда устанавливается Jump landing.")]
     [SerializeField] private AudioClip normalLandingClip;
 
-    [Tooltip("Соединённый звук приземления вместе с Ow.")]
+    [Tooltip("Голосовая реакция на болезненное падение. В Inspector сюда устанавливается Ouch.")]
     [SerializeField] private AudioClip hurtLandingClip;
 
     [Header("Small Landing Sound")]
@@ -89,22 +89,8 @@ public class PlayerLanding : MonoBehaviour
     [SerializeField] private bool debugLogs;
 
     private bool initialized;
-
-    /*
-     * true только тогда, когда игрок действительно
-     * находился в воздухе и новое приземление разрешено.
-     */
     private bool landingArmed;
-
-    /*
-     * Отслеживается высота текущего полёта.
-     */
     private bool isTrackingFall;
-
-    /*
-     * После пружины следующее касание обычной поверхности
-     * должно дать хотя бы обычный звук.
-     */
     private bool forceNextLandingSoundAfterSpring;
 
     private float highestAirPositionY;
@@ -170,11 +156,6 @@ public class PlayerLanding : MonoBehaviour
         {
             consecutiveAirborneFrames++;
 
-            /*
-             * Одного ложного кадра GroundCheck недостаточно.
-             * Только после нескольких подряд кадров в воздухе
-             * разрешаем новое приземление.
-             */
             if (!landingArmed &&
                 consecutiveAirborneFrames >=
                 airborneFramesToArmLanding)
@@ -221,10 +202,6 @@ public class PlayerLanding : MonoBehaviour
         Collision2D collision
     )
     {
-        /*
-         * Нужен для TilemapCollider2D и CompositeCollider2D,
-         * когда разные платформы входят в один общий коллайдер.
-         */
         TryProcessLanding(
             collision
         );
@@ -251,26 +228,15 @@ public class PlayerLanding : MonoBehaviour
             collision.collider
                 .GetComponentInParent<SpringPad>();
 
-        /*
-         * Падение непосредственно на пружину
-         * никогда не считается обычным приземлением.
-         */
         if (springPad != null)
             return;
 
         if (!HasGroundContact(collision))
             return;
 
-        /*
-         * Игрок ещё явно движется вверх.
-         * Например, касается бокового края платформы.
-         */
         if (previousVerticalVelocity > 0.15f)
             return;
 
-        /*
-         * Enter и Stay могут прийти в одном кадре.
-         */
         int currentFrame =
             Time.frameCount;
 
@@ -293,11 +259,6 @@ public class PlayerLanding : MonoBehaviour
         bool forceNormalSound =
             forceNextLandingSoundAfterSpring;
 
-        /*
-         * Сразу блокируем повторную обработку.
-         * Она будет разрешена только после настоящего
-         * нового отрыва от земли.
-         */
         landingArmed = false;
         isTrackingFall = false;
         consecutiveAirborneFrames = 0;
@@ -335,10 +296,6 @@ public class PlayerLanding : MonoBehaviour
 
     public void NotifySpringBounce()
     {
-        /*
-         * Пружина сама гарантированно начинает новый полёт.
-         * Здесь не ждём обычные два кадра GroundCheck.
-         */
         landingArmed = true;
         isTrackingFall = true;
 
@@ -470,6 +427,17 @@ public class PlayerLanding : MonoBehaviour
         if (fallDistance >=
             heavyFallDistance)
         {
+            /*
+             * При сильном падении одновременно проигрываются:
+             * 1. звук касания земли;
+             * 2. голосовая реакция Ouch.
+             */
+            PlayLandingSound(
+                normalLandingClip,
+                heavyLandingVolume,
+                heavyLandingPitch
+            );
+
             PlayLandingSound(
                 hurtLandingClip,
                 heavyLandingVolume,
@@ -490,7 +458,8 @@ public class PlayerLanding : MonoBehaviour
             {
                 Debug.Log(
                     $"PlayerLanding: сильное падение. " +
-                    $"Высота: {fallDistance:F2}. Урон: 2.",
+                    $"Высота: {fallDistance:F2}. Урон: 2. " +
+                    "Проиграны Jump landing и Ouch.",
                     this
                 );
             }
@@ -501,6 +470,17 @@ public class PlayerLanding : MonoBehaviour
         if (fallDistance >=
             mediumFallDistance)
         {
+            /*
+             * При среднем падении одновременно проигрываются:
+             * 1. звук касания земли;
+             * 2. голосовая реакция Ouch.
+             */
+            PlayLandingSound(
+                normalLandingClip,
+                mediumLandingVolume,
+                mediumLandingPitch
+            );
+
             PlayLandingSound(
                 hurtLandingClip,
                 mediumLandingVolume,
@@ -521,7 +501,8 @@ public class PlayerLanding : MonoBehaviour
             {
                 Debug.Log(
                     $"PlayerLanding: среднее падение. " +
-                    $"Высота: {fallDistance:F2}. Урон: 1.",
+                    $"Высота: {fallDistance:F2}. Урон: 1. " +
+                    "Проиграны Jump landing и Ouch.",
                     this
                 );
             }
@@ -574,6 +555,10 @@ public class PlayerLanding : MonoBehaviour
                 1.5f
             );
 
+        /*
+         * PlayOneShot позволяет нескольким звукам
+         * воспроизводиться одновременно через один AudioSource.
+         */
         landingAudioSource.PlayOneShot(
             clip,
             Mathf.Clamp01(volume)

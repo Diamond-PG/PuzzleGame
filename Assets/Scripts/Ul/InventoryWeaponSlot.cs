@@ -16,6 +16,21 @@ public class InventoryWeaponSlot : MonoBehaviour
     [SerializeField]
     private string weaponId = "Sword";
 
+
+    // ============================================================
+    // DURABILITY
+    // ============================================================
+
+    [Header("WEAPON DURABILITY")]
+
+    [Tooltip(
+        "Прочность именно ЭТОГО экземпляра оружия. " +
+        "1 = 100%, 0 = сломано."
+    )]
+    [SerializeField, Range(0f, 1f)]
+    private float weaponDurability01 = 1f;
+
+
     // ============================================================
     // SLOT
     // ============================================================
@@ -24,6 +39,7 @@ public class InventoryWeaponSlot : MonoBehaviour
 
     [SerializeField]
     private Image slotItemImage;
+
 
     // ============================================================
     // WEAPON BUTTON
@@ -48,6 +64,15 @@ public class InventoryWeaponSlot : MonoBehaviour
     private Vector2 weaponButtonIconOffset =
         Vector2.zero;
 
+    [Tooltip(
+        "Индивидуальный масштаб подсветки оружия " +
+        "внутри большого WeaponButton. " +
+        "1 = обычный размер."
+    )]
+    [SerializeField, Min(0.1f)]
+    private float weaponButtonGlowScale = 1f;
+
+
     // ============================================================
     // SYSTEM
     // ============================================================
@@ -60,6 +85,7 @@ public class InventoryWeaponSlot : MonoBehaviour
     [SerializeField]
     private UnequipWeaponButton unequipButton;
 
+
     // ============================================================
     // SLOT BUTTON
     // ============================================================
@@ -68,6 +94,7 @@ public class InventoryWeaponSlot : MonoBehaviour
 
     [SerializeField]
     private Button slotButton;
+
 
     // ============================================================
     // DEBUG
@@ -78,25 +105,48 @@ public class InventoryWeaponSlot : MonoBehaviour
     [SerializeField]
     private bool debugLogs = true;
 
+
+    // ============================================================
+    // STATE
+    // ============================================================
+
+    private bool weaponConfigured;
+
+
     // ============================================================
     // PUBLIC
     // ============================================================
 
-    public string WeaponId => weaponId;
+    public string WeaponId =>
+        weaponId;
+
+    public float WeaponDurability01 =>
+        Mathf.Clamp01(
+            weaponDurability01
+        );
+
+    public bool IsConfiguredAsWeapon =>
+        weaponConfigured;
+
 
     public Sprite WeaponIcon
     {
         get
         {
             if (weaponIcon != null)
+            {
                 return weaponIcon;
+            }
 
             if (slotItemImage != null)
+            {
                 return slotItemImage.sprite;
+            }
 
             return null;
         }
     }
+
 
     // ============================================================
     // AWAKE
@@ -105,11 +155,37 @@ public class InventoryWeaponSlot : MonoBehaviour
     private void Awake()
     {
         RefreshReferences();
-        ConnectButton();
+
+        weaponDurability01 =
+            Mathf.Clamp01(
+                weaponDurability01
+            );
+
+        weaponButtonGlowScale =
+            Mathf.Max(
+                0.1f,
+                weaponButtonGlowScale
+            );
+
+        weaponConfigured =
+            weaponIcon != null &&
+            !string.IsNullOrEmpty(
+                weaponId
+            );
+
+        if (weaponConfigured)
+        {
+            ConnectButton();
+        }
+        else
+        {
+            DisconnectButton();
+        }
     }
 
+
     // ============================================================
-    // REFRESH REFERENCES
+    // REFERENCES
     // ============================================================
 
     private void RefreshReferences()
@@ -138,8 +214,9 @@ public class InventoryWeaponSlot : MonoBehaviour
         }
     }
 
+
     // ============================================================
-    // CONNECT BUTTON
+    // BUTTON
     // ============================================================
 
     private void ConnectButton()
@@ -156,8 +233,20 @@ public class InventoryWeaponSlot : MonoBehaviour
         );
     }
 
+
+    private void DisconnectButton()
+    {
+        if (slotButton == null)
+            return;
+
+        slotButton.onClick.RemoveListener(
+            EquipWeapon
+        );
+    }
+
+
     // ============================================================
-    // FIND SLOT ITEM
+    // FIND ITEM
     // ============================================================
 
     private void FindSlotItemImage()
@@ -172,19 +261,26 @@ public class InventoryWeaponSlot : MonoBehaviour
             if (image == null)
                 continue;
 
-            if (image.transform == transform)
-                continue;
-
-            if (image.name.StartsWith("Item"))
+            if (image.transform ==
+                transform)
             {
-                slotItemImage = image;
+                continue;
+            }
+
+            if (image.name.StartsWith(
+                    "Item"))
+            {
+                slotItemImage =
+                    image;
+
                 return;
             }
         }
     }
 
+
     // ============================================================
-    // SETUP WEAPON
+    // OLD SETUP - DEFAULT 100%
     // ============================================================
 
     public void SetupWeapon(
@@ -197,6 +293,73 @@ public class InventoryWeaponSlot : MonoBehaviour
         Vector2 newButtonIconOffset,
         InventoryUI newInventoryUI,
         UnequipWeaponButton newUnequipButton
+    )
+    {
+        SetupWeapon(
+            newWeaponIcon,
+            newWeaponId,
+            newWeaponButton,
+            newWeaponButtonIcon,
+            newButtonIconSize,
+            newButtonIconRotation,
+            newButtonIconOffset,
+            newInventoryUI,
+            newUnequipButton,
+            1f,
+            1f
+        );
+    }
+
+
+    // ============================================================
+    // SETUP WITH DURABILITY
+    // ============================================================
+
+    public void SetupWeapon(
+        Sprite newWeaponIcon,
+        string newWeaponId,
+        Button newWeaponButton,
+        Image newWeaponButtonIcon,
+        Vector2 newButtonIconSize,
+        float newButtonIconRotation,
+        Vector2 newButtonIconOffset,
+        InventoryUI newInventoryUI,
+        UnequipWeaponButton newUnequipButton,
+        float newWeaponDurability01
+    )
+    {
+        SetupWeapon(
+            newWeaponIcon,
+            newWeaponId,
+            newWeaponButton,
+            newWeaponButtonIcon,
+            newButtonIconSize,
+            newButtonIconRotation,
+            newButtonIconOffset,
+            newInventoryUI,
+            newUnequipButton,
+            newWeaponDurability01,
+            1f
+        );
+    }
+
+
+    // ============================================================
+    // SETUP WITH DURABILITY + BIG GLOW SCALE
+    // ============================================================
+
+    public void SetupWeapon(
+        Sprite newWeaponIcon,
+        string newWeaponId,
+        Button newWeaponButton,
+        Image newWeaponButtonIcon,
+        Vector2 newButtonIconSize,
+        float newButtonIconRotation,
+        Vector2 newButtonIconOffset,
+        InventoryUI newInventoryUI,
+        UnequipWeaponButton newUnequipButton,
+        float newWeaponDurability01,
+        float newWeaponButtonGlowScale
     )
     {
         weaponIcon =
@@ -220,27 +383,64 @@ public class InventoryWeaponSlot : MonoBehaviour
         weaponButtonIconOffset =
             newButtonIconOffset;
 
+        weaponButtonGlowScale =
+            Mathf.Max(
+                0.1f,
+                newWeaponButtonGlowScale
+            );
+
         inventoryUI =
             newInventoryUI;
 
         unequipButton =
             newUnequipButton;
 
+        weaponDurability01 =
+            Mathf.Clamp01(
+                newWeaponDurability01
+            );
+
         slotButton =
             GetComponent<Button>();
 
         FindSlotItemImage();
+
+        weaponConfigured =
+            true;
+
         ConnectButton();
 
         if (debugLogs)
         {
             Debug.Log(
-                "[WEAPON SLOT] Configured as: " +
-                weaponId,
+                "[WEAPON SLOT] Configured: " +
+                weaponId +
+                " | Durability = " +
+                Mathf.RoundToInt(
+                    weaponDurability01 * 100f
+                ) +
+                "% | Big Glow Scale = " +
+                weaponButtonGlowScale,
                 this
             );
         }
     }
+
+
+    // ============================================================
+    // SET DURABILITY
+    // ============================================================
+
+    public void SetWeaponDurability01(
+        float value
+    )
+    {
+        weaponDurability01 =
+            Mathf.Clamp01(
+                value
+            );
+    }
+
 
     // ============================================================
     // EQUIP
@@ -248,6 +448,11 @@ public class InventoryWeaponSlot : MonoBehaviour
 
     public void EquipWeapon()
     {
+        if (!weaponConfigured)
+        {
+            return;
+        }
+
         RefreshReferences();
 
         if (inventoryUI == null)
@@ -313,7 +518,9 @@ public class InventoryWeaponSlot : MonoBehaviour
                 weaponButtonIcon,
                 weaponButtonIconSize,
                 weaponButtonIconRotation,
-                weaponButtonIconOffset
+                weaponButtonIconOffset,
+                weaponDurability01,
+                weaponButtonGlowScale
             );
 
         if (!success)
@@ -336,20 +543,42 @@ public class InventoryWeaponSlot : MonoBehaviour
         {
             Debug.Log(
                 "[WEAPON SLOT] Equipped: " +
-                weaponId,
+                weaponId +
+                " | Durability = " +
+                Mathf.RoundToInt(
+                    weaponDurability01 * 100f
+                ) +
+                "%",
                 this
             );
         }
     }
 
+
     // ============================================================
-    // CLEAR WEAPON DATA
+    // CLEAR
     // ============================================================
 
     public void ClearWeaponData()
     {
-        weaponIcon = null;
-        weaponId = "";
+        weaponConfigured =
+            false;
+
+        weaponIcon =
+            null;
+
+        weaponId =
+            "";
+
+        weaponDurability01 =
+            1f;
+
+        weaponButtonGlowScale =
+            1f;
+
+        RefreshReferences();
+
+        DisconnectButton();
 
         if (debugLogs)
         {
@@ -360,17 +589,32 @@ public class InventoryWeaponSlot : MonoBehaviour
         }
     }
 
+
     // ============================================================
-    // CLEANUP
+    // DESTROY
     // ============================================================
 
     private void OnDestroy()
     {
-        if (slotButton != null)
-        {
-            slotButton.onClick.RemoveListener(
-                EquipWeapon
+        DisconnectButton();
+    }
+
+
+    // ============================================================
+    // VALIDATE
+    // ============================================================
+
+    private void OnValidate()
+    {
+        weaponDurability01 =
+            Mathf.Clamp01(
+                weaponDurability01
             );
-        }
+
+        weaponButtonGlowScale =
+            Mathf.Max(
+                0.1f,
+                weaponButtonGlowScale
+            );
     }
 }

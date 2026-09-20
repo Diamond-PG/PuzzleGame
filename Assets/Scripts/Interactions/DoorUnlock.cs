@@ -3,88 +3,216 @@ using UnityEngine;
 
 public class DoorUnlock : MonoBehaviour
 {
+    // ============================================================
+    // DOOR PARTS
+    // ============================================================
+
     [Header("Door Parts")]
-    [SerializeField] private Transform doorLeft;
-    [SerializeField] private Transform doorRight;
-    [SerializeField] private Transform lockBar;
+
+    [SerializeField]
+    private Transform doorLeft;
+
+    [SerializeField]
+    private Transform doorRight;
+
+    [SerializeField]
+    private Transform lockBar;
+
+
+    // ============================================================
+    // DOOR PASSAGE COLLIDER
+    // ============================================================
 
     [Header("Door Passage Collider")]
+
     [Tooltip(
         "Коллайдер самой картинки ворот. " +
         "Он переводится в Trigger, чтобы игрок и Guard " +
         "могли свободно ходить перед воротами."
     )]
-    [SerializeField] private Collider2D doorCollider;
+    [SerializeField]
+    private Collider2D doorCollider;
+
+
+    // ============================================================
+    // LEVEL EXIT
+    // ============================================================
 
     [Header("Level Exit")]
+
     [Tooltip(
         "Trigger выхода в туннель / завершения уровня. " +
-        "Пока ворота закрыты, он будет выключен. " +
-        "После открытия включится."
+        "Пока ворота закрыты, он выключен. " +
+        "После открытия включается."
     )]
-    [SerializeField] private Collider2D levelExitTrigger;
+    [SerializeField]
+    private Collider2D levelExitTrigger;
+
+
+    // ============================================================
+    // GUARD REQUIREMENT
+    // ============================================================
 
     [Header("Guard Requirement")]
+
     [Tooltip(
         "Страж, которого обязательно нужно уничтожить " +
         "перед открытием ворот."
     )]
-    [SerializeField] private GuardEnemy requiredGuard;
+    [SerializeField]
+    private GuardEnemy requiredGuard;
 
     [Tooltip(
         "Если включено, дверь нельзя открыть, пока Guard жив."
     )]
-    [SerializeField] private bool requireGuardDefeated = true;
+    [SerializeField]
+    private bool requireGuardDefeated = true;
+
+
+    // ============================================================
+    // SORTING
+    // ============================================================
 
     [Header("Sorting")]
-    [SerializeField] private int doorOrderInLayer = 1;
-    [SerializeField] private int lockOrderInLayer = 2;
-    [SerializeField] private int flashOrderInLayer = 3;
+
+    [SerializeField]
+    private int doorOrderInLayer = 1;
+
+    [SerializeField]
+    private int lockOrderInLayer = 2;
+
+    [SerializeField]
+    private int flashOrderInLayer = 3;
+
+
+    // ============================================================
+    // PLAYER
+    // ============================================================
 
     [Header("Player")]
-    [SerializeField] private string playerTag = "Player";
+
+    [SerializeField]
+    private string playerTag = "Player";
 
     [Tooltip(
         "Насколько близко игрок должен стоять к воротам, " +
         "чтобы ключ сработал."
     )]
-    [SerializeField] private float interactDistance = 1f;
+    [SerializeField]
+    private float interactDistance = 1f;
 
-    [Header("Key UI")]
-    [SerializeField] private GameObject keyIconUI;
+
+    // ============================================================
+    // OPEN SOUND
+    // ============================================================
 
     [Header("Open Sound")]
-    [SerializeField] private AudioSource unlockAudioSource;
-    [SerializeField] private bool playUnlockSound = true;
+
+    [SerializeField]
+    private AudioSource unlockAudioSource;
+
+    [SerializeField]
+    private bool playUnlockSound = true;
+
+
+    // ============================================================
+    // HAPTICS
+    // ============================================================
 
     [Header("Unlock Haptics")]
-    [SerializeField] private bool useUnlockHaptics = true;
+
+    [SerializeField]
+    private bool useUnlockHaptics = true;
+
+
+    // ============================================================
+    // OPEN ANIMATION
+    // ============================================================
 
     [Header("Open Animation")]
-    [SerializeField] private float openDuration = 0.7f;
-    [SerializeField] private float leftOpenXOffset = -0.45f;
-    [SerializeField] private float rightOpenXOffset = 0.45f;
-    [SerializeField] private float openedScaleX = 0.55f;
-    [SerializeField] private float openedScaleY = 1f;
+
+    [SerializeField]
+    private float openDuration = 0.7f;
+
+    [SerializeField]
+    private float leftOpenXOffset = -0.45f;
+
+    [SerializeField]
+    private float rightOpenXOffset = 0.45f;
+
+    [SerializeField]
+    private float openedScaleX = 0.55f;
+
+    [SerializeField]
+    private float openedScaleY = 1f;
+
+
+    // ============================================================
+    // LOCK FALL
+    // ============================================================
 
     [Header("Lock Fall")]
-    [SerializeField] private float lockFallDistance = 0.55f;
-    [SerializeField] private float lockFallDuration = 0.35f;
+
+    [SerializeField]
+    private float lockFallDistance = 0.55f;
+
+    [SerializeField]
+    private float lockFallDuration = 0.35f;
+
+
+    // ============================================================
+    // LOCK FLASH
+    // ============================================================
 
     [Header("Lock Flash")]
-    [SerializeField] private ParticleSystem lockFlash;
-    [SerializeField] private bool playFlashBeforeLockFalls = true;
+
+    [SerializeField]
+    private ParticleSystem lockFlash;
+
+    [SerializeField]
+    private bool playFlashBeforeLockFalls = true;
+
+
+    // ============================================================
+    // VISUAL
+    // ============================================================
 
     [Header("Visual")]
-    [SerializeField] private float openedDarkness = 0.65f;
+
+    [SerializeField]
+    private float openedDarkness = 0.65f;
+
+
+    // ============================================================
+    // DEBUG
+    // ============================================================
 
     [Header("Debug")]
-    [SerializeField] private bool debugLogs = true;
+
+    [SerializeField]
+    private bool debugLogs = true;
+
+
+    // ============================================================
+    // STATE
+    // ============================================================
 
     private bool isOpened;
+
     private bool openingStarted;
 
-    public bool IsOpened => isOpened;
+
+    // ============================================================
+    // PUBLIC
+    // ============================================================
+
+    public bool IsOpened =>
+        isOpened;
+
+
+    // ============================================================
+    // AWAKE
+    // ============================================================
 
     private void Awake()
     {
@@ -106,31 +234,19 @@ public class DoorUnlock : MonoBehaviour
                 Object.FindFirstObjectByType<GuardEnemy>();
         }
 
-        /*
-         * ВАЖНО.
-         *
-         * Сами ворота визуально находятся
-         * ЗА игроком и Guard.
-         *
-         * Поэтому их Collider не должен быть
-         * физической стеной в горизонтальном коридоре.
-         *
-         * Но Collider мы не удаляем.
-         * Просто переводим его в Trigger.
-         */
         if (doorCollider != null)
         {
-            doorCollider.isTrigger = true;
-            doorCollider.enabled = true;
+            doorCollider.isTrigger =
+                true;
+
+            doorCollider.enabled =
+                true;
         }
 
-        /*
-         * Выход в тоннель нельзя активировать,
-         * пока дверь закрыта.
-         */
         if (levelExitTrigger != null)
         {
-            levelExitTrigger.enabled = false;
+            levelExitTrigger.enabled =
+                false;
         }
 
         FixSortingOrder();
@@ -145,10 +261,20 @@ public class DoorUnlock : MonoBehaviour
         }
     }
 
+
+    // ============================================================
+    // START
+    // ============================================================
+
     private void Start()
     {
         FixSortingOrder();
     }
+
+
+    // ============================================================
+    // SORTING
+    // ============================================================
 
     private void FixSortingOrder()
     {
@@ -182,13 +308,16 @@ public class DoorUnlock : MonoBehaviour
         }
     }
 
+
     private void SetOrder(
         Transform target,
         int order
     )
     {
         if (target == null)
+        {
             return;
+        }
 
         SpriteRenderer sr =
             target.GetComponent<SpriteRenderer>();
@@ -200,6 +329,11 @@ public class DoorUnlock : MonoBehaviour
         }
     }
 
+
+    // ============================================================
+    // TRY OPEN WITH KEY
+    // ============================================================
+
     public void TryOpenDoorWithKey()
     {
         if (isOpened ||
@@ -208,9 +342,11 @@ public class DoorUnlock : MonoBehaviour
             return;
         }
 
-        /*
-         * 1. Сначала обязательно проверяем Guard.
-         */
+
+        // --------------------------------------------------------
+        // GUARD
+        // --------------------------------------------------------
+
         if (requireGuardDefeated)
         {
             if (requiredGuard == null)
@@ -227,8 +363,7 @@ public class DoorUnlock : MonoBehaviour
                 if (debugLogs)
                 {
                     Debug.Log(
-                        "[DOOR] Guard is still alive. " +
-                        "Door stays closed.",
+                        "[DOOR] Guard is still alive.",
                         this
                     );
                 }
@@ -236,21 +371,12 @@ public class DoorUnlock : MonoBehaviour
                 return;
             }
 
-            /*
-             * Если requireGuardDefeated включён,
-             * а Guard вообще не назначен и не найден,
-             * дверь тоже не открываем.
-             *
-             * Так мы не получим случайного обхода
-             * условия из-за неправильной ссылки.
-             */
             if (requiredGuard == null)
             {
                 if (debugLogs)
                 {
                     Debug.LogWarning(
-                        "[DOOR] Required Guard not found. " +
-                        "Door cannot open.",
+                        "[DOOR] Required Guard not found.",
                         this
                     );
                 }
@@ -259,16 +385,17 @@ public class DoorUnlock : MonoBehaviour
             }
         }
 
-        /*
-         * 2. Проверяем ключ.
-         */
+
+        // --------------------------------------------------------
+        // KEY
+        // --------------------------------------------------------
+
         if (!KeyPickup.PlayerHasKey())
         {
             if (debugLogs)
             {
                 Debug.Log(
-                    "[DOOR] No key. " +
-                    "Door stays closed.",
+                    "[DOOR] Player has no key.",
                     this
                 );
             }
@@ -276,9 +403,11 @@ public class DoorUnlock : MonoBehaviour
             return;
         }
 
-        /*
-         * 3. Ищем игрока.
-         */
+
+        // --------------------------------------------------------
+        // PLAYER
+        // --------------------------------------------------------
+
         GameObject playerObj =
             GameObject.FindGameObjectWithTag(
                 playerTag
@@ -297,9 +426,11 @@ public class DoorUnlock : MonoBehaviour
             return;
         }
 
-        /*
-         * 4. Проверяем расстояние.
-         */
+
+        // --------------------------------------------------------
+        // DISTANCE
+        // --------------------------------------------------------
+
         float distance =
             Vector2.Distance(
                 playerObj.transform.position,
@@ -309,8 +440,8 @@ public class DoorUnlock : MonoBehaviour
         if (debugLogs)
         {
             Debug.Log(
-                $"[DOOR] TryOpenDoorWithKey. " +
-                $"Distance = {distance:F2}",
+                "[DOOR] Key pressed. Distance = " +
+                distance.ToString("F2"),
                 this
             );
         }
@@ -326,20 +457,27 @@ public class DoorUnlock : MonoBehaviour
                 );
             }
 
+            /*
+             * Очень важно:
+             * ключ НЕ исчезает.
+             */
             return;
         }
 
-        /*
-         * Все условия выполнены:
-         *
-         * Guard мёртв.
-         * Ключ есть.
-         * Игрок рядом.
-         */
+
+        // --------------------------------------------------------
+        // SUCCESS
+        // --------------------------------------------------------
+
         StartCoroutine(
             OpenDoorRoutine()
         );
     }
+
+
+    // ============================================================
+    // OPEN ROUTINE
+    // ============================================================
 
     private IEnumerator OpenDoorRoutine()
     {
@@ -349,34 +487,21 @@ public class DoorUnlock : MonoBehaviour
             yield break;
         }
 
-        openingStarted = true;
+        openingStarted =
+            true;
 
         FixSortingOrder();
 
-        if (debugLogs)
-        {
-            Debug.Log(
-                "[DOOR] Door opening started.",
-                this
-            );
-        }
 
         /*
-         * Иконку ключа убираем.
-         */
-        if (keyIconUI != null)
-        {
-            keyIconUI.SetActive(false);
-        }
-
-        /*
-         * Ключ расходуется только тогда,
-         * когда дверь реально начала открываться.
+         * Ключ расходуется ТОЛЬКО здесь.
          *
-         * Если Guard жив или игрок далеко,
-         * ключ НЕ тратится.
+         * KeyPickup сам знает,
+         * в какой динамической ячейке
+         * сейчас лежит настоящий ключ.
          */
         KeyPickup.ConsumeKey();
+
 
         if (useUnlockHaptics)
         {
@@ -385,9 +510,11 @@ public class DoorUnlock : MonoBehaviour
 
         PlayUnlockSound();
 
-        /*
-         * Вспышка перед падением замка.
-         */
+
+        // --------------------------------------------------------
+        // FLASH BEFORE LOCK
+        // --------------------------------------------------------
+
         if (lockFlash != null &&
             playFlashBeforeLockFalls)
         {
@@ -400,9 +527,11 @@ public class DoorUnlock : MonoBehaviour
             lockFlash.Play();
         }
 
-        /*
-         * Падение центрального замка.
-         */
+
+        // --------------------------------------------------------
+        // LOCK FALL
+        // --------------------------------------------------------
+
         if (lockBar != null)
         {
             yield return StartCoroutine(
@@ -410,10 +539,11 @@ public class DoorUnlock : MonoBehaviour
             );
         }
 
-        /*
-         * Либо вспышка после замка,
-         * если так выставлено в Inspector.
-         */
+
+        // --------------------------------------------------------
+        // FLASH AFTER LOCK
+        // --------------------------------------------------------
+
         if (lockFlash != null &&
             !playFlashBeforeLockFalls)
         {
@@ -426,54 +556,64 @@ public class DoorUnlock : MonoBehaviour
             lockFlash.Play();
         }
 
-        /*
-         * Раздвигаем створки.
-         */
+
+        // --------------------------------------------------------
+        // OPEN WINGS
+        // --------------------------------------------------------
+
         yield return StartCoroutine(
             OpenWingsRoutine()
         );
 
-        /*
-         * Сам Collider картинки двери
-         * больше вообще не нужен.
-         *
-         * До открытия он был Trigger,
-         * поэтому не мешал ходить.
-         */
+
+        // --------------------------------------------------------
+        // COLLIDERS
+        // --------------------------------------------------------
+
         if (doorCollider != null)
         {
-            doorCollider.enabled = false;
+            doorCollider.enabled =
+                false;
         }
 
-        /*
-         * ТЕПЕРЬ открываем настоящий выход
-         * в туннель / LevelExitTrigger.
-         */
         if (levelExitTrigger != null)
         {
-            levelExitTrigger.enabled = true;
+            levelExitTrigger.enabled =
+                true;
         }
 
-        isOpened = true;
-        openingStarted = false;
+
+        isOpened =
+            true;
+
+        openingStarted =
+            false;
 
         if (debugLogs)
         {
             Debug.Log(
-                "[DOOR] Door opened. " +
-                "Level exit enabled.",
+                "[DOOR] Door opened.",
                 this
             );
         }
     }
 
+
+    // ============================================================
+    // SOUND
+    // ============================================================
+
     private void PlayUnlockSound()
     {
         if (!playUnlockSound)
+        {
             return;
+        }
 
         if (unlockAudioSource == null)
+        {
             return;
+        }
 
         if (unlockAudioSource.clip != null)
         {
@@ -486,6 +626,11 @@ public class DoorUnlock : MonoBehaviour
             unlockAudioSource.Play();
         }
     }
+
+
+    // ============================================================
+    // LOCK FALL
+    // ============================================================
 
     private IEnumerator FallLockRoutine()
     {
@@ -514,7 +659,8 @@ public class DoorUnlock : MonoBehaviour
                 lockFallDuration
             );
 
-        float timer = 0f;
+        float timer =
+            0f;
 
         while (timer <
                safeDuration)
@@ -564,13 +710,15 @@ public class DoorUnlock : MonoBehaviour
         lockBar.localPosition =
             endPos;
 
-        if (lockBar != null)
-        {
-            lockBar.gameObject.SetActive(
-                false
-            );
-        }
+        lockBar.gameObject.SetActive(
+            false
+        );
     }
+
+
+    // ============================================================
+    // OPEN WINGS
+    // ============================================================
 
     private IEnumerator OpenWingsRoutine()
     {
@@ -578,8 +726,7 @@ public class DoorUnlock : MonoBehaviour
             doorRight == null)
         {
             Debug.LogWarning(
-                "[DOOR] Door parts " +
-                "are not assigned.",
+                "[DOOR] Door parts are not assigned.",
                 this
             );
 
@@ -593,6 +740,7 @@ public class DoorUnlock : MonoBehaviour
 
         Vector3 rightStartPos =
             doorRight.localPosition;
+
 
         Vector3 leftEndPos =
             leftStartPos +
@@ -610,11 +758,13 @@ public class DoorUnlock : MonoBehaviour
                 0f
             );
 
+
         Vector3 leftStartScale =
             doorLeft.localScale;
 
         Vector3 rightStartScale =
             doorRight.localScale;
+
 
         Vector3 leftEndScale =
             new Vector3(
@@ -630,11 +780,13 @@ public class DoorUnlock : MonoBehaviour
                 rightStartScale.z
             );
 
+
         SpriteRenderer leftRenderer =
             doorLeft.GetComponent<SpriteRenderer>();
 
         SpriteRenderer rightRenderer =
             doorRight.GetComponent<SpriteRenderer>();
+
 
         Color leftStartColor =
             leftRenderer != null
@@ -645,6 +797,7 @@ public class DoorUnlock : MonoBehaviour
             rightRenderer != null
                 ? rightRenderer.color
                 : Color.white;
+
 
         Color leftEndColor =
             new Color(
@@ -662,13 +815,15 @@ public class DoorUnlock : MonoBehaviour
                 rightStartColor.a
             );
 
+
         float safeDuration =
             Mathf.Max(
                 0.01f,
                 openDuration
             );
 
-        float timer = 0f;
+        float timer =
+            0f;
 
         while (timer <
                safeDuration)
@@ -689,6 +844,7 @@ public class DoorUnlock : MonoBehaviour
                     t
                 );
 
+
             doorLeft.localPosition =
                 Vector3.Lerp(
                     leftStartPos,
@@ -703,6 +859,7 @@ public class DoorUnlock : MonoBehaviour
                     t
                 );
 
+
             doorLeft.localScale =
                 Vector3.Lerp(
                     leftStartScale,
@@ -716,6 +873,7 @@ public class DoorUnlock : MonoBehaviour
                     rightEndScale,
                     t
                 );
+
 
             if (leftRenderer != null)
             {
@@ -740,6 +898,7 @@ public class DoorUnlock : MonoBehaviour
             yield return null;
         }
 
+
         doorLeft.localPosition =
             leftEndPos;
 
@@ -751,6 +910,7 @@ public class DoorUnlock : MonoBehaviour
 
         doorRight.localScale =
             rightEndScale;
+
 
         if (leftRenderer != null)
         {
@@ -765,5 +925,42 @@ public class DoorUnlock : MonoBehaviour
         }
 
         FixSortingOrder();
+    }
+
+
+    // ============================================================
+    // VALIDATE
+    // ============================================================
+
+    private void OnValidate()
+    {
+        interactDistance =
+            Mathf.Max(
+                0f,
+                interactDistance
+            );
+
+        openDuration =
+            Mathf.Max(
+                0.01f,
+                openDuration
+            );
+
+        lockFallDuration =
+            Mathf.Max(
+                0.01f,
+                lockFallDuration
+            );
+
+        lockFallDistance =
+            Mathf.Max(
+                0f,
+                lockFallDistance
+            );
+
+        openedDarkness =
+            Mathf.Clamp01(
+                openedDarkness
+            );
     }
 }

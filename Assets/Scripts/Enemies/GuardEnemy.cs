@@ -109,6 +109,12 @@ public class GuardEnemy : MonoBehaviour
     [SerializeField, Range(5, 100)]
     private int playerHitsGuardHapticMs = 20;
 
+    [Tooltip(
+        "Вибрация при настоящем попадании мечом по Guard."
+    )]
+    [SerializeField, Range(5, 150)]
+    private int playerSwordHitsGuardHapticMs = 30;
+
     [SerializeField, Range(5, 150)]
     private int guardHitsPlayerHapticMs = 40;
 
@@ -143,6 +149,42 @@ public class GuardEnemy : MonoBehaviour
     [SerializeField, Min(0f)]
     private float chaseVoiceDelay = 0.18f;
 
+    // ============================================================
+    // PLAYER KICK IMPACT
+    // ============================================================
+
+    [Header("AUDIO - PLAYER KICK IMPACT")]
+
+    [Tooltip(
+        "Физический звук попадания ноги игрока по Guard. " +
+        "В воздухе не проигрывается."
+    )]
+    [SerializeField]
+    private AudioClip playerKickImpactClip;
+
+    [Tooltip("Громкость физического звука попадания.")]
+    [SerializeField, Range(0f, 1f)]
+    private float playerKickImpactVolume = 0.85f;
+
+    // ============================================================
+    // PLAYER SWORD IMPACT
+    // ============================================================
+
+    [Header("AUDIO - PLAYER SWORD IMPACT")]
+
+    [Tooltip(
+        "Физический металлический / режущий звук " +
+        "настоящего попадания мечом по Guard."
+    )]
+    [SerializeField]
+    private AudioClip playerSwordImpactClip;
+
+    [Tooltip(
+        "Громкость физического звука попадания мечом."
+    )]
+    [SerializeField, Range(0f, 1f)]
+    private float playerSwordImpactVolume = 0.9f;
+
     [Header("AUDIO - HURT")]
     [SerializeField] private AudioClip hurtClip;
 
@@ -168,7 +210,8 @@ public class GuardEnemy : MonoBehaviour
     [Header("WEAPON DROP")]
     [SerializeField] private GameObject weaponObject;
 
-    [SerializeField] private Vector2 weaponSpawnOffset =
+    [SerializeField]
+    private Vector2 weaponSpawnOffset =
         new Vector2(0f, 0.18f);
 
     [SerializeField] private float weaponDropDistance = 0.65f;
@@ -201,7 +244,6 @@ public class GuardEnemy : MonoBehaviour
     private bool weaponDropped;
 
     /*
-     * ВАЖНО:
      * true только если Guard сам увидел Player.
      * Если Player первым ударил со спины,
      * сюда true НЕ ставим.
@@ -405,7 +447,34 @@ public class GuardEnemy : MonoBehaviour
         }
 
         ReceivePlayerHit(
-            damage
+            damage,
+            false
+        );
+    }
+
+    // ============================================================
+    // SWORD ATTACK SYSTEM
+    // ============================================================
+
+    public void ReceiveSwordHit(
+        int damage
+    )
+    {
+        if (isDead)
+            return;
+
+        if (damage <= 0)
+            return;
+
+        if (hitBlinking ||
+            isKnockedBack)
+        {
+            return;
+        }
+
+        ReceivePlayerHit(
+            damage,
+            true
         );
     }
 
@@ -414,7 +483,8 @@ public class GuardEnemy : MonoBehaviour
     // ============================================================
 
     private void ReceivePlayerHit(
-        int damage
+        int damage,
+        bool fromSword
     )
     {
         if (isDead ||
@@ -432,8 +502,37 @@ public class GuardEnemy : MonoBehaviour
                 damage
             );
 
-        PlayPlayerHitsGuardHaptic();
+        /*
+         * Отдельная вибрация для ноги
+         * и отдельная для меча.
+         */
+        if (fromSword)
+        {
+            PlayPlayerSwordHitsGuardHaptic();
+        }
+        else
+        {
+            PlayPlayerHitsGuardHaptic();
+        }
 
+        /*
+         * Физический звук удара
+         * зависит от оружия.
+         */
+        if (fromSword)
+        {
+            PlayPlayerSwordImpactSound();
+        }
+        else
+        {
+            PlayPlayerKickImpactSound();
+        }
+
+        /*
+         * Отдельный голос боли Guard.
+         * Он остаётся общим и для ноги,
+         * и для меча.
+         */
         if (sfxSource != null &&
             hurtClip != null)
         {
@@ -504,6 +603,42 @@ public class GuardEnemy : MonoBehaviour
             StartCoroutine(
                 HitBlinkRoutine()
             );
+    }
+
+    // ============================================================
+    // PLAYER KICK IMPACT SOUND
+    // ============================================================
+
+    private void PlayPlayerKickImpactSound()
+    {
+        if (sfxSource == null ||
+            playerKickImpactClip == null)
+        {
+            return;
+        }
+
+        sfxSource.PlayOneShot(
+            playerKickImpactClip,
+            playerKickImpactVolume
+        );
+    }
+
+    // ============================================================
+    // PLAYER SWORD IMPACT SOUND
+    // ============================================================
+
+    private void PlayPlayerSwordImpactSound()
+    {
+        if (sfxSource == null ||
+            playerSwordImpactClip == null)
+        {
+            return;
+        }
+
+        sfxSource.PlayOneShot(
+            playerSwordImpactClip,
+            playerSwordImpactVolume
+        );
     }
 
     // ============================================================
@@ -674,11 +809,7 @@ public class GuardEnemy : MonoBehaviour
                     detectionHeight &&
                 HasClearLineOfSightToPlayer())
             {
-                /*
-                 * Вот здесь Guard САМ увидел игрока.
-                 */
                 detectedPlayerNaturally = true;
-
                 chasingPlayer = true;
 
                 CancelPatrolPause();
@@ -765,15 +896,6 @@ public class GuardEnemy : MonoBehaviour
             );
         }
 
-        /*
-         * За время задержки игрок мог:
-         * - умереть;
-         * - исчезнуть;
-         * - ударить Guard;
-         * - Guard мог потерять игрока.
-         *
-         * В этих случаях Chase Voice не нужен.
-         */
         if (isDead ||
             !chasingPlayer ||
             !detectedPlayerNaturally ||
@@ -1139,7 +1261,6 @@ public class GuardEnemy : MonoBehaviour
         patrolPaused = true;
 
         StopHorizontalMovement();
-
         SetIdleFrontSprite();
 
         yield return new WaitForSeconds(
@@ -1693,7 +1814,7 @@ public class GuardEnemy : MonoBehaviour
         float timer = 0f;
 
         while (timer <
-            safeDuration)
+               safeDuration)
         {
             timer +=
                 Time.deltaTime;
@@ -1848,6 +1969,17 @@ public class GuardEnemy : MonoBehaviour
 
         MicroHaptics.Pulse(
             playerHitsGuardHapticMs,
+            MicroHaptics.IOSHapticStyle.Light
+        );
+    }
+
+    private void PlayPlayerSwordHitsGuardHaptic()
+    {
+        if (!useHaptics)
+            return;
+
+        MicroHaptics.Pulse(
+            playerSwordHitsGuardHapticMs,
             MicroHaptics.IOSHapticStyle.Light
         );
     }

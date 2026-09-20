@@ -3,33 +3,100 @@ using UnityEngine;
 
 public class PlayerKick : MonoBehaviour
 {
+    // ============================================================
+    // REFERENCES
+    // ============================================================
+
     [Header("REFERENCES")]
-    [SerializeField] private Rigidbody2D rb;
-    [SerializeField] private PlayerController playerController;
-    [SerializeField] private PlayerVisual playerVisual;
-    [SerializeField] private PlayerHealth playerHealth;
+
+    [SerializeField]
+    private Rigidbody2D rb;
+
+    [SerializeField]
+    private PlayerController playerController;
+
+    [SerializeField]
+    private PlayerVisual playerVisual;
+
+    [SerializeField]
+    private PlayerHealth playerHealth;
+
+
+    // ============================================================
+    // KICK TIMING
+    // ============================================================
 
     [Header("KICK TIMING")]
-    [SerializeField] private float kickDuration = 0.20f;
-    [SerializeField] private float kickCooldown = 0.25f;
 
-    [Header("MOVEMENT")]
-    [SerializeField] private bool stopHorizontalMovement = true;
-    [SerializeField] private bool lockMovementDuringKick = true;
+    [SerializeField]
+    private float kickDuration = 0.20f;
 
-    [Header("KICK VOICE")]
-    [SerializeField] private AudioSource kickAudioSource;
-    [SerializeField] private AudioClip kickVoiceSound;
+    [SerializeField]
+    private float kickCooldown = 0.25f;
 
-    [Range(0f, 1f)]
-    [SerializeField] private float kickVoiceVolume = 1f;
+
+    // ============================================================
+    // FACING
+    // ============================================================
+
+    [Header("FACING")]
 
     [Tooltip(
-        "Через сколько секунд после начала удара прозвучит голос."
+        "Минимальный ввод игрока по X, " +
+        "который считается намеренным движением " +
+        "и меняет сторону удара."
     )]
-    [SerializeField] private float kickVoiceDelay = 0f;
+    [SerializeField, Range(0f, 1f)]
+    private float facingInputThreshold = 0.01f;
+
+
+    // ============================================================
+    // MOVEMENT
+    // ============================================================
+
+    [Header("MOVEMENT")]
+
+    [SerializeField]
+    private bool stopHorizontalMovement = true;
+
+    [SerializeField]
+    private bool lockMovementDuringKick = true;
+
+
+    // ============================================================
+    // KICK VOICE
+    // ============================================================
+
+    [Header("KICK VOICE")]
+
+    [SerializeField]
+    private AudioSource kickAudioSource;
+
+    [SerializeField]
+    private AudioClip kickVoiceSound;
+
+    [Range(0f, 1f)]
+    [SerializeField]
+    private float kickVoiceVolume = 1f;
+
+    [SerializeField]
+    private float kickVoiceDelay = 0f;
+
+
+    // ============================================================
+    // STATE
+    // ============================================================
 
     private bool isKicking;
+
+    /*
+     * Запоминаем последнее НАМЕРЕННОЕ
+     * направление игрока.
+     *
+     * ВАЖНО:
+     * физические толчки врагов это значение
+     * больше не меняют.
+     */
     private bool facingRight = true;
 
     private float nextKickTime;
@@ -37,8 +104,17 @@ public class PlayerKick : MonoBehaviour
     private Coroutine kickRoutine;
     private Coroutine voiceRoutine;
 
-    public bool IsKicking => isKicking;
-    public bool FacingRight => facingRight;
+
+    // ============================================================
+    // PUBLIC STATE
+    // ============================================================
+
+    public bool IsKicking =>
+        isKicking;
+
+    public bool FacingRight =>
+        facingRight;
+
 
     // ============================================================
     // AWAKE
@@ -78,10 +154,13 @@ public class PlayerKick : MonoBehaviour
             if (sources.Length > 0)
             {
                 kickAudioSource =
-                    sources[sources.Length - 1];
+                    sources[
+                        sources.Length - 1
+                    ];
             }
         }
     }
+
 
     // ============================================================
     // UPDATE
@@ -89,21 +168,28 @@ public class PlayerKick : MonoBehaviour
 
     private void Update()
     {
-        /*
-         * После смерти вообще больше
-         * не обновляем направление удара.
-         */
         if (PlayerIsDead())
+        {
             return;
+        }
 
+        /*
+         * Пока игрок НЕ бьёт ногой,
+         * отслеживаем только настоящий
+         * пользовательский ввод.
+         *
+         * Rigidbody здесь больше
+         * НЕ используется для стороны.
+         */
         if (!isKicking)
         {
-            UpdateFacingDirection();
+            UpdateFacingDirectionFromInput();
         }
     }
 
+
     // ============================================================
-    // DEAD CHECK
+    // CHECKS
     // ============================================================
 
     public bool PlayerIsDead()
@@ -113,68 +199,144 @@ public class PlayerKick : MonoBehaviour
             playerHealth.IsDead;
     }
 
+
+    private bool GameplayActionsBlocked()
+    {
+        if (PlayerIsDead())
+        {
+            return true;
+        }
+
+        if (playerVisual != null &&
+            playerVisual.GameplayActionsLocked)
+        {
+            return true;
+        }
+
+        if (playerController != null &&
+            playerController.IsActionLocked)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+
     // ============================================================
     // FACING
     // ============================================================
 
-    private void UpdateFacingDirection()
+    private void UpdateFacingDirectionFromInput()
     {
-        if (rb == null)
+        if (playerController == null)
+        {
             return;
-
-        float horizontalSpeed =
-            rb.linearVelocity.x;
-
-        if (horizontalSpeed > 0.05f)
-        {
-            facingRight = true;
         }
-        else if (horizontalSpeed < -0.05f)
+
+        /*
+         * Берём именно ввод игрока:
+         *
+         * MobileInput
+         * или
+         * A / D
+         * или
+         * стрелки.
+         *
+         * Толчок охранника сюда не попадает.
+         */
+        Vector2 movementInput =
+            playerController.GetInput();
+
+        float horizontalInput =
+            movementInput.x;
+
+        if (horizontalInput >
+            facingInputThreshold)
         {
-            facingRight = false;
+            facingRight =
+                true;
         }
+        else if (horizontalInput <
+                 -facingInputThreshold)
+        {
+            facingRight =
+                false;
+        }
+
+        /*
+         * Если horizontalInput == 0:
+         *
+         * направление НЕ меняем.
+         *
+         * Поэтому после того как Player
+         * перестал идти вправо,
+         * он продолжает смотреть вправо,
+         * пока сам не нажмёт влево.
+         */
     }
 
+
     // ============================================================
-    // PUBLIC KICK COMMANDS
+    // PUBLIC KICK
     // ============================================================
 
     public bool Kick()
     {
-        if (PlayerIsDead())
+        if (GameplayActionsBlocked())
+        {
             return false;
+        }
+
+        /*
+         * На всякий случай прямо перед ударом
+         * ещё раз читаем текущий ввод.
+         *
+         * Например:
+         * игрок держит RIGHT и сразу жмёт Kick.
+         */
+        UpdateFacingDirectionFromInput();
 
         return StartKick(
             facingRight
         );
     }
 
+
     public bool KickRight()
     {
-        if (PlayerIsDead())
+        if (GameplayActionsBlocked())
+        {
             return false;
+        }
 
         return StartKick(
             true
         );
     }
 
+
     public bool KickLeft()
     {
-        if (PlayerIsDead())
+        if (GameplayActionsBlocked())
+        {
             return false;
+        }
 
         return StartKick(
             false
         );
     }
 
+
     public bool KickToward(
         Vector3 worldPosition
     )
     {
-        if (PlayerIsDead())
+        if (GameplayActionsBlocked())
+        {
             return false;
+        }
 
         bool kickToRight =
             worldPosition.x >=
@@ -185,6 +347,7 @@ public class PlayerKick : MonoBehaviour
         );
     }
 
+
     // ============================================================
     // START KICK
     // ============================================================
@@ -193,11 +356,15 @@ public class PlayerKick : MonoBehaviour
         bool kickToRight
     )
     {
-        if (PlayerIsDead())
+        if (GameplayActionsBlocked())
+        {
             return false;
+        }
 
         if (isKicking)
+        {
             return false;
+        }
 
         if (Time.time <
             nextKickTime)
@@ -206,8 +373,14 @@ public class PlayerKick : MonoBehaviour
         }
 
         if (playerVisual == null)
+        {
             return false;
+        }
 
+        /*
+         * Фиксируем сторону именно
+         * в момент начала удара.
+         */
         facingRight =
             kickToRight;
 
@@ -221,6 +394,7 @@ public class PlayerKick : MonoBehaviour
         return true;
     }
 
+
     // ============================================================
     // KICK ROUTINE
     // ============================================================
@@ -229,16 +403,22 @@ public class PlayerKick : MonoBehaviour
         bool kickToRight
     )
     {
-        if (PlayerIsDead())
+        if (GameplayActionsBlocked())
         {
             yield break;
         }
 
-        isKicking = true;
+        isKicking =
+            true;
 
         nextKickTime =
             Time.time +
             kickCooldown;
+
+
+        // --------------------------------------------------------
+        // STOP HORIZONTAL MOVEMENT
+        // --------------------------------------------------------
 
         if (stopHorizontalMovement &&
             rb != null)
@@ -253,6 +433,11 @@ public class PlayerKick : MonoBehaviour
                 velocity;
         }
 
+
+        // --------------------------------------------------------
+        // LOCK MOVEMENT
+        // --------------------------------------------------------
+
         if (lockMovementDuringKick &&
             playerController != null)
         {
@@ -260,16 +445,31 @@ public class PlayerKick : MonoBehaviour
                 false;
         }
 
-        /*
-         * Ещё одна проверка непосредственно
-         * перед спрайтом и голосом.
-         */
-        if (PlayerIsDead())
+
+        // --------------------------------------------------------
+        // BLOCK SAFETY
+        // --------------------------------------------------------
+
+        if (GameplayActionsBlocked())
         {
-            FinishKickAfterDeath();
+            FinishKickBecauseBlocked();
+
             yield break;
         }
 
+
+        // --------------------------------------------------------
+        // VISUAL
+        // --------------------------------------------------------
+
+        /*
+         * Используем сторону,
+         * которая была зафиксирована
+         * ДО начала Coroutine.
+         *
+         * Теперь физика уже никак
+         * не способна перевернуть удар.
+         */
         if (kickToRight)
         {
             playerVisual.PlayKickRight();
@@ -279,20 +479,28 @@ public class PlayerKick : MonoBehaviour
             playerVisual.PlayKickLeft();
         }
 
+
+        // --------------------------------------------------------
+        // VOICE
+        // --------------------------------------------------------
+
         PlayKickVoice();
 
-        float timer = 0f;
 
-        while (timer < kickDuration)
+        // --------------------------------------------------------
+        // WAIT
+        // --------------------------------------------------------
+
+        float timer =
+            0f;
+
+        while (timer <
+               kickDuration)
         {
-            /*
-             * Если игрок умер прямо
-             * во время анимации удара,
-             * сразу всё прекращаем.
-             */
             if (PlayerIsDead())
             {
                 FinishKickAfterDeath();
+
                 yield break;
             }
 
@@ -302,33 +510,50 @@ public class PlayerKick : MonoBehaviour
             yield return null;
         }
 
+
+        // --------------------------------------------------------
+        // END VISUAL
+        // --------------------------------------------------------
+
         playerVisual.EndKick();
 
+
+        // --------------------------------------------------------
+        // UNLOCK MOVEMENT
+        // --------------------------------------------------------
+
         if (lockMovementDuringKick &&
-            playerController != null)
+            playerController != null &&
+            !PlayerIsDead())
         {
             playerController.enabled =
                 true;
         }
 
-        isKicking = false;
-        kickRoutine = null;
+        isKicking =
+            false;
+
+        kickRoutine =
+            null;
     }
 
+
     // ============================================================
-    // KICK VOICE
+    // VOICE
     // ============================================================
 
     private void PlayKickVoice()
     {
-        if (PlayerIsDead())
+        if (GameplayActionsBlocked())
+        {
             return;
+        }
 
-        if (kickAudioSource == null)
+        if (kickAudioSource == null ||
+            kickVoiceSound == null)
+        {
             return;
-
-        if (kickVoiceSound == null)
-            return;
+        }
 
         if (voiceRoutine != null)
         {
@@ -336,7 +561,8 @@ public class PlayerKick : MonoBehaviour
                 voiceRoutine
             );
 
-            voiceRoutine = null;
+            voiceRoutine =
+                null;
         }
 
         voiceRoutine =
@@ -345,18 +571,22 @@ public class PlayerKick : MonoBehaviour
             );
     }
 
+
     private IEnumerator KickVoiceRoutine()
     {
         if (kickVoiceDelay > 0f)
         {
-            float timer = 0f;
+            float timer =
+                0f;
 
             while (timer <
                    kickVoiceDelay)
             {
                 if (PlayerIsDead())
                 {
-                    voiceRoutine = null;
+                    voiceRoutine =
+                        null;
+
                     yield break;
                 }
 
@@ -369,7 +599,9 @@ public class PlayerKick : MonoBehaviour
 
         if (PlayerIsDead())
         {
-            voiceRoutine = null;
+            voiceRoutine =
+                null;
+
             yield break;
         }
 
@@ -382,12 +614,47 @@ public class PlayerKick : MonoBehaviour
             );
         }
 
-        voiceRoutine = null;
+        voiceRoutine =
+            null;
     }
 
+
     // ============================================================
-    // DEATH SAFETY
+    // BLOCK / DEATH SAFETY
     // ============================================================
+
+    private void FinishKickBecauseBlocked()
+    {
+        if (voiceRoutine != null)
+        {
+            StopCoroutine(
+                voiceRoutine
+            );
+
+            voiceRoutine =
+                null;
+        }
+
+        if (playerVisual != null)
+        {
+            playerVisual.EndKick();
+        }
+
+        if (!PlayerIsDead() &&
+            lockMovementDuringKick &&
+            playerController != null)
+        {
+            playerController.enabled =
+                true;
+        }
+
+        isKicking =
+            false;
+
+        kickRoutine =
+            null;
+    }
+
 
     private void FinishKickAfterDeath()
     {
@@ -397,15 +664,10 @@ public class PlayerKick : MonoBehaviour
                 voiceRoutine
             );
 
-            voiceRoutine = null;
+            voiceRoutine =
+                null;
         }
 
-        /*
-         * Если сам голос уже успел запуститься,
-         * останавливаем AudioSource.
-         *
-         * Это гарантирует тишину после смерти.
-         */
         if (kickAudioSource != null)
         {
             kickAudioSource.Stop();
@@ -416,20 +678,16 @@ public class PlayerKick : MonoBehaviour
             playerVisual.EndKick();
         }
 
-        /*
-         * ВАЖНО:
-         * после смерти специально НЕ включаем
-         * PlayerController обратно.
-         *
-         * Иначе можно случайно вернуть управление
-         * мёртвому игроку.
-         */
-        isKicking = false;
-        kickRoutine = null;
+        isKicking =
+            false;
+
+        kickRoutine =
+            null;
     }
 
+
     // ============================================================
-    // DISABLE SAFETY
+    // DISABLE
     // ============================================================
 
     private void OnDisable()
@@ -440,7 +698,8 @@ public class PlayerKick : MonoBehaviour
                 kickRoutine
             );
 
-            kickRoutine = null;
+            kickRoutine =
+                null;
         }
 
         if (voiceRoutine != null)
@@ -449,7 +708,8 @@ public class PlayerKick : MonoBehaviour
                 voiceRoutine
             );
 
-            voiceRoutine = null;
+            voiceRoutine =
+                null;
         }
 
         if (kickAudioSource != null &&
@@ -463,10 +723,6 @@ public class PlayerKick : MonoBehaviour
             playerVisual.EndKick();
         }
 
-        /*
-         * Контроллер возвращаем только
-         * если Player ещё жив.
-         */
         if (!PlayerIsDead() &&
             lockMovementDuringKick &&
             playerController != null)
@@ -475,6 +731,43 @@ public class PlayerKick : MonoBehaviour
                 true;
         }
 
-        isKicking = false;
+        isKicking =
+            false;
+    }
+
+
+    // ============================================================
+    // VALIDATE
+    // ============================================================
+
+    private void OnValidate()
+    {
+        kickDuration =
+            Mathf.Max(
+                0.01f,
+                kickDuration
+            );
+
+        kickCooldown =
+            Mathf.Max(
+                0f,
+                kickCooldown
+            );
+
+        kickVoiceVolume =
+            Mathf.Clamp01(
+                kickVoiceVolume
+            );
+
+        kickVoiceDelay =
+            Mathf.Max(
+                0f,
+                kickVoiceDelay
+            );
+
+        facingInputThreshold =
+            Mathf.Clamp01(
+                facingInputThreshold
+            );
     }
 }

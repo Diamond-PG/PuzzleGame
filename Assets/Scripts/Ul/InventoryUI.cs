@@ -9,26 +9,22 @@ public class InventoryUI : MonoBehaviour
     // ============================================================
 
     [Header("SLOTS")]
-
-    [SerializeField]
-    private Transform slotsParent;
-
-    [SerializeField]
-    private GameObject slotTemplate;
+    [SerializeField] private Transform slotsParent;
+    [SerializeField] private GameObject slotTemplate;
 
     [Tooltip("Уже существующие слоты на сцене.")]
     [SerializeField]
     private List<GameObject> existingSlots =
         new List<GameObject>();
 
+
     // ============================================================
     // ITEM CHILD
     // ============================================================
 
     [Header("ITEM CHILD")]
+    [SerializeField] private string itemChildName = "Item";
 
-    [SerializeField]
-    private string itemChildName = "Item";
 
     // ============================================================
     // EMPTY SLOT LOOK
@@ -36,17 +32,12 @@ public class InventoryUI : MonoBehaviour
 
     [Header("EMPTY SLOT LOOK")]
 
-    [Tooltip(
-        "Прозрачность единственной пустой ячейки."
-    )]
     [SerializeField, Range(0f, 1f)]
     private float emptySlotAlpha = 0.4f;
 
-    [Tooltip(
-        "Прозрачность занятой ячейки."
-    )]
     [SerializeField, Range(0f, 1f)]
     private float occupiedSlotAlpha = 1f;
+
 
     // ============================================================
     // WEAPON SYSTEM
@@ -54,17 +45,26 @@ public class InventoryUI : MonoBehaviour
 
     [Header("WEAPON SYSTEM")]
 
-    [Tooltip("Большая круглая кнопка оружия.")]
     [SerializeField]
     private Button weaponButton;
 
-    [Tooltip("WeaponIcon внутри большого круга.")]
     [SerializeField]
     private Image weaponButtonIcon;
 
-    [Tooltip("Маленькая кнопка возврата оружия.")]
     [SerializeField]
     private UnequipWeaponButton unequipButton;
+
+
+    // ============================================================
+    // PLAYER VISUAL
+    // ============================================================
+
+    [Header("PLAYER VISUAL")]
+
+    [Tooltip("PlayerVisual на объекте Player.")]
+    [SerializeField]
+    private PlayerVisual playerVisual;
+
 
     // ============================================================
     // BIG WEAPON GLOW
@@ -72,12 +72,16 @@ public class InventoryUI : MonoBehaviour
 
     [Header("BIG WEAPON GLOW")]
 
-    [Tooltip(
-        "Размер голубого свечения оружия " +
-        "в большом круге."
-    )]
+    /*
+     * Это старый ОБЩИЙ множитель.
+     *
+     * Его не убираем и не меняем,
+     * чтобы меч и уже настроенные оружия
+     * выглядели точно так же, как раньше.
+     */
     [SerializeField, Range(0.30f, 1.50f)]
     private float bigWeaponGlowScale = 0.82f;
+
 
     // ============================================================
     // WEAPON MOVE SOUND
@@ -85,30 +89,31 @@ public class InventoryUI : MonoBehaviour
 
     [Header("WEAPON MOVE SOUND")]
 
-    [Tooltip(
-        "AudioSource на InventoryPanel. " +
-        "Если оставить пустым, скрипт попробует найти его сам."
-    )]
     [SerializeField]
     private AudioSource weaponMoveAudioSource;
 
-    [Tooltip(
-        "Один и тот же звук используется " +
-        "при перемещении оружия туда и обратно."
-    )]
     [SerializeField]
     private AudioClip weaponMoveClip;
 
-    [Tooltip("Громкость звука перемещения оружия.")]
     [SerializeField, Range(0f, 1f)]
     private float weaponMoveVolume = 1f;
 
-    [Tooltip(
-        "Можно быстро отключить звук, " +
-        "не удаляя AudioClip."
-    )]
     [SerializeField]
     private bool playWeaponMoveSound = true;
+
+
+    // ============================================================
+    // WEAPON MOVE HAPTICS
+    // ============================================================
+
+    [Header("WEAPON MOVE HAPTICS")]
+
+    [SerializeField]
+    private bool useWeaponMoveHaptics = true;
+
+    [SerializeField, Range(5, 100)]
+    private int weaponMoveHapticMs = 18;
+
 
     // ============================================================
     // DEBUG
@@ -119,6 +124,7 @@ public class InventoryUI : MonoBehaviour
     [SerializeField]
     private bool debugLogs = true;
 
+
     // ============================================================
     // RUNTIME SLOTS
     // ============================================================
@@ -126,44 +132,86 @@ public class InventoryUI : MonoBehaviour
     private readonly List<GameObject> runtimeSlots =
         new List<GameObject>();
 
+
     // ============================================================
-    // CURRENT WEAPON
+    // EQUIPPED WEAPON STATE
     // ============================================================
 
     private bool weaponEquipped;
 
     private Sprite currentWeaponSprite;
+
     private string currentWeaponId;
 
-    private Vector2 currentWeaponButtonIconSize;
-    private float currentWeaponButtonIconRotation;
-    private Vector2 currentWeaponButtonIconOffset;
+    private float currentWeaponDurability01 = 1f;
+
 
     // ============================================================
-    // INVENTORY LOOK BACKUP
+    // BIG WEAPON ICON DATA
+    // ============================================================
+
+    private Vector2 currentWeaponButtonIconSize;
+
+    private float currentWeaponButtonIconRotation;
+
+    private Vector2 currentWeaponButtonIconOffset;
+
+    /*
+     * Индивидуальный множитель
+     * большого glow именно текущего оружия.
+     *
+     * Sword по старой системе = 1.
+     * Club можно сделать, например, 1.15.
+     */
+    private float currentWeaponButtonGlowScale = 1f;
+
+
+    // ============================================================
+    // INVENTORY ICON DATA
     // ============================================================
 
     private Vector2 currentInventoryIconSize;
+
     private float currentInventoryIconRotation;
+
     private Vector2 currentInventoryIconOffset;
+
     private float currentInventoryIconScale = 1f;
 
+
+    // ============================================================
+    // GLOW DATA
+    // ============================================================
+
     private Sprite currentGlowSprite;
-    private Color currentGlowColor = Color.white;
+
+    private Color currentGlowColor =
+        Color.white;
 
     private Vector2 currentGlowSize;
+
     private Vector2 currentGlowOffset;
 
+    private float currentGlowRotationOffset;
+
     private float currentGlowPulseSpeed = 1.4f;
+
     private float currentGlowScaleAmount = 0.08f;
+
     private float currentGlowMinAlpha = 0.55f;
+
     private float currentGlowMaxAlpha = 0.85f;
 
+    private GameObject weaponGlowObject;
+
+
     // ============================================================
-    // BIG WEAPON BUTTON GLOW
+    // PUBLIC STATE
     // ============================================================
 
-    private GameObject weaponGlowObject;
+    public bool IsWeaponEquipped =>
+        weaponEquipped;
+
 
     // ============================================================
     // AWAKE
@@ -173,25 +221,33 @@ public class InventoryUI : MonoBehaviour
     {
         if (slotsParent == null)
         {
-            slotsParent = transform;
+            slotsParent =
+                transform;
         }
 
         if (slotTemplate != null)
         {
-            slotTemplate.SetActive(false);
+            slotTemplate.SetActive(
+                false
+            );
         }
 
         runtimeSlots.Clear();
 
-        foreach (GameObject slot in existingSlots)
+        foreach (GameObject slot
+                 in existingSlots)
         {
-            if (slot == null)
-                continue;
-
-            runtimeSlots.Add(slot);
+            if (slot != null)
+            {
+                runtimeSlots.Add(
+                    slot
+                );
+            }
         }
 
         FindWeaponReferences();
+
+        FindPlayerVisual();
 
         if (weaponMoveAudioSource == null)
         {
@@ -199,25 +255,48 @@ public class InventoryUI : MonoBehaviour
                 GetComponent<AudioSource>();
         }
 
-        weaponEquipped = false;
+        weaponEquipped =
+            false;
+
+        currentWeaponDurability01 =
+            1f;
+
+        currentWeaponButtonGlowScale =
+            1f;
 
         if (weaponButton != null)
         {
-            weaponButton.interactable = false;
+            weaponButton.interactable =
+                false;
         }
 
         if (weaponButtonIcon != null)
         {
-            weaponButtonIcon.sprite = null;
-            weaponButtonIcon.enabled = true;
-            weaponButtonIcon.gameObject.SetActive(false);
+            weaponButtonIcon.sprite =
+                null;
+
+            weaponButtonIcon.enabled =
+                true;
+
+            weaponButtonIcon.gameObject.SetActive(
+                false
+            );
         }
 
         DisableWeaponButtonGlow();
 
         if (unequipButton != null)
         {
-            unequipButton.SetWeaponEquipped(false);
+            unequipButton.SetWeaponEquipped(
+                false
+            );
+        }
+
+        if (playerVisual != null)
+        {
+            playerVisual.SetSwordEquipped(
+                false
+            );
         }
 
         RefreshInventorySlots();
@@ -232,6 +311,7 @@ public class InventoryUI : MonoBehaviour
         }
     }
 
+
     // ============================================================
     // LATE UPDATE
     // ============================================================
@@ -241,17 +321,73 @@ public class InventoryUI : MonoBehaviour
         RefreshInventorySlots();
     }
 
+
     // ============================================================
-    // PLAY WEAPON MOVE SOUND
+    // PLAYER VISUAL
+    // ============================================================
+
+    private void FindPlayerVisual()
+    {
+        if (playerVisual != null)
+        {
+            return;
+        }
+
+        GameObject playerObject =
+            GameObject.FindGameObjectWithTag(
+                "Player"
+            );
+
+        if (playerObject != null)
+        {
+            playerVisual =
+                playerObject.GetComponent<PlayerVisual>();
+        }
+
+        if (playerVisual == null)
+        {
+            playerVisual =
+                FindFirstObjectByType<PlayerVisual>();
+        }
+    }
+
+
+    private void SetPlayerSwordEquipped(
+        bool equipped
+    )
+    {
+        if (playerVisual == null)
+        {
+            FindPlayerVisual();
+        }
+
+        if (playerVisual == null)
+        {
+            Debug.LogWarning(
+                "[INVENTORY UI] PlayerVisual not found.",
+                this
+            );
+
+            return;
+        }
+
+        playerVisual.SetSwordEquipped(
+            equipped
+        );
+    }
+
+
+    // ============================================================
+    // WEAPON MOVE SOUND
     // ============================================================
 
     private void PlayWeaponMoveSound()
     {
-        if (!playWeaponMoveSound)
+        if (!playWeaponMoveSound ||
+            weaponMoveClip == null)
+        {
             return;
-
-        if (weaponMoveClip == null)
-            return;
+        }
 
         if (weaponMoveAudioSource == null)
         {
@@ -274,6 +410,25 @@ public class InventoryUI : MonoBehaviour
             );
         }
     }
+
+
+    // ============================================================
+    // WEAPON MOVE HAPTIC
+    // ============================================================
+
+    private void PlayWeaponMoveHaptic()
+    {
+        if (!useWeaponMoveHaptics)
+        {
+            return;
+        }
+
+        MicroHaptics.Pulse(
+            weaponMoveHapticMs,
+            MicroHaptics.IOSHapticStyle.Light
+        );
+    }
+
 
     // ============================================================
     // FIND WEAPON REFERENCES
@@ -311,10 +466,13 @@ public class InventoryUI : MonoBehaviour
                             true
                         );
 
-                foreach (Image image in images)
+                foreach (Image image
+                         in images)
                 {
                     if (image == null)
+                    {
                         continue;
+                    }
 
                     if (image.gameObject ==
                         weaponButton.gameObject)
@@ -337,34 +495,43 @@ public class InventoryUI : MonoBehaviour
         }
     }
 
+
     // ============================================================
-    // INVENTORY SLOT VISIBILITY
+    // REFRESH INVENTORY
     // ============================================================
 
     private void RefreshInventorySlots()
     {
-        int occupiedCount = 0;
+        int occupiedCount =
+            0;
 
-        foreach (GameObject slot in runtimeSlots)
+        foreach (GameObject slot
+                 in runtimeSlots)
         {
-            if (slot == null)
-                continue;
-
-            if (IsSlotOccupied(slot))
+            if (slot != null &&
+                IsSlotOccupied(
+                    slot
+                ))
             {
                 occupiedCount++;
             }
         }
 
-        bool emptyPlaceholderShown = false;
+        bool emptyPlaceholderShown =
+            false;
 
-        foreach (GameObject slot in runtimeSlots)
+        foreach (GameObject slot
+                 in runtimeSlots)
         {
             if (slot == null)
+            {
                 continue;
+            }
 
             bool occupied =
-                IsSlotOccupied(slot);
+                IsSlotOccupied(
+                    slot
+                );
 
             if (occupied)
             {
@@ -403,7 +570,8 @@ public class InventoryUI : MonoBehaviour
                     emptySlotAlpha
                 );
 
-                emptyPlaceholderShown = true;
+                emptyPlaceholderShown =
+                    true;
             }
             else
             {
@@ -415,8 +583,9 @@ public class InventoryUI : MonoBehaviour
         }
     }
 
+
     // ============================================================
-    // IS SLOT OCCUPIED
+    // SLOT OCCUPIED
     // ============================================================
 
     private bool IsSlotOccupied(
@@ -424,30 +593,32 @@ public class InventoryUI : MonoBehaviour
     )
     {
         if (slot == null)
+        {
             return false;
+        }
 
         Transform item =
             FindItemTransform(
                 slot
             );
 
-        if (item == null)
+        if (item == null ||
+            !item.gameObject.activeSelf)
+        {
             return false;
-
-        if (!item.gameObject.activeSelf)
-            return false;
+        }
 
         Image itemImage =
             item.GetComponent<Image>();
 
-        if (itemImage == null)
-            return false;
-
-        return itemImage.sprite != null;
+        return
+            itemImage != null &&
+            itemImage.sprite != null;
     }
 
+
     // ============================================================
-    // SLOT VISIBILITY
+    // SLOT VISIBLE
     // ============================================================
 
     private void SetSlotVisible(
@@ -456,26 +627,22 @@ public class InventoryUI : MonoBehaviour
     )
     {
         if (slot == null)
+        {
             return;
-
-        if (visible)
-        {
-            if (!slot.activeSelf)
-            {
-                slot.SetActive(true);
-            }
         }
-        else
+
+        if (slot.activeSelf !=
+            visible)
         {
-            if (slot.activeSelf)
-            {
-                slot.SetActive(false);
-            }
+            slot.SetActive(
+                visible
+            );
         }
     }
 
+
     // ============================================================
-    // SLOT GRAPHIC ALPHA
+    // SLOT ALPHA
     // ============================================================
 
     private void SetSlotGraphicAlpha(
@@ -484,10 +651,14 @@ public class InventoryUI : MonoBehaviour
     )
     {
         if (slot == null)
+        {
             return;
+        }
 
         float safeAlpha =
-            Mathf.Clamp01(alpha);
+            Mathf.Clamp01(
+                alpha
+            );
 
         Transform itemTransform =
             FindItemTransform(
@@ -504,10 +675,13 @@ public class InventoryUI : MonoBehaviour
                 true
             );
 
-        foreach (Image image in images)
+        foreach (Image image
+                 in images)
         {
             if (image == null)
+            {
                 continue;
+            }
 
             if (itemTransform != null)
             {
@@ -518,7 +692,8 @@ public class InventoryUI : MonoBehaviour
                 }
 
                 if (image.transform.IsChildOf(
-                        itemTransform))
+                        itemTransform
+                    ))
                 {
                     continue;
                 }
@@ -533,7 +708,8 @@ public class InventoryUI : MonoBehaviour
                 }
 
                 if (image.transform.IsChildOf(
-                        glowTransform))
+                        glowTransform
+                    ))
                 {
                     continue;
                 }
@@ -550,8 +726,9 @@ public class InventoryUI : MonoBehaviour
         }
     }
 
+
     // ============================================================
-    // GET / CREATE FREE SLOT
+    // GET OR CREATE FREE SLOT
     // ============================================================
 
     public GameObject GetOrCreateFreeSlot()
@@ -581,6 +758,7 @@ public class InventoryUI : MonoBehaviour
         return newSlot;
     }
 
+
     // ============================================================
     // PREPARE SLOT
     // ============================================================
@@ -590,11 +768,15 @@ public class InventoryUI : MonoBehaviour
     )
     {
         if (slot == null)
+        {
             return;
+        }
 
         if (!slot.activeSelf)
         {
-            slot.SetActive(true);
+            slot.SetActive(
+                true
+            );
         }
 
         SetSlotGraphicAlpha(
@@ -616,9 +798,7 @@ public class InventoryUI : MonoBehaviour
         }
 
         RectTransform slotRect =
-            slot.GetComponent<
-                RectTransform
-            >();
+            slot.GetComponent<RectTransform>();
 
         if (slotRect != null)
         {
@@ -631,8 +811,9 @@ public class InventoryUI : MonoBehaviour
         Canvas.ForceUpdateCanvases();
     }
 
+
     // ============================================================
-    // SHOW ITEM WITHOUT GLOW
+    // SHOW ITEM - SIMPLE
     // ============================================================
 
     public bool ShowItemInSlot(
@@ -657,6 +838,8 @@ public class InventoryUI : MonoBehaviour
             Vector2.zero,
             Vector2.zero,
 
+            0f,
+
             1.4f,
             0.08f,
             0.55f,
@@ -664,8 +847,9 @@ public class InventoryUI : MonoBehaviour
         );
     }
 
+
     // ============================================================
-    // SHOW ITEM + GLOW
+    // SHOW ITEM - OLD GLOW VERSION
     // ============================================================
 
     public bool ShowItemInSlot(
@@ -680,6 +864,54 @@ public class InventoryUI : MonoBehaviour
         Color glowColor,
         Vector2 glowSize,
         Vector2 glowOffset,
+
+        float glowPulseSpeed,
+        float glowScaleAmount,
+        float glowMinAlpha,
+        float glowMaxAlpha
+    )
+    {
+        return ShowItemInSlot(
+            slot,
+            itemSprite,
+            iconSize,
+            rotationZ,
+            iconOffset,
+            iconScale,
+
+            glowSprite,
+            glowColor,
+            glowSize,
+            glowOffset,
+
+            0f,
+
+            glowPulseSpeed,
+            glowScaleAmount,
+            glowMinAlpha,
+            glowMaxAlpha
+        );
+    }
+
+
+    // ============================================================
+    // SHOW ITEM - INDEPENDENT GLOW ROTATION
+    // ============================================================
+
+    public bool ShowItemInSlot(
+        GameObject slot,
+        Sprite itemSprite,
+        Vector2 iconSize,
+        float rotationZ,
+        Vector2 iconOffset,
+        float iconScale,
+
+        Sprite glowSprite,
+        Color glowColor,
+        Vector2 glowSize,
+        Vector2 glowOffset,
+
+        float glowRotationOffset,
 
         float glowPulseSpeed,
         float glowScaleAmount,
@@ -714,7 +946,8 @@ public class InventoryUI : MonoBehaviour
         }
 
         Image itemImage =
-            itemTransform.GetComponent<Image>();
+            itemTransform
+                .GetComponent<Image>();
 
         if (itemImage == null)
         {
@@ -728,7 +961,8 @@ public class InventoryUI : MonoBehaviour
         }
 
         RectTransform itemRect =
-            itemTransform as RectTransform;
+            itemTransform
+                as RectTransform;
 
         itemImage.sprite =
             itemSprite;
@@ -798,11 +1032,15 @@ public class InventoryUI : MonoBehaviour
             CreateOrUpdateGlow(
                 slot,
                 itemTransform,
+
                 glowSprite,
                 glowColor,
                 glowSize,
                 glowOffset,
+
                 rotationZ,
+                glowRotationOffset,
+
                 glowPulseSpeed,
                 glowScaleAmount,
                 glowMinAlpha,
@@ -840,8 +1078,87 @@ public class InventoryUI : MonoBehaviour
         return true;
     }
 
+
     // ============================================================
-    // CONFIGURE WEAPON SLOT
+    // GENERIC ITEM ACCESS
+    // ============================================================
+
+    public Transform GetItemTransform(
+        GameObject slot
+    )
+    {
+        return FindItemTransform(
+            slot
+        );
+    }
+
+
+    // ============================================================
+    // REMOVE ITEM
+    // ============================================================
+
+    public void RemoveItemFromSlot(
+        GameObject slot
+    )
+    {
+        if (slot == null)
+        {
+            return;
+        }
+
+        Transform itemTransform =
+            FindItemTransform(
+                slot
+            );
+
+        if (itemTransform != null)
+        {
+            Image itemImage =
+                itemTransform.GetComponent<Image>();
+
+            if (itemImage != null)
+            {
+                itemImage.sprite =
+                    null;
+
+                itemImage.color =
+                    Color.white;
+            }
+
+            itemTransform.gameObject.SetActive(
+                false
+            );
+        }
+
+        DisableGlow(
+            slot
+        );
+
+        InventoryWeaponSlot weaponSlot =
+            slot.GetComponent<
+                InventoryWeaponSlot
+            >();
+
+        if (weaponSlot != null)
+        {
+            weaponSlot.ClearWeaponData();
+        }
+
+        RefreshInventorySlots();
+
+        if (debugLogs)
+        {
+            Debug.Log(
+                "[INVENTORY UI] Slot cleared: " +
+                slot.name,
+                this
+            );
+        }
+    }
+
+
+    // ============================================================
+    // CONFIGURE WEAPON SLOT - NEW WEAPON
     // ============================================================
 
     public void ConfigureWeaponSlot(
@@ -853,8 +1170,65 @@ public class InventoryUI : MonoBehaviour
         Vector2 buttonIconOffset
     )
     {
+        ConfigureWeaponSlot(
+            slot,
+            weaponSprite,
+            weaponId,
+            buttonIconSize,
+            buttonIconRotation,
+            buttonIconOffset,
+            1f,
+            1f
+        );
+    }
+
+
+    // ============================================================
+    // CONFIGURE WEAPON SLOT - WITH DURABILITY
+    // ============================================================
+
+    public void ConfigureWeaponSlot(
+        GameObject slot,
+        Sprite weaponSprite,
+        string weaponId,
+        Vector2 buttonIconSize,
+        float buttonIconRotation,
+        Vector2 buttonIconOffset,
+        float weaponDurability01
+    )
+    {
+        ConfigureWeaponSlot(
+            slot,
+            weaponSprite,
+            weaponId,
+            buttonIconSize,
+            buttonIconRotation,
+            buttonIconOffset,
+            weaponDurability01,
+            1f
+        );
+    }
+
+
+    // ============================================================
+    // CONFIGURE WEAPON SLOT - DURABILITY + BIG GLOW SCALE
+    // ============================================================
+
+    public void ConfigureWeaponSlot(
+        GameObject slot,
+        Sprite weaponSprite,
+        string weaponId,
+        Vector2 buttonIconSize,
+        float buttonIconRotation,
+        Vector2 buttonIconOffset,
+        float weaponDurability01,
+        float weaponButtonGlowScale
+    )
+    {
         if (slot == null)
+        {
             return;
+        }
 
         FindWeaponReferences();
 
@@ -883,7 +1257,16 @@ public class InventoryUI : MonoBehaviour
             buttonIconOffset,
 
             this,
-            unequipButton
+            unequipButton,
+
+            Mathf.Clamp01(
+                weaponDurability01
+            ),
+
+            Mathf.Max(
+                0.1f,
+                weaponButtonGlowScale
+            )
         );
 
         if (debugLogs)
@@ -892,27 +1275,102 @@ public class InventoryUI : MonoBehaviour
                 "[INVENTORY UI] Weapon slot configured: " +
                 slot.name +
                 " -> " +
-                weaponId,
+                weaponId +
+                " | Durability = " +
+                Mathf.RoundToInt(
+                    weaponDurability01 *
+                    100f
+                ) +
+                "% | Big Glow Scale = " +
+                weaponButtonGlowScale,
                 this
             );
         }
     }
 
+
     // ============================================================
-    // EQUIP WEAPON
+    // EQUIP WEAPON - LEGACY VERSION
     // ============================================================
 
     public bool EquipWeaponFromSlot(
         GameObject sourceSlot,
         Sprite weaponSprite,
         string weaponId,
-
         Button sourceWeaponButton,
         Image sourceWeaponButtonIcon,
-
         Vector2 buttonIconSize,
         float buttonIconRotation,
         Vector2 buttonIconOffset
+    )
+    {
+        return EquipWeaponFromSlot(
+            sourceSlot,
+            weaponSprite,
+            weaponId,
+
+            sourceWeaponButton,
+            sourceWeaponButtonIcon,
+
+            buttonIconSize,
+            buttonIconRotation,
+            buttonIconOffset,
+
+            1f,
+            1f
+        );
+    }
+
+
+    // ============================================================
+    // EQUIP WEAPON - WITH DURABILITY
+    // ============================================================
+
+    public bool EquipWeaponFromSlot(
+        GameObject sourceSlot,
+        Sprite weaponSprite,
+        string weaponId,
+        Button sourceWeaponButton,
+        Image sourceWeaponButtonIcon,
+        Vector2 buttonIconSize,
+        float buttonIconRotation,
+        Vector2 buttonIconOffset,
+        float weaponDurability01
+    )
+    {
+        return EquipWeaponFromSlot(
+            sourceSlot,
+            weaponSprite,
+            weaponId,
+
+            sourceWeaponButton,
+            sourceWeaponButtonIcon,
+
+            buttonIconSize,
+            buttonIconRotation,
+            buttonIconOffset,
+
+            weaponDurability01,
+            1f
+        );
+    }
+
+
+    // ============================================================
+    // EQUIP WEAPON - DURABILITY + BIG GLOW SCALE
+    // ============================================================
+
+    public bool EquipWeaponFromSlot(
+        GameObject sourceSlot,
+        Sprite weaponSprite,
+        string weaponId,
+        Button sourceWeaponButton,
+        Image sourceWeaponButtonIcon,
+        Vector2 buttonIconSize,
+        float buttonIconRotation,
+        Vector2 buttonIconOffset,
+        float weaponDurability01,
+        float weaponButtonGlowScale
     )
     {
         if (sourceSlot == null ||
@@ -940,10 +1398,13 @@ public class InventoryUI : MonoBehaviour
             );
 
         if (itemTransform == null)
+        {
             return false;
+        }
 
         Image itemImage =
-            itemTransform.GetComponent<Image>();
+            itemTransform
+                .GetComponent<Image>();
 
         if (itemImage == null ||
             !itemTransform.gameObject.activeSelf)
@@ -951,8 +1412,14 @@ public class InventoryUI : MonoBehaviour
             return false;
         }
 
+
+        // ========================================================
+        // SAVE INVENTORY ICON LOOK
+        // ========================================================
+
         RectTransform itemRect =
-            itemTransform as RectTransform;
+            itemTransform
+                as RectTransform;
 
         if (itemRect != null)
         {
@@ -969,6 +1436,11 @@ public class InventoryUI : MonoBehaviour
                 itemRect.localScale.x;
         }
 
+
+        // ========================================================
+        // SAVE GLOW LOOK
+        // ========================================================
+
         Transform glowTransform =
             sourceSlot.transform.Find(
                 "ItemGlow"
@@ -977,10 +1449,12 @@ public class InventoryUI : MonoBehaviour
         if (glowTransform != null)
         {
             Image glowImage =
-                glowTransform.GetComponent<Image>();
+                glowTransform
+                    .GetComponent<Image>();
 
             RectTransform glowRect =
-                glowTransform as RectTransform;
+                glowTransform
+                    as RectTransform;
 
             if (glowImage != null)
             {
@@ -1006,6 +1480,12 @@ public class InventoryUI : MonoBehaviour
                 currentGlowOffset =
                     inverseRotation *
                     glowRect.anchoredPosition;
+
+                currentGlowRotationOffset =
+                    Mathf.DeltaAngle(
+                        currentInventoryIconRotation,
+                        glowRect.localEulerAngles.z
+                    );
             }
         }
         else
@@ -1018,13 +1498,26 @@ public class InventoryUI : MonoBehaviour
 
             currentGlowOffset =
                 Vector2.zero;
+
+            currentGlowRotationOffset =
+                0f;
         }
+
+
+        // ========================================================
+        // SAVE WEAPON DATA
+        // ========================================================
 
         currentWeaponSprite =
             weaponSprite;
 
         currentWeaponId =
             weaponId;
+
+        currentWeaponDurability01 =
+            Mathf.Clamp01(
+                weaponDurability01
+            );
 
         currentWeaponButtonIconSize =
             buttonIconSize;
@@ -1034,6 +1527,17 @@ public class InventoryUI : MonoBehaviour
 
         currentWeaponButtonIconOffset =
             buttonIconOffset;
+
+        currentWeaponButtonGlowScale =
+            Mathf.Max(
+                0.1f,
+                weaponButtonGlowScale
+            );
+
+
+        // ========================================================
+        // FIND BIG WEAPON REFERENCES
+        // ========================================================
 
         if (weaponButton == null)
         {
@@ -1062,11 +1566,14 @@ public class InventoryUI : MonoBehaviour
             return false;
         }
 
-        weaponButtonIcon
-            .gameObject
-            .SetActive(
-                true
-            );
+
+        // ========================================================
+        // BIG WEAPON ICON
+        // ========================================================
+
+        weaponButtonIcon.gameObject.SetActive(
+            true
+        );
 
         weaponButtonIcon.enabled =
             true;
@@ -1075,12 +1582,7 @@ public class InventoryUI : MonoBehaviour
             currentWeaponSprite;
 
         weaponButtonIcon.color =
-            new Color(
-                1f,
-                1f,
-                1f,
-                1f
-            );
+            Color.white;
 
         weaponButtonIcon.preserveAspect =
             true;
@@ -1119,29 +1621,36 @@ public class InventoryUI : MonoBehaviour
             Quaternion.Euler(
                 0f,
                 0f,
-                currentInventoryIconRotation
+                currentWeaponButtonIconRotation
             );
 
         bigIconRect.localScale =
             Vector3.one;
 
+
         CreateOrUpdateWeaponButtonGlow();
+
 
         weaponButtonIcon
             .transform
             .SetAsLastSibling();
 
+
         weaponButton.interactable =
             true;
+
 
         weaponEquipped =
             true;
 
-        itemTransform
-            .gameObject
-            .SetActive(
-                false
-            );
+
+        // ========================================================
+        // REMOVE ITEM FROM SOURCE SLOT
+        // ========================================================
+
+        itemTransform.gameObject.SetActive(
+            false
+        );
 
         DisableGlow(
             sourceSlot
@@ -1159,6 +1668,11 @@ public class InventoryUI : MonoBehaviour
 
         RefreshInventorySlots();
 
+
+        // ========================================================
+        // UNEQUIP BUTTON
+        // ========================================================
+
         if (unequipButton == null)
         {
             unequipButton =
@@ -1174,17 +1688,31 @@ public class InventoryUI : MonoBehaviour
             );
         }
 
-        /*
-         * ЗВУК:
-         * ячейка -> большой круг.
-         */
+
+        // ========================================================
+        // PLAYER VISUAL
+        // ========================================================
+
+        SetPlayerSwordEquipped(
+            true
+        );
+
         PlayWeaponMoveSound();
+
+        PlayWeaponMoveHaptic();
 
         if (debugLogs)
         {
             Debug.Log(
                 "[INVENTORY UI] Equipped weapon: " +
-                currentWeaponId,
+                currentWeaponId +
+                " | Durability = " +
+                Mathf.RoundToInt(
+                    currentWeaponDurability01 *
+                    100f
+                ) +
+                "% | Big Glow Scale = " +
+                currentWeaponButtonGlowScale,
                 this
             );
         }
@@ -1192,8 +1720,33 @@ public class InventoryUI : MonoBehaviour
         return true;
     }
 
+
     // ============================================================
-    // UNEQUIP CURRENT WEAPON
+    // EQUIPPED WEAPON DURABILITY
+    // ============================================================
+
+    public float GetEquippedWeaponDurability01()
+    {
+        return
+            Mathf.Clamp01(
+                currentWeaponDurability01
+            );
+    }
+
+
+    public void SetEquippedWeaponDurability01(
+        float value
+    )
+    {
+        currentWeaponDurability01 =
+            Mathf.Clamp01(
+                value
+            );
+    }
+
+
+    // ============================================================
+    // UNEQUIP WEAPON
     // ============================================================
 
     public bool UnequipCurrentWeapon()
@@ -1228,7 +1781,6 @@ public class InventoryUI : MonoBehaviour
         bool placed =
             ShowItemInSlot(
                 targetSlot,
-
                 currentWeaponSprite,
 
                 currentInventoryIconSize,
@@ -1241,6 +1793,8 @@ public class InventoryUI : MonoBehaviour
                 currentGlowSize,
                 currentGlowOffset,
 
+                currentGlowRotationOffset,
+
                 currentGlowPulseSpeed,
                 currentGlowScaleAmount,
                 currentGlowMinAlpha,
@@ -1248,29 +1802,36 @@ public class InventoryUI : MonoBehaviour
             );
 
         if (!placed)
+        {
             return false;
+        }
 
         ConfigureWeaponSlot(
             targetSlot,
-
             currentWeaponSprite,
             currentWeaponId,
 
             currentWeaponButtonIconSize,
             currentWeaponButtonIconRotation,
-            currentWeaponButtonIconOffset
+            currentWeaponButtonIconOffset,
+
+            currentWeaponDurability01,
+            currentWeaponButtonGlowScale
         );
+
+
+        // ========================================================
+        // CLEAR BIG ICON
+        // ========================================================
 
         if (weaponButtonIcon != null)
         {
             weaponButtonIcon.sprite =
                 null;
 
-            weaponButtonIcon
-                .gameObject
-                .SetActive(
-                    false
-                );
+            weaponButtonIcon.gameObject.SetActive(
+                false
+            );
         }
 
         DisableWeaponButtonGlow();
@@ -1288,17 +1849,25 @@ public class InventoryUI : MonoBehaviour
             );
         }
 
-        /*
-         * ЗВУК:
-         * большой круг -> свободная ячейка.
-         */
+        SetPlayerSwordEquipped(
+            false
+        );
+
         PlayWeaponMoveSound();
+
+        PlayWeaponMoveHaptic();
 
         if (debugLogs)
         {
             Debug.Log(
                 "[INVENTORY UI] Weapon returned to free slot: " +
-                targetSlot.name,
+                targetSlot.name +
+                " | Durability = " +
+                Mathf.RoundToInt(
+                    currentWeaponDurability01 *
+                    100f
+                ) +
+                "%",
                 this
             );
         }
@@ -1309,6 +1878,74 @@ public class InventoryUI : MonoBehaviour
 
         return true;
     }
+
+
+    // ============================================================
+    // BREAK EQUIPPED WEAPON
+    // ============================================================
+
+    public bool BreakEquippedWeapon()
+    {
+        if (!weaponEquipped)
+        {
+            if (debugLogs)
+            {
+                Debug.Log(
+                    "[INVENTORY UI] Break ignored: no weapon equipped.",
+                    this
+                );
+            }
+
+            return false;
+        }
+
+        if (weaponButtonIcon != null)
+        {
+            weaponButtonIcon.sprite =
+                null;
+
+            weaponButtonIcon.enabled =
+                false;
+
+            weaponButtonIcon.gameObject.SetActive(
+                false
+            );
+        }
+
+        DisableWeaponButtonGlow();
+
+        if (weaponButton != null)
+        {
+            weaponButton.interactable =
+                false;
+        }
+
+        if (unequipButton != null)
+        {
+            unequipButton.SetWeaponEquipped(
+                false
+            );
+        }
+
+        SetPlayerSwordEquipped(
+            false
+        );
+
+        ClearCurrentWeaponData();
+
+        RefreshInventorySlots();
+
+        if (debugLogs)
+        {
+            Debug.Log(
+                "[INVENTORY UI] WEAPON BROKEN AND DESTROYED.",
+                this
+            );
+        }
+
+        return true;
+    }
+
 
     // ============================================================
     // CLEAR CURRENT WEAPON DATA
@@ -1325,6 +1962,9 @@ public class InventoryUI : MonoBehaviour
         currentWeaponId =
             "";
 
+        currentWeaponDurability01 =
+            1f;
+
         currentWeaponButtonIconSize =
             Vector2.zero;
 
@@ -1333,6 +1973,9 @@ public class InventoryUI : MonoBehaviour
 
         currentWeaponButtonIconOffset =
             Vector2.zero;
+
+        currentWeaponButtonGlowScale =
+            1f;
 
         currentInventoryIconSize =
             Vector2.zero;
@@ -1357,10 +2000,14 @@ public class InventoryUI : MonoBehaviour
 
         currentGlowOffset =
             Vector2.zero;
+
+        currentGlowRotationOffset =
+            0f;
     }
 
+
     // ============================================================
-    // CREATE / UPDATE BIG WEAPON GLOW
+    // BIG WEAPON GLOW
     // ============================================================
 
     private void CreateOrUpdateWeaponButtonGlow()
@@ -1374,6 +2021,7 @@ public class InventoryUI : MonoBehaviour
         if (currentGlowSprite == null)
         {
             DisableWeaponButtonGlow();
+
             return;
         }
 
@@ -1398,19 +2046,15 @@ public class InventoryUI : MonoBehaviour
                     typeof(InventoryItemGlow)
                 );
 
-            weaponGlowObject
-                .transform
-                .SetParent(
-                    weaponButton.transform,
-                    false
-                );
+            weaponGlowObject.transform.SetParent(
+                weaponButton.transform,
+                false
+            );
         }
 
         RectTransform glowRect =
             weaponGlowObject
-                .GetComponent<
-                    RectTransform
-                >();
+                .GetComponent<RectTransform>();
 
         Image glowImage =
             weaponGlowObject
@@ -1418,9 +2062,7 @@ public class InventoryUI : MonoBehaviour
 
         InventoryItemGlow glowPulse =
             weaponGlowObject
-                .GetComponent<
-                    InventoryItemGlow
-                >();
+                .GetComponent<InventoryItemGlow>();
 
         glowRect.anchorMin =
             new Vector2(
@@ -1440,19 +2082,25 @@ public class InventoryUI : MonoBehaviour
                 0.5f
             );
 
+
         float sizeMultiplier =
             1f;
 
-        if (currentInventoryIconSize.x > 0.01f &&
-            currentInventoryIconSize.y > 0.01f)
+
+        if (currentInventoryIconSize.x >
+                0.01f &&
+            currentInventoryIconSize.y >
+                0.01f)
         {
             float xMultiplier =
                 currentWeaponButtonIconSize.x /
                 currentInventoryIconSize.x;
 
+
             float yMultiplier =
                 currentWeaponButtonIconSize.y /
                 currentInventoryIconSize.y;
+
 
             sizeMultiplier =
                 Mathf.Max(
@@ -1461,48 +2109,80 @@ public class InventoryUI : MonoBehaviour
                 );
         }
 
+
+        /*
+         * Старое смещение НЕ меняем.
+         *
+         * Новый индивидуальный параметр
+         * меняет только РАЗМЕР glow,
+         * чтобы дубинка не уезжала
+         * в сторону при увеличении.
+         */
         Vector2 scaledGlowOffset =
             currentGlowOffset *
             sizeMultiplier *
             bigWeaponGlowScale;
 
+
         Vector2 rotatedGlowOffset =
             Quaternion.Euler(
                 0f,
                 0f,
-                currentInventoryIconRotation
-            ) * scaledGlowOffset;
+                currentWeaponButtonIconRotation
+            ) *
+            scaledGlowOffset;
+
 
         glowRect.anchoredPosition =
             currentWeaponButtonIconOffset +
             rotatedGlowOffset;
 
+
+        /*
+         * ВОТ ЗДЕСЬ применяется
+         * индивидуальный размер.
+         *
+         * Для старых оружий:
+         * currentWeaponButtonGlowScale = 1.
+         *
+         * Поэтому меч вообще
+         * визуально не изменится.
+         */
         glowRect.sizeDelta =
             currentGlowSize *
             sizeMultiplier *
-            bigWeaponGlowScale;
+            bigWeaponGlowScale *
+            currentWeaponButtonGlowScale;
+
 
         glowRect.localRotation =
             Quaternion.Euler(
                 0f,
                 0f,
-                currentInventoryIconRotation
+                currentWeaponButtonIconRotation +
+                currentGlowRotationOffset
             );
+
 
         glowRect.localScale =
             Vector3.one;
 
+
         glowImage.sprite =
             currentGlowSprite;
+
 
         glowImage.color =
             currentGlowColor;
 
+
         glowImage.preserveAspect =
             false;
 
+
         glowImage.raycastTarget =
             false;
+
 
         if (glowPulse != null)
         {
@@ -1514,15 +2194,17 @@ public class InventoryUI : MonoBehaviour
             );
         }
 
-        weaponGlowObject
-            .SetActive(
-                true
-            );
+
+        weaponGlowObject.SetActive(
+            true
+        );
+
 
         int iconIndex =
             weaponButtonIcon
                 .transform
                 .GetSiblingIndex();
+
 
         weaponGlowObject
             .transform
@@ -1533,10 +2215,12 @@ public class InventoryUI : MonoBehaviour
                 )
             );
 
+
         weaponButtonIcon
             .transform
             .SetAsLastSibling();
     }
+
 
     // ============================================================
     // DISABLE BIG WEAPON GLOW
@@ -1552,12 +2236,14 @@ public class InventoryUI : MonoBehaviour
                     "WeaponGlow"
                 );
 
+
             if (glow != null)
             {
                 weaponGlowObject =
                     glow.gameObject;
             }
         }
+
 
         if (weaponGlowObject != null)
         {
@@ -1567,18 +2253,23 @@ public class InventoryUI : MonoBehaviour
         }
     }
 
+
     // ============================================================
-    // CREATE / UPDATE INVENTORY GLOW
+    // CREATE / UPDATE SLOT GLOW
     // ============================================================
 
     private void CreateOrUpdateGlow(
         GameObject slot,
         Transform itemTransform,
+
         Sprite glowSprite,
         Color glowColor,
         Vector2 glowSize,
         Vector2 glowOffset,
+
         float rotationZ,
+        float glowRotationOffset,
+
         float glowPulseSpeed,
         float glowScaleAmount,
         float glowMinAlpha,
@@ -1590,7 +2281,9 @@ public class InventoryUI : MonoBehaviour
                 "ItemGlow"
             );
 
+
         GameObject glowObject;
+
 
         if (existingGlow != null)
         {
@@ -1608,29 +2301,28 @@ public class InventoryUI : MonoBehaviour
                     typeof(InventoryItemGlow)
                 );
 
-            glowObject
-                .transform
-                .SetParent(
-                    slot.transform,
-                    false
-                );
+
+            glowObject.transform.SetParent(
+                slot.transform,
+                false
+            );
         }
+
 
         RectTransform glowRect =
             glowObject
-                .GetComponent<
-                    RectTransform
-                >();
+                .GetComponent<RectTransform>();
+
 
         Image glowImage =
             glowObject
                 .GetComponent<Image>();
 
+
         InventoryItemGlow glowPulse =
             glowObject
-                .GetComponent<
-                    InventoryItemGlow
-                >();
+                .GetComponent<InventoryItemGlow>();
+
 
         glowRect.anchorMin =
             new Vector2(
@@ -1638,11 +2330,13 @@ public class InventoryUI : MonoBehaviour
                 0.5f
             );
 
+
         glowRect.anchorMax =
             new Vector2(
                 0.5f,
                 0.5f
             );
+
 
         glowRect.pivot =
             new Vector2(
@@ -1650,40 +2344,52 @@ public class InventoryUI : MonoBehaviour
                 0.5f
             );
 
+
         Vector2 rotatedOffset =
             Quaternion.Euler(
                 0f,
                 0f,
                 rotationZ
-            ) * glowOffset;
+            ) *
+            glowOffset;
+
 
         glowRect.anchoredPosition =
             rotatedOffset;
 
+
         glowRect.sizeDelta =
             glowSize;
+
 
         glowRect.localRotation =
             Quaternion.Euler(
                 0f,
                 0f,
-                rotationZ
+                rotationZ +
+                glowRotationOffset
             );
+
 
         glowRect.localScale =
             Vector3.one;
 
+
         glowImage.sprite =
             glowSprite;
+
 
         glowImage.color =
             glowColor;
 
+
         glowImage.preserveAspect =
             false;
 
+
         glowImage.raycastTarget =
             false;
+
 
         if (glowPulse != null)
         {
@@ -1695,32 +2401,35 @@ public class InventoryUI : MonoBehaviour
             );
         }
 
+
         int itemIndex =
-            itemTransform.GetSiblingIndex();
+            itemTransform
+                .GetSiblingIndex();
 
-        glowObject
-            .transform
-            .SetSiblingIndex(
-                Mathf.Max(
-                    0,
-                    itemIndex
-                )
-            );
 
-        itemTransform
-            .SetSiblingIndex(
-                glowObject
-                    .transform
-                    .GetSiblingIndex() + 1
-            );
+        glowObject.transform.SetSiblingIndex(
+            Mathf.Max(
+                0,
+                itemIndex
+            )
+        );
+
+
+        itemTransform.SetSiblingIndex(
+            glowObject
+                .transform
+                .GetSiblingIndex() + 1
+        );
+
 
         glowObject.SetActive(
             true
         );
     }
 
+
     // ============================================================
-    // DISABLE INVENTORY GLOW
+    // DISABLE SLOT GLOW
     // ============================================================
 
     private void DisableGlow(
@@ -1728,12 +2437,16 @@ public class InventoryUI : MonoBehaviour
     )
     {
         if (slot == null)
+        {
             return;
+        }
+
 
         Transform glow =
             slot.transform.Find(
                 "ItemGlow"
             );
+
 
         if (glow != null)
         {
@@ -1743,8 +2456,9 @@ public class InventoryUI : MonoBehaviour
         }
     }
 
+
     // ============================================================
-    // SLOT RECT
+    // GET SLOT RECT
     // ============================================================
 
     public RectTransform GetSlotRect(
@@ -1752,12 +2466,17 @@ public class InventoryUI : MonoBehaviour
     )
     {
         if (slot == null)
+        {
             return null;
+        }
 
-        return slot.GetComponent<
-            RectTransform
-        >();
+
+        return
+            slot.GetComponent<
+                RectTransform
+            >();
     }
+
 
     // ============================================================
     // FIND FREE SLOT
@@ -1765,19 +2484,27 @@ public class InventoryUI : MonoBehaviour
 
     private GameObject FindFreeSlot()
     {
-        foreach (GameObject slot in runtimeSlots)
+        foreach (GameObject slot
+                 in runtimeSlots)
         {
             if (slot == null)
+            {
                 continue;
+            }
 
-            if (!IsSlotOccupied(slot))
+
+            if (!IsSlotOccupied(
+                    slot
+                ))
             {
                 return slot;
             }
         }
 
+
         return null;
     }
+
 
     // ============================================================
     // CREATE SLOT
@@ -1792,8 +2519,10 @@ public class InventoryUI : MonoBehaviour
                 this
             );
 
+
             return null;
         }
+
 
         GameObject slot =
             Instantiate(
@@ -1801,18 +2530,22 @@ public class InventoryUI : MonoBehaviour
                 slotsParent
             );
 
+
         slot.name =
             "Slot_" +
             (runtimeSlots.Count + 1);
+
 
         slot.SetActive(
             true
         );
 
+
         Transform item =
             FindItemTransform(
                 slot
             );
+
 
         if (item != null)
         {
@@ -1821,20 +2554,24 @@ public class InventoryUI : MonoBehaviour
             );
         }
 
+
         runtimeSlots.Add(
             slot
         );
+
 
         SetSlotGraphicAlpha(
             slot,
             emptySlotAlpha
         );
 
+
         return slot;
     }
 
+
     // ============================================================
-    // FIND ITEM CHILD
+    // FIND ITEM TRANSFORM
     // ============================================================
 
     private Transform FindItemTransform(
@@ -1842,28 +2579,40 @@ public class InventoryUI : MonoBehaviour
     )
     {
         if (slot == null)
+        {
             return null;
+        }
+
 
         Transform exact =
             slot.transform.Find(
                 itemChildName
             );
 
+
         if (exact != null)
+        {
             return exact;
+        }
+
 
         foreach (Transform child
                  in slot.transform)
         {
             if (child == null)
+            {
                 continue;
+            }
+
 
             if (child.name.StartsWith(
-                    "Item_"))
+                    "Item_"
+                ))
             {
                 return child;
             }
         }
+
 
         return null;
     }

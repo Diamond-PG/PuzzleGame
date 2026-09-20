@@ -66,14 +66,27 @@ public class SkeletonEnemy : MonoBehaviour
     [SerializeField] private float attackImpactDelay = 0.15f;
     [SerializeField] private float attackCooldown = 1.1f;
 
+    // ============================================================
+    // HAPTICS
+    // ============================================================
+
     [Header("HAPTICS")]
     [SerializeField] private bool useHaptics = true;
 
+    [Tooltip("Вибрация при настоящем попадании ногой по Skeleton.")]
     [SerializeField, Range(5, 100)]
     private int playerHitsSkeletonHapticMs = 18;
 
+    [Tooltip("Вибрация при настоящем попадании мечом по Skeleton.")]
+    [SerializeField, Range(5, 150)]
+    private int playerSwordHitsSkeletonHapticMs = 30;
+
     [SerializeField, Range(5, 150)]
     private int skeletonHitsPlayerHapticMs = 35;
+
+    // ============================================================
+    // AUDIO
+    // ============================================================
 
     [Header("AUDIO")]
     [SerializeField] private AudioSource sfxSource;
@@ -102,6 +115,10 @@ public class SkeletonEnemy : MonoBehaviour
     [Range(0f, 1f)]
     [SerializeField] private float deathVolume = 1f;
 
+    // ============================================================
+    // PRIVATE
+    // ============================================================
+
     private Rigidbody2D rb;
     private Collider2D bodyCollider;
 
@@ -126,6 +143,10 @@ public class SkeletonEnemy : MonoBehaviour
 
     public bool IsDead => isDead;
 
+    // ============================================================
+    // AWAKE
+    // ============================================================
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -148,6 +169,10 @@ public class SkeletonEnemy : MonoBehaviour
         FindPlayerLinks();
     }
 
+    // ============================================================
+    // START
+    // ============================================================
+
     private void Start()
     {
         startX = transform.position.x;
@@ -160,6 +185,10 @@ public class SkeletonEnemy : MonoBehaviour
 
         UpdatePatrolSprite();
     }
+
+    // ============================================================
+    // FIXED UPDATE
+    // ============================================================
 
     private void FixedUpdate()
     {
@@ -209,6 +238,10 @@ public class SkeletonEnemy : MonoBehaviour
         }
     }
 
+    // ============================================================
+    // PLAYER LINKS
+    // ============================================================
+
     private void FindPlayerLinks()
     {
         if (player == null)
@@ -233,7 +266,13 @@ public class SkeletonEnemy : MonoBehaviour
         }
     }
 
-    public void ReceiveKick(int damage)
+    // ============================================================
+    // LEG ATTACK SYSTEM
+    // ============================================================
+
+    public void ReceiveKick(
+        int damage
+    )
     {
         if (isDead)
             return;
@@ -247,10 +286,46 @@ public class SkeletonEnemy : MonoBehaviour
             return;
         }
 
-        ReceivePlayerHit(damage);
+        ReceivePlayerHit(
+            damage,
+            false
+        );
     }
 
-    private void ReceivePlayerHit(int damage)
+    // ============================================================
+    // SWORD ATTACK SYSTEM
+    // ============================================================
+
+    public void ReceiveSwordHit(
+        int damage
+    )
+    {
+        if (isDead)
+            return;
+
+        if (damage <= 0)
+            return;
+
+        if (hitBlinking ||
+            isKnockedBack)
+        {
+            return;
+        }
+
+        ReceivePlayerHit(
+            damage,
+            true
+        );
+    }
+
+    // ============================================================
+    // RECEIVE DAMAGE
+    // ============================================================
+
+    private void ReceivePlayerHit(
+        int damage,
+        bool fromSword
+    )
     {
         if (isDead ||
             hitBlinking ||
@@ -266,8 +341,25 @@ public class SkeletonEnemy : MonoBehaviour
                 currentHealth - damage
             );
 
-        PlayPlayerHitsSkeletonHaptic();
+        /*
+         * Отдельная вибрация:
+         *
+         * false = удар ногой.
+         * true  = удар мечом.
+         */
+        if (fromSword)
+        {
+            PlayPlayerSwordHitsSkeletonHaptic();
+        }
+        else
+        {
+            PlayPlayerHitsSkeletonHaptic();
+        }
 
+        /*
+         * Голос боли Skeleton остаётся
+         * общим для ноги и меча.
+         */
         if (sfxSource != null &&
             skeletonHurtClip != null)
         {
@@ -289,14 +381,19 @@ public class SkeletonEnemy : MonoBehaviour
 
         if (attackCoroutine != null)
         {
-            StopCoroutine(attackCoroutine);
+            StopCoroutine(
+                attackCoroutine
+            );
+
             attackCoroutine = null;
             attackBusy = false;
         }
 
         if (knockbackCoroutine != null)
         {
-            StopCoroutine(knockbackCoroutine);
+            StopCoroutine(
+                knockbackCoroutine
+            );
         }
 
         knockbackCoroutine =
@@ -306,7 +403,9 @@ public class SkeletonEnemy : MonoBehaviour
 
         if (hitBlinkCoroutine != null)
         {
-            StopCoroutine(hitBlinkCoroutine);
+            StopCoroutine(
+                hitBlinkCoroutine
+            );
         }
 
         hitBlinkCoroutine =
@@ -314,6 +413,10 @@ public class SkeletonEnemy : MonoBehaviour
                 HitBlinkRoutine()
             );
     }
+
+    // ============================================================
+    // AGGRO AFTER HIT
+    // ============================================================
 
     private void AggroAndFacePlayerAfterHit()
     {
@@ -340,6 +443,10 @@ public class SkeletonEnemy : MonoBehaviour
             SetAttackSpriteRight();
         }
     }
+
+    // ============================================================
+    // KNOCKBACK
+    // ============================================================
 
     private IEnumerator KnockbackRoutine()
     {
@@ -383,6 +490,10 @@ public class SkeletonEnemy : MonoBehaviour
         knockbackCoroutine = null;
     }
 
+    // ============================================================
+    // HIT BLINK
+    // ============================================================
+
     private IEnumerator HitBlinkRoutine()
     {
         hitBlinking = true;
@@ -425,6 +536,10 @@ public class SkeletonEnemy : MonoBehaviour
             UpdatePatrolSprite();
         }
     }
+
+    // ============================================================
+    // DETECTION
+    // ============================================================
 
     private void CheckPlayer()
     {
@@ -486,6 +601,10 @@ public class SkeletonEnemy : MonoBehaviour
         }
     }
 
+    // ============================================================
+    // DETECT SOUND
+    // ============================================================
+
     private void PlayDetectSound()
     {
         if (sfxSource == null ||
@@ -505,6 +624,10 @@ public class SkeletonEnemy : MonoBehaviour
             detectVolume
         );
     }
+
+    // ============================================================
+    // CHASE
+    // ============================================================
 
     private void ChasePlayer()
     {
@@ -568,6 +691,10 @@ public class SkeletonEnemy : MonoBehaviour
                 rb.linearVelocity.y
             );
     }
+
+    // ============================================================
+    // SKELETON ATTACK
+    // ============================================================
 
     private void StartSkeletonAttack()
     {
@@ -726,13 +853,20 @@ public class SkeletonEnemy : MonoBehaviour
             HasClearLineOfSightToPlayer();
     }
 
+    // ============================================================
+    // PLAYER DEAD
+    // ============================================================
+
     private void StopAllCombatAfterPlayerDeath()
     {
         chasingPlayer = false;
 
         if (attackCoroutine != null)
         {
-            StopCoroutine(attackCoroutine);
+            StopCoroutine(
+                attackCoroutine
+            );
+
             attackCoroutine = null;
         }
 
@@ -746,6 +880,10 @@ public class SkeletonEnemy : MonoBehaviour
             UpdatePatrolSprite();
         }
     }
+
+    // ============================================================
+    // PATROL
+    // ============================================================
 
     private void Patrol()
     {
@@ -869,7 +1007,10 @@ public class SkeletonEnemy : MonoBehaviour
 
         if (attackCoroutine != null)
         {
-            StopCoroutine(attackCoroutine);
+            StopCoroutine(
+                attackCoroutine
+            );
+
             attackCoroutine = null;
         }
 
@@ -883,6 +1024,10 @@ public class SkeletonEnemy : MonoBehaviour
 
         UpdatePatrolSprite();
     }
+
+    // ============================================================
+    // LINE OF SIGHT
+    // ============================================================
 
     private bool HasClearLineOfSightToPlayer()
     {
@@ -958,6 +1103,10 @@ public class SkeletonEnemy : MonoBehaviour
             closestTransform
         );
     }
+
+    // ============================================================
+    // OBSTACLE DETECTION
+    // ============================================================
 
     private bool ObstacleAhead()
     {
@@ -1052,6 +1201,10 @@ public class SkeletonEnemy : MonoBehaviour
         return false;
     }
 
+    // ============================================================
+    // COLLISION
+    // ============================================================
+
     private void OnCollisionEnter2D(
         Collision2D collision
     )
@@ -1088,6 +1241,10 @@ public class SkeletonEnemy : MonoBehaviour
             }
         }
     }
+
+    // ============================================================
+    // DEATH
+    // ============================================================
 
     private void Die()
     {
@@ -1188,6 +1345,10 @@ public class SkeletonEnemy : MonoBehaviour
         }
     }
 
+    // ============================================================
+    // HAPTICS
+    // ============================================================
+
     private void PlayPlayerHitsSkeletonHaptic()
     {
         if (!useHaptics)
@@ -1195,6 +1356,17 @@ public class SkeletonEnemy : MonoBehaviour
 
         MicroHaptics.Pulse(
             playerHitsSkeletonHapticMs,
+            MicroHaptics.IOSHapticStyle.Light
+        );
+    }
+
+    private void PlayPlayerSwordHitsSkeletonHaptic()
+    {
+        if (!useHaptics)
+            return;
+
+        MicroHaptics.Pulse(
+            playerSwordHitsSkeletonHapticMs,
             MicroHaptics.IOSHapticStyle.Light
         );
     }
@@ -1209,6 +1381,10 @@ public class SkeletonEnemy : MonoBehaviour
             MicroHaptics.IOSHapticStyle.Heavy
         );
     }
+
+    // ============================================================
+    // HELPERS
+    // ============================================================
 
     private bool IsPlayerTransform(
         Transform target
@@ -1226,6 +1402,10 @@ public class SkeletonEnemy : MonoBehaviour
             player.IsChildOf(target);
     }
 
+    // ============================================================
+    // MOVEMENT
+    // ============================================================
+
     private void StopHorizontalMovement()
     {
         if (rb == null)
@@ -1237,6 +1417,10 @@ public class SkeletonEnemy : MonoBehaviour
                 rb.linearVelocity.y
             );
     }
+
+    // ============================================================
+    // SPRITES
+    // ============================================================
 
     private void UpdatePatrolSprite()
     {

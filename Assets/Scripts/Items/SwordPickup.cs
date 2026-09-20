@@ -144,6 +144,32 @@ public class SwordPickup : MonoBehaviour, IHandInteractable
     [SerializeField] private float pickupVolume = 1f;
 
     // ============================================================
+    // PICKUP HAPTICS
+    // ============================================================
+
+    [Header("PICKUP HAPTICS")]
+
+    [Tooltip(
+        "Вибрация в момент успешного подбора меча."
+    )]
+    [SerializeField]
+    private bool usePickupHaptics = true;
+
+    [Tooltip(
+        "Длительность вибрации на Android в миллисекундах."
+    )]
+    [SerializeField, Range(5, 100)]
+    private int androidPickupHapticMs = 22;
+
+    [Tooltip(
+        "Тип вибрации на iPhone."
+    )]
+    [SerializeField]
+    private MicroHaptics.IOSHapticStyle
+        iosPickupHapticStyle =
+            MicroHaptics.IOSHapticStyle.Medium;
+
+    // ============================================================
     // FLY TO INVENTORY
     // ============================================================
 
@@ -487,8 +513,17 @@ public class SwordPickup : MonoBehaviour, IHandInteractable
         if (targetRect == null)
             return;
 
+        /*
+         * До этого места подбор ещё мог
+         * отмениться из-за отсутствия
+         * InventoryUI, спрайта или слота.
+         *
+         * Теперь мы точно знаем,
+         * что меч успешно подбирается.
+         */
         pickupBusy = true;
 
+        PlayPickupHaptic();
         PlayPickupSound();
 
         if (swordCollider != null)
@@ -515,6 +550,23 @@ public class SwordPickup : MonoBehaviour, IHandInteractable
                 targetRect,
                 finalSprite
             )
+        );
+    }
+
+    // ============================================================
+    // PICKUP HAPTIC
+    // ============================================================
+
+    private void PlayPickupHaptic()
+    {
+        if (!usePickupHaptics)
+        {
+            return;
+        }
+
+        MicroHaptics.Pulse(
+            androidPickupHapticMs,
+            iosPickupHapticStyle
         );
     }
 
@@ -1279,15 +1331,6 @@ public class SwordPickup : MonoBehaviour, IHandInteractable
             return;
         }
 
-        /*
-         * САМОЕ ВАЖНОЕ:
-         *
-         * Какая ячейка оказалась свободной —
-         * именно она теперь становится
-         * оружейной ячейкой Sword.
-         *
-         * Никакой привязки к номеру слота нет.
-         */
         inventoryUI.ConfigureWeaponSlot(
             targetSlot,
             itemSprite,
