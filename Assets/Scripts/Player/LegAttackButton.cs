@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -110,13 +111,79 @@ public class LegAttackButton : MonoBehaviour
 
 
     // ============================================================
-    // DAMAGE
+    // LEGACY DAMAGE
     // ============================================================
 
-    [Header("DAMAGE")]
+    [Header("LEGACY KICK DAMAGE")]
 
+    [Tooltip(
+        "Старое целочисленное значение удара. " +
+        "Оставлено для совместимости со старыми объектами, " +
+        "которые ещё не используют дробный баланс."
+    )]
     [SerializeField, Min(1)]
     private int kickDamage = 1;
+
+
+    // ============================================================
+    // BALANCED KICK DAMAGE
+    // ============================================================
+
+    [Header("KICK DAMAGE - GUARD")]
+
+    [Tooltip(
+        "Урон ногой по Guard. " +
+        "При здоровье Guard = 4 значение 0.67 даёт 6 ударов."
+    )]
+    [SerializeField, Min(0.01f)]
+    private float guardKickDamage = 0.67f;
+
+
+    [Header("KICK DAMAGE - SKELETON")]
+
+    [Tooltip(
+        "Урон ногой по Skeleton. " +
+        "При здоровье Skeleton = 3 значение 0.60 даёт 5 ударов."
+    )]
+    [SerializeField, Min(0.01f)]
+    private float skeletonKickDamage = 0.60f;
+
+
+    [Header("KICK DAMAGE - REGULAR BOX")]
+
+    [Tooltip(
+        "Урон ногой по обычному ящику. " +
+        "При прочности 2 значение 0.50 даёт 4 удара."
+    )]
+    [SerializeField, Min(0.01f)]
+    private float regularBoxKickDamage = 0.50f;
+
+
+    [Header("KICK DAMAGE - MIDDLE BOX")]
+
+    [Tooltip(
+        "Урон ногой по среднему ящику. " +
+        "При прочности 3 значение 0.60 даёт 5 ударов."
+    )]
+    [SerializeField, Min(0.01f)]
+    private float middleBoxKickDamage = 0.60f;
+
+
+    [Header("KICK DAMAGE - HARD BOX")]
+
+    [Tooltip(
+        "Урон ногой по тяжёлому ящику. " +
+        "При прочности 4 значение 0.67 даёт 6 ударов."
+    )]
+    [SerializeField, Min(0.01f)]
+    private float hardBoxKickDamage = 0.67f;
+
+
+    // ============================================================
+    // DAMAGE TIMING
+    // ============================================================
+
+    [Header("DAMAGE TIMING")]
 
     [SerializeField]
     private float impactDelay = 0.08f;
@@ -196,9 +263,6 @@ public class LegAttackButton : MonoBehaviour
 
     private Coroutine attackRoutine;
 
-    /*
-     * Последний реально ударенный ящик.
-     */
     private GameObject rememberedBox;
 
     private float rememberedBoxHitTime;
@@ -322,6 +386,7 @@ public class LegAttackButton : MonoBehaviour
             playerHealth != null &&
             playerHealth.IsDead;
     }
+
 
     private bool GameplayActionsLocked()
     {
@@ -530,18 +595,6 @@ public class LegAttackButton : MonoBehaviour
                 if (target == null)
                     continue;
 
-                /*
-                 * =================================================
-                 * ВАЖНО:
-                 *
-                 * Даже если Collider цели случайно залез
-                 * в OverlapBox с противоположной стороны,
-                 * урон не проходит.
-                 *
-                 * Пинок вправо = только цель справа.
-                 * Пинок влево  = только цель слева.
-                 * =================================================
-                 */
                 if (!IsTargetOnKickSide(
                         target,
                         direction))
@@ -591,11 +644,15 @@ public class LegAttackButton : MonoBehaviour
                         target
                     );
 
-                target.SendMessage(
-                    "ReceiveKick",
-                    kickDamage,
-                    SendMessageOptions.DontRequireReceiver
-                );
+                bool damageDelivered =
+                    ApplyBalancedKickDamage(
+                        target
+                    );
+
+                if (!damageDelivered)
+                {
+                    continue;
+                }
 
                 anyRealTargetHit =
                     true;
@@ -620,7 +677,11 @@ public class LegAttackButton : MonoBehaviour
                 {
                     Debug.Log(
                         "[LEG ATTACK] Kick -> " +
-                        target.name,
+                        target.name +
+                        " | Damage = " +
+                        GetBalancedKickDamage(
+                            target
+                        ).ToString("F2"),
                         target
                     );
                 }
@@ -634,6 +695,209 @@ public class LegAttackButton : MonoBehaviour
                 alreadyHit
             );
         }
+    }
+
+
+    // ============================================================
+    // BALANCED KICK DAMAGE
+    // ============================================================
+
+    private bool ApplyBalancedKickDamage(
+        GameObject target
+    )
+    {
+        if (target == null)
+        {
+            return false;
+        }
+
+        float balancedDamage =
+            GetBalancedKickDamage(
+                target
+            );
+
+        /*
+         * Новый метод:
+         *
+         * ReceiveKickDamage(float)
+         *
+         * Его мы сейчас добавим в Guard,
+         * Skeleton и все три типа ящиков.
+         *
+         * Пока объект ещё старый,
+         * автоматически используется старый
+         * ReceiveKick(int).
+         */
+        if (TryInvokeFloatMethod(
+                target,
+                "ReceiveKickDamage",
+                balancedDamage))
+        {
+            return true;
+        }
+
+        /*
+         * Старый безопасный fallback.
+         *
+         * Благодаря этому текущая система ноги
+         * не ломается между этапами переделки.
+         */
+        if (HasReceiveKick(
+                target))
+        {
+            target.SendMessage(
+                "ReceiveKick",
+                kickDamage,
+                SendMessageOptions.DontRequireReceiver
+            );
+
+            return true;
+        }
+
+        return false;
+    }
+
+
+    // ============================================================
+    // BALANCED DAMAGE VALUE
+    // ============================================================
+
+    private float GetBalancedKickDamage(
+        GameObject target
+    )
+    {
+        if (target == null)
+        {
+            return kickDamage;
+        }
+
+
+        GuardEnemy guard =
+            target.GetComponent<GuardEnemy>();
+
+        if (guard != null)
+        {
+            return
+                guardKickDamage;
+        }
+
+
+        SkeletonEnemy skeleton =
+            target.GetComponent<SkeletonEnemy>();
+
+        if (skeleton != null)
+        {
+            return
+                skeletonKickDamage;
+        }
+
+
+        BreakableHardBox hardBox =
+            target.GetComponent<
+                BreakableHardBox
+            >();
+
+        if (hardBox != null)
+        {
+            return
+                hardBoxKickDamage;
+        }
+
+
+        BreakableMiddleBox middleBox =
+            target.GetComponent<
+                BreakableMiddleBox
+            >();
+
+        if (middleBox != null)
+        {
+            return
+                middleBoxKickDamage;
+        }
+
+
+        BreakableBox regularBox =
+            target.GetComponent<
+                BreakableBox
+            >();
+
+        if (regularBox != null)
+        {
+            return
+                regularBoxKickDamage;
+        }
+
+
+        return
+            kickDamage;
+    }
+
+
+    // ============================================================
+    // INVOKE FLOAT DAMAGE METHOD
+    // ============================================================
+
+    private bool TryInvokeFloatMethod(
+        GameObject target,
+        string methodName,
+        float damage
+    )
+    {
+        if (target == null ||
+            string.IsNullOrEmpty(
+                methodName))
+        {
+            return false;
+        }
+
+
+        MonoBehaviour[] behaviours =
+            target.GetComponents<
+                MonoBehaviour
+            >();
+
+
+        foreach (MonoBehaviour behaviour
+                 in behaviours)
+        {
+            if (behaviour == null)
+            {
+                continue;
+            }
+
+
+            MethodInfo method =
+                behaviour
+                    .GetType()
+                    .GetMethod(
+                        methodName,
+                        new System.Type[]
+                        {
+                            typeof(float)
+                        }
+                    );
+
+
+            if (method == null)
+            {
+                continue;
+            }
+
+
+            method.Invoke(
+                behaviour,
+                new object[]
+                {
+                    damage
+                }
+            );
+
+
+            return true;
+        }
+
+
+        return false;
     }
 
 
@@ -756,6 +1020,7 @@ public class LegAttackButton : MonoBehaviour
             Time.time;
     }
 
+
     private void TryHitRememberedBox(
         float direction,
         HashSet<GameObject> alreadyHit
@@ -793,10 +1058,6 @@ public class LegAttackButton : MonoBehaviour
             return;
         }
 
-        /*
-         * Даже Box Combo Assist теперь
-         * обязательно соблюдает сторону удара.
-         */
         if (!IsTargetOnKickSide(
                 rememberedBox,
                 direction))
@@ -878,11 +1139,15 @@ public class LegAttackButton : MonoBehaviour
             return;
         }
 
-        rememberedBox.SendMessage(
-            "ReceiveKick",
-            kickDamage,
-            SendMessageOptions.DontRequireReceiver
-        );
+        bool damageDelivered =
+            ApplyBalancedKickDamage(
+                rememberedBox
+            );
+
+        if (!damageDelivered)
+        {
+            return;
+        }
 
         rememberedBoxHitTime =
             Time.time;
@@ -892,7 +1157,11 @@ public class LegAttackButton : MonoBehaviour
             Debug.Log(
                 "[LEG ATTACK] BOX COMBO ASSIST -> " +
                 rememberedBox.name +
-                " | distance = " +
+                " | Damage = " +
+                GetBalancedKickDamage(
+                    rememberedBox
+                ).ToString("F2") +
+                " | Distance = " +
                 nearEdgeDistance.ToString("F2"),
                 rememberedBox
             );
@@ -922,7 +1191,25 @@ public class LegAttackButton : MonoBehaviour
             if (behaviour == null)
                 continue;
 
-            System.Reflection.MethodInfo method =
+
+            MethodInfo balancedMethod =
+                behaviour
+                    .GetType()
+                    .GetMethod(
+                        "ReceiveKickDamage",
+                        new System.Type[]
+                        {
+                            typeof(float)
+                        }
+                    );
+
+            if (balancedMethod != null)
+            {
+                return true;
+            }
+
+
+            MethodInfo legacyMethod =
                 behaviour
                     .GetType()
                     .GetMethod(
@@ -933,7 +1220,7 @@ public class LegAttackButton : MonoBehaviour
                         }
                     );
 
-            if (method != null)
+            if (legacyMethod != null)
             {
                 return true;
             }
@@ -994,33 +1281,30 @@ public class LegAttackButton : MonoBehaviour
         if (target == null)
             return false;
 
+
         GuardEnemy guard =
-            target.GetComponent<GuardEnemy>();
+            target.GetComponent<
+                GuardEnemy
+            >();
 
         if (guard != null)
         {
-            return !guard.IsDead;
+            return
+                !guard.IsDead;
         }
 
-        MonoBehaviour[] behaviours =
-            target.GetComponents<
-                MonoBehaviour
+
+        SkeletonEnemy skeleton =
+            target.GetComponent<
+                SkeletonEnemy
             >();
 
-        foreach (MonoBehaviour behaviour
-                 in behaviours)
+        if (skeleton != null)
         {
-            if (behaviour == null)
-                continue;
-
-            if (behaviour
-                    .GetType()
-                    .Name ==
-                "SkeletonEnemy")
-            {
-                return true;
-            }
+            return
+                !skeleton.IsDead;
         }
+
 
         return false;
     }
@@ -1076,8 +1360,19 @@ public class LegAttackButton : MonoBehaviour
                     GuardEnemy
                 >() != null)
             {
-                return current.gameObject;
+                return
+                    current.gameObject;
             }
+
+
+            if (current.GetComponent<
+                    SkeletonEnemy
+                >() != null)
+            {
+                return
+                    current.gameObject;
+            }
+
 
             MonoBehaviour[] behaviours =
                 current.GetComponents<
@@ -1090,7 +1385,26 @@ public class LegAttackButton : MonoBehaviour
                 if (behaviour == null)
                     continue;
 
-                System.Reflection.MethodInfo method =
+
+                MethodInfo balancedMethod =
+                    behaviour
+                        .GetType()
+                        .GetMethod(
+                            "ReceiveKickDamage",
+                            new System.Type[]
+                            {
+                                typeof(float)
+                            }
+                        );
+
+                if (balancedMethod != null)
+                {
+                    return
+                        current.gameObject;
+                }
+
+
+                MethodInfo legacyMethod =
                     behaviour
                         .GetType()
                         .GetMethod(
@@ -1101,9 +1415,10 @@ public class LegAttackButton : MonoBehaviour
                             }
                         );
 
-                if (method != null)
+                if (legacyMethod != null)
                 {
-                    return current.gameObject;
+                    return
+                        current.gameObject;
                 }
             }
 
@@ -1111,7 +1426,8 @@ public class LegAttackButton : MonoBehaviour
                 current.parent;
         }
 
-        return hit.gameObject;
+        return
+            hit.gameObject;
     }
 
 
@@ -1237,6 +1553,36 @@ public class LegAttackButton : MonoBehaviour
             Mathf.Max(
                 1,
                 kickDamage
+            );
+
+        guardKickDamage =
+            Mathf.Max(
+                0.01f,
+                guardKickDamage
+            );
+
+        skeletonKickDamage =
+            Mathf.Max(
+                0.01f,
+                skeletonKickDamage
+            );
+
+        regularBoxKickDamage =
+            Mathf.Max(
+                0.01f,
+                regularBoxKickDamage
+            );
+
+        middleBoxKickDamage =
+            Mathf.Max(
+                0.01f,
+                middleBoxKickDamage
+            );
+
+        hardBoxKickDamage =
+            Mathf.Max(
+                0.01f,
+                hardBoxKickDamage
             );
 
         impactDelay =

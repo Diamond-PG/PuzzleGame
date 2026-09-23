@@ -55,30 +55,30 @@ public class ClubPickup : MonoBehaviour, IHandInteractable
         );
 
     [Tooltip(
-        "Поворот дубинки внутри ячейки."
+        "Поворот дубинки внутри обычной ячейки."
     )]
     [SerializeField]
     private float inventoryRotationZ = -45f;
 
     [Tooltip(
-        "Смещение дубинки внутри ячейки."
+        "X/Y смещение дубинки внутри обычной ячейки."
     )]
     [SerializeField]
     private Vector2 inventoryIconOffset =
         Vector2.zero;
 
     [Tooltip(
-        "Дополнительный масштаб дубинки внутри ячейки."
+        "Дополнительный Scale дубинки внутри обычной ячейки."
     )]
     [SerializeField, Min(0.1f)]
     private float inventoryIconScale = 1.3f;
 
 
     // ============================================================
-    // WEAPON SLOT SETTINGS
+    // WEAPON BUTTON ICON
     // ============================================================
 
-    [Header("WEAPON SLOT SETTINGS")]
+    [Header("WEAPON BUTTON ICON")]
 
     [Tooltip(
         "Тип оружия. Для этой дубинки должен быть Club."
@@ -87,7 +87,7 @@ public class ClubPickup : MonoBehaviour, IHandInteractable
     private string weaponId = "Club";
 
     [Tooltip(
-        "Размер дубинки внутри большой круглой WeaponButton."
+        "Размер дубинки внутри большого круглого WeaponButton."
     )]
     [SerializeField]
     private Vector2 weaponButtonIconSize =
@@ -97,26 +97,69 @@ public class ClubPickup : MonoBehaviour, IHandInteractable
         );
 
     [Tooltip(
-        "Поворот дубинки внутри большой WeaponButton."
+        "Z-поворот дубинки внутри большого WeaponButton."
     )]
     [SerializeField]
     private float weaponButtonIconRotation = 0f;
 
     [Tooltip(
-        "Смещение дубинки внутри большой WeaponButton."
+        "X/Y смещение самой дубинки " +
+        "внутри большого WeaponButton."
     )]
     [SerializeField]
     private Vector2 weaponButtonIconOffset =
         Vector2.zero;
 
     [Tooltip(
-        "Индивидуальный размер оранжевой подсветки " +
-        "дубинки внутри большого WeaponButton. " +
-        "1 = прежний размер. " +
-        "Например 1.15 или 1.20 сделает подсветку больше."
+        "Дополнительный Scale самой дубинки " +
+        "в большом WeaponButton. " +
+        "1 = без дополнительного масштаба."
     )]
-    [SerializeField, Range(0.5f, 2f)]
+    [SerializeField, Min(0.1f)]
+    private float weaponButtonIconScale = 1f;
+
+
+    // ============================================================
+    // WEAPON BUTTON GLOW
+    // ============================================================
+
+    [Header("WEAPON BUTTON GLOW")]
+
+    [Tooltip(
+        "Общий индивидуальный Scale оранжевого glow " +
+        "дубинки в большом WeaponButton. " +
+        "Твоё текущее настроенное значение может быть 1.5."
+    )]
+    [SerializeField, Range(0.1f, 3f)]
     private float weaponButtonGlowScale = 1.15f;
+
+
+    [Tooltip(
+        "Отдельное изменение размера большого glow. " +
+        "X = ширина, Y = высота. " +
+        "1 / 1 = без дополнительного растяжения."
+    )]
+    [SerializeField]
+    private Vector2 weaponButtonGlowSizeScale =
+        Vector2.one;
+
+
+    [Tooltip(
+        "X/Y смещение ТОЛЬКО оранжевой подсветки " +
+        "дубинки в большом WeaponButton. " +
+        "Сама дубинка при этом остаётся на месте."
+    )]
+    [SerializeField]
+    private Vector2 weaponButtonGlowOffset =
+        Vector2.zero;
+
+
+    [Tooltip(
+        "Дополнительный Z-поворот ТОЛЬКО glow " +
+        "дубинки в большом WeaponButton."
+    )]
+    [SerializeField]
+    private float weaponButtonGlowRotationOffset = 0f;
 
 
     // ============================================================
@@ -143,6 +186,9 @@ public class ClubPickup : MonoBehaviour, IHandInteractable
             0.85f
         );
 
+    [Tooltip(
+        "Размер glow в обычной ячейке."
+    )]
     [SerializeField]
     private Vector2 inventoryGlowSize =
         new Vector2(
@@ -150,12 +196,16 @@ public class ClubPickup : MonoBehaviour, IHandInteractable
             190f
         );
 
+    [Tooltip(
+        "X/Y смещение glow в обычной ячейке."
+    )]
     [SerializeField]
     private Vector2 inventoryGlowOffset =
         Vector2.zero;
 
     [Tooltip(
-        "Дополнительный поворот ТОЛЬКО подсветки дубинки. " +
+        "Дополнительный Z-поворот ТОЛЬКО подсветки " +
+        "дубинки в обычной ячейке. " +
         "Не меняет поворот самой дубинки."
     )]
     [SerializeField]
@@ -477,6 +527,7 @@ public class ClubPickup : MonoBehaviour, IHandInteractable
                     "WeaponGlow"
                 );
 
+
             if (glow != null)
             {
                 weaponGlow =
@@ -513,6 +564,7 @@ public class ClubPickup : MonoBehaviour, IHandInteractable
             GameObject.FindGameObjectWithTag(
                 "Player"
             );
+
 
         if (playerObject != null)
         {
@@ -1634,12 +1686,12 @@ public class ClubPickup : MonoBehaviour, IHandInteractable
 
 
         /*
-         * Новая дубинка:
+         * Новая дубинка получает
          * 100% прочности.
          *
-         * weaponButtonGlowScale влияет
-         * ТОЛЬКО на её подсветку
-         * в большом круге.
+         * Передаём полный набор
+         * индивидуальных настроек
+         * большого WeaponButton.
          */
         inventoryUI.ConfigureWeaponSlot(
             targetSlot,
@@ -1651,7 +1703,13 @@ public class ClubPickup : MonoBehaviour, IHandInteractable
             weaponButtonIconOffset,
 
             1f,
-            weaponButtonGlowScale
+
+            weaponButtonIconScale,
+
+            weaponButtonGlowScale,
+            weaponButtonGlowSizeScale,
+            weaponButtonGlowOffset,
+            weaponButtonGlowRotationOffset
         );
 
 
@@ -1714,11 +1772,32 @@ public class ClubPickup : MonoBehaviour, IHandInteractable
             );
 
 
+        weaponButtonIconScale =
+            Mathf.Max(
+                0.1f,
+                weaponButtonIconScale
+            );
+
+
         weaponButtonGlowScale =
             Mathf.Clamp(
                 weaponButtonGlowScale,
-                0.5f,
-                2f
+                0.1f,
+                3f
+            );
+
+
+        weaponButtonGlowSizeScale.x =
+            Mathf.Max(
+                0.01f,
+                weaponButtonGlowSizeScale.x
+            );
+
+
+        weaponButtonGlowSizeScale.y =
+            Mathf.Max(
+                0.01f,
+                weaponButtonGlowSizeScale.y
             );
 
 

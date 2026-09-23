@@ -42,10 +42,10 @@ public class InventoryWeaponSlot : MonoBehaviour
 
 
     // ============================================================
-    // WEAPON BUTTON
+    // WEAPON BUTTON ICON
     // ============================================================
 
-    [Header("WEAPON BUTTON")]
+    [Header("WEAPON BUTTON ICON")]
 
     [SerializeField]
     private Button weaponButton;
@@ -55,7 +55,10 @@ public class InventoryWeaponSlot : MonoBehaviour
 
     [SerializeField]
     private Vector2 weaponButtonIconSize =
-        new Vector2(190f, 190f);
+        new Vector2(
+            190f,
+            190f
+        );
 
     [SerializeField]
     private float weaponButtonIconRotation = 0f;
@@ -65,12 +68,52 @@ public class InventoryWeaponSlot : MonoBehaviour
         Vector2.zero;
 
     [Tooltip(
-        "Индивидуальный масштаб подсветки оружия " +
-        "внутри большого WeaponButton. " +
-        "1 = обычный размер."
+        "Дополнительный Scale самого оружия " +
+        "в большом WeaponButton."
     )]
-    [SerializeField, Min(0.1f)]
+    [SerializeField, Min(0.01f)]
+    private float weaponButtonIconScale = 1f;
+
+
+    // ============================================================
+    // WEAPON BUTTON GLOW
+    // ============================================================
+
+    [Header("WEAPON BUTTON GLOW")]
+
+    [Tooltip(
+        "Общий индивидуальный Scale подсветки " +
+        "этого оружия в большом WeaponButton."
+    )]
+    [SerializeField, Min(0.01f)]
     private float weaponButtonGlowScale = 1f;
+
+
+    [Tooltip(
+        "Отдельное изменение размера glow по X и Y. " +
+        "X = ширина, Y = высота. " +
+        "1 / 1 = без изменений."
+    )]
+    [SerializeField]
+    private Vector2 weaponButtonGlowSizeScale =
+        Vector2.one;
+
+
+    [Tooltip(
+        "Независимое X/Y смещение ТОЛЬКО glow " +
+        "в большом WeaponButton."
+    )]
+    [SerializeField]
+    private Vector2 weaponButtonGlowOffset =
+        Vector2.zero;
+
+
+    [Tooltip(
+        "Дополнительный Z-поворот ТОЛЬКО glow " +
+        "в большом WeaponButton."
+    )]
+    [SerializeField]
+    private float weaponButtonGlowRotationOffset = 0f;
 
 
     // ============================================================
@@ -120,10 +163,12 @@ public class InventoryWeaponSlot : MonoBehaviour
     public string WeaponId =>
         weaponId;
 
+
     public float WeaponDurability01 =>
         Mathf.Clamp01(
             weaponDurability01
         );
+
 
     public bool IsConfiguredAsWeapon =>
         weaponConfigured;
@@ -138,10 +183,12 @@ public class InventoryWeaponSlot : MonoBehaviour
                 return weaponIcon;
             }
 
+
             if (slotItemImage != null)
             {
                 return slotItemImage.sprite;
             }
+
 
             return null;
         }
@@ -156,22 +203,36 @@ public class InventoryWeaponSlot : MonoBehaviour
     {
         RefreshReferences();
 
+
         weaponDurability01 =
             Mathf.Clamp01(
                 weaponDurability01
             );
 
+
+        weaponButtonIconScale =
+            Mathf.Max(
+                0.01f,
+                weaponButtonIconScale
+            );
+
+
         weaponButtonGlowScale =
             Mathf.Max(
-                0.1f,
+                0.01f,
                 weaponButtonGlowScale
             );
+
+
+        ClampGlowSizeScale();
+
 
         weaponConfigured =
             weaponIcon != null &&
             !string.IsNullOrEmpty(
                 weaponId
             );
+
 
         if (weaponConfigured)
         {
@@ -196,16 +257,19 @@ public class InventoryWeaponSlot : MonoBehaviour
                 GetComponent<Button>();
         }
 
+
         if (slotItemImage == null)
         {
             FindSlotItemImage();
         }
+
 
         if (inventoryUI == null)
         {
             inventoryUI =
                 FindFirstObjectByType<InventoryUI>();
         }
+
 
         if (unequipButton == null)
         {
@@ -222,11 +286,15 @@ public class InventoryWeaponSlot : MonoBehaviour
     private void ConnectButton()
     {
         if (slotButton == null)
+        {
             return;
+        }
+
 
         slotButton.onClick.RemoveListener(
             EquipWeapon
         );
+
 
         slotButton.onClick.AddListener(
             EquipWeapon
@@ -237,7 +305,10 @@ public class InventoryWeaponSlot : MonoBehaviour
     private void DisconnectButton()
     {
         if (slotButton == null)
+        {
             return;
+        }
+
 
         slotButton.onClick.RemoveListener(
             EquipWeapon
@@ -256,16 +327,22 @@ public class InventoryWeaponSlot : MonoBehaviour
                 true
             );
 
-        foreach (Image image in images)
+
+        foreach (Image image
+                 in images)
         {
             if (image == null)
+            {
                 continue;
+            }
+
 
             if (image.transform ==
                 transform)
             {
                 continue;
             }
+
 
             if (image.name.StartsWith(
                     "Item"))
@@ -283,6 +360,12 @@ public class InventoryWeaponSlot : MonoBehaviour
     // OLD SETUP - DEFAULT 100%
     // ============================================================
 
+    /*
+     * Старую сигнатуру оставляем,
+     * чтобы существующие pickup-скрипты,
+     * включая SwordPickup,
+     * продолжили работать.
+     */
     public void SetupWeapon(
         Sprite newWeaponIcon,
         string newWeaponId,
@@ -298,15 +381,25 @@ public class InventoryWeaponSlot : MonoBehaviour
         SetupWeapon(
             newWeaponIcon,
             newWeaponId,
+
             newWeaponButton,
             newWeaponButtonIcon,
+
             newButtonIconSize,
             newButtonIconRotation,
             newButtonIconOffset,
+
             newInventoryUI,
             newUnequipButton,
+
             1f,
-            1f
+
+            1f,
+
+            1f,
+            Vector2.one,
+            Vector2.zero,
+            0f
         );
     }
 
@@ -331,21 +424,31 @@ public class InventoryWeaponSlot : MonoBehaviour
         SetupWeapon(
             newWeaponIcon,
             newWeaponId,
+
             newWeaponButton,
             newWeaponButtonIcon,
+
             newButtonIconSize,
             newButtonIconRotation,
             newButtonIconOffset,
+
             newInventoryUI,
             newUnequipButton,
+
             newWeaponDurability01,
-            1f
+
+            1f,
+
+            1f,
+            Vector2.one,
+            Vector2.zero,
+            0f
         );
     }
 
 
     // ============================================================
-    // SETUP WITH DURABILITY + BIG GLOW SCALE
+    // SETUP WITH DURABILITY + OLD BIG GLOW SCALE
     // ============================================================
 
     public void SetupWeapon(
@@ -362,53 +465,150 @@ public class InventoryWeaponSlot : MonoBehaviour
         float newWeaponButtonGlowScale
     )
     {
+        SetupWeapon(
+            newWeaponIcon,
+            newWeaponId,
+
+            newWeaponButton,
+            newWeaponButtonIcon,
+
+            newButtonIconSize,
+            newButtonIconRotation,
+            newButtonIconOffset,
+
+            newInventoryUI,
+            newUnequipButton,
+
+            newWeaponDurability01,
+
+            1f,
+
+            newWeaponButtonGlowScale,
+            Vector2.one,
+            Vector2.zero,
+            0f
+        );
+    }
+
+
+    // ============================================================
+    // SETUP WITH FULL VISUAL DATA
+    // ============================================================
+
+    public void SetupWeapon(
+        Sprite newWeaponIcon,
+        string newWeaponId,
+
+        Button newWeaponButton,
+        Image newWeaponButtonIcon,
+
+        Vector2 newButtonIconSize,
+        float newButtonIconRotation,
+        Vector2 newButtonIconOffset,
+
+        InventoryUI newInventoryUI,
+        UnequipWeaponButton newUnequipButton,
+
+        float newWeaponDurability01,
+
+        float newWeaponButtonIconScale,
+
+        float newWeaponButtonGlowScale,
+        Vector2 newWeaponButtonGlowSizeScale,
+        Vector2 newWeaponButtonGlowOffset,
+        float newWeaponButtonGlowRotationOffset
+    )
+    {
         weaponIcon =
             newWeaponIcon;
+
 
         weaponId =
             newWeaponId;
 
+
         weaponButton =
             newWeaponButton;
+
 
         weaponButtonIcon =
             newWeaponButtonIcon;
 
+
         weaponButtonIconSize =
             newButtonIconSize;
+
 
         weaponButtonIconRotation =
             newButtonIconRotation;
 
+
         weaponButtonIconOffset =
             newButtonIconOffset;
 
+
+        weaponButtonIconScale =
+            Mathf.Max(
+                0.01f,
+                newWeaponButtonIconScale
+            );
+
+
         weaponButtonGlowScale =
             Mathf.Max(
-                0.1f,
+                0.01f,
                 newWeaponButtonGlowScale
             );
+
+
+        weaponButtonGlowSizeScale =
+            new Vector2(
+                Mathf.Max(
+                    0.01f,
+                    newWeaponButtonGlowSizeScale.x
+                ),
+                Mathf.Max(
+                    0.01f,
+                    newWeaponButtonGlowSizeScale.y
+                )
+            );
+
+
+        weaponButtonGlowOffset =
+            newWeaponButtonGlowOffset;
+
+
+        weaponButtonGlowRotationOffset =
+            newWeaponButtonGlowRotationOffset;
+
 
         inventoryUI =
             newInventoryUI;
 
+
         unequipButton =
             newUnequipButton;
+
 
         weaponDurability01 =
             Mathf.Clamp01(
                 newWeaponDurability01
             );
 
+
         slotButton =
             GetComponent<Button>();
 
+
         FindSlotItemImage();
+
 
         weaponConfigured =
             true;
 
+
         ConnectButton();
+
 
         if (debugLogs)
         {
@@ -417,9 +617,12 @@ public class InventoryWeaponSlot : MonoBehaviour
                 weaponId +
                 " | Durability = " +
                 Mathf.RoundToInt(
-                    weaponDurability01 * 100f
+                    weaponDurability01 *
+                    100f
                 ) +
-                "% | Big Glow Scale = " +
+                "% | Icon Scale = " +
+                weaponButtonIconScale +
+                " | Big Glow Scale = " +
                 weaponButtonGlowScale,
                 this
             );
@@ -453,7 +656,9 @@ public class InventoryWeaponSlot : MonoBehaviour
             return;
         }
 
+
         RefreshReferences();
+
 
         if (inventoryUI == null)
         {
@@ -465,10 +670,12 @@ public class InventoryWeaponSlot : MonoBehaviour
             return;
         }
 
+
         if (slotItemImage == null)
         {
             FindSlotItemImage();
         }
+
 
         if (slotItemImage == null ||
             !slotItemImage.gameObject.activeSelf ||
@@ -485,8 +692,10 @@ public class InventoryWeaponSlot : MonoBehaviour
             return;
         }
 
+
         Sprite sprite =
             WeaponIcon;
+
 
         if (sprite == null)
         {
@@ -497,6 +706,7 @@ public class InventoryWeaponSlot : MonoBehaviour
 
             return;
         }
+
 
         if (weaponButton == null ||
             weaponButtonIcon == null)
@@ -509,28 +719,54 @@ public class InventoryWeaponSlot : MonoBehaviour
             return;
         }
 
+
+        /*
+         * Передаём вместе с оружием:
+         *
+         * - прочность этого экземпляра;
+         * - размер/угол/X/Y самого оружия;
+         * - Scale самого оружия;
+         * - Scale glow;
+         * - X/Y размер glow;
+         * - X/Y позицию glow;
+         * - Z glow.
+         */
         bool success =
             inventoryUI.EquipWeaponFromSlot(
                 gameObject,
                 sprite,
                 weaponId,
+
                 weaponButton,
                 weaponButtonIcon,
+
                 weaponButtonIconSize,
                 weaponButtonIconRotation,
                 weaponButtonIconOffset,
+
                 weaponDurability01,
-                weaponButtonGlowScale
+
+                weaponButtonIconScale,
+
+                weaponButtonGlowScale,
+                weaponButtonGlowSizeScale,
+                weaponButtonGlowOffset,
+                weaponButtonGlowRotationOffset
             );
 
+
         if (!success)
+        {
             return;
+        }
+
 
         if (unequipButton == null)
         {
             unequipButton =
                 FindFirstObjectByType<UnequipWeaponButton>();
         }
+
 
         if (unequipButton != null)
         {
@@ -539,6 +775,7 @@ public class InventoryWeaponSlot : MonoBehaviour
             );
         }
 
+
         if (debugLogs)
         {
             Debug.Log(
@@ -546,7 +783,8 @@ public class InventoryWeaponSlot : MonoBehaviour
                 weaponId +
                 " | Durability = " +
                 Mathf.RoundToInt(
-                    weaponDurability01 * 100f
+                    weaponDurability01 *
+                    100f
                 ) +
                 "%",
                 this
@@ -564,21 +802,44 @@ public class InventoryWeaponSlot : MonoBehaviour
         weaponConfigured =
             false;
 
+
         weaponIcon =
             null;
+
 
         weaponId =
             "";
 
+
         weaponDurability01 =
             1f;
+
+
+        weaponButtonIconScale =
+            1f;
+
 
         weaponButtonGlowScale =
             1f;
 
+
+        weaponButtonGlowSizeScale =
+            Vector2.one;
+
+
+        weaponButtonGlowOffset =
+            Vector2.zero;
+
+
+        weaponButtonGlowRotationOffset =
+            0f;
+
+
         RefreshReferences();
 
+
         DisconnectButton();
+
 
         if (debugLogs)
         {
@@ -587,6 +848,27 @@ public class InventoryWeaponSlot : MonoBehaviour
                 this
             );
         }
+    }
+
+
+    // ============================================================
+    // CLAMP GLOW SIZE SCALE
+    // ============================================================
+
+    private void ClampGlowSizeScale()
+    {
+        weaponButtonGlowSizeScale.x =
+            Mathf.Max(
+                0.01f,
+                weaponButtonGlowSizeScale.x
+            );
+
+
+        weaponButtonGlowSizeScale.y =
+            Mathf.Max(
+                0.01f,
+                weaponButtonGlowSizeScale.y
+            );
     }
 
 
@@ -611,10 +893,21 @@ public class InventoryWeaponSlot : MonoBehaviour
                 weaponDurability01
             );
 
+
+        weaponButtonIconScale =
+            Mathf.Max(
+                0.01f,
+                weaponButtonIconScale
+            );
+
+
         weaponButtonGlowScale =
             Mathf.Max(
-                0.1f,
+                0.01f,
                 weaponButtonGlowScale
             );
+
+
+        ClampGlowSizeScale();
     }
 }

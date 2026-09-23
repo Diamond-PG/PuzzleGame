@@ -231,6 +231,152 @@ public class PlayerVisual : MonoBehaviour
 
 
     // ============================================================
+    // CLUB - JUMP / FALL
+    // ============================================================
+
+    [Header("CLUB - JUMP / FALL")]
+
+    [Tooltip(
+        "Игрок прыгает с дубинкой. " +
+        "Пока спрайта нет, можно оставить None."
+    )]
+    [SerializeField]
+    private Sprite clubJumpSprite;
+
+    [Tooltip(
+        "Игрок падает с дубинкой. " +
+        "Пока спрайта нет, можно оставить None."
+    )]
+    [SerializeField]
+    private Sprite clubFallSprite;
+
+
+    // ============================================================
+    // CLUB - HURT
+    // ============================================================
+
+    [Header("CLUB - HURT")]
+
+    [SerializeField]
+    private Sprite clubHurtLeftSprite;
+
+    [SerializeField]
+    private Sprite clubHurtRightSprite;
+
+
+    // ============================================================
+    // CLUB - KICK
+    // ============================================================
+
+    [Header("CLUB - KICK")]
+
+    [SerializeField]
+    private Sprite clubKickRightSprite;
+
+    [SerializeField]
+    private Sprite clubKickLeftSprite;
+
+
+    // ============================================================
+    // CLUB - IDLE LEFT
+    // ============================================================
+
+    [Header("CLUB - IDLE LEFT")]
+
+    [Tooltip(
+        "Стоит с дубинкой слева. " +
+        "Сюда ставим один из двух готовых спрайтов."
+    )]
+    [SerializeField]
+    private Sprite clubIdleLeftSprite;
+
+    [Tooltip(
+        "Моргание стоя с дубинкой слева. " +
+        "Пока можно оставить None."
+    )]
+    [SerializeField]
+    private Sprite clubIdleLeftBlinkSprite;
+
+
+    // ============================================================
+    // CLUB - IDLE RIGHT
+    // ============================================================
+
+    [Header("CLUB - IDLE RIGHT")]
+
+    [Tooltip(
+        "Стоит с дубинкой справа. " +
+        "Сюда ставим второй готовый спрайт."
+    )]
+    [SerializeField]
+    private Sprite clubIdleRightSprite;
+
+    [Tooltip(
+        "Моргание стоя с дубинкой справа. " +
+        "Пока можно оставить None."
+    )]
+    [SerializeField]
+    private Sprite clubIdleRightBlinkSprite;
+
+
+    // ============================================================
+    // CLUB - WALK LEFT
+    // ============================================================
+
+    [Header("CLUB - WALK LEFT")]
+
+    [SerializeField]
+    private Sprite clubWalkLeftSprite;
+
+    [SerializeField]
+    private Sprite clubWalkLeftBlinkSprite;
+
+
+    // ============================================================
+    // CLUB - WALK RIGHT
+    // ============================================================
+
+    [Header("CLUB - WALK RIGHT")]
+
+    [SerializeField]
+    private Sprite clubWalkRightSprite;
+
+    [SerializeField]
+    private Sprite clubWalkRightBlinkSprite;
+
+
+    // ============================================================
+    // CLUB - ATTACK
+    // ============================================================
+
+    [Header("CLUB - ATTACK")]
+
+    [Tooltip(
+        "Первый кадр замаха дубинки влево."
+    )]
+    [SerializeField]
+    private Sprite clubSwingLeftSprite;
+
+    [Tooltip(
+        "Первый кадр замаха дубинки вправо."
+    )]
+    [SerializeField]
+    private Sprite clubSwingRightSprite;
+
+    [Tooltip(
+        "Кадр попадания / удара дубинкой влево."
+    )]
+    [SerializeField]
+    private Sprite clubStrikeLeftSprite;
+
+    [Tooltip(
+        "Кадр попадания / удара дубинкой вправо."
+    )]
+    [SerializeField]
+    private Sprite clubStrikeRightSprite;
+
+
+    // ============================================================
     // PRISON
     // ============================================================
 
@@ -349,8 +495,10 @@ public class PlayerVisual : MonoBehaviour
         ClimbDown
     }
 
+
     private VisualState currentState =
         VisualState.Idle;
+
 
     private bool isBlinking;
     private bool isHurt;
@@ -358,11 +506,32 @@ public class PlayerVisual : MonoBehaviour
     private bool isClimbing;
     private bool isCelebrating;
 
+
+    // ============================================================
+    // SWORD STATE
+    // ============================================================
+
     private bool swordEquipped;
     private bool swordFacingRight;
     private bool isSwordAttacking;
 
     private Sprite activeSwordAttackSprite;
+
+
+    // ============================================================
+    // CLUB STATE
+    // ============================================================
+
+    private bool clubEquipped;
+    private bool clubFacingRight;
+    private bool isClubAttacking;
+
+    private Sprite activeClubAttackSprite;
+
+
+    // ============================================================
+    // OTHER STATE
+    // ============================================================
 
     private bool climbHookOnRight;
     private float climbVertical;
@@ -403,6 +572,15 @@ public class PlayerVisual : MonoBehaviour
 
     public bool SwordFacingRight =>
         swordFacingRight;
+
+    public bool IsClubEquipped =>
+        clubEquipped;
+
+    public bool IsClubAttacking =>
+        isClubAttacking;
+
+    public bool ClubFacingRight =>
+        clubFacingRight;
 
     public bool GameplayActionsLocked =>
         isCelebrating;
@@ -460,7 +638,13 @@ public class PlayerVisual : MonoBehaviour
         swordEquipped =
             false;
 
+        clubEquipped =
+            false;
+
         swordFacingRight =
+            false;
+
+        clubFacingRight =
             false;
 
         prisonWasLocked =
@@ -500,7 +684,7 @@ public class PlayerVisual : MonoBehaviour
         if (isHurt)
             return;
 
-        if (isSwordAttacking)
+        if (IsAnyWeaponAttacking())
             return;
 
         if (IsPrisonLocked())
@@ -570,34 +754,81 @@ public class PlayerVisual : MonoBehaviour
         {
             spriteRenderer.sprite =
                 activeSwordAttackSprite;
+
+            return;
+        }
+
+        if (isClubAttacking &&
+            spriteRenderer != null &&
+            activeClubAttackSprite != null)
+        {
+            spriteRenderer.sprite =
+                activeClubAttackSprite;
         }
     }
 
 
     // ============================================================
-    // SWORD EQUIPMENT
+    // GENERIC WEAPON EQUIPMENT
     // ============================================================
 
-    public void SetSwordEquipped(
-        bool equipped
+    public void SetEquippedWeapon(
+        string weaponId
     )
     {
+        string normalizedId =
+            string.IsNullOrWhiteSpace(
+                weaponId
+            )
+                ? ""
+                : weaponId
+                    .Trim()
+                    .ToLowerInvariant();
+
+
+        bool newSwordEquipped =
+            normalizedId ==
+            "sword";
+
+
+        bool newClubEquipped =
+            normalizedId ==
+            "club";
+
+
         if (swordEquipped ==
-            equipped)
+                newSwordEquipped &&
+            clubEquipped ==
+                newClubEquipped)
         {
             return;
         }
 
-        if (!equipped &&
+
+        if (!newSwordEquipped &&
             isSwordAttacking)
         {
             ClearSwordAttackState();
         }
 
+
+        if (!newClubEquipped &&
+            isClubAttacking)
+        {
+            ClearClubAttackState();
+        }
+
+
         swordEquipped =
-            equipped;
+            newSwordEquipped;
+
+
+        clubEquipped =
+            newClubEquipped;
+
 
         StopBlinkRoutine();
+
 
         if (isKicking ||
             isHurt ||
@@ -611,8 +842,61 @@ public class PlayerVisual : MonoBehaviour
             return;
         }
 
+
         UpdateNormalState();
+
         ScheduleBlink();
+    }
+
+
+    // ============================================================
+    // SWORD EQUIPMENT
+    // ============================================================
+
+    /*
+     * Старый метод сохраняем полностью
+     * для совместимости с уже рабочими
+     * скриптами меча.
+     */
+    public void SetSwordEquipped(
+        bool equipped
+    )
+    {
+        if (equipped)
+        {
+            SetEquippedWeapon(
+                "Sword"
+            );
+        }
+        else
+        {
+            SetEquippedWeapon(
+                null
+            );
+        }
+    }
+
+
+    // ============================================================
+    // CLUB EQUIPMENT
+    // ============================================================
+
+    public void SetClubEquipped(
+        bool equipped
+    )
+    {
+        if (equipped)
+        {
+            SetEquippedWeapon(
+                "Club"
+            );
+        }
+        else
+        {
+            SetEquippedWeapon(
+                null
+            );
+        }
     }
 
 
@@ -627,6 +911,7 @@ public class PlayerVisual : MonoBehaviour
         );
     }
 
+
     public void PlaySwordSwingRight()
     {
         PlaySwordSwing(
@@ -634,20 +919,11 @@ public class PlayerVisual : MonoBehaviour
         );
     }
 
+
     public void PlaySwordSwing(
         bool attackRight
     )
     {
-        /*
-         * НОВОЕ:
-         *
-         * Если Player только что получил урон
-         * и сейчас показывает Hurt-спрайт,
-         * нажатие меча сразу прекращает Hurt-визуал.
-         *
-         * PlayerHealth / invulnerability /
-         * мигание здоровья здесь НЕ отключаются.
-         */
         CancelHurtForAction();
 
         if (!CanShowSwordAttack())
@@ -655,31 +931,39 @@ public class PlayerVisual : MonoBehaviour
             return;
         }
 
+
         swordFacingRight =
             attackRight;
+
 
         Sprite target =
             attackRight
                 ? swordSwingRightSprite
                 : swordSwingLeftSprite;
 
+
         if (target == null)
         {
             return;
         }
 
+
         StopBlinkRoutine();
+
 
         isSwordAttacking =
             true;
 
+
         activeSwordAttackSprite =
             target;
+
 
         SetSprite(
             target
         );
     }
+
 
     public void PlaySwordStrikeLeft()
     {
@@ -688,12 +972,14 @@ public class PlayerVisual : MonoBehaviour
         );
     }
 
+
     public void PlaySwordStrikeRight()
     {
         PlaySwordStrike(
             true
         );
     }
+
 
     public void PlaySwordStrike(
         bool attackRight
@@ -706,31 +992,39 @@ public class PlayerVisual : MonoBehaviour
             return;
         }
 
+
         swordFacingRight =
             attackRight;
+
 
         Sprite target =
             attackRight
                 ? swordStrikeRightSprite
                 : swordStrikeLeftSprite;
 
+
         if (target == null)
         {
             return;
         }
 
+
         StopBlinkRoutine();
+
 
         isSwordAttacking =
             true;
 
+
         activeSwordAttackSprite =
             target;
+
 
         SetSprite(
             target
         );
     }
+
 
     public void EndSwordAttackVisual()
     {
@@ -739,7 +1033,9 @@ public class PlayerVisual : MonoBehaviour
             return;
         }
 
+
         ClearSwordAttackState();
+
 
         if (!isKicking &&
             !isHurt &&
@@ -748,14 +1044,17 @@ public class PlayerVisual : MonoBehaviour
             !isClimbing)
         {
             RestoreCurrentSprite();
+
             ScheduleBlink();
         }
     }
+
 
     public void CancelSwordAttackVisual()
     {
         EndSwordAttackVisual();
     }
+
 
     private bool CanShowSwordAttack()
     {
@@ -764,10 +1063,12 @@ public class PlayerVisual : MonoBehaviour
             return false;
         }
 
+
         if (!swordEquipped)
         {
             return false;
         }
+
 
         if (isKicking ||
             isHurt ||
@@ -780,16 +1081,235 @@ public class PlayerVisual : MonoBehaviour
             return false;
         }
 
+
         return true;
     }
+
 
     private void ClearSwordAttackState()
     {
         isSwordAttacking =
             false;
 
+
         activeSwordAttackSprite =
             null;
+    }
+
+
+    // ============================================================
+    // CLUB ATTACK VISUAL
+    // ============================================================
+
+    /*
+     * Эти методы уже готовы заранее.
+     *
+     * Когда позже сделаем PlayerClubAttack,
+     * он сможет сразу вызывать их,
+     * и PlayerVisual снова переделывать
+     * не придётся.
+     */
+
+    public void PlayClubSwingLeft()
+    {
+        PlayClubSwing(
+            false
+        );
+    }
+
+
+    public void PlayClubSwingRight()
+    {
+        PlayClubSwing(
+            true
+        );
+    }
+
+
+    public void PlayClubSwing(
+        bool attackRight
+    )
+    {
+        CancelHurtForAction();
+
+
+        if (!CanShowClubAttack())
+        {
+            return;
+        }
+
+
+        clubFacingRight =
+            attackRight;
+
+
+        Sprite target =
+            attackRight
+                ? clubSwingRightSprite
+                : clubSwingLeftSprite;
+
+
+        if (target == null)
+        {
+            return;
+        }
+
+
+        StopBlinkRoutine();
+
+
+        isClubAttacking =
+            true;
+
+
+        activeClubAttackSprite =
+            target;
+
+
+        SetSprite(
+            target
+        );
+    }
+
+
+    public void PlayClubStrikeLeft()
+    {
+        PlayClubStrike(
+            false
+        );
+    }
+
+
+    public void PlayClubStrikeRight()
+    {
+        PlayClubStrike(
+            true
+        );
+    }
+
+
+    public void PlayClubStrike(
+        bool attackRight
+    )
+    {
+        CancelHurtForAction();
+
+
+        if (!CanShowClubAttack())
+        {
+            return;
+        }
+
+
+        clubFacingRight =
+            attackRight;
+
+
+        Sprite target =
+            attackRight
+                ? clubStrikeRightSprite
+                : clubStrikeLeftSprite;
+
+
+        if (target == null)
+        {
+            return;
+        }
+
+
+        StopBlinkRoutine();
+
+
+        isClubAttacking =
+            true;
+
+
+        activeClubAttackSprite =
+            target;
+
+
+        SetSprite(
+            target
+        );
+    }
+
+
+    public void EndClubAttackVisual()
+    {
+        if (!isClubAttacking)
+        {
+            return;
+        }
+
+
+        ClearClubAttackState();
+
+
+        if (!isKicking &&
+            !isHurt &&
+            !isCelebrating &&
+            !IsPrisonLocked() &&
+            !isClimbing)
+        {
+            RestoreCurrentSprite();
+
+            ScheduleBlink();
+        }
+    }
+
+
+    public void CancelClubAttackVisual()
+    {
+        EndClubAttackVisual();
+    }
+
+
+    private bool CanShowClubAttack()
+    {
+        if (spriteRenderer == null)
+        {
+            return false;
+        }
+
+
+        if (!clubEquipped)
+        {
+            return false;
+        }
+
+
+        if (isKicking ||
+            isHurt ||
+            isCelebrating ||
+            IsPrisonLocked() ||
+            isClimbing ||
+            Time.time <
+                climbExitGraceUntil)
+        {
+            return false;
+        }
+
+
+        return true;
+    }
+
+
+    private void ClearClubAttackState()
+    {
+        isClubAttacking =
+            false;
+
+
+        activeClubAttackSprite =
+            null;
+    }
+
+
+    private bool IsAnyWeaponAttacking()
+    {
+        return
+            isSwordAttacking ||
+            isClubAttacking;
     }
 
 
@@ -805,15 +1325,18 @@ public class PlayerVisual : MonoBehaviour
             return;
         }
 
+
         if (hurtRoutine != null)
         {
             StopCoroutine(
                 hurtRoutine
             );
 
+
             hurtRoutine =
                 null;
         }
+
 
         isHurt =
             false;
@@ -831,16 +1354,19 @@ public class PlayerVisual : MonoBehaviour
             !prisonBreakDoor.IsBroken;
     }
 
+
     private void UpdatePrisonDoorState()
     {
         bool lockedNow =
             IsPrisonLocked();
+
 
         if (prisonWasLocked &&
             !lockedNow)
         {
             StartDoorBreakReaction();
         }
+
 
         prisonWasLocked =
             lockedNow;
@@ -858,11 +1384,13 @@ public class PlayerVisual : MonoBehaviour
                 ? playerJump.IsGrounded()
                 : true;
 
+
         if (playerJump != null &&
             playerJump.IsJumpInProgress)
         {
             ungroundedSince =
                 -1f;
+
 
             if (rb != null &&
                 rb.linearVelocity.y <
@@ -877,13 +1405,16 @@ public class PlayerVisual : MonoBehaviour
                     VisualState.Jump;
             }
 
+
             if (!isBlinking)
             {
                 ApplyCurrentSprite();
             }
 
+
             return;
         }
+
 
         if (!grounded)
         {
@@ -893,15 +1424,18 @@ public class PlayerVisual : MonoBehaviour
                     Time.time;
             }
 
+
             bool delayPassed =
                 Time.time -
                 ungroundedSince >=
                 fallVisualDelay;
 
+
             bool movingDown =
                 rb == null ||
                 rb.linearVelocity.y <
                 fallVelocityThreshold;
+
 
             if (delayPassed &&
                 movingDown)
@@ -909,22 +1443,27 @@ public class PlayerVisual : MonoBehaviour
                 currentState =
                     VisualState.Fall;
 
+
                 if (!isBlinking)
                 {
                     ApplyCurrentSprite();
                 }
             }
 
+
             return;
         }
 
+
         ungroundedSince =
             -1f;
+
 
         float velocityX =
             rb != null
                 ? rb.linearVelocity.x
                 : 0f;
+
 
         if (velocityX >
             movementThreshold)
@@ -932,16 +1471,24 @@ public class PlayerVisual : MonoBehaviour
             swordFacingRight =
                 true;
 
+
+            clubFacingRight =
+                true;
+
+
             currentState =
                 VisualState.WalkRight;
+
 
             if (!isBlinking)
             {
                 ApplyCurrentSprite();
             }
 
+
             return;
         }
+
 
         if (velocityX <
             -movementThreshold)
@@ -949,19 +1496,28 @@ public class PlayerVisual : MonoBehaviour
             swordFacingRight =
                 false;
 
+
+            clubFacingRight =
+                false;
+
+
             currentState =
                 VisualState.WalkLeft;
+
 
             if (!isBlinking)
             {
                 ApplyCurrentSprite();
             }
 
+
             return;
         }
 
+
         currentState =
             VisualState.Idle;
+
 
         if (!isBlinking)
         {
@@ -979,16 +1535,31 @@ public class PlayerVisual : MonoBehaviour
         Sprite target =
             idleSprite;
 
+
         switch (currentState)
         {
             case VisualState.Idle:
 
-                if (swordEquipped)
+                if (clubEquipped)
+                {
+                    Sprite clubTarget =
+                        GetClubIdleSprite(
+                            false
+                        );
+
+
+                    target =
+                        clubTarget != null
+                            ? clubTarget
+                            : idleSprite;
+                }
+                else if (swordEquipped)
                 {
                     Sprite swordTarget =
                         GetSwordIdleSprite(
                             false
                         );
+
 
                     target =
                         swordTarget != null
@@ -1003,10 +1574,17 @@ public class PlayerVisual : MonoBehaviour
 
                 break;
 
+
             case VisualState.WalkLeft:
 
-                if (swordEquipped &&
-                    swordWalkLeftSprite != null)
+                if (clubEquipped &&
+                    clubWalkLeftSprite != null)
+                {
+                    target =
+                        clubWalkLeftSprite;
+                }
+                else if (swordEquipped &&
+                         swordWalkLeftSprite != null)
                 {
                     target =
                         swordWalkLeftSprite;
@@ -1019,10 +1597,17 @@ public class PlayerVisual : MonoBehaviour
 
                 break;
 
+
             case VisualState.WalkRight:
 
-                if (swordEquipped &&
-                    swordWalkRightSprite != null)
+                if (clubEquipped &&
+                    clubWalkRightSprite != null)
+                {
+                    target =
+                        clubWalkRightSprite;
+                }
+                else if (swordEquipped &&
+                         swordWalkRightSprite != null)
                 {
                     target =
                         swordWalkRightSprite;
@@ -1035,10 +1620,17 @@ public class PlayerVisual : MonoBehaviour
 
                 break;
 
+
             case VisualState.Jump:
 
-                if (swordEquipped &&
-                    swordJumpSprite != null)
+                if (clubEquipped &&
+                    clubJumpSprite != null)
+                {
+                    target =
+                        clubJumpSprite;
+                }
+                else if (swordEquipped &&
+                         swordJumpSprite != null)
                 {
                     target =
                         swordJumpSprite;
@@ -1051,10 +1643,17 @@ public class PlayerVisual : MonoBehaviour
 
                 break;
 
+
             case VisualState.Fall:
 
-                if (swordEquipped &&
-                    swordFallSprite != null)
+                if (clubEquipped &&
+                    clubFallSprite != null)
+                {
+                    target =
+                        clubFallSprite;
+                }
+                else if (swordEquipped &&
+                         swordFallSprite != null)
                 {
                     target =
                         swordFallSprite;
@@ -1067,6 +1666,7 @@ public class PlayerVisual : MonoBehaviour
 
                 break;
 
+
             case VisualState.ClimbUp:
 
                 target =
@@ -1075,6 +1675,7 @@ public class PlayerVisual : MonoBehaviour
                         : climbUpLeftSprite;
 
                 break;
+
 
             case VisualState.ClimbDown:
 
@@ -1085,6 +1686,7 @@ public class PlayerVisual : MonoBehaviour
 
                 break;
         }
+
 
         SetSprite(
             target
@@ -1103,12 +1705,14 @@ public class PlayerVisual : MonoBehaviour
         Sprite preferred;
         Sprite opposite;
 
+
         if (swordFacingRight)
         {
             preferred =
                 blink
                     ? swordIdleRightBlinkSprite
                     : swordIdleRightSprite;
+
 
             opposite =
                 blink
@@ -1122,19 +1726,23 @@ public class PlayerVisual : MonoBehaviour
                     ? swordIdleLeftBlinkSprite
                     : swordIdleLeftSprite;
 
+
             opposite =
                 blink
                     ? swordIdleRightBlinkSprite
                     : swordIdleRightSprite;
         }
 
+
         if (preferred != null)
         {
             return preferred;
         }
 
+
         return opposite;
     }
+
 
     private Sprite GetSwordHurtSprite()
     {
@@ -1143,15 +1751,92 @@ public class PlayerVisual : MonoBehaviour
                 ? swordHurtRightSprite
                 : swordHurtLeftSprite;
 
+
         if (preferred != null)
         {
             return preferred;
         }
 
+
         Sprite opposite =
             swordFacingRight
                 ? swordHurtLeftSprite
                 : swordHurtRightSprite;
+
+
+        return opposite;
+    }
+
+
+    // ============================================================
+    // CLUB IDLE HELPERS
+    // ============================================================
+
+    private Sprite GetClubIdleSprite(
+        bool blink
+    )
+    {
+        Sprite preferred;
+        Sprite opposite;
+
+
+        if (clubFacingRight)
+        {
+            preferred =
+                blink
+                    ? clubIdleRightBlinkSprite
+                    : clubIdleRightSprite;
+
+
+            opposite =
+                blink
+                    ? clubIdleLeftBlinkSprite
+                    : clubIdleLeftSprite;
+        }
+        else
+        {
+            preferred =
+                blink
+                    ? clubIdleLeftBlinkSprite
+                    : clubIdleLeftSprite;
+
+
+            opposite =
+                blink
+                    ? clubIdleRightBlinkSprite
+                    : clubIdleRightSprite;
+        }
+
+
+        if (preferred != null)
+        {
+            return preferred;
+        }
+
+
+        return opposite;
+    }
+
+
+    private Sprite GetClubHurtSprite()
+    {
+        Sprite preferred =
+            clubFacingRight
+                ? clubHurtRightSprite
+                : clubHurtLeftSprite;
+
+
+        if (preferred != null)
+        {
+            return preferred;
+        }
+
+
+        Sprite opposite =
+            clubFacingRight
+                ? clubHurtLeftSprite
+                : clubHurtRightSprite;
+
 
         return opposite;
     }
@@ -1167,10 +1852,11 @@ public class PlayerVisual : MonoBehaviour
             isKicking ||
             isHurt ||
             isCelebrating ||
-            isSwordAttacking)
+            IsAnyWeaponAttacking())
         {
             return;
         }
+
 
         if (Time.time <
             nextBlinkTime)
@@ -1178,14 +1864,18 @@ public class PlayerVisual : MonoBehaviour
             return;
         }
 
+
         Sprite blinkSprite =
             GetCurrentBlinkSprite();
+
 
         if (blinkSprite == null)
         {
             ScheduleBlink();
+
             return;
         }
+
 
         blinkRoutine =
             StartCoroutine(
@@ -1195,6 +1885,7 @@ public class PlayerVisual : MonoBehaviour
             );
     }
 
+
     private IEnumerator BlinkRoutine(
         Sprite blinkSprite
     )
@@ -1202,30 +1893,37 @@ public class PlayerVisual : MonoBehaviour
         isBlinking =
             true;
 
+
         SetSprite(
             blinkSprite
         );
+
 
         yield return new WaitForSeconds(
             blinkDuration
         );
 
+
         isBlinking =
             false;
+
 
         if (!isKicking &&
             !isHurt &&
             !isCelebrating &&
-            !isSwordAttacking)
+            !IsAnyWeaponAttacking())
         {
             RestoreCurrentSprite();
         }
 
+
         ScheduleBlink();
+
 
         blinkRoutine =
             null;
     }
+
 
     private Sprite GetCurrentBlinkSprite()
     {
@@ -1234,6 +1932,7 @@ public class PlayerVisual : MonoBehaviour
             return
                 prisonSadBlinkSprite;
         }
+
 
         if (isClimbing)
         {
@@ -1245,6 +1944,7 @@ public class PlayerVisual : MonoBehaviour
                         : climbUpLeftBlinkSprite;
             }
 
+
             if (climbVertical < -0.1f)
             {
                 return
@@ -1253,8 +1953,36 @@ public class PlayerVisual : MonoBehaviour
                         : climbDownLeftBlinkSprite;
             }
 
+
             return null;
         }
+
+
+        if (clubEquipped)
+        {
+            switch (currentState)
+            {
+                case VisualState.Idle:
+                    return
+                        GetClubIdleSprite(
+                            true
+                        );
+
+
+                case VisualState.WalkLeft:
+                    return
+                        clubWalkLeftBlinkSprite;
+
+
+                case VisualState.WalkRight:
+                    return
+                        clubWalkRightBlinkSprite;
+            }
+
+
+            return null;
+        }
+
 
         if (swordEquipped)
         {
@@ -1266,17 +1994,21 @@ public class PlayerVisual : MonoBehaviour
                             true
                         );
 
+
                 case VisualState.WalkLeft:
                     return
                         swordWalkLeftBlinkSprite;
+
 
                 case VisualState.WalkRight:
                     return
                         swordWalkRightBlinkSprite;
             }
 
+
             return null;
         }
+
 
         switch (currentState)
         {
@@ -1284,17 +2016,21 @@ public class PlayerVisual : MonoBehaviour
                 return
                     idleBlinkSprite;
 
+
             case VisualState.WalkLeft:
                 return
                     walkLeftBlinkSprite;
+
 
             case VisualState.WalkRight:
                 return
                     walkRightBlinkSprite;
         }
 
+
         return null;
     }
+
 
     private void ScheduleBlink()
     {
@@ -1304,11 +2040,13 @@ public class PlayerVisual : MonoBehaviour
                 blinkRandomDelay.y
             );
 
+
         float maximum =
             Mathf.Max(
                 blinkRandomDelay.x,
                 blinkRandomDelay.y
             );
+
 
         nextBlinkTime =
             Time.time +
@@ -1319,6 +2057,7 @@ public class PlayerVisual : MonoBehaviour
             );
     }
 
+
     private void StopBlinkRoutine()
     {
         if (blinkRoutine != null)
@@ -1327,9 +2066,11 @@ public class PlayerVisual : MonoBehaviour
                 blinkRoutine
             );
 
+
             blinkRoutine =
                 null;
         }
+
 
         isBlinking =
             false;
@@ -1347,6 +2088,7 @@ public class PlayerVisual : MonoBehaviour
         );
     }
 
+
     public void PlayKickLeft()
     {
         PlayKick(
@@ -1354,36 +2096,55 @@ public class PlayerVisual : MonoBehaviour
         );
     }
 
+
     public void PlayKick(
         bool kickRight
     )
     {
         if (spriteRenderer == null ||
             isCelebrating ||
-            isSwordAttacking)
+            IsAnyWeaponAttacking())
         {
             return;
         }
 
+
         CancelHurtForAction();
+
 
         StopBlinkRoutine();
 
+
         isKicking =
             true;
+
 
         Sprite normalKickSprite =
             kickRight
                 ? kickRightSprite
                 : kickLeftSprite;
 
+
         Sprite swordKickSprite =
             kickRight
                 ? swordKickRightSprite
                 : swordKickLeftSprite;
 
-        if (swordEquipped &&
-            swordKickSprite != null)
+
+        Sprite clubKickSprite =
+            kickRight
+                ? clubKickRightSprite
+                : clubKickLeftSprite;
+
+
+        if (clubEquipped &&
+            clubKickSprite != null)
+        {
+            activeKickSprite =
+                clubKickSprite;
+        }
+        else if (swordEquipped &&
+                 swordKickSprite != null)
         {
             activeKickSprite =
                 swordKickSprite;
@@ -1394,25 +2155,33 @@ public class PlayerVisual : MonoBehaviour
                 normalKickSprite;
         }
 
+
         SetSprite(
             activeKickSprite
         );
     }
 
+
     public void EndKick()
     {
         if (!isKicking)
+        {
             return;
+        }
+
 
         isKicking =
             false;
 
+
         activeKickSprite =
             null;
+
 
         if (!isCelebrating)
         {
             RestoreCurrentSprite();
+
             ScheduleBlink();
         }
     }
@@ -1427,17 +2196,20 @@ public class PlayerVisual : MonoBehaviour
         if (isKicking ||
             isHurt ||
             isCelebrating ||
-            isSwordAttacking ||
+            IsAnyWeaponAttacking() ||
             IsPrisonLocked() ||
             isClimbing)
         {
             return;
         }
 
+
         currentState =
             VisualState.Jump;
 
+
         StopBlinkRoutine();
+
 
         ApplyCurrentSprite();
     }
@@ -1455,10 +2227,18 @@ public class PlayerVisual : MonoBehaviour
             return;
         }
 
+
         if (isSwordAttacking)
         {
             ClearSwordAttackState();
         }
+
+
+        if (isClubAttacking)
+        {
+            ClearClubAttackState();
+        }
+
 
         if (hurtRoutine != null)
         {
@@ -1467,26 +2247,44 @@ public class PlayerVisual : MonoBehaviour
             );
         }
 
+
         hurtRoutine =
             StartCoroutine(
                 HurtRoutine()
             );
     }
 
+
     private IEnumerator HurtRoutine()
     {
         isHurt =
             true;
 
+
         StopBlinkRoutine();
+
 
         Sprite target =
             hurtSprite;
 
-        if (swordEquipped)
+
+        if (clubEquipped)
+        {
+            Sprite clubHurt =
+                GetClubHurtSprite();
+
+
+            if (clubHurt != null)
+            {
+                target =
+                    clubHurt;
+            }
+        }
+        else if (swordEquipped)
         {
             Sprite swordHurt =
                 GetSwordHurtSprite();
+
 
             if (swordHurt != null)
             {
@@ -1495,23 +2293,29 @@ public class PlayerVisual : MonoBehaviour
             }
         }
 
+
         SetSprite(
             target
         );
+
 
         yield return new WaitForSeconds(
             hurtDuration
         );
 
+
         isHurt =
             false;
+
 
         if (!isKicking &&
             !isCelebrating)
         {
             RestoreCurrentSprite();
+
             ScheduleBlink();
         }
+
 
         hurtRoutine =
             null;
@@ -1532,6 +2336,7 @@ public class PlayerVisual : MonoBehaviour
         );
     }
 
+
     public void SetClimbLook(
         float vertical,
         bool hookOnRight
@@ -1540,31 +2345,38 @@ public class PlayerVisual : MonoBehaviour
         if (isKicking ||
             isHurt ||
             isCelebrating ||
-            isSwordAttacking ||
+            IsAnyWeaponAttacking() ||
             IsPrisonLocked())
         {
             return;
         }
 
+
         climbExitGraceUntil =
             0f;
+
 
         bool justStarted =
             !isClimbing;
 
+
         isClimbing =
             true;
+
 
         climbHookOnRight =
             hookOnRight;
 
+
         climbVertical =
             vertical;
+
 
         if (justStarted)
         {
             StopBlinkRoutine();
         }
+
 
         if (vertical > 0.1f)
         {
@@ -1577,6 +2389,7 @@ public class PlayerVisual : MonoBehaviour
                 VisualState.ClimbDown;
         }
 
+
         if (Mathf.Abs(vertical) >
             0.1f &&
             !isBlinking)
@@ -1584,6 +2397,7 @@ public class PlayerVisual : MonoBehaviour
             ApplyCurrentSprite();
         }
     }
+
 
     private void UpdateClimbVisual()
     {
@@ -1593,26 +2407,34 @@ public class PlayerVisual : MonoBehaviour
             return;
         }
 
+
         if (!isBlinking)
         {
             ApplyCurrentSprite();
         }
     }
 
+
     public void ClearClimbLook()
     {
         if (!isClimbing)
+        {
             return;
+        }
+
 
         isClimbing =
             false;
 
+
         climbVertical =
             0f;
+
 
         climbExitGraceUntil =
             Time.time +
             climbExitVisualGrace;
+
 
         ScheduleBlink();
     }
@@ -1631,10 +2453,18 @@ public class PlayerVisual : MonoBehaviour
             );
         }
 
+
         if (isSwordAttacking)
         {
             ClearSwordAttackState();
         }
+
+
+        if (isClubAttacking)
+        {
+            ClearClubAttackState();
+        }
+
 
         celebrationRoutine =
             StartCoroutine(
@@ -1642,10 +2472,12 @@ public class PlayerVisual : MonoBehaviour
             );
     }
 
+
     private IEnumerator DoorBreakReactionRoutine()
     {
         isCelebrating =
             true;
+
 
         if (playerController != null)
         {
@@ -1654,23 +2486,29 @@ public class PlayerVisual : MonoBehaviour
             );
         }
 
+
         StopBlinkRoutine();
+
 
         while (isKicking)
         {
             yield return null;
         }
 
+
         SetSprite(
             doorBreakReactionSprite
         );
+
 
         yield return new WaitForSeconds(
             doorBreakReactionDuration
         );
 
+
         isCelebrating =
             false;
+
 
         if (playerController != null)
         {
@@ -1679,16 +2517,21 @@ public class PlayerVisual : MonoBehaviour
             );
         }
 
+
         celebrationRoutine =
             null;
+
 
         currentState =
             VisualState.Idle;
 
+
         ungroundedSince =
             -1f;
 
+
         RestoreCurrentSprite();
+
         ScheduleBlink();
     }
 
@@ -1708,6 +2551,7 @@ public class PlayerVisual : MonoBehaviour
             return;
         }
 
+
         if (isCelebrating)
         {
             SetSprite(
@@ -1717,15 +2561,30 @@ public class PlayerVisual : MonoBehaviour
             return;
         }
 
+
         if (isHurt)
         {
             Sprite target =
                 hurtSprite;
 
-            if (swordEquipped)
+
+            if (clubEquipped)
+            {
+                Sprite clubHurt =
+                    GetClubHurtSprite();
+
+
+                if (clubHurt != null)
+                {
+                    target =
+                        clubHurt;
+                }
+            }
+            else if (swordEquipped)
             {
                 Sprite swordHurt =
                     GetSwordHurtSprite();
+
 
                 if (swordHurt != null)
                 {
@@ -1734,12 +2593,15 @@ public class PlayerVisual : MonoBehaviour
                 }
             }
 
+
             SetSprite(
                 target
             );
 
+
             return;
         }
+
 
         if (isSwordAttacking)
         {
@@ -1750,6 +2612,17 @@ public class PlayerVisual : MonoBehaviour
             return;
         }
 
+
+        if (isClubAttacking)
+        {
+            SetSprite(
+                activeClubAttackSprite
+            );
+
+            return;
+        }
+
+
         if (IsPrisonLocked())
         {
             SetSprite(
@@ -1759,12 +2632,14 @@ public class PlayerVisual : MonoBehaviour
             return;
         }
 
+
         if (isClimbing ||
             Time.time <
             climbExitGraceUntil)
         {
             return;
         }
+
 
         UpdateNormalState();
     }
@@ -1783,6 +2658,7 @@ public class PlayerVisual : MonoBehaviour
         {
             return;
         }
+
 
         if (spriteRenderer.sprite !=
             sprite)
@@ -1805,11 +2681,13 @@ public class PlayerVisual : MonoBehaviour
                 movementThreshold
             );
 
+
         blinkInterval =
             Mathf.Max(
                 0.1f,
                 blinkInterval
             );
+
 
         blinkDuration =
             Mathf.Max(
@@ -1817,11 +2695,13 @@ public class PlayerVisual : MonoBehaviour
                 blinkDuration
             );
 
+
         hurtDuration =
             Mathf.Max(
                 0.01f,
                 hurtDuration
             );
+
 
         fallVisualDelay =
             Mathf.Max(
@@ -1829,11 +2709,13 @@ public class PlayerVisual : MonoBehaviour
                 fallVisualDelay
             );
 
+
         climbExitVisualGrace =
             Mathf.Max(
                 0f,
                 climbExitVisualGrace
             );
+
 
         doorBreakReactionDuration =
             Mathf.Max(

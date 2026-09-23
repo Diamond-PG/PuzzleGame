@@ -3,22 +3,12 @@ using UnityEngine;
 
 public class BreakableHardBox : MonoBehaviour
 {
-    // ============================================================
-    // BOX SETTINGS
-    // ============================================================
-
     [Header("BOX SETTINGS")]
-
-    [Tooltip("Сколько ударов нужно для разрушения тяжёлого ящика.")]
     [SerializeField, Min(1)]
     private int hitsToBreak = 4;
 
-    // ============================================================
-    // PLAYER
-    // ============================================================
 
     [Header("PLAYER")]
-
     [SerializeField]
     private string playerTag = "Player";
 
@@ -28,80 +18,39 @@ public class BreakableHardBox : MonoBehaviour
     [SerializeField]
     private Collider2D playerCollider;
 
-    // ============================================================
-    // SIDE KICK
-    // ============================================================
 
     [Header("SIDE KICK")]
-
-    [Tooltip(
-        "Если включено, обычный удар ногой не повреждает ящик, " +
-        "когда игрок находится сверху."
-    )]
     [SerializeField]
     private bool blockKickFromAbove = true;
 
-    [Tooltip(
-        "Допуск определения положения ног игрока относительно верхней поверхности ящика."
-    )]
     [SerializeField, Min(0f)]
     private float playerAboveTolerance = 0.12f;
 
-    // ============================================================
-    // TOP LANDING HIT
-    // ============================================================
 
     [Header("TOP LANDING HIT")]
-
-    [Tooltip(
-        "Разрешить повреждать ящик приземлением сверху."
-    )]
     [SerializeField]
     private bool enableTopLandingHit = true;
 
-    [Tooltip(
-        "Сколько урона наносит одно настоящее приземление сверху."
-    )]
     [SerializeField, Min(1)]
     private int topLandingDamage = 1;
 
-    [Tooltip(
-        "Минимальная скорость падения для засчитывания удара."
-    )]
     [SerializeField, Min(0f)]
     private float minimumTopImpactSpeed = 0.8f;
 
-    [Tooltip(
-        "Допуск определения контакта с верхней крышкой ящика."
-    )]
     [SerializeField, Min(0f)]
     private float topContactTolerance = 0.12f;
 
-    [Tooltip(
-        "Насколько контакт должен быть вертикальным."
-    )]
     [SerializeField, Range(0f, 1f)]
     private float minimumTopContactNormalY = 0.65f;
 
-    [Tooltip(
-        "Минимальное перекрытие игрока и ящика по горизонтали. " +
-        "Защищает от ложного удара при касании боковой стенки."
-    )]
     [SerializeField, Min(0f)]
     private float minimumHorizontalOverlap = 0.05f;
 
-    [Tooltip(
-        "Защита от двойного засчитывания одного приземления."
-    )]
     [SerializeField, Min(0f)]
     private float topHitCooldown = 0.15f;
 
-    // ============================================================
-    // HAPTICS
-    // ============================================================
 
     [Header("HAPTICS")]
-
     [SerializeField]
     private bool useHaptics = true;
 
@@ -117,24 +66,16 @@ public class BreakableHardBox : MonoBehaviour
     [SerializeField, Range(5, 200)]
     private int breakHapticMs = 110;
 
-    // ============================================================
-    // EFFECTS
-    // ============================================================
 
     [Header("EFFECTS")]
-
     [SerializeField]
     private GameObject breakEffect;
 
     [SerializeField]
     private float breakEffectLifetime = 2f;
 
-    // ============================================================
-    // AUDIO
-    // ============================================================
 
     [Header("AUDIO")]
-
     [SerializeField]
     private AudioSource audioSource;
 
@@ -166,12 +107,8 @@ public class BreakableHardBox : MonoBehaviour
     [SerializeField]
     private float breakVolume = 1f;
 
-    // ============================================================
-    // BOX SPRITES
-    // ============================================================
 
     [Header("BOX SPRITES")]
-
     [SerializeField]
     private Sprite normalSprite;
 
@@ -190,24 +127,16 @@ public class BreakableHardBox : MonoBehaviour
     [SerializeField]
     private float brokenSpriteDuration = 0.22f;
 
-    // ============================================================
-    // HIT EFFECT
-    // ============================================================
 
     [Header("HIT EFFECT")]
-
     [SerializeField]
     private float hitScaleMultiplier = 0.9f;
 
     [SerializeField]
     private float hitEffectDuration = 0.08f;
 
-    // ============================================================
-    // FIRST HIT SHAKE
-    // ============================================================
 
     [Header("FIRST HIT SHAKE")]
-
     [SerializeField]
     private float firstHitShakeDuration = 0.18f;
 
@@ -220,12 +149,8 @@ public class BreakableHardBox : MonoBehaviour
     [SerializeField]
     private float firstHitShakeSpeed = 26f;
 
-    // ============================================================
-    // SECOND HIT SHAKE
-    // ============================================================
 
     [Header("SECOND HIT SHAKE")]
-
     [SerializeField]
     private float secondHitShakeDuration = 0.22f;
 
@@ -238,12 +163,8 @@ public class BreakableHardBox : MonoBehaviour
     [SerializeField]
     private float secondHitShakeSpeed = 28f;
 
-    // ============================================================
-    // THIRD HIT SHAKE
-    // ============================================================
 
     [Header("THIRD HIT SHAKE")]
-
     [SerializeField]
     private float thirdHitShakeDuration = 0.28f;
 
@@ -256,12 +177,8 @@ public class BreakableHardBox : MonoBehaviour
     [SerializeField]
     private float thirdHitShakeSpeed = 31f;
 
-    // ============================================================
-    // FINAL BREAK SHAKE
-    // ============================================================
 
     [Header("FINAL BREAK SHAKE")]
-
     [SerializeField]
     private float finalShakeDuration = 0.48f;
 
@@ -274,12 +191,8 @@ public class BreakableHardBox : MonoBehaviour
     [SerializeField]
     private float finalShakeSpeed = 36f;
 
-    // ============================================================
-    // BROKEN PIECES
-    // ============================================================
 
     [Header("BROKEN PIECES")]
-
     [SerializeField]
     private GameObject[] woodChips;
 
@@ -310,12 +223,8 @@ public class BreakableHardBox : MonoBehaviour
     [SerializeField]
     private float chipGroundLift = 0.045f;
 
-    // ============================================================
-    // GOAL REVEAL
-    // ============================================================
 
     [Header("GOAL REVEAL")]
-
     [SerializeField]
     private GoalRevealFromBox goalReveal;
 
@@ -325,20 +234,17 @@ public class BreakableHardBox : MonoBehaviour
     [SerializeField]
     private bool goalDebugLogs = false;
 
-    // ============================================================
-    // DEBUG
-    // ============================================================
 
     [Header("DEBUG")]
-
     [SerializeField]
     private bool debugHits = false;
+
 
     // ============================================================
     // PRIVATE
     // ============================================================
 
-    private int hits;
+    private float damageTaken;
 
     private SpriteRenderer boxSpriteRenderer;
     private SpriteRenderer boxBackgroundRenderer;
@@ -355,6 +261,7 @@ public class BreakableHardBox : MonoBehaviour
     private bool isBusy;
 
     public bool IsBroken => isBreaking;
+
 
     // ============================================================
     // AWAKE
@@ -394,18 +301,12 @@ public class BreakableHardBox : MonoBehaviour
             transform.localPosition;
     }
 
-    // ============================================================
-    // START
-    // ============================================================
 
     private void Start()
     {
         ResetBoxState();
     }
 
-    // ============================================================
-    // UPDATE
-    // ============================================================
 
     private void Update()
     {
@@ -416,6 +317,7 @@ public class BreakableHardBox : MonoBehaviour
             FindPlayer();
         }
     }
+
 
     // ============================================================
     // FIND PLAYER
@@ -448,6 +350,7 @@ public class BreakableHardBox : MonoBehaviour
         }
     }
 
+
     // ============================================================
     // RESET
     // ============================================================
@@ -456,7 +359,7 @@ public class BreakableHardBox : MonoBehaviour
     {
         StopAllCoroutines();
 
-        hits = 0;
+        damageTaken = 0f;
 
         isBreaking = false;
         isBusy = false;
@@ -513,17 +416,32 @@ public class BreakableHardBox : MonoBehaviour
         }
     }
 
+
     // ============================================================
-    // LEG ATTACK
+    // KICK LEGACY
     // ============================================================
 
     public void ReceiveKick(
         int damage
     )
     {
+        ReceiveKickDamage(
+            damage
+        );
+    }
+
+
+    // ============================================================
+    // KICK BALANCED
+    // ============================================================
+
+    public void ReceiveKickDamage(
+        float damage
+    )
+    {
         if (isBreaking ||
             isBusy ||
-            damage <= 0)
+            damage <= 0f)
         {
             return;
         }
@@ -531,46 +449,54 @@ public class BreakableHardBox : MonoBehaviour
         if (blockKickFromAbove &&
             PlayerIsStandingAboveBox())
         {
-            if (debugHits)
-            {
-                Debug.Log(
-                    "[HARD BOX] Kick blocked from above.",
-                    this
-                );
-            }
-
             return;
         }
 
-        ReceiveHit(
+        ReceiveDamage(
             damage
         );
     }
 
+
     // ============================================================
-    // GENERIC HIT
+    // LEGACY GENERIC HIT
     // ============================================================
 
-    /*
-     * Универсальный метод урона.
-     *
-     * Сейчас:
-     * - нога;
-     * - прыжок сверху.
-     *
-     * Позже:
-     * - меч;
-     * - палка;
-     * - топор;
-     * - другое оружие.
-     */
     public void ReceiveHit(
         int damage
     )
     {
+        ReceiveDamage(
+            damage
+        );
+    }
+
+
+    // ============================================================
+    // GENERIC WEAPON HIT
+    // ============================================================
+
+    public void ReceiveWeaponHit(
+        float damage
+    )
+    {
+        ReceiveDamage(
+            damage
+        );
+    }
+
+
+    // ============================================================
+    // RECEIVE DAMAGE
+    // ============================================================
+
+    private void ReceiveDamage(
+        float damage
+    )
+    {
         if (isBreaking ||
             isBusy ||
-            damage <= 0)
+            damage <= 0f)
         {
             return;
         }
@@ -584,8 +510,9 @@ public class BreakableHardBox : MonoBehaviour
         );
     }
 
+
     // ============================================================
-    // PLAYER ABOVE CHECK
+    // PLAYER ABOVE
     // ============================================================
 
     private bool PlayerIsStandingAboveBox()
@@ -633,6 +560,7 @@ public class BreakableHardBox : MonoBehaviour
             boxCollider.bounds.center.y;
     }
 
+
     // ============================================================
     // TOP LANDING
     // ============================================================
@@ -674,16 +602,6 @@ public class BreakableHardBox : MonoBehaviour
         if (verticalImpactSpeed <
             minimumTopImpactSpeed)
         {
-            if (debugHits)
-            {
-                Debug.Log(
-                    "[HARD BOX] Weak top contact ignored. " +
-                    "Impact = " +
-                    verticalImpactSpeed.ToString("F2"),
-                    this
-                );
-            }
-
             return;
         }
 
@@ -691,24 +609,11 @@ public class BreakableHardBox : MonoBehaviour
             Time.time +
             topHitCooldown;
 
-        if (debugHits)
-        {
-            Debug.Log(
-                "[HARD BOX] REAL TOP LANDING! " +
-                "Impact = " +
-                verticalImpactSpeed.ToString("F2"),
-                this
-            );
-        }
-
         ReceiveHit(
             topLandingDamage
         );
     }
 
-    // ============================================================
-    // REAL TOP LANDING CHECK
-    // ============================================================
 
     private bool CollisionIsRealTopLanding(
         Collision2D collision
@@ -735,21 +640,12 @@ public class BreakableHardBox : MonoBehaviour
         Bounds boxBounds =
             boxCollider.bounds;
 
-        /*
-         * Игрок должен находиться выше центра ящика.
-         */
         if (currentPlayerBounds.center.y <=
             boxBounds.center.y)
         {
             return false;
         }
 
-        /*
-         * Проверяем реальное перекрытие по X.
-         *
-         * При касании только боковой стенки
-         * перекрытие будет почти нулевым.
-         */
         float horizontalOverlap =
             Mathf.Min(
                 currentPlayerBounds.max.x,
@@ -763,22 +659,9 @@ public class BreakableHardBox : MonoBehaviour
         if (horizontalOverlap <
             minimumHorizontalOverlap)
         {
-            if (debugHits)
-            {
-                Debug.Log(
-                    "[HARD BOX] Side collision ignored. " +
-                    "Overlap = " +
-                    horizontalOverlap.ToString("F3"),
-                    this
-                );
-            }
-
             return false;
         }
 
-        /*
-         * Ноги игрока должны быть около крышки.
-         */
         float boxTop =
             boxBounds.max.y;
 
@@ -792,10 +675,6 @@ public class BreakableHardBox : MonoBehaviour
             return false;
         }
 
-        /*
-         * Ищем вертикальный контакт
-         * именно около верхней поверхности.
-         */
         for (int i = 0;
              i < collision.contactCount;
              i++)
@@ -824,9 +703,6 @@ public class BreakableHardBox : MonoBehaviour
         return false;
     }
 
-    // ============================================================
-    // HORIZONTAL OVERLAP
-    // ============================================================
 
     private float GetHorizontalOverlap()
     {
@@ -853,9 +729,6 @@ public class BreakableHardBox : MonoBehaviour
             );
     }
 
-    // ============================================================
-    // PLAYER COLLISION CHECK
-    // ============================================================
 
     private bool IsPlayerCollision(
         Collision2D collision
@@ -896,12 +769,13 @@ public class BreakableHardBox : MonoBehaviour
         return false;
     }
 
+
     // ============================================================
-    // RECEIVE HIT
+    // DAMAGE
     // ============================================================
 
     private IEnumerator ReceiveHitRoutine(
-        int damage
+        float damage
     )
     {
         if (isBreaking)
@@ -910,23 +784,23 @@ public class BreakableHardBox : MonoBehaviour
             yield break;
         }
 
-        hits +=
+        damageTaken +=
             Mathf.Max(
-                1,
+                0.01f,
                 damage
             );
 
-        hits =
+        damageTaken =
             Mathf.Min(
-                hits,
+                damageTaken,
                 hitsToBreak
             );
 
         if (debugHits)
         {
             Debug.Log(
-                "[HARD BOX] Hit: " +
-                hits +
+                "[HARD BOX] Damage: " +
+                damageTaken.ToString("F2") +
                 " / " +
                 hitsToBreak,
                 this
@@ -935,14 +809,34 @@ public class BreakableHardBox : MonoBehaviour
 
         PlayHitEffect();
 
-        if (hits <
-            hitsToBreak)
+        bool finalHit =
+            damageTaken >=
+            hitsToBreak -
+            0.0001f;
+
+        if (!finalHit)
         {
-            PlayHitHapticByHitNumber();
-            PlayHitSoundByHitNumber();
+            int stage =
+                Mathf.Clamp(
+                    Mathf.CeilToInt(
+                        damageTaken
+                    ),
+                    1,
+                    3
+                );
+
+            PlayHitHapticByStage(
+                stage
+            );
+
+            PlayHitSoundByStage(
+                stage
+            );
 
             yield return StartCoroutine(
-                HitSequence()
+                HitSequence(
+                    stage
+                )
             );
         }
         else
@@ -953,16 +847,19 @@ public class BreakableHardBox : MonoBehaviour
         }
     }
 
+
     // ============================================================
     // HAPTICS
     // ============================================================
 
-    private void PlayHitHapticByHitNumber()
+    private void PlayHitHapticByStage(
+        int stage
+    )
     {
         if (!useHaptics)
             return;
 
-        switch (hits)
+        switch (stage)
         {
             case 1:
                 MicroHaptics.Pulse(
@@ -978,7 +875,7 @@ public class BreakableHardBox : MonoBehaviour
                 );
                 break;
 
-            case 3:
+            default:
                 MicroHaptics.Pulse(
                     thirdHitHapticMs,
                     MicroHaptics.IOSHapticStyle.Heavy
@@ -986,6 +883,7 @@ public class BreakableHardBox : MonoBehaviour
                 break;
         }
     }
+
 
     private void PlayBreakHaptic()
     {
@@ -997,6 +895,7 @@ public class BreakableHardBox : MonoBehaviour
             MicroHaptics.IOSHapticStyle.Heavy
         );
     }
+
 
     // ============================================================
     // HIT EFFECT
@@ -1014,6 +913,7 @@ public class BreakableHardBox : MonoBehaviour
         isPlayingHitEffect =
             true;
     }
+
 
     private void UpdateHitEffect()
     {
@@ -1033,16 +933,19 @@ public class BreakableHardBox : MonoBehaviour
         }
     }
 
+
     // ============================================================
     // AUDIO
     // ============================================================
 
-    private void PlayHitSoundByHitNumber()
+    private void PlayHitSoundByStage(
+        int stage
+    )
     {
         if (audioSource == null)
             return;
 
-        switch (hits)
+        switch (stage)
         {
             case 1:
                 if (firstHitSound != null)
@@ -1064,7 +967,7 @@ public class BreakableHardBox : MonoBehaviour
                 }
                 break;
 
-            case 3:
+            default:
                 if (thirdHitSound != null)
                 {
                     audioSource.PlayOneShot(
@@ -1075,6 +978,7 @@ public class BreakableHardBox : MonoBehaviour
                 break;
         }
     }
+
 
     private void PlayBreakSound()
     {
@@ -1090,13 +994,16 @@ public class BreakableHardBox : MonoBehaviour
         );
     }
 
+
     // ============================================================
-    // DAMAGE STAGES
+    // HIT SEQUENCE
     // ============================================================
 
-    private IEnumerator HitSequence()
+    private IEnumerator HitSequence(
+        int stage
+    )
     {
-        if (hits == 1)
+        if (stage <= 1)
         {
             yield return StartCoroutine(
                 ShakeBox(
@@ -1107,7 +1014,7 @@ public class BreakableHardBox : MonoBehaviour
                 )
             );
         }
-        else if (hits == 2)
+        else if (stage == 2)
         {
             yield return StartCoroutine(
                 ShakeBox(
@@ -1118,7 +1025,7 @@ public class BreakableHardBox : MonoBehaviour
                 )
             );
         }
-        else if (hits == 3)
+        else
         {
             yield return StartCoroutine(
                 ShakeBox(
@@ -1130,7 +1037,9 @@ public class BreakableHardBox : MonoBehaviour
             );
         }
 
-        ApplyDamageSprite();
+        ApplyDamageSprite(
+            stage
+        );
 
         transform.localPosition =
             originalLocalPosition;
@@ -1141,12 +1050,15 @@ public class BreakableHardBox : MonoBehaviour
         isBusy = false;
     }
 
-    private void ApplyDamageSprite()
+
+    private void ApplyDamageSprite(
+        int stage
+    )
     {
         if (boxSpriteRenderer == null)
             return;
 
-        if (hits == 1)
+        if (stage <= 1)
         {
             if (crackedSprite1 != null)
             {
@@ -1154,7 +1066,7 @@ public class BreakableHardBox : MonoBehaviour
                     crackedSprite1;
             }
         }
-        else if (hits == 2)
+        else if (stage == 2)
         {
             if (crackedSprite2 != null)
             {
@@ -1167,7 +1079,7 @@ public class BreakableHardBox : MonoBehaviour
                     crackedSprite1;
             }
         }
-        else if (hits == 3)
+        else
         {
             if (crackedSprite3 != null)
             {
@@ -1187,21 +1099,15 @@ public class BreakableHardBox : MonoBehaviour
         }
     }
 
+
     // ============================================================
-    // FINAL BREAK
+    // FINAL
     // ============================================================
 
     private IEnumerator FinalBreakSequence()
     {
         isBreaking = true;
 
-        /*
-         * Последний удар уже произошёл.
-         * Физическую опору убираем сразу.
-         *
-         * Если игрок стоит сверху,
-         * он сразу начинает падать.
-         */
         if (boxCollider != null)
         {
             boxCollider.enabled =
@@ -1267,8 +1173,9 @@ public class BreakableHardBox : MonoBehaviour
         HideAndFinishBreak();
     }
 
+
     // ============================================================
-    // GOAL REVEAL
+    // GOAL
     // ============================================================
 
     private void RevealGoalFromBox()
@@ -1292,6 +1199,7 @@ public class BreakableHardBox : MonoBehaviour
         );
     }
 
+
     private IEnumerator DetachGoalAfterDelay()
     {
         yield return new WaitForSeconds(
@@ -1304,15 +1212,9 @@ public class BreakableHardBox : MonoBehaviour
                 null,
                 true
             );
-
-            if (goalDebugLogs)
-            {
-                Debug.Log(
-                    "Goal отсоединён от Hard box."
-                );
-            }
         }
     }
+
 
     // ============================================================
     // SHAKE
@@ -1362,8 +1264,9 @@ public class BreakableHardBox : MonoBehaviour
             originalLocalPosition;
     }
 
+
     // ============================================================
-    // FINISH BREAK
+    // FINISH
     // ============================================================
 
     private void HideAndFinishBreak()
@@ -1386,14 +1289,6 @@ public class BreakableHardBox : MonoBehaviour
                 false;
         }
 
-        if (debugHits)
-        {
-            Debug.Log(
-                "[HARD BOX] Broken!",
-                this
-            );
-        }
-
         float totalChipTime =
             chipFallDuration +
             chipExtraFallDuration +
@@ -1406,6 +1301,7 @@ public class BreakableHardBox : MonoBehaviour
             totalChipTime
         );
     }
+
 
     // ============================================================
     // BREAK EFFECT
@@ -1442,8 +1338,9 @@ public class BreakableHardBox : MonoBehaviour
         );
     }
 
+
     // ============================================================
-    // BROKEN PIECES
+    // CHIPS
     // ============================================================
 
     private void SpawnBrokenPieces()
@@ -1544,9 +1441,6 @@ public class BreakableHardBox : MonoBehaviour
         }
     }
 
-    // ============================================================
-    // CHIP ANIMATION
-    // ============================================================
 
     private IEnumerator AnimateChip(
         GameObject chip,

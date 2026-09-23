@@ -34,6 +34,7 @@ public class GuardEnemy : MonoBehaviour
     [SerializeField] private Sprite deathWhenPlayerLeftSprite;
     [SerializeField] private Sprite deathWhenPlayerRightSprite;
 
+
     // ============================================================
     // PATROL
     // ============================================================
@@ -51,6 +52,7 @@ public class GuardEnemy : MonoBehaviour
     [Header("OBSTACLE DETECTION")]
     [SerializeField] private float obstacleCheckDistance = 0.05f;
 
+
     // ============================================================
     // PLAYER DETECTION
     // ============================================================
@@ -63,12 +65,14 @@ public class GuardEnemy : MonoBehaviour
     [Header("CHASE")]
     [SerializeField] private float chaseSpeed = 1.65f;
 
+
     // ============================================================
     // GUARD HEALTH
     // ============================================================
 
     [Header("GUARD HEALTH")]
     [SerializeField, Min(1)] private int maxHealth = 4;
+
 
     // ============================================================
     // HIT BLINK
@@ -78,6 +82,7 @@ public class GuardEnemy : MonoBehaviour
     [SerializeField, Min(1)] private int hitBlinkCount = 3;
     [SerializeField] private float hitBlinkInterval = 0.12f;
 
+
     // ============================================================
     // HIT KNOCKBACK
     // ============================================================
@@ -86,6 +91,7 @@ public class GuardEnemy : MonoBehaviour
     [SerializeField] private float knockbackForce = 2.1f;
     [SerializeField] private float knockbackUpForce = 3f;
     [SerializeField] private float knockbackDuration = 0.18f;
+
 
     // ============================================================
     // GUARD ATTACK
@@ -98,6 +104,7 @@ public class GuardEnemy : MonoBehaviour
     [SerializeField] private float attackImpactDelay = 0.16f;
     [SerializeField] private float attackSpriteDuration = 0.35f;
     [SerializeField] private float attackCooldown = 1.15f;
+
 
     // ============================================================
     // HAPTICS
@@ -118,6 +125,7 @@ public class GuardEnemy : MonoBehaviour
     [SerializeField, Range(5, 150)]
     private int guardHitsPlayerHapticMs = 40;
 
+
     // ============================================================
     // AUDIO
     // ============================================================
@@ -126,28 +134,20 @@ public class GuardEnemy : MonoBehaviour
     [SerializeField] private AudioSource sfxSource;
 
     [Header("AUDIO - DETECT")]
-    [Tooltip(
-        "Короткий звук, когда Guard сам замечает игрока спереди."
-    )]
     [SerializeField] private AudioClip detectClip;
 
     [Range(0f, 1f)]
     [SerializeField] private float detectVolume = 1f;
 
     [Header("AUDIO - CHASE")]
-    [Tooltip(
-        "Короткий боевой крик, когда Guard после обнаружения начинает погоню."
-    )]
     [SerializeField] private AudioClip chaseClip;
 
     [Range(0f, 1f)]
     [SerializeField] private float chaseVolume = 1f;
 
-    [Tooltip(
-        "Задержка между Detect Clip и Chase Clip."
-    )]
     [SerializeField, Min(0f)]
     private float chaseVoiceDelay = 0.18f;
+
 
     // ============================================================
     // PLAYER KICK IMPACT
@@ -155,16 +155,12 @@ public class GuardEnemy : MonoBehaviour
 
     [Header("AUDIO - PLAYER KICK IMPACT")]
 
-    [Tooltip(
-        "Физический звук попадания ноги игрока по Guard. " +
-        "В воздухе не проигрывается."
-    )]
     [SerializeField]
     private AudioClip playerKickImpactClip;
 
-    [Tooltip("Громкость физического звука попадания.")]
     [SerializeField, Range(0f, 1f)]
     private float playerKickImpactVolume = 0.85f;
+
 
     // ============================================================
     // PLAYER SWORD IMPACT
@@ -172,16 +168,9 @@ public class GuardEnemy : MonoBehaviour
 
     [Header("AUDIO - PLAYER SWORD IMPACT")]
 
-    [Tooltip(
-        "Физический металлический / режущий звук " +
-        "настоящего попадания мечом по Guard."
-    )]
     [SerializeField]
     private AudioClip playerSwordImpactClip;
 
-    [Tooltip(
-        "Громкость физического звука попадания мечом."
-    )]
     [SerializeField, Range(0f, 1f)]
     private float playerSwordImpactVolume = 0.9f;
 
@@ -203,6 +192,7 @@ public class GuardEnemy : MonoBehaviour
     [Range(0f, 1f)]
     [SerializeField] private float deathVolume = 1f;
 
+
     // ============================================================
     // WEAPON DROP
     // ============================================================
@@ -221,9 +211,17 @@ public class GuardEnemy : MonoBehaviour
     [SerializeField] private float weaponFloorGap = 0.015f;
     [SerializeField] private bool weaponColliderBecomesTrigger = true;
 
+
     // ============================================================
     // PRIVATE
     // ============================================================
+
+    private enum PlayerHitType
+    {
+        Kick,
+        Sword,
+        Weapon
+    }
 
     private Rigidbody2D rb;
     private Collider2D bodyCollider;
@@ -232,7 +230,14 @@ public class GuardEnemy : MonoBehaviour
     private float leftPatrolX;
     private float rightPatrolX;
 
-    private int currentHealth;
+    /*
+     * Был int.
+     *
+     * Теперь float, чтобы дубинка, нога,
+     * топор, копьё и другое оружие
+     * могли наносить разный дробный урон.
+     */
+    private float currentHealth;
 
     private bool movingRight;
     private bool chasingPlayer;
@@ -243,17 +248,7 @@ public class GuardEnemy : MonoBehaviour
     private bool isDead;
     private bool weaponDropped;
 
-    /*
-     * true только если Guard сам увидел Player.
-     * Если Player первым ударил со спины,
-     * сюда true НЕ ставим.
-     */
     private bool detectedPlayerNaturally;
-
-    /*
-     * Чтобы Detect и Chase звуки
-     * не повторялись каждый FixedUpdate.
-     */
     private bool detectionVoicePlayed;
     private bool chaseVoicePlayed;
 
@@ -264,6 +259,7 @@ public class GuardEnemy : MonoBehaviour
     private Coroutine chaseVoiceCoroutine;
 
     public bool IsDead => isDead;
+
 
     // ============================================================
     // AWAKE
@@ -324,6 +320,7 @@ public class GuardEnemy : MonoBehaviour
         FindPlayerLinks();
     }
 
+
     // ============================================================
     // START
     // ============================================================
@@ -343,6 +340,7 @@ public class GuardEnemy : MonoBehaviour
 
         SetIdleFrontSprite();
     }
+
 
     // ============================================================
     // FIXED UPDATE
@@ -396,6 +394,7 @@ public class GuardEnemy : MonoBehaviour
         }
     }
 
+
     // ============================================================
     // PLAYER LINKS
     // ============================================================
@@ -426,113 +425,171 @@ public class GuardEnemy : MonoBehaviour
         }
     }
 
+
     // ============================================================
-    // LEG ATTACK SYSTEM
+    // LEG ATTACK - LEGACY
     // ============================================================
 
     public void ReceiveKick(
         int damage
     )
     {
-        if (isDead)
-            return;
+        ReceiveKickDamage(
+            damage
+        );
+    }
 
-        if (damage <= 0)
-            return;
 
-        if (hitBlinking ||
-            isKnockedBack)
+    // ============================================================
+    // LEG ATTACK - BALANCED
+    // ============================================================
+
+    public void ReceiveKickDamage(
+        float damage
+    )
+    {
+        if (!CanReceivePlayerHit(
+                damage))
         {
             return;
         }
 
         ReceivePlayerHit(
             damage,
-            false
+            PlayerHitType.Kick
         );
     }
 
+
     // ============================================================
-    // SWORD ATTACK SYSTEM
+    // SWORD ATTACK - LEGACY
     // ============================================================
 
     public void ReceiveSwordHit(
         int damage
     )
     {
-        if (isDead)
-            return;
-
-        if (damage <= 0)
-            return;
-
-        if (hitBlinking ||
-            isKnockedBack)
+        if (!CanReceivePlayerHit(
+                damage))
         {
             return;
         }
 
         ReceivePlayerHit(
             damage,
-            true
+            PlayerHitType.Sword
         );
     }
+
+
+    // ============================================================
+    // GENERIC WEAPON ATTACK
+    // ============================================================
+
+    /*
+     * Дубинка, топор, копьё и любое
+     * будущее оружие могут использовать
+     * этот метод.
+     */
+    public void ReceiveWeaponHit(
+        float damage
+    )
+    {
+        if (!CanReceivePlayerHit(
+                damage))
+        {
+            return;
+        }
+
+        ReceivePlayerHit(
+            damage,
+            PlayerHitType.Weapon
+        );
+    }
+
+
+    // ============================================================
+    // CAN RECEIVE HIT
+    // ============================================================
+
+    private bool CanReceivePlayerHit(
+        float damage
+    )
+    {
+        if (isDead)
+            return false;
+
+        if (damage <= 0f)
+            return false;
+
+        if (hitBlinking ||
+            isKnockedBack)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
 
     // ============================================================
     // RECEIVE DAMAGE
     // ============================================================
 
     private void ReceivePlayerHit(
-        int damage,
-        bool fromSword
+        float damage,
+        PlayerHitType hitType
     )
     {
         if (isDead ||
             hitBlinking ||
             isKnockedBack ||
-            damage <= 0)
+            damage <= 0f)
         {
             return;
         }
 
         currentHealth =
             Mathf.Max(
-                0,
+                0f,
                 currentHealth -
                 damage
             );
 
-        /*
-         * Отдельная вибрация для ноги
-         * и отдельная для меча.
-         */
-        if (fromSword)
-        {
-            PlayPlayerSwordHitsGuardHaptic();
-        }
-        else
+
+        // --------------------------------------------------------
+        // HAPTICS + IMPACT
+        // --------------------------------------------------------
+
+        if (hitType ==
+            PlayerHitType.Kick)
         {
             PlayPlayerHitsGuardHaptic();
+            PlayPlayerKickImpactSound();
         }
-
-        /*
-         * Физический звук удара
-         * зависит от оружия.
-         */
-        if (fromSword)
+        else if (hitType ==
+                 PlayerHitType.Sword)
         {
+            PlayPlayerSwordHitsGuardHaptic();
             PlayPlayerSwordImpactSound();
         }
         else
         {
-            PlayPlayerKickImpactSound();
+            /*
+             * Для дубинки / топора / копья
+             * используем ударную вибрацию.
+             *
+             * Отдельный звук самого оружия
+             * проигрывает его Attack-скрипт.
+             */
+            PlayPlayerSwordHitsGuardHaptic();
         }
 
-        /*
-         * Отдельный голос боли Guard.
-         * Он остаётся общим и для ноги,
-         * и для меча.
-         */
+
+        // --------------------------------------------------------
+        // HURT VOICE
+        // --------------------------------------------------------
+
         if (sfxSource != null &&
             hurtClip != null)
         {
@@ -542,20 +599,25 @@ public class GuardEnemy : MonoBehaviour
             );
         }
 
-        if (currentHealth <= 0)
+
+        // --------------------------------------------------------
+        // DEATH
+        // --------------------------------------------------------
+
+        if (currentHealth <=
+            0.0001f)
         {
             Die();
             return;
         }
 
-        /*
-         * Если игрок первым ударил Guard,
-         * это НЕ считается естественным обнаружением.
-         *
-         * Поэтому Detect / Chase voice
-         * здесь специально НЕ запускаются.
-         */
-        detectedPlayerNaturally = false;
+
+        // --------------------------------------------------------
+        // AGGRO
+        // --------------------------------------------------------
+
+        detectedPlayerNaturally =
+            false;
 
         if (chaseVoiceCoroutine != null)
         {
@@ -563,7 +625,8 @@ public class GuardEnemy : MonoBehaviour
                 chaseVoiceCoroutine
             );
 
-            chaseVoiceCoroutine = null;
+            chaseVoiceCoroutine =
+                null;
         }
 
         AggroAndFacePlayerAfterHit();
@@ -576,8 +639,11 @@ public class GuardEnemy : MonoBehaviour
                 attackCoroutine
             );
 
-            attackCoroutine = null;
-            attackBusy = false;
+            attackCoroutine =
+                null;
+
+            attackBusy =
+                false;
         }
 
         if (knockbackCoroutine != null)
@@ -605,6 +671,7 @@ public class GuardEnemy : MonoBehaviour
             );
     }
 
+
     // ============================================================
     // PLAYER KICK IMPACT SOUND
     // ============================================================
@@ -623,6 +690,7 @@ public class GuardEnemy : MonoBehaviour
         );
     }
 
+
     // ============================================================
     // PLAYER SWORD IMPACT SOUND
     // ============================================================
@@ -640,6 +708,7 @@ public class GuardEnemy : MonoBehaviour
             playerSwordImpactVolume
         );
     }
+
 
     // ============================================================
     // AGGRO AFTER HIT
@@ -670,6 +739,7 @@ public class GuardEnemy : MonoBehaviour
             SetChaseRightSprite();
         }
     }
+
 
     // ============================================================
     // KNOCKBACK
@@ -716,6 +786,7 @@ public class GuardEnemy : MonoBehaviour
         isKnockedBack = false;
         knockbackCoroutine = null;
     }
+
 
     // ============================================================
     // HIT BLINK
@@ -764,6 +835,7 @@ public class GuardEnemy : MonoBehaviour
             UpdateWalkingSprite();
         }
     }
+
 
     // ============================================================
     // DETECTION
@@ -834,6 +906,7 @@ public class GuardEnemy : MonoBehaviour
         }
     }
 
+
     // ============================================================
     // DETECT + CHASE VOICES
     // ============================================================
@@ -867,6 +940,7 @@ public class GuardEnemy : MonoBehaviour
         }
     }
 
+
     private void PlayDetectSound()
     {
         if (sfxSource == null ||
@@ -886,6 +960,7 @@ public class GuardEnemy : MonoBehaviour
             detectVolume
         );
     }
+
 
     private IEnumerator ChaseVoiceAfterDelayRoutine()
     {
@@ -920,6 +995,7 @@ public class GuardEnemy : MonoBehaviour
 
         chaseVoiceCoroutine = null;
     }
+
 
     // ============================================================
     // CHASE
@@ -992,6 +1068,7 @@ public class GuardEnemy : MonoBehaviour
             );
     }
 
+
     // ============================================================
     // ATTACK
     // ============================================================
@@ -1017,6 +1094,7 @@ public class GuardEnemy : MonoBehaviour
                 GuardAttackRoutine()
             );
     }
+
 
     private IEnumerator GuardAttackRoutine()
     {
@@ -1111,6 +1189,7 @@ public class GuardEnemy : MonoBehaviour
         attackCoroutine = null;
     }
 
+
     private bool PlayerStillInAttackRange()
     {
         if (player == null)
@@ -1142,6 +1221,7 @@ public class GuardEnemy : MonoBehaviour
             HasClearLineOfSightToPlayer();
     }
 
+
     private void FinishAttackImmediately()
     {
         attackBusy = false;
@@ -1151,6 +1231,7 @@ public class GuardEnemy : MonoBehaviour
         StopHorizontalMovement();
         SetIdleFrontSprite();
     }
+
 
     private void StopAllCombatAfterPlayerDeath()
     {
@@ -1184,6 +1265,7 @@ public class GuardEnemy : MonoBehaviour
             SetIdleFrontSprite();
         }
     }
+
 
     // ============================================================
     // PATROL
@@ -1239,6 +1321,7 @@ public class GuardEnemy : MonoBehaviour
         }
     }
 
+
     private void StartPatrolPause()
     {
         if (patrolPaused ||
@@ -1255,6 +1338,7 @@ public class GuardEnemy : MonoBehaviour
                 PatrolPauseRoutine()
             );
     }
+
 
     private IEnumerator PatrolPauseRoutine()
     {
@@ -1295,6 +1379,7 @@ public class GuardEnemy : MonoBehaviour
         patrolPauseCoroutine = null;
     }
 
+
     private void CancelPatrolPause()
     {
         if (patrolPauseCoroutine != null)
@@ -1308,6 +1393,7 @@ public class GuardEnemy : MonoBehaviour
 
         patrolPaused = false;
     }
+
 
     private void StopChasingPlayer()
     {
@@ -1348,6 +1434,7 @@ public class GuardEnemy : MonoBehaviour
             SetLookLeftSprite();
         }
     }
+
 
     // ============================================================
     // LINE OF SIGHT
@@ -1422,6 +1509,7 @@ public class GuardEnemy : MonoBehaviour
         );
     }
 
+
     // ============================================================
     // OBSTACLE DETECTION
     // ============================================================
@@ -1478,6 +1566,7 @@ public class GuardEnemy : MonoBehaviour
             );
     }
 
+
     private bool ObstacleRay(
         float originX,
         float originY,
@@ -1521,6 +1610,7 @@ public class GuardEnemy : MonoBehaviour
         return false;
     }
 
+
     // ============================================================
     // COLLISION
     // ============================================================
@@ -1561,6 +1651,7 @@ public class GuardEnemy : MonoBehaviour
             }
         }
     }
+
 
     // ============================================================
     // DEATH
@@ -1683,6 +1774,7 @@ public class GuardEnemy : MonoBehaviour
             )
         );
     }
+
 
     // ============================================================
     // CONTROLLED WEAPON DROP
@@ -1890,6 +1982,7 @@ public class GuardEnemy : MonoBehaviour
         }
     }
 
+
     // ============================================================
     // WEAPON LANDING HEIGHT
     // ============================================================
@@ -1958,6 +2051,7 @@ public class GuardEnemy : MonoBehaviour
             weaponFloorGap;
     }
 
+
     // ============================================================
     // HAPTICS
     // ============================================================
@@ -1973,6 +2067,7 @@ public class GuardEnemy : MonoBehaviour
         );
     }
 
+
     private void PlayPlayerSwordHitsGuardHaptic()
     {
         if (!useHaptics)
@@ -1984,6 +2079,7 @@ public class GuardEnemy : MonoBehaviour
         );
     }
 
+
     private void PlayGuardHitsPlayerHaptic()
     {
         if (!useHaptics)
@@ -1994,6 +2090,7 @@ public class GuardEnemy : MonoBehaviour
             MicroHaptics.IOSHapticStyle.Heavy
         );
     }
+
 
     // ============================================================
     // MOVEMENT / SPRITES
@@ -2011,6 +2108,7 @@ public class GuardEnemy : MonoBehaviour
             );
     }
 
+
     private void UpdateWalkingSprite()
     {
         if (movingRight)
@@ -2022,6 +2120,7 @@ public class GuardEnemy : MonoBehaviour
             SetWalkLeftSprite();
         }
     }
+
 
     private void UpdateChaseSprite()
     {
@@ -2041,6 +2140,7 @@ public class GuardEnemy : MonoBehaviour
         }
     }
 
+
     private void UpdateAttackSprite()
     {
         if (player == null)
@@ -2059,6 +2159,7 @@ public class GuardEnemy : MonoBehaviour
         }
     }
 
+
     private void SetIdleFrontSprite()
     {
         if (spriteRenderer != null &&
@@ -2068,6 +2169,7 @@ public class GuardEnemy : MonoBehaviour
                 idleFrontSprite;
         }
     }
+
 
     private void SetBlinkSprite()
     {
@@ -2079,6 +2181,7 @@ public class GuardEnemy : MonoBehaviour
         }
     }
 
+
     private void SetLookLeftSprite()
     {
         if (spriteRenderer != null &&
@@ -2088,6 +2191,7 @@ public class GuardEnemy : MonoBehaviour
                 lookLeftSprite;
         }
     }
+
 
     private void SetLookRightSprite()
     {
@@ -2099,6 +2203,7 @@ public class GuardEnemy : MonoBehaviour
         }
     }
 
+
     private void SetWalkRightSprite()
     {
         if (spriteRenderer != null &&
@@ -2108,6 +2213,7 @@ public class GuardEnemy : MonoBehaviour
                 walkRightSprite;
         }
     }
+
 
     private void SetWalkLeftSprite()
     {
@@ -2119,6 +2225,7 @@ public class GuardEnemy : MonoBehaviour
         }
     }
 
+
     private void SetChaseLeftSprite()
     {
         if (spriteRenderer != null &&
@@ -2128,6 +2235,7 @@ public class GuardEnemy : MonoBehaviour
                 chaseLeftSprite;
         }
     }
+
 
     private void SetChaseRightSprite()
     {
@@ -2139,6 +2247,7 @@ public class GuardEnemy : MonoBehaviour
         }
     }
 
+
     private void SetAttackLeftSprite()
     {
         if (spriteRenderer != null &&
@@ -2149,6 +2258,7 @@ public class GuardEnemy : MonoBehaviour
         }
     }
 
+
     private void SetAttackRightSprite()
     {
         if (spriteRenderer != null &&
@@ -2158,6 +2268,7 @@ public class GuardEnemy : MonoBehaviour
                 attackRightSprite;
         }
     }
+
 
     // ============================================================
     // HELPERS
