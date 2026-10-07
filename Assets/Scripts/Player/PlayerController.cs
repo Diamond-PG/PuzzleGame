@@ -45,6 +45,19 @@ public class PlayerController : MonoBehaviour
     private LevelTimer levelTimer;
 
     // ============================================================
+    // TUTORIAL
+    // ============================================================
+
+    [Header("Tutorial")]
+
+    [Tooltip(
+        "Контроллер обучения. " +
+        "Нужен для фиксации движения влево/вправо."
+    )]
+    [SerializeField]
+    private TutorialTextController tutorialTextController;
+
+    // ============================================================
     // WIN
     // ============================================================
 
@@ -119,6 +132,12 @@ public class PlayerController : MonoBehaviour
             mobileInput =
                 FindFirstObjectByType<MobileInput>();
         }
+
+        if (tutorialTextController == null)
+        {
+            tutorialTextController =
+                FindFirstObjectByType<TutorialTextController>();
+        }
     }
 
     // ============================================================
@@ -188,6 +207,35 @@ public class PlayerController : MonoBehaviour
             );
 
         // ========================================================
+        // TUTORIAL HORIZONTAL INPUT
+        // ========================================================
+
+        /*
+         * Передаём в TutorialTextController уже готовое
+         * горизонтальное управление.
+         *
+         * Поэтому одинаково работают:
+         *
+         * - мобильная кнопка LEFT;
+         * - мобильная кнопка RIGHT;
+         * - A / D;
+         * - стрелки клавиатуры LEFT / RIGHT.
+         *
+         * ВАЖНО:
+         * порядок нажатий значения не имеет.
+         * Сам TutorialTextController отдельно запоминает
+         * левое и правое направление.
+         */
+        if (tutorialTextController != null &&
+            Mathf.Abs(moveX) > 0.001f)
+        {
+            tutorialTextController
+                .ReportHorizontalTutorialInput(
+                    moveX
+                );
+        }
+
+        // ========================================================
         // TIMER
         // ========================================================
 
@@ -240,21 +288,9 @@ public class PlayerController : MonoBehaviour
         // ========================================================
 
         /*
-         * ЭТО ГЛАВНОЕ ИСПРАВЛЕНИЕ.
-         *
          * Когда ClimbHook.PlayerIsOnHook == true,
          * PlayerController вообще НЕ записывает
          * linearVelocity.
-         *
-         * Благодаря этому ClimbHook может:
-         *
-         * - отключить гравитацию;
-         * - остановить падение;
-         * - двигать Player вверх;
-         * - двигать Player вниз.
-         *
-         * PlayerController ему больше
-         * не мешает.
          */
         if (ClimbHook.PlayerIsOnHook)
         {

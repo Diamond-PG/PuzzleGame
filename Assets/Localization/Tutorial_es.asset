@@ -1,0 +1,93 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: Tutorial_es
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: es
+  m_SharedData: {fileID: 11400000, guid: 0da478c7d57c43f4c91b6c1e5baf1543, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 177823756288
+    m_Localized: "Saludos. No esperaba encontrar a nadie m\xE1s aqu\xED."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2960647991296
+    m_Localized: "Dime, \xBFc\xF3mo te llamas?"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4410803433472
+    m_Localized: "{name}... \xA1Qu\xE9 nombre tan bonito! \xA1Encantado de conocerte!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11618219929600
+    m_Localized: "Y a m\xED me llaman el Guardi\xE1n de los Puzles."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 12624647368704
+    m_Localized: Guardo la memoria y los secretos de este antiguo mundo.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15480834174976
+    m_Localized: Puedo ayudarte a escapar de esta mazmorra.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16427236929536
+    m_Localized: "Pero a cambio, necesitar\xE9 tu ayuda."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17288444981248
+    m_Localized: "Las antiguas im\xE1genes de este mundo fueron divididas en pedazos."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18046410240000
+    m_Localized: "Sus fragmentos est\xE1n esparcidos por distintos rincones de este
+      mundo."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19109204930560
+    m_Localized: "Encu\xE9ntralos y ay\xFAdame a restaurar las im\xE1genes perdidas."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20722602684416
+    m_Localized: "Entonces, {name}, \xBFcomenzamos nuestra aventura?"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21686390829056
+    m_Localized: "Entonces, empecemos con el tutorial. Primero, te mostrar\xE9"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22338655432704
+    m_Localized: "c\xF3mo controlar al h\xE9roe."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 26926158655488
+    m_Localized: "Introduce tu nombre\u2026"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 703882265047040
+    m_Localized: "\xBFVes las flechas izquierda y derecha? \xDAsalas para mover al
+      h\xE9roe."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 704368183554048
+    m_Localized: "\xA1Pru\xE9balo! Pulsa las dos flechas."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 706481546539008
+    m_Localized: "\xA1Muy bien! Ahora veamos qu\xE9 m\xE1s puede hacer el h\xE9roe."
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

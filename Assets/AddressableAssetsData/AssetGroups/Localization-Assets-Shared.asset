@@ -20,6 +20,11 @@ MonoBehaviour:
     m_ReadOnly: 1
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 0da478c7d57c43f4c91b6c1e5baf1543
+    m_Address: Assets/Localization/Tutorial Shared Data.asset
+    m_ReadOnly: 1
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 6f477b3c100595d4b9a77d1806686ef5
     m_Address: Assets/Localization/AndroidDisplayName Shared Data.asset
     m_ReadOnly: 1

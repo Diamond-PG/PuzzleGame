@@ -1,0 +1,95 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: Tutorial_fr-FR
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: fr-FR
+  m_SharedData: {fileID: 11400000, guid: 0da478c7d57c43f4c91b6c1e5baf1543, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 177823756288
+    m_Localized: "Je te salue. Je ne m'attendais pas \xE0 voir quelqu'un d'autre
+      ici."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2960647991296
+    m_Localized: Dis-moi, comment t'appelles-tu?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4410803433472
+    m_Localized: "{name}... Quel joli pr\xE9nom ! Ravi de faire ta connaissance !"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11618219929600
+    m_Localized: Et moi, on m'appelle le Gardien des Puzzles.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 12624647368704
+    m_Localized: "Je garde la m\xE9moire et les secrets de ce monde ancien."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15480834174976
+    m_Localized: "Je peux t'aider \xE0 sortir de ce cachot."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16427236929536
+    m_Localized: "Mais en \xE9change, j'aurai besoin de ton aide."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17288444981248
+    m_Localized: "Les anciennes images de ce monde ont \xE9t\xE9 bris\xE9es en morceaux."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18046410240000
+    m_Localized: "Leurs fragments sont dispers\xE9s aux quatre coins de ce monde."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19109204930560
+    m_Localized: "Trouve-les et aide-moi \xE0 restaurer les images perdues."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20722602684416
+    m_Localized: Alors, {name}, on commence notre aventure ?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21686390829056
+    m_Localized: "Alors, commen\xE7ons par l'entra\xEEnement. D'abord, je vais te
+      montrer"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22338655432704
+    m_Localized: "comment contr\xF4ler le h\xE9ros."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 26926158655488
+    m_Localized: "Entrez votre nom\u2026"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 703882265047040
+    m_Localized: "Tu vois les fl\xE8ches gauche et droite ? Elles te permettent de
+      d\xE9placer le h\xE9ros."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 704368183554048
+    m_Localized: "Essaie ! Appuie sur les deux fl\xE8ches."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 706481546539008
+    m_Localized: "Tr\xE8s bien ! Voyons maintenant ce que le h\xE9ros sait faire
+      d\u2019autre."
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

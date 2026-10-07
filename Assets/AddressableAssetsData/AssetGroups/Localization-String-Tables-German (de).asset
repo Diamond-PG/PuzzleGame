@@ -15,6 +15,12 @@ MonoBehaviour:
   m_GroupName: Localization-String-Tables-German (de)
   m_GUID: 8912ed2a81bbc9d4c8d7f712ad0b7a82
   m_SerializeEntries:
+  - m_GUID: 580f445c451d40a48a174de9058b9ee6
+    m_Address: Tutorial_de
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-de
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 897fe95332dba864992801363c75f009
     m_Address: AndroidDisplayName_de
     m_ReadOnly: 1

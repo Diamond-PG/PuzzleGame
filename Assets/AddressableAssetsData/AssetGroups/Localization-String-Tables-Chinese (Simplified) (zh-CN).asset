@@ -27,6 +27,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale-zh-CN
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ce3706dc43d850d4ea67e99739c30a45
+    m_Address: Tutorial_zh-CN
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-zh-CN
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: f8d64c9e09738544189e9e298b5f374f
     m_Address: AndroidDisplayName_zh-CN
     m_ReadOnly: 1

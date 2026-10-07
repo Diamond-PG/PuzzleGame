@@ -1,0 +1,93 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: Tutorial_de
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: de
+  m_SharedData: {fileID: 11400000, guid: 0da478c7d57c43f4c91b6c1e5baf1543, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 177823756288
+    m_Localized: "Sei gegr\xFC\xDFt. Ich h\xE4tte nicht erwartet, hier noch jemanden
+      zu sehen."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2960647991296
+    m_Localized: "Sag mir, wie hei\xDFt du?"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4410803433472
+    m_Localized: "{name}... Was f\xFCr ein sch\xF6ner Name! Freut mich, dich kennenzulernen!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11618219929600
+    m_Localized: "Und mich nennt man den H\xFCter der Puzzles."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 12624647368704
+    m_Localized: Ich bewahre die Erinnerungen und Geheimnisse dieser alten Welt.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15480834174976
+    m_Localized: Ich kann dir helfen, aus diesem Kerker zu entkommen.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16427236929536
+    m_Localized: Aber im Gegenzug brauche ich deine Hilfe.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17288444981248
+    m_Localized: "Die alten Bilder dieser Welt wurden in St\xFCcke zerbrochen."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18046410240000
+    m_Localized: "Ihre Fragmente sind \xFCberall in dieser Welt verstreut."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19109204930560
+    m_Localized: Finde sie und hilf mir, die Bilder zu restaurieren.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20722602684416
+    m_Localized: Nun, {name}, wollen wir unser Abenteuer beginnen?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21686390829056
+    m_Localized: Dann beginnen wir mit dem Training. Zuerst zeige ich dir,
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22338655432704
+    m_Localized: wie du den Helden steuerst.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 26926158655488
+    m_Localized: Namen eingeben...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 703882265047040
+    m_Localized: Siehst du die Pfeile nach links und rechts? Damit kannst du den
+      Helden bewegen.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 704368183554048
+    m_Localized: "Probier es aus! Dr\xFCcke beide Pfeile."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 706481546539008
+    m_Localized: Sehr gut! Jetzt sehen wir, was der Held noch kann.
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

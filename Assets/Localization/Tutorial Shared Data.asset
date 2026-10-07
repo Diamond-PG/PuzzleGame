@@ -1,0 +1,96 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b11a58205ec3474ca216360e9fa74a8, type: 3}
+  m_Name: Tutorial Shared Data
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.SharedTableData
+  m_TableCollectionName: Tutorial
+  m_TableCollectionNameGuidString: 0da478c7d57c43f4c91b6c1e5baf1543
+  m_Entries:
+  - m_Id: 177823756288
+    m_Key: tutorial_00
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2960647991296
+    m_Key: tutorial_01
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4410803433472
+    m_Key: tutorial_02
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11618219929600
+    m_Key: tutorial_03
+    m_Metadata:
+      m_Items: []
+  - m_Id: 12624647368704
+    m_Key: tutorial_04
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15480834174976
+    m_Key: tutorial_05
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16427236929536
+    m_Key: tutorial_06
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17288444981248
+    m_Key: tutorial_07
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18046410240000
+    m_Key: tutorial_08
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19109204930560
+    m_Key: tutorial_09
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20722602684416
+    m_Key: tutorial_10
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21686390829056
+    m_Key: tutorial_11
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22338655432704
+    m_Key: tutorial_12
+    m_Metadata:
+      m_Items: []
+  - m_Id: 26926158655488
+    m_Key: tutorial_name_placeholder
+    m_Metadata:
+      m_Items: []
+  - m_Id: 703882265047040
+    m_Key: tutorial_13
+    m_Metadata:
+      m_Items: []
+  - m_Id: 704368183554048
+    m_Key: tutorial_14
+    m_Metadata:
+      m_Items: []
+  - m_Id: 706481546539008
+    m_Key: tutorial_15
+    m_Metadata:
+      m_Items: []
+  m_Metadata:
+    m_Items: []
+  m_KeyGenerator:
+    rid: 3020873122847129673
+  references:
+    version: 2
+    RefIds:
+    - rid: 3020873122847129673
+      type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables, asm: Unity.Localization}
+      data:
+        m_CustomEpoch: 1791156923557
