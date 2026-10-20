@@ -236,7 +236,8 @@ public class PlayerJump : MonoBehaviour
         }
 
         if (playerController != null &&
-            playerController.IsActionLocked)
+            (playerController.IsActionLocked ||
+             playerController.IsHorizontalMovementLocked))
         {
             return;
         }

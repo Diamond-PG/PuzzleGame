@@ -1,3 +1,4 @@
+
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -89,20 +90,29 @@ public class PlayerController : MonoBehaviour
     private bool timerNotified;
 
     /*
-     * Старый общий LockMovement.
-     *
-     * Его продолжают использовать смерть
-     * и другие существующие системы.
+     * Существующая общая блокировка движения.
+     * Сохраняем для других игровых систем.
      */
     private bool movementLocked;
 
     /*
-     * Отдельная временная блокировка действий.
-     *
-     * Нужна, например, для реакции
-     * после разрушения двери.
+     * Существующая блокировка действий.
+     * Её не изменяем.
      */
     private bool actionLocked;
+
+    /*
+     * НОВОЕ:
+     * Отдельная блокировка ходьбы влево и вправо.
+     *
+     * Не блокирует:
+     * - прыжок;
+     * - удар ногой;
+     * - вертикальную физику;
+     * - камеру;
+     * - анимации.
+     */
+    private bool horizontalMovementLocked;
 
     private readonly ContactPoint2D[] contacts =
         new ContactPoint2D[16];
@@ -118,14 +128,16 @@ public class PlayerController : MonoBehaviour
     public bool IsActionLocked =>
         actionLocked;
 
+    public bool IsHorizontalMovementLocked =>
+        horizontalMovementLocked;
+
     // ============================================================
     // AWAKE
     // ============================================================
 
     private void Awake()
     {
-        rb =
-            GetComponent<Rigidbody2D>();
+        rb = GetComponent<Rigidbody2D>();
 
         if (mobileInput == null)
         {
@@ -155,7 +167,6 @@ public class PlayerController : MonoBehaviour
             winPanel.activeInHierarchy)
         {
             LockMovement(true);
-
             return;
         }
 
@@ -163,11 +174,10 @@ public class PlayerController : MonoBehaviour
         // MOVEMENT LOCK
         // ========================================================
 
-        if (IsMovementLocked)
+        if (IsMovementLocked ||
+            horizontalMovementLocked)
         {
-            input =
-                Vector2.zero;
-
+            input = Vector2.zero;
             return;
         }
 
@@ -176,20 +186,14 @@ public class PlayerController : MonoBehaviour
         // ========================================================
 
         /*
-         * ВАЖНО:
+         * Если герой уже зацепился за скобы,
+         * горизонтальное управление не вмешивается.
          *
-         * Если Player УЖЕ реально зацепился
-         * за скобы, обычное горизонтальное
-         * управление больше не вмешивается.
-         *
-         * Rigidbody в этот момент полностью
-         * контролирует ClimbHook.
+         * Rigidbody контролирует ClimbHook.
          */
         if (ClimbHook.PlayerIsOnHook)
         {
-            input =
-                Vector2.zero;
-
+            input = Vector2.zero;
             return;
         }
 
@@ -197,35 +201,17 @@ public class PlayerController : MonoBehaviour
         // NORMAL HORIZONTAL INPUT
         // ========================================================
 
-        float moveX =
-            ReadHorizontalInput();
+        float moveX = ReadHorizontalInput();
 
-        input =
-            new Vector2(
-                moveX,
-                0f
-            );
+        input = new Vector2(
+            moveX,
+            0f
+        );
 
         // ========================================================
         // TUTORIAL HORIZONTAL INPUT
         // ========================================================
 
-        /*
-         * Передаём в TutorialTextController уже готовое
-         * горизонтальное управление.
-         *
-         * Поэтому одинаково работают:
-         *
-         * - мобильная кнопка LEFT;
-         * - мобильная кнопка RIGHT;
-         * - A / D;
-         * - стрелки клавиатуры LEFT / RIGHT.
-         *
-         * ВАЖНО:
-         * порядок нажатий значения не имеет.
-         * Сам TutorialTextController отдельно запоминает
-         * левое и правое направление.
-         */
         if (tutorialTextController != null &&
             Mathf.Abs(moveX) > 0.001f)
         {
@@ -242,8 +228,7 @@ public class PlayerController : MonoBehaviour
         if (!timerNotified &&
             Mathf.Abs(moveX) > 0.001f)
         {
-            timerNotified =
-                true;
+            timerNotified = true;
 
             if (levelTimer != null)
             {
@@ -262,14 +247,14 @@ public class PlayerController : MonoBehaviour
         // MOVEMENT LOCK
         // ========================================================
 
-        if (IsMovementLocked)
+        if (IsMovementLocked ||
+            horizontalMovementLocked)
         {
             /*
-             * При блокировке движения
-             * убираем только горизонтальную скорость.
+             * Останавливаем только движение по X.
              *
-             * Вертикальную физику здесь
-             * постоянно не ломаем.
+             * Скорость по Y сохраняется.
+             * Гравитация и прыжок не отключаются.
              */
             if (rb != null)
             {
@@ -287,11 +272,6 @@ public class PlayerController : MonoBehaviour
         // CLIMB HAS FULL CONTROL
         // ========================================================
 
-        /*
-         * Когда ClimbHook.PlayerIsOnHook == true,
-         * PlayerController вообще НЕ записывает
-         * linearVelocity.
-         */
         if (ClimbHook.PlayerIsOnHook)
         {
             return;
@@ -302,14 +282,10 @@ public class PlayerController : MonoBehaviour
         // ========================================================
 
         float desiredVelocityX =
-            input.x *
-            moveSpeed;
+            input.x * moveSpeed;
 
-        bool touchingLeftWall =
-            false;
-
-        bool touchingRightWall =
-            false;
+        bool touchingLeftWall = false;
+        bool touchingRightWall = false;
 
         DetectWalls(
             ref touchingLeftWall,
@@ -319,15 +295,13 @@ public class PlayerController : MonoBehaviour
         if (desiredVelocityX > 0f &&
             touchingRightWall)
         {
-            desiredVelocityX =
-                0f;
+            desiredVelocityX = 0f;
         }
 
         if (desiredVelocityX < 0f &&
             touchingLeftWall)
         {
-            desiredVelocityX =
-                0f;
+            desiredVelocityX = 0f;
         }
 
         rb.linearVelocity =
@@ -343,7 +317,8 @@ public class PlayerController : MonoBehaviour
 
     private float ReadHorizontalInput()
     {
-        if (actionLocked)
+        if (actionLocked ||
+            horizontalMovementLocked)
         {
             return 0f;
         }
@@ -383,10 +358,7 @@ public class PlayerController : MonoBehaviour
             return 0f;
         }
 
-        return
-            moveLeft
-                ? -1f
-                : 1f;
+        return moveLeft ? -1f : 1f;
     }
 
     // ============================================================
@@ -399,29 +371,21 @@ public class PlayerController : MonoBehaviour
     )
     {
         int contactCount =
-            rb.GetContacts(
-                contacts
-            );
+            rb.GetContacts(contacts);
 
-        for (int i = 0;
-             i < contactCount;
-             i++)
+        for (int i = 0; i < contactCount; i++)
         {
             Vector2 normal =
                 contacts[i].normal;
 
-            if (normal.x >=
-                minimumWallNormalX)
+            if (normal.x >= minimumWallNormalX)
             {
-                touchingLeftWall =
-                    true;
+                touchingLeftWall = true;
             }
 
-            if (normal.x <=
-                -minimumWallNormalX)
+            if (normal.x <= -minimumWallNormalX)
             {
-                touchingRightWall =
-                    true;
+                touchingRightWall = true;
             }
         }
 
@@ -442,17 +406,13 @@ public class PlayerController : MonoBehaviour
     // OLD MOVEMENT LOCK
     // ============================================================
 
-    public void LockMovement(
-        bool locked
-    )
+    public void LockMovement(bool locked)
     {
-        movementLocked =
-            locked;
+        movementLocked = locked;
 
         if (locked)
         {
-            input =
-                Vector2.zero;
+            input = Vector2.zero;
 
             if (rb != null)
             {
@@ -466,17 +426,13 @@ public class PlayerController : MonoBehaviour
     // TEMPORARY ACTION LOCK
     // ============================================================
 
-    public void SetActionLock(
-        bool locked
-    )
+    public void SetActionLock(bool locked)
     {
-        actionLocked =
-            locked;
+        actionLocked = locked;
 
         if (locked)
         {
-            input =
-                Vector2.zero;
+            input = Vector2.zero;
 
             if (rb != null)
             {
@@ -487,12 +443,46 @@ public class PlayerController : MonoBehaviour
     }
 
     // ============================================================
+    // NEW - HORIZONTAL MOVEMENT LOCK
+    // ============================================================
+
+    /*
+     * Используется во время перехода
+     * после разрушения тюремной двери.
+     *
+     * true  - запретить ходьбу влево/вправо.
+     * false - вернуть обычное управление.
+     *
+     * Не меняет Time.timeScale.
+     * Не выключает PlayerJump или PlayerKick.
+     */
+    public void SetHorizontalMovementLock(bool locked)
+    {
+        horizontalMovementLocked = locked;
+
+        if (locked)
+        {
+            input = Vector2.zero;
+
+            if (rb != null)
+            {
+                rb.linearVelocity =
+                    new Vector2(
+                        0f,
+                        rb.linearVelocity.y
+                    );
+            }
+        }
+    }
+
+    // ============================================================
     // GET NORMAL INPUT
     // ============================================================
 
     public Vector2 GetInput()
     {
-        if (actionLocked)
+        if (actionLocked ||
+            horizontalMovementLocked)
         {
             return Vector2.zero;
         }
@@ -511,8 +501,7 @@ public class PlayerController : MonoBehaviour
             return 0f;
         }
 
-        float vertical =
-            0f;
+        float vertical = 0f;
 
         // ========================================================
         // MOBILE
@@ -520,8 +509,7 @@ public class PlayerController : MonoBehaviour
 
         if (mobileInput != null)
         {
-            vertical =
-                mobileInput.Vertical;
+            vertical = mobileInput.Vertical;
         }
 
         // ========================================================
@@ -540,10 +528,7 @@ public class PlayerController : MonoBehaviour
 
             if (moveUp != moveDown)
             {
-                vertical =
-                    moveUp
-                        ? 1f
-                        : -1f;
+                vertical = moveUp ? 1f : -1f;
             }
         }
 
@@ -560,10 +545,9 @@ public class PlayerController : MonoBehaviour
 
     private void OnValidate()
     {
-        moveSpeed =
-            Mathf.Max(
-                0f,
-                moveSpeed
-            );
+        moveSpeed = Mathf.Max(
+            0f,
+            moveSpeed
+        );
     }
 }

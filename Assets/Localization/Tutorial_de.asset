@@ -88,6 +88,47 @@ MonoBehaviour:
     m_Localized: Sehr gut! Jetzt sehen wir, was der Held noch kann.
     m_Metadata:
       m_Items: []
+  - m_Id: 1041935340875776
+    m_Localized: "Siehst du? Der Sprungknopf ist erschienen. Dr\xFCcke ihn, um zu
+      springen."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1043591512141824
+    m_Localized: Ausgezeichnet! Jetzt kannst du springen!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1070935161384960
+    m_Localized: Jetzt lernen wir anzugreifen. Siehst du den Trittknopf?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1071349684449280
+    m_Localized: "Probier es aus! Dr\xFCcke ihn, um zu treten."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1071494538932224
+    m_Localized: Wunderbar! Jetzt kannst du dich verteidigen.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1071949167931392
+    m_Localized: "Sieht so aus, als w\xE4rst du bereit f\xFCr deine erste Pr\xFCfung."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1076541117116416
+    m_Localized: "Siehst du diese T\xFCr? Versuch, sie mit einem Tritt aufzubrechen."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5437918942277632
+    m_Localized: "Gro\xDFartig! Du hast es geschafft! Der Weg ist frei!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5455946715181056
+    m_Localized: Siehst du die Steigleiter?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5456094581174272
+    m_Localized: Geh hin und halte dich an den Sprossen fest.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

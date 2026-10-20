@@ -219,6 +219,14 @@ public class PlayerKick : MonoBehaviour
             return true;
         }
 
+        // После разрушения двери запрещаем новые удары ногой.
+        // Блокировка снимается вместе с ходьбой после tutorial_25.
+        if (playerController != null &&
+            playerController.IsHorizontalMovementLocked)
+        {
+            return true;
+        }
+
         return false;
     }
 

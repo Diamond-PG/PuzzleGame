@@ -36,6 +36,20 @@ public class LegAttackButton : MonoBehaviour
 
 
     // ============================================================
+    // TUTORIAL
+    // ============================================================
+
+    [Header("TUTORIAL")]
+
+    [Tooltip(
+        "TutorialTextController с объекта TutorialFrame. " +
+        "Если оставить None, скрипт попробует найти его автоматически."
+    )]
+    [SerializeField]
+    private TutorialTextController tutorialTextController;
+
+
+    // ============================================================
     // ATTACK ZONE
     // ============================================================
 
@@ -282,6 +296,8 @@ public class LegAttackButton : MonoBehaviour
 
         FindPlayer();
 
+        FindTutorialController();
+
         if (kickImpactAudioSource == null &&
             player != null)
         {
@@ -299,6 +315,24 @@ public class LegAttackButton : MonoBehaviour
                 OnLegButtonPressed
             );
         }
+    }
+
+
+    // ============================================================
+    // FIND TUTORIAL CONTROLLER
+    // ============================================================
+
+    private void FindTutorialController()
+    {
+        if (tutorialTextController != null)
+        {
+            return;
+        }
+
+        tutorialTextController =
+            FindFirstObjectByType<
+                TutorialTextController
+            >();
     }
 
 
@@ -454,6 +488,33 @@ public class LegAttackButton : MonoBehaviour
         if (!kickStarted)
             return;
 
+        // ========================================================
+        // TUTORIAL
+        // ========================================================
+
+        /*
+         * Сообщаем Хранителю о выполненном ударе
+         * ТОЛЬКО после того, как настоящий PlayerKick
+         * действительно успешно запустился.
+         *
+         * Сам TutorialTextController уже проверит:
+         * находимся ли мы именно на tutorial_19.
+         */
+        if (tutorialTextController == null)
+        {
+            FindTutorialController();
+        }
+
+        if (tutorialTextController != null)
+        {
+            tutorialTextController
+                .ReportKickTutorialInput();
+        }
+
+        // ========================================================
+        // HAPTIC
+        // ========================================================
+
         if (useKickHaptics)
         {
             MicroHaptics.Pulse(
@@ -461,6 +522,10 @@ public class LegAttackButton : MonoBehaviour
                 MicroHaptics.IOSHapticStyle.Light
             );
         }
+
+        // ========================================================
+        // REAL ATTACK ROUTINE
+        // ========================================================
 
         attackRoutine =
             StartCoroutine(
@@ -738,9 +803,6 @@ public class LegAttackButton : MonoBehaviour
 
         /*
          * Старый безопасный fallback.
-         *
-         * Благодаря этому текущая система ноги
-         * не ломается между этапами переделки.
          */
         if (HasReceiveKick(
                 target))

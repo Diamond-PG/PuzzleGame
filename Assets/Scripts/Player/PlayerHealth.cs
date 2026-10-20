@@ -4,8 +4,14 @@ using UnityEngine.SceneManagement;
 
 public class PlayerHealth : MonoBehaviour
 {
-    [Header("Hearts")]
-    [SerializeField] private int maxHearts = 5;
+    // ============================================================
+    // 01 - HEARTS
+    // ============================================================
+
+    [Header("HEARTS")]
+
+    [SerializeField, Min(1)]
+    private int maxHearts = 5;
 
     public int Hearts => hearts;
     public int MaxHearts => maxHearts;
@@ -13,87 +19,186 @@ public class PlayerHealth : MonoBehaviour
     public bool IsDead => isDead;
     public bool IsInvulnerable => invulnerable;
 
-    [Header("Invulnerability")]
-    [SerializeField] private float invulnTime = 0.8f;
+    // ============================================================
+    // 02 - INVULNERABILITY
+    // ============================================================
 
-    [Header("Links")]
+    [Header("INVULNERABILITY")]
+
+    [SerializeField, Min(0f)]
+    private float invulnTime = 0.8f;
+
+    // ============================================================
+    // 03 - REFERENCES
+    // ============================================================
+
+    [Header("REFERENCES")]
+
     [SerializeField] private SpriteRenderer playerRenderer;
     [SerializeField] private HeartsUI heartsUI;
     [SerializeField] private PlayerVisual playerVisual;
 
-    [Header("Movement Links")]
+    // ============================================================
+    // 04 - MOVEMENT REFERENCES
+    // ============================================================
+
+    [Header("MOVEMENT REFERENCES")]
+
     [SerializeField] private Rigidbody2D playerRigidbody;
     [SerializeField] private PlayerController playerController;
     [SerializeField] private PlayerJump playerJump;
     [SerializeField] private ClimbHook climbHook;
 
-    [Header("Blink Player")]
-    [SerializeField] private int blinkCount = 3;
-    [SerializeField] private float blinkInterval = 0.15f;
+    // ============================================================
+    // 05 - PLAYER BLINK
+    // ============================================================
 
-    [Header("Sound")]
+    [Header("PLAYER BLINK")]
+
+    [SerializeField, Min(0)]
+    private int blinkCount = 3;
+
+    [SerializeField, Min(0f)]
+    private float blinkInterval = 0.15f;
+
+    // ============================================================
+    // 06 - DAMAGE AUDIO
+    // ============================================================
+
+    [Header("DAMAGE AUDIO")]
+
     [SerializeField] private AudioSource sfxSource;
     [SerializeField] private AudioClip damageClip;
-    [SerializeField, Range(0f, 1f)] private float damageVolume = 1f;
 
-    [Header("Death Sound")]
+    [SerializeField, Range(0f, 1f)]
+    private float damageVolume = 1f;
+
+    // ============================================================
+    // 07 - DEATH AUDIO
+    // ============================================================
+
+    [Header("DEATH AUDIO")]
+
     [SerializeField] private AudioClip deathClip;
-    [SerializeField, Range(0f, 1f)] private float deathVolume = 1f;
 
-    [Header("Hit Flash")]
+    [SerializeField, Range(0f, 1f)]
+    private float deathVolume = 1f;
+
+    // ============================================================
+    // 08 - HIT FLASH
+    // ============================================================
+
+    [Header("HIT FLASH")]
+
     [SerializeField] private bool useHitFlash = true;
     [SerializeField] private Color flashColor = Color.white;
-    [SerializeField] private float flashDuration = 0.08f;
 
-    [Header("Hit Effect (Particles)")]
+    [SerializeField, Min(0f)]
+    private float flashDuration = 0.08f;
+
+    // ============================================================
+    // 09 - HIT PARTICLES
+    // ============================================================
+
+    [Header("HIT EFFECT - PARTICLES")]
+
     [SerializeField] private ParticleSystem hitEffectPrefab;
     [SerializeField] private Vector3 hitEffectOffset = Vector3.zero;
     [SerializeField] private bool effectFollowsPlayer = true;
     [SerializeField] private bool destroyEffectAfterPlay = true;
 
-    [Header("Hit Effect Amount")]
-    [SerializeField, Min(1)] private int hitEffectSpawnCount = 2;
-    [SerializeField, Min(0f)] private float hitEffectSpawnDelay = 0.03f;
+    // ============================================================
+    // 10 - HIT PARTICLE AMOUNT
+    // ============================================================
 
-    [Header("Hit Effect Spread")]
-    [SerializeField] private Vector2 hitEffectRandomOffsetX =
+    [Header("HIT EFFECT - AMOUNT")]
+
+    [SerializeField, Min(1)]
+    private int hitEffectSpawnCount = 2;
+
+    [SerializeField, Min(0f)]
+    private float hitEffectSpawnDelay = 0.03f;
+
+    // ============================================================
+    // 11 - HIT PARTICLE SPREAD
+    // ============================================================
+
+    [Header("HIT EFFECT - SPREAD")]
+
+    [SerializeField]
+    private Vector2 hitEffectRandomOffsetX =
         new Vector2(-0.15f, 0.15f);
 
-    [SerializeField] private Vector2 hitEffectRandomOffsetY =
+    [SerializeField]
+    private Vector2 hitEffectRandomOffsetY =
         new Vector2(-0.10f, 0.18f);
 
-    [SerializeField] private Vector2 hitEffectRandomOffsetZ =
+    [SerializeField]
+    private Vector2 hitEffectRandomOffsetZ =
         new Vector2(0f, 0f);
 
-    [Header("Hit Effect Rotation")]
-    [SerializeField] private bool randomizeHitEffectRotation = true;
+    // ============================================================
+    // 12 - HIT PARTICLE ROTATION
+    // ============================================================
 
-    [SerializeField] private Vector2 hitEffectRandomRotationZ =
+    [Header("HIT EFFECT - ROTATION")]
+
+    [SerializeField]
+    private bool randomizeHitEffectRotation = true;
+
+    [SerializeField]
+    private Vector2 hitEffectRandomRotationZ =
         new Vector2(-25f, 25f);
 
-    [Header("Hit Effect Scale")]
-    [SerializeField] private bool randomizeHitEffectScale = true;
+    // ============================================================
+    // 13 - HIT PARTICLE SCALE
+    // ============================================================
 
-    [SerializeField] private Vector2 hitEffectRandomScale =
+    [Header("HIT EFFECT - SCALE")]
+
+    [SerializeField]
+    private bool randomizeHitEffectScale = true;
+
+    [SerializeField]
+    private Vector2 hitEffectRandomScale =
         new Vector2(0.9f, 1.25f);
 
-    [Header("Death Effect (Particles)")]
+    // ============================================================
+    // 14 - DEATH PARTICLES
+    // ============================================================
+
+    [Header("DEATH EFFECT - PARTICLES")]
+
     [SerializeField] private ParticleSystem deathEffectPrefab;
     [SerializeField] private Vector3 deathEffectOffset = Vector3.zero;
     [SerializeField] private bool deathEffectFollowsPlayer = false;
     [SerializeField] private bool destroyDeathEffectAfterPlay = true;
 
-    [Header("Death Settings")]
-    [SerializeField] private float deathRestartDelay = 0.6f;
-    [SerializeField] private bool hidePlayerOnDeath = true;
-    [SerializeField] private bool disableMovementOnDeath = true;
+    // ============================================================
+    // 15 - DEATH AND RESTART
+    // ============================================================
+
+    [Header("DEATH AND RESTART")]
+
+    [SerializeField, Min(0f)]
+    private float deathRestartDelay = 0.6f;
+
+    [SerializeField]
+    private bool hidePlayerOnDeath = true;
+
+    [SerializeField]
+    private bool disableMovementOnDeath = true;
 
     [Tooltip(
-        "Полностью отключает физику Rigidbody2D после смерти, " +
-        "чтобы невидимый игрок не мог продолжать падать, " +
-        "прыгать или взаимодействовать с объектами."
+        "Отключить физику Rigidbody2D после смерти, " +
+        "чтобы невидимый герой не продолжал двигаться."
     )]
-    [SerializeField] private bool disablePhysicsOnDeath = true;
+    [SerializeField]
+    private bool disablePhysicsOnDeath = true;
+
+    // ============================================================
+    // PRIVATE STATE
+    // ============================================================
 
     private int hearts;
     private bool invulnerable;
@@ -106,6 +211,10 @@ public class PlayerHealth : MonoBehaviour
     private Coroutine playerBlinkRoutine;
     private Coroutine hitFlashRoutine;
     private Coroutine hitEffectRoutine;
+
+    // ============================================================
+    // AWAKE
+    // ============================================================
 
     private void Awake()
     {
@@ -145,19 +254,13 @@ public class PlayerHealth : MonoBehaviour
             climbHook = GetComponent<ClimbHook>();
     }
 
-    /// <summary>
-    /// Восстанавливает обычные сердца,
-    /// но не превышает maxHearts.
-    /// </summary>
+    // ============================================================
+    // RESTORE HEARTS
+    // ============================================================
+
     public bool TryRestoreHeart(int amount = 1)
     {
-        if (isDead)
-            return false;
-
-        if (amount <= 0)
-            return false;
-
-        if (hearts >= maxHearts)
+        if (isDead || amount <= 0 || hearts >= maxHearts)
             return false;
 
         int previousHearts = hearts;
@@ -168,66 +271,41 @@ public class PlayerHealth : MonoBehaviour
             maxHearts
         );
 
-        bool heartWasRestored =
-            hearts > previousHearts;
+        bool restored = hearts > previousHearts;
 
-        if (heartWasRestored &&
-            heartsUI != null)
+        if (restored && heartsUI != null)
         {
             heartsUI.SetHearts(hearts);
             heartsUI.PlayRegularHeartPickupPop();
         }
 
-        return heartWasRestored;
+        return restored;
     }
 
-    /// <summary>
-    /// Обычный урон от ловушек и других объектов.
-    /// Использует стандартный damageClip.
-    /// </summary>
+    // ============================================================
+    // RECEIVE DAMAGE
+    // ============================================================
+
     public void TakeDamage(int amount = 1)
     {
-        ApplyDamage(
-            amount,
-            true
-        );
+        ApplyDamage(amount, true);
     }
 
-    /// <summary>
-    /// Урон от падения.
-    /// Стандартный damageClip не воспроизводится,
-    /// потому что звук приземления с Ow
-    /// запускает PlayerLanding.
-    /// </summary>
     public void TakeFallDamage(int amount)
     {
-        ApplyDamage(
-            amount,
-            false
-        );
+        // PlayerLanding отвечает за звук приземления.
+        ApplyDamage(amount, false);
     }
 
-    private void ApplyDamage(
-        int amount,
-        bool playDamageSound
-    )
+    private void ApplyDamage(int amount, bool playDamageSound)
     {
-        if (isDead)
-            return;
-
-        if (invulnerable)
-            return;
-
-        if (amount <= 0)
+        if (isDead || invulnerable || amount <= 0)
             return;
 
         int remainingDamage = amount;
         int usedBonusHearts = 0;
 
-        /*
-         * Сначала по одной единице расходуются
-         * все доступные бонусные сердца.
-         */
+        // Сначала расходуем бонусные сердца.
         if (heartsUI != null)
         {
             while (remainingDamage > 0 &&
@@ -241,10 +319,7 @@ public class PlayerHealth : MonoBehaviour
         int previousHearts = hearts;
         int lostRegularHearts = 0;
 
-        /*
-         * Оставшийся урон снимается
-         * с обычных сердец.
-         */
+        // Затем расходуем обычные сердца.
         if (remainingDamage > 0)
         {
             hearts = Mathf.Max(
@@ -252,14 +327,9 @@ public class PlayerHealth : MonoBehaviour
                 hearts - remainingDamage
             );
 
-            lostRegularHearts =
-                previousHearts - hearts;
+            lostRegularHearts = previousHearts - hearts;
         }
 
-        /*
-         * Если по какой-то причине ничего не снялось,
-         * обратная связь не запускается.
-         */
         if (usedBonusHearts <= 0 &&
             lostRegularHearts <= 0)
         {
@@ -269,11 +339,7 @@ public class PlayerHealth : MonoBehaviour
         if (CameraShake2D.Instance != null)
             CameraShake2D.Instance.ShakeDefault();
 
-        /*
-         * Обновляем и анимируем обычные сердца.
-         */
-        if (lostRegularHearts > 0 &&
-            heartsUI != null)
+        if (lostRegularHearts > 0 && heartsUI != null)
         {
             heartsUI.SetHearts(hearts);
 
@@ -286,9 +352,7 @@ public class PlayerHealth : MonoBehaviour
             );
         }
 
-        PlayDamageFeedback(
-            playDamageSound
-        );
+        PlayDamageFeedback(playDamageSound);
 
         if (hearts <= 0)
         {
@@ -306,9 +370,11 @@ public class PlayerHealth : MonoBehaviour
         );
     }
 
-    private void PlayDamageFeedback(
-        bool playDamageSound
-    )
+    // ============================================================
+    // DAMAGE FEEDBACK
+    // ============================================================
+
+    private void PlayDamageFeedback(bool playDamageSound)
     {
         if (playDamageSound &&
             sfxSource != null &&
@@ -330,8 +396,7 @@ public class PlayerHealth : MonoBehaviour
             SpawnHitEffectRoutine()
         );
 
-        if (useHitFlash &&
-            playerRenderer != null)
+        if (useHitFlash && playerRenderer != null)
         {
             if (hitFlashRoutine != null)
                 StopCoroutine(hitFlashRoutine);
@@ -348,6 +413,10 @@ public class PlayerHealth : MonoBehaviour
             BlinkPlayer()
         );
     }
+
+    // ============================================================
+    // DEATH
+    // ============================================================
 
     private void Die()
     {
@@ -378,8 +447,7 @@ public class PlayerHealth : MonoBehaviour
         if (disableMovementOnDeath)
             DisablePlayerAfterDeath();
 
-        if (sfxSource != null &&
-            deathClip != null)
+        if (sfxSource != null && deathClip != null)
         {
             sfxSource.PlayOneShot(
                 deathClip,
@@ -395,12 +463,7 @@ public class PlayerHealth : MonoBehaviour
         float wait = deathRestartDelay;
 
         if (deathClip != null)
-        {
-            wait = Mathf.Max(
-                wait,
-                deathClip.length
-            );
-        }
+            wait = Mathf.Max(wait, deathClip.length);
 
         if (restartRoutine != null)
             StopCoroutine(restartRoutine);
@@ -410,45 +473,37 @@ public class PlayerHealth : MonoBehaviour
         );
     }
 
+    // ============================================================
+    // DISABLE PLAYER AFTER DEATH
+    // ============================================================
+
     private void DisablePlayerAfterDeath()
     {
-        /*
-         * Сначала корректно блокируем движение
-         * через сам PlayerController.
-         */
         if (playerController != null)
         {
             playerController.LockMovement(true);
             playerController.enabled = false;
         }
 
-        /*
-         * Отдельно отключаем прыжок.
-         */
         if (playerJump != null)
             playerJump.enabled = false;
 
-        /*
-         * Отдельно отключаем цепляние и лазание.
-         */
         if (climbHook != null)
             climbHook.enabled = false;
 
-        /*
-         * Полностью останавливаем Rigidbody2D.
-         */
         if (playerRigidbody != null)
         {
-            playerRigidbody.linearVelocity =
-                Vector2.zero;
-
-            playerRigidbody.angularVelocity =
-                0f;
+            playerRigidbody.linearVelocity = Vector2.zero;
+            playerRigidbody.angularVelocity = 0f;
 
             if (disablePhysicsOnDeath)
                 playerRigidbody.simulated = false;
         }
     }
+
+    // ============================================================
+    // HIDE PLAYER
+    // ============================================================
 
     private IEnumerator HidePlayerNextFrame()
     {
@@ -458,22 +513,27 @@ public class PlayerHealth : MonoBehaviour
             playerRenderer.enabled = false;
     }
 
-    private IEnumerator RestartAfterDeath(
-        float delay
-    )
+    // ============================================================
+    // RESTART AFTER DEATH
+    // ============================================================
+
+    private IEnumerator RestartAfterDeath(float delay)
     {
         yield return new WaitForSeconds(delay);
 
+        // Перезагружаем текущий уровень.
+        // Сохранение обучения будет реализовано
+        // отдельным менеджером прогресса.
         SceneManager.LoadScene(
-            SceneManager
-                .GetActiveScene()
-                .buildIndex
+            SceneManager.GetActiveScene().buildIndex
         );
     }
 
-    private IEnumerator InvulnTimer(
-        float duration
-    )
+    // ============================================================
+    // INVULNERABILITY TIMER
+    // ============================================================
+
+    private IEnumerator InvulnTimer(float duration)
     {
         yield return new WaitForSeconds(duration);
 
@@ -481,65 +541,60 @@ public class PlayerHealth : MonoBehaviour
         invulnRoutine = null;
     }
 
+    // ============================================================
+    // PLAYER BLINK
+    // ============================================================
+
     private IEnumerator BlinkPlayer()
     {
         if (playerRenderer == null)
             yield break;
 
-        int toggles =
-            blinkCount * 2;
+        int toggles = blinkCount * 2;
 
-        for (int i = 0;
-             i < toggles;
-             i++)
+        for (int i = 0; i < toggles; i++)
         {
-            playerRenderer.enabled =
-                !playerRenderer.enabled;
+            playerRenderer.enabled = !playerRenderer.enabled;
 
-            yield return new WaitForSeconds(
-                blinkInterval
-            );
+            yield return new WaitForSeconds(blinkInterval);
         }
 
         playerRenderer.enabled = true;
         playerBlinkRoutine = null;
     }
 
+    // ============================================================
+    // HIT FLASH
+    // ============================================================
+
     private IEnumerator HitFlash()
     {
         if (playerRenderer == null)
             yield break;
 
-        Color colorBeforeFlash =
-            playerRenderer.color;
+        Color colorBeforeFlash = playerRenderer.color;
 
-        playerRenderer.color =
-            flashColor;
+        playerRenderer.color = flashColor;
 
-        yield return new WaitForSeconds(
-            flashDuration
-        );
+        yield return new WaitForSeconds(flashDuration);
 
-        playerRenderer.color =
-            colorBeforeFlash;
+        playerRenderer.color = colorBeforeFlash;
 
         hitFlashRoutine = null;
     }
+
+    // ============================================================
+    // HIT PARTICLES - SPAWN ROUTINE
+    // ============================================================
 
     private IEnumerator SpawnHitEffectRoutine()
     {
         if (hitEffectPrefab == null)
             yield break;
 
-        int spawnCount =
-            Mathf.Max(
-                1,
-                hitEffectSpawnCount
-            );
+        int spawnCount = Mathf.Max(1, hitEffectSpawnCount);
 
-        for (int i = 0;
-             i < spawnCount;
-             i++)
+        for (int i = 0; i < spawnCount; i++)
         {
             SpawnSingleHitEffect();
 
@@ -555,46 +610,46 @@ public class PlayerHealth : MonoBehaviour
         hitEffectRoutine = null;
     }
 
+    // ============================================================
+    // HIT PARTICLES - CREATE
+    // ============================================================
+
     private void SpawnSingleHitEffect()
     {
-        Vector3 randomOffset =
-            new Vector3(
-                Random.Range(
-                    hitEffectRandomOffsetX.x,
-                    hitEffectRandomOffsetX.y
-                ),
-                Random.Range(
-                    hitEffectRandomOffsetY.x,
-                    hitEffectRandomOffsetY.y
-                ),
-                Random.Range(
-                    hitEffectRandomOffsetZ.x,
-                    hitEffectRandomOffsetZ.y
-                )
-            );
+        Vector3 randomOffset = new Vector3(
+            Random.Range(
+                hitEffectRandomOffsetX.x,
+                hitEffectRandomOffsetX.y
+            ),
+            Random.Range(
+                hitEffectRandomOffsetY.x,
+                hitEffectRandomOffsetY.y
+            ),
+            Random.Range(
+                hitEffectRandomOffsetZ.x,
+                hitEffectRandomOffsetZ.y
+            )
+        );
 
         Vector3 spawnPosition =
             transform.position +
             hitEffectOffset +
             randomOffset;
 
-        Quaternion spawnRotation =
-            Quaternion.identity;
+        Quaternion spawnRotation = Quaternion.identity;
 
         if (randomizeHitEffectRotation)
         {
-            float randomZ =
-                Random.Range(
-                    hitEffectRandomRotationZ.x,
-                    hitEffectRandomRotationZ.y
-                );
+            float randomZ = Random.Range(
+                hitEffectRandomRotationZ.x,
+                hitEffectRandomRotationZ.y
+            );
 
-            spawnRotation =
-                Quaternion.Euler(
-                    0f,
-                    0f,
-                    randomZ
-                );
+            spawnRotation = Quaternion.Euler(
+                0f,
+                0f,
+                randomZ
+            );
         }
 
         ParticleSystem effect;
@@ -609,11 +664,9 @@ public class PlayerHealth : MonoBehaviour
             );
 
             effect.transform.localPosition =
-                hitEffectOffset +
-                randomOffset;
+                hitEffectOffset + randomOffset;
 
-            effect.transform.localRotation =
-                spawnRotation;
+            effect.transform.localRotation = spawnRotation;
         }
         else
         {
@@ -626,11 +679,10 @@ public class PlayerHealth : MonoBehaviour
 
         if (randomizeHitEffectScale)
         {
-            float randomScale =
-                Random.Range(
-                    hitEffectRandomScale.x,
-                    hitEffectRandomScale.y
-                );
+            float randomScale = Random.Range(
+                hitEffectRandomScale.x,
+                hitEffectRandomScale.y
+            );
 
             effect.transform.localScale =
                 Vector3.one * randomScale;
@@ -642,17 +694,16 @@ public class PlayerHealth : MonoBehaviour
         {
             float destroyDelay =
                 effect.main.duration +
-                effect.main
-                    .startLifetime
-                    .constantMax +
+                effect.main.startLifetime.constantMax +
                 0.2f;
 
-            Destroy(
-                effect.gameObject,
-                destroyDelay
-            );
+            Destroy(effect.gameObject, destroyDelay);
         }
     }
+
+    // ============================================================
+    // DEATH PARTICLES
+    // ============================================================
 
     private void SpawnDeathEffect()
     {
@@ -660,8 +711,7 @@ public class PlayerHealth : MonoBehaviour
             return;
 
         Vector3 spawnPosition =
-            transform.position +
-            deathEffectOffset;
+            transform.position + deathEffectOffset;
 
         ParticleSystem effect;
 
@@ -692,15 +742,40 @@ public class PlayerHealth : MonoBehaviour
         {
             float destroyDelay =
                 effect.main.duration +
-                effect.main
-                    .startLifetime
-                    .constantMax +
+                effect.main.startLifetime.constantMax +
                 0.2f;
 
-            Destroy(
-                effect.gameObject,
-                destroyDelay
-            );
+            Destroy(effect.gameObject, destroyDelay);
         }
+    }
+
+    // ============================================================
+    // INSPECTOR VALIDATION
+    // ============================================================
+
+    private void OnValidate()
+    {
+        maxHearts = Mathf.Max(1, maxHearts);
+        invulnTime = Mathf.Max(0f, invulnTime);
+
+        blinkCount = Mathf.Max(0, blinkCount);
+        blinkInterval = Mathf.Max(0f, blinkInterval);
+
+        flashDuration = Mathf.Max(0f, flashDuration);
+
+        hitEffectSpawnCount = Mathf.Max(
+            1,
+            hitEffectSpawnCount
+        );
+
+        hitEffectSpawnDelay = Mathf.Max(
+            0f,
+            hitEffectSpawnDelay
+        );
+
+        deathRestartDelay = Mathf.Max(
+            0f,
+            deathRestartDelay
+        );
     }
 }

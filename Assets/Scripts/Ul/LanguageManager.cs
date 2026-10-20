@@ -60,6 +60,13 @@ public class LanguageManager : MonoBehaviour
 
         LocalizationSettings.SelectedLocaleChanged -=
             OnSelectedLocaleChanged;
+
+        if (dropdown != null)
+        {
+            dropdown.onValueChanged.RemoveListener(
+                OnDropdownValueChanged
+            );
+        }
     }
 
     private void OnSceneLoaded(
@@ -67,6 +74,18 @@ public class LanguageManager : MonoBehaviour
         LoadSceneMode mode
     )
     {
+        // Ссылки на UI предыдущей сцены больше не нужны.
+        // При возвращении в меню найдём новые элементы.
+        if (dropdown != null)
+        {
+            dropdown.onValueChanged.RemoveListener(
+                OnDropdownValueChanged
+            );
+        }
+
+        dropdown = null;
+        languageValueLabel = null;
+
         TryBindUI();
         RefreshUI();
     }
@@ -147,12 +166,30 @@ public class LanguageManager : MonoBehaviour
 
     private void TryBindUI()
     {
+        // Ищем UI только в текущей активной сцене.
+        // Не захватываем случайные Dropdown из других сцен.
+        Scene activeScene =
+            SceneManager.GetActiveScene();
+
         if (dropdown == null)
         {
-            dropdown =
-                Object.FindFirstObjectByType<TMP_Dropdown>(
-                    FindObjectsInactive.Include
+            TMP_Dropdown[] allDropdowns =
+                Object.FindObjectsByType<TMP_Dropdown>(
+                    FindObjectsInactive.Include,
+                    FindObjectsSortMode.None
                 );
+
+            foreach (TMP_Dropdown candidate in allDropdowns)
+            {
+                if (candidate == null)
+                    continue;
+
+                if (candidate.gameObject.scene != activeScene)
+                    continue;
+
+                dropdown = candidate;
+                break;
+            }
         }
 
         if (languageValueLabel == null)
@@ -166,6 +203,7 @@ public class LanguageManager : MonoBehaviour
             foreach (TMP_Text textObject in allTexts)
             {
                 if (textObject != null &&
+                    textObject.gameObject.scene == activeScene &&
                     textObject.name == "LanguageValue")
                 {
                     languageValueLabel = textObject;
@@ -317,12 +355,10 @@ public class LanguageManager : MonoBehaviour
                 index
             );
         }
-        else
-        {
-            Debug.LogWarning(
-                "[LanguageManager] UI Refresh: dropdown is NULL."
-            );
-        }
+
+        // Отсутствие Dropdown в игровом уровне нормально.
+        // Язык продолжает работать через LocalizationSettings.
+        // Предупреждение здесь больше не требуется.
     }
 
     private Locale FindLocale(string code)

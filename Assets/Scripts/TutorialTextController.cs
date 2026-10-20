@@ -8,185 +8,215 @@ using UnityEngine.UI;
 
 public class TutorialTextController : MonoBehaviour
 {
+    // ============================================================
+    // 01 - TUTORIAL TEXT
+    // ============================================================
+
     [Header("TUTORIAL TEXT")]
     [SerializeField] private TMP_Text tutorialText;
+
+    // ============================================================
+    // 02 - TUTORIAL PAGES
+    // ============================================================
 
     [Header("TUTORIAL PAGES")]
     [TextArea(3, 8)]
     [SerializeField] private string[] pages;
 
+    // ============================================================
+    // 03 - LOCALIZATION
+    // ============================================================
+
     [Header("LOCALIZATION")]
-    [Tooltip("Включает получение текста из Unity Localization.")]
     [SerializeField] private bool useLocalization = true;
-
-    [Tooltip("Название String Table Collection. У нас она называется Tutorial.")]
     [SerializeField] private string localizationTableName = "Tutorial";
-
-    [Tooltip("Префикс ключей. Получатся tutorial_00, tutorial_01, tutorial_02 и т.д.")]
     [SerializeField] private string localizationKeyPrefix = "tutorial_";
+
+    // ============================================================
+    // 04 - NAVIGATION BUTTONS
+    // ============================================================
 
     [Header("NAVIGATION BUTTONS")]
     [SerializeField] private Button nextButton;
     [SerializeField] private Button previousButton;
 
+    // ============================================================
+    // 05 - START SETTINGS
+    // ============================================================
+
     [Header("START SETTINGS")]
     [SerializeField, Min(0)] private int startPage = 0;
 
-    [Header("NAME INPUT PAGE")]
-    [Tooltip("Страница, на которой Хранитель спрашивает имя игрока. Отсчёт начинается с 0.")]
+    // ============================================================
+    // 06 - NAME INPUT
+    // ============================================================
+
+    [Header("NAME INPUT")]
     [SerializeField, Min(0)] private int nameInputPage = 1;
-
-    [Tooltip("Страница после ввода имени. Например: {name}, рад знакомству!")]
     [SerializeField, Min(0)] private int nameConfirmationPage = 2;
-
-    [Header("NAME INPUT CONTROLLER")]
     [SerializeField] private PlayerNameInputController playerNameInputController;
 
-    // =================================================
-    // PUZZLE KEEPER VISUAL
-    // =================================================
+    // ============================================================
+    // 07 - KEEPER SHARED REFERENCES
+    // ============================================================
 
-    [Header("PUZZLE KEEPER VISUAL")]
-    [Tooltip("UI Image объекта PuzzleKeeper.")]
+    [Header("KEEPER - SHARED REFERENCES")]
     [SerializeField] private Image puzzleKeeperImage;
-
-    [Tooltip("Обычная поза Хранителя, которая используется во время знакомства.")]
-    [SerializeField] private Sprite dialogueKeeperSprite;
-
-    [Tooltip("Новая поза Хранителя, которая используется во время обучения.")]
-    [SerializeField] private Sprite trainingKeeperSprite;
-
-    [Tooltip("Страница, начиная с которой Хранитель переходит в обучающую позу.")]
-    [SerializeField, Min(0)] private int trainingStartPage = 13;
-
-    [Header("KEEPER PUZZLE ICON")]
-    [Tooltip("RectTransform голубого пазла на груди Хранителя (KeeperPuzzleIcon).")]
     [SerializeField] private RectTransform keeperPuzzleIcon;
 
-    [Tooltip("Позиция голубого пазла на обычной позе Хранителя.")]
+    // ============================================================
+    // 08 - KEEPER 1 - DIALOGUE
+    // ============================================================
+
+    [Header("KEEPER 1 - DIALOGUE")]
+    [SerializeField] private Sprite dialogueKeeperSprite;
+
     [SerializeField] private Vector2 dialoguePuzzleIconPosition =
         new Vector2(-27.6f, -75.8f);
 
-    [Tooltip("Позиция голубого пазла на обучающей позе Хранителя.")]
-    [SerializeField] private Vector2 trainingPuzzleIconPosition =
-        new Vector2(-22f, -62f);
-
-    [Tooltip("Размер голубого пазла на обычной позе.")]
     [SerializeField] private Vector2 dialoguePuzzleIconSize =
         new Vector2(27f, 27f);
 
-    [Tooltip("Размер голубого пазла на обучающей позе.")]
+    [SerializeField] private float dialoguePuzzleIconRotation = -20f;
+
+    // ============================================================
+    // 09 - KEEPER 2 - TRAINING
+    // ============================================================
+
+    [Header("KEEPER 2 - TRAINING")]
+    [SerializeField] private Sprite trainingKeeperSprite;
+
+    [SerializeField, Min(0)] private int trainingStartPage = 13;
+
+    [SerializeField] private Vector2 trainingPuzzleIconPosition =
+        new Vector2(-22f, -62f);
+
     [SerializeField] private Vector2 trainingPuzzleIconSize =
         new Vector2(27f, 27f);
 
-    [Tooltip("Поворот голубого пазла на обычной позе.")]
-    [SerializeField] private float dialoguePuzzleIconRotation = -20f;
-
-    [Tooltip("Поворот голубого пазла на обучающей позе.")]
     [SerializeField] private float trainingPuzzleIconRotation = -20f;
 
-    // =================================================
-    // INTERACTIVE MOVEMENT TUTORIAL
-    // =================================================
+    // ============================================================
+    // 10 - KEEPER 3 - REJOICES
+    // ============================================================
+
+    [Header("KEEPER 3 - REJOICES")]
+    [SerializeField] private Sprite rejoicesKeeperSprite;
+
+    [SerializeField, Min(0)] private int rejoicesStartPage = 20;
+    [SerializeField, Min(0)] private int rejoicesEndPage = 21;
+
+    [SerializeField] private Vector2 rejoicesPuzzleIconPosition =
+        new Vector2(-22f, -62f);
+
+    [SerializeField] private Vector2 rejoicesPuzzleIconSize =
+        new Vector2(27f, 27f);
+
+    [SerializeField] private float rejoicesPuzzleIconRotation = -20f;
+
+    // ============================================================
+    // 11 - KEEPER 4 - DOOR
+    // ============================================================
+
+    [Header("KEEPER 4 - DOOR")]
+    [SerializeField] private Sprite doorKeeperSprite;
+
+    [SerializeField, Min(0)] private int doorStartPage = 22;
+    [SerializeField, Min(0)] private int doorEndPage = 22;
+
+    [SerializeField] private Vector2 doorPuzzleIconPosition =
+        new Vector2(-22f, -62f);
+
+    [SerializeField] private Vector2 doorPuzzleIconSize =
+        new Vector2(27f, 27f);
+
+    [SerializeField] private float doorPuzzleIconRotation = -20f;
+
+    // ============================================================
+    // 12 - MOVEMENT TUTORIAL
+    // ============================================================
 
     [Header("MOVEMENT TUTORIAL")]
+    [SerializeField, Min(0)] private int movementIntroPage = 13;
+    [SerializeField, Min(0)] private int movementPracticePage = 14;
+    [SerializeField, Min(0)] private int movementSuccessPage = 15;
 
-    [Tooltip(
-        "Страница, на которой Хранитель впервые ПОКАЗЫВАЕТ " +
-        "стрелки движения. Для нас tutorial_13."
-    )]
-    [SerializeField, Min(0)]
-    private int movementIntroPage = 13;
+    // ============================================================
+    // 13 - JUMP TUTORIAL
+    // ============================================================
 
-    [Tooltip(
-        "Страница практики. Только на ней LEFT и RIGHT " +
-        "становятся активными. Для нас tutorial_14."
-    )]
-    [SerializeField, Min(0)]
-    private int movementPracticePage = 14;
+    [Header("JUMP TUTORIAL")]
+    [SerializeField, Min(0)] private int jumpPracticePage = 16;
+    [SerializeField, Min(0)] private int jumpSuccessPage = 17;
+    [SerializeField] private CanvasGroup jumpControlGroup;
 
-    [Tooltip(
-        "Страница успеха после выполнения движения. " +
-        "Для нас tutorial_15."
-    )]
-    [SerializeField, Min(0)]
-    private int movementSuccessPage = 15;
+    // ============================================================
+    // 14 - KICK TUTORIAL
+    // ============================================================
 
-    // =================================================
-    // TUTORIAL CONTROL VISUALS
-    // =================================================
+    [Header("KICK TUTORIAL")]
+    [SerializeField, Min(0)] private int kickIntroPage = 18;
+    [SerializeField, Min(0)] private int kickPracticePage = 19;
+    [SerializeField, Min(0)] private int kickSuccessPage = 20;
+    [SerializeField] private CanvasGroup kickControlGroup;
+
+    // ============================================================
+    // 15 - TUTORIAL CONTROL VISUALS
+    // ============================================================
 
     [Header("TUTORIAL CONTROL VISUALS")]
+    [SerializeField] private CanvasGroup leftControlGroup;
+    [SerializeField] private CanvasGroup rightControlGroup;
+    [SerializeField] private CanvasGroup[] lockedControlGroups;
 
-    [Tooltip("CanvasGroup кнопки движения ВЛЕВО.")]
-    [SerializeField]
-    private CanvasGroup leftControlGroup;
-
-    [Tooltip("CanvasGroup кнопки движения ВПРАВО.")]
-    [SerializeField]
-    private CanvasGroup rightControlGroup;
-
-    [Tooltip(
-        "Остальные элементы управления, которые пока должны " +
-        "оставаться приглушёнными и заблокированными. " +
-        "Сюда добавляем UP, DOWN, прыжок, удар ногой, руку и т.д."
-    )]
-    [SerializeField]
-    private CanvasGroup[] lockedControlGroups;
-
-    [Tooltip("Прозрачность приглушённой кнопки.")]
     [SerializeField, Range(0f, 1f)]
     private float lockedControlAlpha = 0.30f;
 
-    [Tooltip("Прозрачность показанной/доступной кнопки.")]
     [SerializeField, Range(0f, 1f)]
     private float unlockedControlAlpha = 1f;
 
-    // =================================================
-    // PRIVATE
-    // =================================================
+    // ============================================================
+    // 16 - DARKNESS MASK TUTORIAL WINDOWS
+    // ============================================================
 
-    private int currentPage = 0;
+    [Header("DARKNESS MASK TUTORIAL WINDOWS")]
+    [SerializeField] private PrisonDarknessMask prisonDarknessMask;
 
-    private bool nameConfirmed = false;
+    // ============================================================
+    // PRIVATE STATE
+    // ============================================================
+
+    private int currentPage;
+    private bool nameConfirmed;
     private string playerName = "";
 
-    // -------------------------------------------------
-    // MOVEMENT TUTORIAL STATE
-    // -------------------------------------------------
+    private bool movementLeftUsed;
+    private bool movementRightUsed;
+    private bool movementTutorialCompleted;
+    private bool jumpTutorialCompleted;
+    private bool kickTutorialCompleted;
 
-    /*
-     * LEFT и RIGHT запоминаются отдельно.
-     *
-     * Порядок не имеет значения:
-     *
-     * LEFT -> RIGHT
-     *
-     * или
-     *
-     * RIGHT -> LEFT.
-     */
-    private bool movementLeftUsed = false;
-    private bool movementRightUsed = false;
-    private bool movementTutorialCompleted = false;
-
-    // -------------------------------------------------
-    // LOCALIZATION CACHE
-    // -------------------------------------------------
+    private bool tutorialSuppressed;
+    private bool tutorialStarted;
+    private bool presentationVisible = true;
 
     private string[] localizedPages;
-
     private Coroutine localizationPreloadCoroutine;
+    private int localizationLoadVersion;
+    private bool localizationReady;
 
-    private int localizationLoadVersion = 0;
+    private int lastKeeperPose = -1;
+    private Sprite lastKeeperSprite;
+    private Vector2 lastPuzzlePosition;
+    private Vector2 lastPuzzleSize;
+    private float lastPuzzleRotation;
+    private bool keeperVisualInitialized;
 
-    private bool localizationReady = false;
+    private int lastAppliedMaskStage = -1;
 
-    private bool tutorialStarted = false;
-
-    // =================================================
+    // ============================================================
     // AWAKE
-    // =================================================
+    // ============================================================
 
     private void Awake()
     {
@@ -201,11 +231,15 @@ public class TutorialTextController : MonoBehaviour
             previousButton.onClick.RemoveListener(PreviousPage);
             previousButton.onClick.AddListener(PreviousPage);
         }
+
+        RestoreSavedProgress();
+
+        tutorialSuppressed = TutorialProgressManager.IntroCompleted;
     }
 
-    // =================================================
+    // ============================================================
     // ENABLE / DISABLE
-    // =================================================
+    // ============================================================
 
     private void OnEnable()
     {
@@ -227,41 +261,46 @@ public class TutorialTextController : MonoBehaviour
         }
     }
 
-    // =================================================
+    // ============================================================
     // START
-    // =================================================
+    // ============================================================
 
     private void Start()
     {
         tutorialStarted = true;
 
+        if (prisonDarknessMask == null)
+            prisonDarknessMask = FindFirstObjectByType<PrisonDarknessMask>();
+
         if (pages == null || pages.Length == 0)
         {
-            if (tutorialText != null)
-            {
-                tutorialText.text = "";
-                tutorialText.gameObject.SetActive(false);
-            }
-
-            if (playerNameInputController != null)
-            {
-                playerNameInputController.HideNameInput();
-            }
-
-            UpdateKeeperVisual();
+            tutorialSuppressed = true;
+            HideTutorialPresentation();
             UpdateTutorialControls();
-            UpdateButtons();
+            return;
+        }
+
+        if (tutorialSuppressed)
+        {
+            currentPage = Mathf.Clamp(
+                doorStartPage, 0, pages.Length - 1
+            );
+
+            HideTutorialPresentation();
+            UpdateTutorialControls();
+            UpdateDarknessMaskWindows();
             return;
         }
 
         currentPage = Mathf.Clamp(
-            startPage,
-            0,
-            pages.Length - 1
+            GetResumePage(), 0, pages.Length - 1
         );
+
+        presentationVisible = true;
 
         UpdateKeeperVisual();
         UpdateTutorialControls();
+        UpdateDarknessMaskWindows();
 
         if (useLocalization)
         {
@@ -274,30 +313,55 @@ public class TutorialTextController : MonoBehaviour
         }
     }
 
-    // =================================================
-    // LOCALIZATION PRELOAD
-    // =================================================
+    // ============================================================
+    // SAVED PROGRESS
+    // ============================================================
 
-    private void BeginLocalizationPreload()
+    private void RestoreSavedProgress()
     {
-        if (pages == null || pages.Length == 0)
-            return;
+        playerName = TutorialProgressManager.PlayerName;
+        nameConfirmed = TutorialProgressManager.HasPlayerName;
 
-        localizationLoadVersion++;
+        movementTutorialCompleted =
+            TutorialProgressManager.MovementCompleted;
 
-        int loadVersion =
-            localizationLoadVersion;
+        jumpTutorialCompleted =
+            TutorialProgressManager.JumpCompleted;
 
-        if (localizationPreloadCoroutine != null)
-        {
-            StopCoroutine(localizationPreloadCoroutine);
-            localizationPreloadCoroutine = null;
-        }
+        kickTutorialCompleted =
+            TutorialProgressManager.KickCompleted;
 
-        localizationReady = false;
+        movementLeftUsed = movementTutorialCompleted;
+        movementRightUsed = movementTutorialCompleted;
+    }
 
-        localizedPages =
-            new string[pages.Length];
+    private int GetResumePage()
+    {
+        if (!nameConfirmed)
+            return startPage;
+
+        if (!movementTutorialCompleted)
+            return movementIntroPage;
+
+        if (!jumpTutorialCompleted)
+            return jumpPracticePage;
+
+        if (!kickTutorialCompleted)
+            return kickIntroPage;
+
+        if (!TutorialProgressManager.DoorLessonReached)
+            return rejoicesStartPage;
+
+        return doorStartPage;
+    }
+
+    // ============================================================
+    // PRESENTATION VISIBILITY
+    // ============================================================
+
+    private void HideTutorialPresentation()
+    {
+        presentationVisible = false;
 
         if (tutorialText != null)
         {
@@ -306,81 +370,175 @@ public class TutorialTextController : MonoBehaviour
         }
 
         if (playerNameInputController != null)
-        {
             playerNameInputController.HideNameInput();
+
+        if (puzzleKeeperImage != null)
+            puzzleKeeperImage.gameObject.SetActive(false);
+
+        if (keeperPuzzleIcon != null)
+            keeperPuzzleIcon.gameObject.SetActive(false);
+
+        SetButtonVisible(nextButton, false);
+        SetButtonVisible(previousButton, false);
+    }
+
+    public void SetTutorialPresentationVisible(bool visible)
+    {
+        if (tutorialSuppressed)
+        {
+            HideTutorialPresentation();
+            return;
         }
+
+        presentationVisible = visible;
+
+        if (!visible)
+        {
+            if (tutorialText != null)
+                tutorialText.gameObject.SetActive(false);
+
+            if (playerNameInputController != null)
+                playerNameInputController.HideNameInput();
+
+            if (puzzleKeeperImage != null)
+                puzzleKeeperImage.gameObject.SetActive(false);
+
+            if (keeperPuzzleIcon != null)
+                keeperPuzzleIcon.gameObject.SetActive(false);
+
+            SetButtonVisible(nextButton, false);
+            SetButtonVisible(previousButton, false);
+            return;
+        }
+
+        if (!useLocalization || localizationReady)
+            ShowCurrentPage();
+    }
+
+    public bool ShouldShowTutorial()
+    {
+        return !tutorialSuppressed &&
+               pages != null &&
+               pages.Length > 0;
+    }
+
+    // ============================================================
+    // KEEPER LIVE PREVIEW
+    // ============================================================
+
+    private void LateUpdate()
+    {
+        if (!tutorialStarted || tutorialSuppressed)
+            return;
+
+        int pose = GetKeeperPose();
+
+        Sprite sprite;
+        Vector2 position;
+        Vector2 size;
+        float rotation;
+
+        GetKeeperSettings(
+            pose,
+            out sprite,
+            out position,
+            out size,
+            out rotation
+        );
+
+        if (!keeperVisualInitialized ||
+            lastKeeperPose != pose ||
+            lastKeeperSprite != sprite ||
+            lastPuzzlePosition != position ||
+            lastPuzzleSize != size ||
+            !Mathf.Approximately(lastPuzzleRotation, rotation))
+        {
+            ApplyKeeperSettings(
+                pose, sprite, position, size, rotation
+            );
+        }
+    }
+
+    // ============================================================
+    // LOCALIZATION
+    // ============================================================
+
+    private void BeginLocalizationPreload()
+    {
+        if (tutorialSuppressed ||
+            pages == null ||
+            pages.Length == 0)
+            return;
+
+        localizationLoadVersion++;
+        int loadVersion = localizationLoadVersion;
+
+        if (localizationPreloadCoroutine != null)
+        {
+            StopCoroutine(localizationPreloadCoroutine);
+            localizationPreloadCoroutine = null;
+        }
+
+        localizationReady = false;
+        localizedPages = new string[pages.Length];
+
+        if (tutorialText != null)
+        {
+            tutorialText.text = "";
+            tutorialText.gameObject.SetActive(false);
+        }
+
+        if (playerNameInputController != null)
+            playerNameInputController.HideNameInput();
 
         UpdateButtons();
 
-        localizationPreloadCoroutine =
-            StartCoroutine(
-                PreloadLocalizedPagesCoroutine(
-                    loadVersion
-                )
-            );
+        localizationPreloadCoroutine = StartCoroutine(
+            PreloadLocalizedPagesCoroutine(loadVersion)
+        );
     }
 
-    private IEnumerator PreloadLocalizedPagesCoroutine(
-        int loadVersion
-    )
+    private IEnumerator PreloadLocalizedPagesCoroutine(int loadVersion)
     {
         for (int i = 0; i < pages.Length; i++)
         {
             if (loadVersion != localizationLoadVersion)
-            {
                 yield break;
-            }
 
-            string key =
-                GetLocalizationKey(i);
+            string key = GetLocalizationKey(i);
 
             var operation =
-                LocalizationSettings
-                    .StringDatabase
+                LocalizationSettings.StringDatabase
                     .GetLocalizedStringAsync(
-                        localizationTableName,
-                        key
+                        localizationTableName, key
                     );
 
             yield return operation;
 
             if (loadVersion != localizationLoadVersion)
-            {
                 yield break;
-            }
 
             if (operation.Status ==
-                AsyncOperationStatus.Succeeded)
+                AsyncOperationStatus.Succeeded &&
+                !string.IsNullOrWhiteSpace(operation.Result))
             {
-                string localizedText =
-                    operation.Result;
-
-                if (!string.IsNullOrWhiteSpace(
-                        localizedText
-                    ))
-                {
-                    localizedPages[i] =
-                        localizedText;
-
-                    continue;
-                }
+                localizedPages[i] = operation.Result;
             }
+            else
+            {
+                localizedPages[i] = GetFallbackPageText(i);
 
-            localizedPages[i] =
-                GetFallbackPageText(i);
-
-            Debug.LogWarning(
-                "TutorialTextController: не удалось получить локализованный текст. " +
-                "Table = " + localizationTableName +
-                ", Key = " + key +
-                ". Использован текст из Pages."
-            );
+                Debug.LogWarning(
+                    "TutorialTextController: localization failed. " +
+                    "Table = " + localizationTableName +
+                    ", Key = " + key +
+                    ". Using Pages fallback."
+                );
+            }
         }
 
         if (loadVersion != localizationLoadVersion)
-        {
             yield break;
-        }
 
         localizationReady = true;
         localizationPreloadCoroutine = null;
@@ -388,331 +546,313 @@ public class TutorialTextController : MonoBehaviour
         ShowCurrentPage();
     }
 
-    // =================================================
+    // ============================================================
     // NAVIGATION
-    // =================================================
+    // ============================================================
 
     public void NextPage()
     {
-        if (pages == null || pages.Length == 0)
+        if (!CanNavigate() || IsPracticePageBlocked())
             return;
 
-        if (useLocalization &&
-            !localizationReady)
-        {
+        int targetPage = GetNextPageIndex();
+
+        if (!IsValidPage(targetPage))
             return;
-        }
 
-        if (!nameConfirmed &&
-            currentPage == nameInputPage)
-        {
-            return;
-        }
-
-        /*
-         * На tutorial_14 стрелка Next скрыта.
-         * Игрок обязан сначала нажать LEFT и RIGHT.
-         */
-        if (currentPage == movementPracticePage &&
-            !movementTutorialCompleted)
-        {
-            return;
-        }
-
-        int targetPage =
-            currentPage + 1;
-
-        if (nameConfirmed &&
-            targetPage == nameInputPage)
-        {
-            targetPage =
-                nameConfirmationPage;
-        }
-
-        if (targetPage < 0 ||
-            targetPage >= pages.Length)
-        {
-            return;
-        }
-
-        currentPage =
-            targetPage;
-
+        currentPage = targetPage;
         ShowCurrentPage();
     }
 
     public void PreviousPage()
     {
-        if (pages == null || pages.Length == 0)
+        if (!CanNavigate() || IsPracticePageBlocked())
             return;
 
-        if (useLocalization &&
-            !localizationReady)
-        {
+        int targetPage = GetPreviousPageIndex();
+
+        if (!IsValidPage(targetPage))
             return;
-        }
 
-        if (!nameConfirmed &&
-            currentPage == nameInputPage)
-        {
-            return;
-        }
-
-        /*
-         * Во время обязательной практики tutorial_14
-         * назад тоже не уходим.
-         */
-        if (currentPage == movementPracticePage &&
-            !movementTutorialCompleted)
-        {
-            return;
-        }
-
-        int targetPage =
-            currentPage - 1;
-
-        if (nameConfirmed &&
-            targetPage == nameInputPage)
-        {
-            targetPage =
-                nameInputPage - 1;
-        }
-
-        if (targetPage < 0 ||
-            targetPage >= pages.Length)
-        {
-            return;
-        }
-
-        currentPage =
-            targetPage;
-
+        currentPage = targetPage;
         ShowCurrentPage();
     }
 
-    // =================================================
+    private bool CanNavigate()
+    {
+        if (tutorialSuppressed || !presentationVisible ||
+            pages == null || pages.Length == 0)
+            return false;
+
+        if (useLocalization && !localizationReady)
+            return false;
+
+        if (!nameConfirmed && currentPage == nameInputPage)
+            return false;
+
+        return true;
+    }
+
+    private bool IsPracticePageBlocked()
+    {
+        if (currentPage == movementPracticePage &&
+            !movementTutorialCompleted)
+            return true;
+
+        if (currentPage == jumpPracticePage &&
+            !jumpTutorialCompleted)
+            return true;
+
+        if (currentPage == kickPracticePage &&
+            !kickTutorialCompleted)
+            return true;
+
+        return false;
+    }
+
+    // ============================================================
     // PAGE DISPLAY
-    // =================================================
+    // ============================================================
 
     private void ShowCurrentPage()
     {
-        if (pages == null ||
-            pages.Length == 0)
+        if (tutorialSuppressed)
         {
+            HideTutorialPresentation();
+            UpdateTutorialControls();
+            UpdateDarknessMaskWindows();
             return;
         }
 
-        if (useLocalization &&
-            !localizationReady)
-        {
+        if (pages == null || pages.Length == 0)
             return;
-        }
 
-        currentPage =
-            Mathf.Clamp(
-                currentPage,
-                0,
-                pages.Length - 1
-            );
+        if (useLocalization && !localizationReady)
+            return;
+
+        currentPage = Mathf.Clamp(
+            currentPage, 0, pages.Length - 1
+        );
+
+        if (currentPage >= doorStartPage)
+            TutorialProgressManager.ReachDoorLesson();
 
         bool shouldShowNameInput =
-            !nameConfirmed &&
-            currentPage == nameInputPage;
+            !nameConfirmed && currentPage == nameInputPage;
 
-        string pageText =
-            GetPageText(currentPage);
+        if (!presentationVisible)
+        {
+            UpdateTutorialControls();
+            UpdateDarknessMaskWindows();
+            UpdateButtons();
+            return;
+        }
 
-        pageText =
-            ApplyPlayerName(pageText);
-
-        // -------------------------------------------------
-        // ТЕКСТ ХРАНИТЕЛЯ
-        // -------------------------------------------------
+        string pageText = ApplyPlayerName(
+            GetPageText(currentPage)
+        );
 
         if (tutorialText != null)
         {
-            tutorialText.text =
-                pageText;
-
+            tutorialText.text = pageText;
             tutorialText.gameObject.SetActive(true);
         }
-
-        // -------------------------------------------------
-        // ПОЛЕ ВВОДА ИМЕНИ
-        // -------------------------------------------------
 
         if (playerNameInputController != null)
         {
             if (shouldShowNameInput)
-            {
                 playerNameInputController.ShowNameInput();
-            }
             else
-            {
                 playerNameInputController.HideNameInput();
-            }
         }
 
-        // -------------------------------------------------
-        // ВНЕШНИЙ ВИД ХРАНИТЕЛЯ
-        // -------------------------------------------------
+        if (puzzleKeeperImage != null)
+            puzzleKeeperImage.gameObject.SetActive(true);
+
+        if (keeperPuzzleIcon != null)
+            keeperPuzzleIcon.gameObject.SetActive(true);
 
         UpdateKeeperVisual();
-
-        // -------------------------------------------------
-        // СОСТОЯНИЕ ИГРОВЫХ КНОПОК
-        // -------------------------------------------------
-
         UpdateTutorialControls();
-
-        // -------------------------------------------------
-        // СТРЕЛКИ ДИАЛОГА
-        // -------------------------------------------------
-
+        UpdateDarknessMaskWindows();
         UpdateButtons();
     }
 
-    // =================================================
-    // MOVEMENT TUTORIAL INPUT
-    // =================================================
+    // ============================================================
+    // MOVEMENT TUTORIAL
+    // ============================================================
 
-    public void ReportHorizontalTutorialInput(
-        float horizontalInput
-    )
+    public void ReportHorizontalTutorialInput(float horizontalInput)
     {
-        /*
-         * КЛЮЧЕВОЙ МОМЕНТ:
-         *
-         * Нажатия LEFT / RIGHT засчитываются
-         * ТОЛЬКО на tutorial_14.
-         *
-         * На tutorial_13 кнопки уже видны и яркие,
-         * но нажатия там не считаются.
-         */
-        if (currentPage != movementPracticePage)
-        {
+        if (tutorialSuppressed ||
+            currentPage != movementPracticePage ||
+            movementTutorialCompleted)
             return;
-        }
-
-        if (movementTutorialCompleted)
-        {
-            return;
-        }
-
-        // -------------------------------------------------
-        // LEFT
-        // -------------------------------------------------
 
         if (horizontalInput < -0.001f)
-        {
-            movementLeftUsed =
-                true;
-        }
-
-        // -------------------------------------------------
-        // RIGHT
-        // -------------------------------------------------
+            movementLeftUsed = true;
 
         if (horizontalInput > 0.001f)
-        {
-            movementRightUsed =
-                true;
-        }
+            movementRightUsed = true;
 
-        if (movementLeftUsed &&
-            movementRightUsed)
-        {
+        if (movementLeftUsed && movementRightUsed)
             CompleteMovementTutorial();
-        }
     }
 
     private void CompleteMovementTutorial()
     {
         if (movementTutorialCompleted)
-        {
             return;
-        }
 
-        movementTutorialCompleted =
-            true;
+        movementTutorialCompleted = true;
+        TutorialProgressManager.CompleteMovement();
 
-        /*
-         * После LEFT + RIGHT Хранитель
-         * автоматически показывает tutorial_15.
-         */
-        if (pages != null &&
-            movementSuccessPage >= 0 &&
-            movementSuccessPage < pages.Length)
+        if (IsValidPage(movementSuccessPage))
         {
-            currentPage =
-                movementSuccessPage;
-
+            currentPage = movementSuccessPage;
             ShowCurrentPage();
         }
         else
         {
             UpdateTutorialControls();
+            UpdateDarknessMaskWindows();
             UpdateButtons();
         }
     }
 
-    // =================================================
-    // TUTORIAL CONTROL VISUALS
-    // =================================================
+    // ============================================================
+    // JUMP TUTORIAL
+    // ============================================================
+
+    public void ReportJumpTutorialInput()
+    {
+        if (tutorialSuppressed ||
+            currentPage != jumpPracticePage ||
+            jumpTutorialCompleted)
+            return;
+
+        CompleteJumpTutorial();
+    }
+
+    private void CompleteJumpTutorial()
+    {
+        if (jumpTutorialCompleted)
+            return;
+
+        jumpTutorialCompleted = true;
+        TutorialProgressManager.CompleteJump();
+
+        if (IsValidPage(jumpSuccessPage))
+        {
+            currentPage = jumpSuccessPage;
+            ShowCurrentPage();
+        }
+        else
+        {
+            UpdateTutorialControls();
+            UpdateDarknessMaskWindows();
+            UpdateButtons();
+        }
+    }
+
+    // ============================================================
+    // KICK TUTORIAL
+    // ============================================================
+
+    public void ReportKickTutorialInput()
+    {
+        if (tutorialSuppressed ||
+            currentPage != kickPracticePage ||
+            kickTutorialCompleted)
+            return;
+
+        CompleteKickTutorial();
+    }
+
+    private void CompleteKickTutorial()
+    {
+        if (kickTutorialCompleted)
+            return;
+
+        kickTutorialCompleted = true;
+        TutorialProgressManager.CompleteKick();
+
+        if (IsValidPage(kickSuccessPage))
+        {
+            currentPage = kickSuccessPage;
+            ShowCurrentPage();
+        }
+        else
+        {
+            UpdateTutorialControls();
+            UpdateDarknessMaskWindows();
+            UpdateButtons();
+        }
+    }
+
+    // ============================================================
+    // CONTROL VISUALS
+    // ============================================================
 
     private void UpdateTutorialControls()
     {
-        /*
-         * ЛОГИКА LEFT / RIGHT:
-         *
-         * ДО tutorial_13:
-         *   приглушены + заблокированы.
-         *
-         * tutorial_13:
-         *   яркие, но ЗАБЛОКИРОВАНЫ.
-         *   Хранитель только показывает их игроку.
-         *
-         * tutorial_14:
-         *   яркие + АКТИВНЫЕ.
-         *   Игрок должен нажать обе.
-         *
-         * tutorial_15 и дальше:
-         *   остаются яркими + активными.
-         *
-         * Остальные кнопки пока всегда:
-         *   приглушены + заблокированы.
-         */
-
-        bool horizontalControlsVisible =
+        bool horizontalVisible =
+            movementTutorialCompleted ||
             currentPage >= movementIntroPage;
 
-        bool horizontalControlsInteractable =
+        bool horizontalInteractable =
+            movementTutorialCompleted ||
             currentPage >= movementPracticePage;
 
         SetControlGroupState(
             leftControlGroup,
-            horizontalControlsVisible,
-            horizontalControlsInteractable
+            horizontalVisible,
+            horizontalInteractable
         );
 
         SetControlGroupState(
             rightControlGroup,
-            horizontalControlsVisible,
-            horizontalControlsInteractable
+            horizontalVisible,
+            horizontalInteractable
         );
 
         if (lockedControlGroups != null)
         {
-            for (int i = 0;
-                 i < lockedControlGroups.Length;
-                 i++)
+            foreach (CanvasGroup group in lockedControlGroups)
             {
-                SetControlGroupState(
-                    lockedControlGroups[i],
-                    false,
-                    false
-                );
+                if (group == jumpControlGroup ||
+                    group == kickControlGroup)
+                    continue;
+
+                SetControlGroupState(group, false, false);
             }
+        }
+
+        bool jumpUnlocked =
+            jumpTutorialCompleted ||
+            currentPage >= jumpPracticePage;
+
+        SetControlGroupState(
+            jumpControlGroup,
+            jumpUnlocked,
+            jumpUnlocked
+        );
+
+        if (kickTutorialCompleted)
+        {
+            SetControlGroupState(kickControlGroup, true, true);
+        }
+        else if (currentPage < kickIntroPage)
+        {
+            SetControlGroupState(kickControlGroup, false, false);
+        }
+        else if (currentPage < kickPracticePage)
+        {
+            SetControlGroupPreviewState(kickControlGroup);
+        }
+        else
+        {
+            SetControlGroupState(kickControlGroup, true, true);
         }
     }
 
@@ -723,428 +863,382 @@ public class TutorialTextController : MonoBehaviour
     )
     {
         if (group == null)
-        {
             return;
-        }
 
-        /*
-         * Внешний вид и возможность нажатия
-         * теперь НЕ зависят друг от друга.
-         *
-         * Именно поэтому на tutorial_13
-         * кнопка может быть яркой,
-         * но при этом не работать.
-         */
-        group.alpha =
-            visuallyUnlocked
-                ? unlockedControlAlpha
-                : lockedControlAlpha;
+        group.alpha = visuallyUnlocked
+            ? unlockedControlAlpha
+            : lockedControlAlpha;
 
-        group.interactable =
-            interactable;
-
-        group.blocksRaycasts =
-            interactable;
+        group.interactable = interactable;
+        group.blocksRaycasts = interactable;
     }
 
-    // =================================================
-    // PAGE TEXT
-    // =================================================
+    private void SetControlGroupPreviewState(CanvasGroup group)
+    {
+        if (group == null)
+            return;
 
-    private string GetPageText(
-        int pageIndex
-    )
+        group.alpha = unlockedControlAlpha;
+        group.interactable = true;
+        group.blocksRaycasts = false;
+    }
+
+    // ============================================================
+    // DARKNESS MASK TUTORIAL WINDOWS
+    // ============================================================
+
+    private void UpdateDarknessMaskWindows()
+    {
+        if (prisonDarknessMask == null)
+            return;
+
+        int stage = 0;
+
+        if (movementTutorialCompleted ||
+            currentPage >= movementIntroPage)
+        {
+            stage = 1;
+        }
+
+        if (jumpTutorialCompleted ||
+            currentPage >= jumpPracticePage)
+        {
+            stage = 2;
+        }
+
+        if (kickTutorialCompleted ||
+            currentPage >= kickIntroPage)
+        {
+            stage = 3;
+        }
+
+        // Do not close previously opened windows
+        // when navigating back to an earlier page.
+        stage = Mathf.Max(stage, lastAppliedMaskStage);
+
+        if (stage == lastAppliedMaskStage)
+            return;
+
+        lastAppliedMaskStage = stage;
+        prisonDarknessMask.SetTutorialStage(stage);
+    }
+
+    // ============================================================
+    // TEXT HELPERS
+    // ============================================================
+
+    private string GetPageText(int pageIndex)
     {
         if (useLocalization &&
             localizationReady &&
             localizedPages != null &&
             pageIndex >= 0 &&
             pageIndex < localizedPages.Length &&
-            !string.IsNullOrWhiteSpace(
-                localizedPages[pageIndex]
-            ))
+            !string.IsNullOrWhiteSpace(localizedPages[pageIndex]))
         {
             return localizedPages[pageIndex];
         }
 
-        return GetFallbackPageText(
-            pageIndex
-        );
+        return GetFallbackPageText(pageIndex);
     }
 
-    private string GetLocalizationKey(
-        int pageIndex
-    )
+    private string GetLocalizationKey(int pageIndex)
     {
         return localizationKeyPrefix +
                pageIndex.ToString("00");
     }
 
-    private string GetFallbackPageText(
-        int pageIndex
-    )
+    private string GetFallbackPageText(int pageIndex)
     {
-        if (pages == null ||
-            pageIndex < 0 ||
-            pageIndex >= pages.Length)
-        {
+        if (!IsValidPage(pageIndex))
             return "";
-        }
 
         return pages[pageIndex];
     }
 
-    private string ApplyPlayerName(
-        string text
-    )
+    private string ApplyPlayerName(string text)
     {
         if (string.IsNullOrEmpty(text))
             return "";
 
         if (nameConfirmed &&
-            !string.IsNullOrWhiteSpace(
-                playerName
-            ))
+            !string.IsNullOrWhiteSpace(playerName))
         {
-            text =
-                text.Replace(
-                    "{name}",
-                    playerName
-                );
+            return text.Replace("{name}", playerName);
         }
 
         return text;
     }
 
-    // =================================================
-    // PUZZLE KEEPER VISUAL
-    // =================================================
-
-    private void UpdateKeeperVisual()
+    private bool IsValidPage(int pageIndex)
     {
-        bool trainingPose =
-            currentPage >= trainingStartPage;
+        return pages != null &&
+               pageIndex >= 0 &&
+               pageIndex < pages.Length;
+    }
 
-        if (puzzleKeeperImage != null)
+    // ============================================================
+    // KEEPER VISUAL
+    // ============================================================
+
+    private int GetKeeperPose()
+    {
+        if (currentPage >= doorStartPage &&
+            currentPage <= doorEndPage &&
+            doorKeeperSprite != null)
+            return 4;
+
+        if (currentPage >= rejoicesStartPage &&
+            currentPage <= rejoicesEndPage &&
+            rejoicesKeeperSprite != null)
+            return 3;
+
+        if (currentPage >= trainingStartPage)
+            return 2;
+
+        return 1;
+    }
+
+    private void GetKeeperSettings(
+        int pose,
+        out Sprite sprite,
+        out Vector2 position,
+        out Vector2 size,
+        out float rotation
+    )
+    {
+        switch (pose)
         {
-            Sprite targetSprite =
-                trainingPose
-                    ? trainingKeeperSprite
-                    : dialogueKeeperSprite;
+            case 4:
+                sprite = doorKeeperSprite;
+                position = doorPuzzleIconPosition;
+                size = doorPuzzleIconSize;
+                rotation = doorPuzzleIconRotation;
+                break;
 
-            if (targetSprite != null)
-            {
-                puzzleKeeperImage.sprite =
-                    targetSprite;
-            }
-        }
+            case 3:
+                sprite = rejoicesKeeperSprite;
+                position = rejoicesPuzzleIconPosition;
+                size = rejoicesPuzzleIconSize;
+                rotation = rejoicesPuzzleIconRotation;
+                break;
 
-        if (keeperPuzzleIcon != null)
-        {
-            Vector2 targetPosition =
-                trainingPose
-                    ? trainingPuzzleIconPosition
-                    : dialoguePuzzleIconPosition;
+            case 2:
+                sprite = trainingKeeperSprite;
+                position = trainingPuzzleIconPosition;
+                size = trainingPuzzleIconSize;
+                rotation = trainingPuzzleIconRotation;
+                break;
 
-            Vector2 targetSize =
-                trainingPose
-                    ? trainingPuzzleIconSize
-                    : dialoguePuzzleIconSize;
-
-            float targetRotation =
-                trainingPose
-                    ? trainingPuzzleIconRotation
-                    : dialoguePuzzleIconRotation;
-
-            keeperPuzzleIcon.anchoredPosition =
-                targetPosition;
-
-            keeperPuzzleIcon.sizeDelta =
-                targetSize;
-
-            Vector3 euler =
-                keeperPuzzleIcon.localEulerAngles;
-
-            euler.z =
-                targetRotation;
-
-            keeperPuzzleIcon.localEulerAngles =
-                euler;
+            default:
+                sprite = dialogueKeeperSprite;
+                position = dialoguePuzzleIconPosition;
+                size = dialoguePuzzleIconSize;
+                rotation = dialoguePuzzleIconRotation;
+                break;
         }
     }
 
-    // =================================================
-    // LOCALE CHANGE
-    // =================================================
+    private void UpdateKeeperVisual()
+    {
+        if (tutorialSuppressed)
+            return;
 
-    private void OnSelectedLocaleChanged(
-        Locale newLocale
+        int pose = GetKeeperPose();
+
+        Sprite sprite;
+        Vector2 position;
+        Vector2 size;
+        float rotation;
+
+        GetKeeperSettings(
+            pose,
+            out sprite,
+            out position,
+            out size,
+            out rotation
+        );
+
+        ApplyKeeperSettings(
+            pose, sprite, position, size, rotation
+        );
+    }
+
+    private void ApplyKeeperSettings(
+        int pose,
+        Sprite sprite,
+        Vector2 position,
+        Vector2 size,
+        float rotation
     )
     {
-        if (!tutorialStarted)
-            return;
+        if (puzzleKeeperImage != null && sprite != null)
+            puzzleKeeperImage.sprite = sprite;
 
-        if (!useLocalization)
-            return;
-
-        if (pages == null ||
-            pages.Length == 0)
+        if (keeperPuzzleIcon != null)
         {
-            return;
+            keeperPuzzleIcon.anchoredPosition = position;
+            keeperPuzzleIcon.sizeDelta = size;
+
+            Vector3 euler = keeperPuzzleIcon.localEulerAngles;
+            euler.z = rotation;
+            keeperPuzzleIcon.localEulerAngles = euler;
         }
+
+        lastKeeperPose = pose;
+        lastKeeperSprite = sprite;
+        lastPuzzlePosition = position;
+        lastPuzzleSize = size;
+        lastPuzzleRotation = rotation;
+        keeperVisualInitialized = true;
+    }
+
+    // ============================================================
+    // LOCALE CHANGE
+    // ============================================================
+
+    private void OnSelectedLocaleChanged(Locale newLocale)
+    {
+        if (!tutorialStarted ||
+            tutorialSuppressed ||
+            !useLocalization ||
+            pages == null ||
+            pages.Length == 0)
+            return;
 
         BeginLocalizationPreload();
     }
 
-    // =================================================
-    // BUTTON VISIBILITY
-    // =================================================
+    // ============================================================
+    // BUTTONS
+    // ============================================================
 
     private void UpdateButtons()
     {
-        if (pages == null ||
-            pages.Length == 0)
+        if (tutorialSuppressed ||
+            !presentationVisible ||
+            pages == null ||
+            pages.Length == 0 ||
+            (useLocalization && !localizationReady) ||
+            (!nameConfirmed && currentPage == nameInputPage) ||
+            IsPracticePageBlocked())
         {
-            SetButtonVisible(
-                nextButton,
-                false
-            );
-
-            SetButtonVisible(
-                previousButton,
-                false
-            );
-
+            SetButtonVisible(nextButton, false);
+            SetButtonVisible(previousButton, false);
             return;
         }
-
-        if (useLocalization &&
-            !localizationReady)
-        {
-            SetButtonVisible(
-                nextButton,
-                false
-            );
-
-            SetButtonVisible(
-                previousButton,
-                false
-            );
-
-            return;
-        }
-
-        if (!nameConfirmed &&
-            currentPage == nameInputPage)
-        {
-            SetButtonVisible(
-                nextButton,
-                false
-            );
-
-            SetButtonVisible(
-                previousButton,
-                false
-            );
-
-            return;
-        }
-
-        /*
-         * На tutorial_14 обе стрелки диалога
-         * скрываются.
-         *
-         * Игрок должен выполнить действие,
-         * а не листать текст.
-         */
-        if (currentPage == movementPracticePage &&
-            !movementTutorialCompleted)
-        {
-            SetButtonVisible(
-                nextButton,
-                false
-            );
-
-            SetButtonVisible(
-                previousButton,
-                false
-            );
-
-            return;
-        }
-
-        int previousPage =
-            GetPreviousPageIndex();
-
-        int nextPage =
-            GetNextPageIndex();
-
-        bool hasPrevious =
-            previousPage >= 0 &&
-            previousPage < pages.Length;
-
-        bool hasNext =
-            nextPage >= 0 &&
-            nextPage < pages.Length;
 
         SetButtonVisible(
             previousButton,
-            hasPrevious
+            IsValidPage(GetPreviousPageIndex())
         );
 
         SetButtonVisible(
             nextButton,
-            hasNext
+            IsValidPage(GetNextPageIndex())
         );
     }
 
     private int GetNextPageIndex()
     {
-        int targetPage =
-            currentPage + 1;
+        int targetPage = currentPage + 1;
 
-        if (nameConfirmed &&
-            targetPage == nameInputPage)
-        {
-            targetPage =
-                nameConfirmationPage;
-        }
+        if (nameConfirmed && targetPage == nameInputPage)
+            targetPage = nameConfirmationPage;
 
         return targetPage;
     }
 
     private int GetPreviousPageIndex()
     {
-        int targetPage =
-            currentPage - 1;
+        int targetPage = currentPage - 1;
 
-        if (nameConfirmed &&
-            targetPage == nameInputPage)
-        {
-            targetPage =
-                nameInputPage - 1;
-        }
+        if (nameConfirmed && targetPage == nameInputPage)
+            targetPage = nameInputPage - 1;
 
         return targetPage;
     }
 
-    private void SetButtonVisible(
-        Button button,
-        bool visible
-    )
+    private void SetButtonVisible(Button button, bool visible)
     {
         if (button != null)
-        {
-            button.gameObject.SetActive(
-                visible
-            );
-        }
+            button.gameObject.SetActive(visible);
     }
 
-    // =================================================
+    // ============================================================
     // PLAYER NAME
-    // =================================================
+    // ============================================================
 
-    public void ConfirmPlayerName(
-        string confirmedName
-    )
+    public void ConfirmPlayerName(string confirmedName)
     {
-        if (string.IsNullOrWhiteSpace(
-                confirmedName
-            ))
-        {
+        if (string.IsNullOrWhiteSpace(confirmedName))
             return;
-        }
 
-        playerName =
-            confirmedName.Trim();
-
+        playerName = confirmedName.Trim();
         nameConfirmed = true;
 
-        if (pages != null &&
-            pages.Length > 0 &&
-            nameConfirmationPage >= 0 &&
-            nameConfirmationPage <
-            pages.Length)
-        {
-            currentPage =
-                nameConfirmationPage;
-        }
+        TutorialProgressManager.SavePlayerName(playerName);
+
+        if (IsValidPage(nameConfirmationPage))
+            currentPage = nameConfirmationPage;
 
         ShowCurrentPage();
     }
 
-    // =================================================
+    // ============================================================
     // PUBLIC CONTROLS
-    // =================================================
+    // ============================================================
 
     public void ResetTutorial()
     {
-        if (pages == null ||
-            pages.Length == 0)
+        if (pages == null || pages.Length == 0)
+            return;
+
+        RestoreSavedProgress();
+
+        tutorialSuppressed =
+            TutorialProgressManager.IntroCompleted;
+
+        currentPage = tutorialSuppressed
+            ? Mathf.Clamp(doorStartPage, 0, pages.Length - 1)
+            : Mathf.Clamp(GetResumePage(), 0, pages.Length - 1);
+
+        keeperVisualInitialized = false;
+        lastAppliedMaskStage = -1;
+
+        if (tutorialSuppressed)
         {
+            HideTutorialPresentation();
+            UpdateTutorialControls();
+            UpdateDarknessMaskWindows();
             return;
         }
 
-        currentPage =
-            Mathf.Clamp(
-                startPage,
-                0,
-                pages.Length - 1
-            );
-
-        nameConfirmed = false;
-        playerName = "";
-
-        movementLeftUsed = false;
-        movementRightUsed = false;
-        movementTutorialCompleted = false;
-
+        presentationVisible = true;
         UpdateKeeperVisual();
         UpdateTutorialControls();
+        UpdateDarknessMaskWindows();
 
-        if (useLocalization &&
-            !localizationReady)
-        {
-            return;
-        }
-
-        ShowCurrentPage();
+        if (!useLocalization || localizationReady)
+            ShowCurrentPage();
     }
 
-    public void GoToPage(
-        int pageIndex
-    )
+    public void GoToPage(int pageIndex)
     {
-        if (pages == null ||
-            pages.Length == 0)
-        {
+        if (tutorialSuppressed ||
+            pages == null ||
+            pages.Length == 0 ||
+            (useLocalization && !localizationReady))
             return;
-        }
 
-        if (useLocalization &&
-            !localizationReady)
-        {
-            return;
-        }
+        int targetPage = Mathf.Clamp(
+            pageIndex, 0, pages.Length - 1
+        );
 
-        int targetPage =
-            Mathf.Clamp(
-                pageIndex,
-                0,
-                pages.Length - 1
-            );
+        if (nameConfirmed && targetPage == nameInputPage)
+            targetPage = nameConfirmationPage;
 
-        if (nameConfirmed &&
-            targetPage == nameInputPage)
-        {
-            targetPage =
-                nameConfirmationPage;
-        }
-
-        currentPage =
-            targetPage;
-
+        currentPage = targetPage;
         ShowCurrentPage();
     }
 
@@ -1155,9 +1249,7 @@ public class TutorialTextController : MonoBehaviour
 
     public int GetPageCount()
     {
-        return pages != null
-            ? pages.Length
-            : 0;
+        return pages != null ? pages.Length : 0;
     }
 
     public bool IsNameConfirmed()
@@ -1172,8 +1264,7 @@ public class TutorialTextController : MonoBehaviour
 
     public bool IsLocalizationReady()
     {
-        return !useLocalization ||
-               localizationReady;
+        return !useLocalization || localizationReady;
     }
 
     public bool IsMovementTutorialCompleted()
@@ -1181,118 +1272,139 @@ public class TutorialTextController : MonoBehaviour
         return movementTutorialCompleted;
     }
 
-    // =================================================
+    public bool IsJumpTutorialCompleted()
+    {
+        return jumpTutorialCompleted;
+    }
+
+    public bool IsKickTutorialCompleted()
+    {
+        return kickTutorialCompleted;
+    }
+
+    public bool IsDoorLessonUnlocked()
+    {
+        return TutorialProgressManager.DoorLessonReached;
+    }
+
+    public bool IsIntroTutorialCompleted()
+    {
+        return TutorialProgressManager.IntroCompleted;
+    }
+
+    // ============================================================
     // DESTROY
-    // =================================================
+    // ============================================================
 
     private void OnDestroy()
     {
         if (nextButton != null)
-        {
-            nextButton.onClick.RemoveListener(
-                NextPage
-            );
-        }
+            nextButton.onClick.RemoveListener(NextPage);
 
         if (previousButton != null)
-        {
-            previousButton.onClick.RemoveListener(
-                PreviousPage
-            );
-        }
+            previousButton.onClick.RemoveListener(PreviousPage);
     }
 
 #if UNITY_EDITOR
 
-    // =================================================
-    // VALIDATE
-    // =================================================
+    // ============================================================
+    // VALIDATION
+    // ============================================================
 
     private void OnValidate()
     {
-        if (startPage < 0)
-            startPage = 0;
+        startPage = Mathf.Max(0, startPage);
 
-        if (nameInputPage < 0)
-            nameInputPage = 0;
+        nameInputPage = Mathf.Max(0, nameInputPage);
+        nameConfirmationPage = Mathf.Max(0, nameConfirmationPage);
 
-        if (nameConfirmationPage < 0)
-            nameConfirmationPage = 0;
+        trainingStartPage = Mathf.Max(0, trainingStartPage);
 
-        if (trainingStartPage < 0)
-            trainingStartPage = 0;
+        rejoicesStartPage = Mathf.Max(0, rejoicesStartPage);
+        rejoicesEndPage = Mathf.Max(
+            rejoicesStartPage, rejoicesEndPage
+        );
 
-        if (movementIntroPage < 0)
-            movementIntroPage = 0;
+        doorStartPage = Mathf.Max(0, doorStartPage);
+        doorEndPage = Mathf.Max(
+            doorStartPage, doorEndPage
+        );
 
-        if (movementPracticePage < 0)
-            movementPracticePage = 0;
+        movementIntroPage = Mathf.Max(0, movementIntroPage);
+        movementPracticePage = Mathf.Max(0, movementPracticePage);
+        movementSuccessPage = Mathf.Max(0, movementSuccessPage);
 
-        if (movementSuccessPage < 0)
-            movementSuccessPage = 0;
+        jumpPracticePage = Mathf.Max(0, jumpPracticePage);
+        jumpSuccessPage = Mathf.Max(0, jumpSuccessPage);
 
-        lockedControlAlpha =
-            Mathf.Clamp01(
-                lockedControlAlpha
-            );
+        kickIntroPage = Mathf.Max(0, kickIntroPage);
+        kickPracticePage = Mathf.Max(0, kickPracticePage);
+        kickSuccessPage = Mathf.Max(0, kickSuccessPage);
 
-        unlockedControlAlpha =
-            Mathf.Clamp01(
-                unlockedControlAlpha
-            );
+        lockedControlAlpha = Mathf.Clamp01(lockedControlAlpha);
+        unlockedControlAlpha = Mathf.Clamp01(unlockedControlAlpha);
 
-        if (pages != null &&
-            pages.Length > 0)
-        {
-            startPage =
-                Mathf.Clamp(
-                    startPage,
-                    0,
-                    pages.Length - 1
-                );
+        if (pages == null || pages.Length == 0)
+            return;
 
-            nameInputPage =
-                Mathf.Clamp(
-                    nameInputPage,
-                    0,
-                    pages.Length - 1
-                );
+        int maxPage = pages.Length - 1;
 
-            nameConfirmationPage =
-                Mathf.Clamp(
-                    nameConfirmationPage,
-                    0,
-                    pages.Length - 1
-                );
+        startPage = Mathf.Clamp(startPage, 0, maxPage);
 
-            trainingStartPage =
-                Mathf.Clamp(
-                    trainingStartPage,
-                    0,
-                    pages.Length - 1
-                );
+        nameInputPage = Mathf.Clamp(nameInputPage, 0, maxPage);
+        nameConfirmationPage = Mathf.Clamp(
+            nameConfirmationPage, 0, maxPage
+        );
 
-            movementIntroPage =
-                Mathf.Clamp(
-                    movementIntroPage,
-                    0,
-                    pages.Length - 1
-                );
+        trainingStartPage = Mathf.Clamp(
+            trainingStartPage, 0, maxPage
+        );
 
-            movementPracticePage =
-                Mathf.Clamp(
-                    movementPracticePage,
-                    0,
-                    pages.Length - 1
-                );
+        rejoicesStartPage = Mathf.Clamp(
+            rejoicesStartPage, 0, maxPage
+        );
 
-            movementSuccessPage =
-                Mathf.Clamp(
-                    movementSuccessPage,
-                    0,
-                    pages.Length - 1
-                );
-        }
+        rejoicesEndPage = Mathf.Clamp(
+            rejoicesEndPage, rejoicesStartPage, maxPage
+        );
+
+        doorStartPage = Mathf.Clamp(doorStartPage, 0, maxPage);
+
+        doorEndPage = Mathf.Clamp(
+            doorEndPage, doorStartPage, maxPage
+        );
+
+        movementIntroPage = Mathf.Clamp(
+            movementIntroPage, 0, maxPage
+        );
+
+        movementPracticePage = Mathf.Clamp(
+            movementPracticePage, 0, maxPage
+        );
+
+        movementSuccessPage = Mathf.Clamp(
+            movementSuccessPage, 0, maxPage
+        );
+
+        jumpPracticePage = Mathf.Clamp(
+            jumpPracticePage, 0, maxPage
+        );
+
+        jumpSuccessPage = Mathf.Clamp(
+            jumpSuccessPage, 0, maxPage
+        );
+
+        kickIntroPage = Mathf.Clamp(
+            kickIntroPage, 0, maxPage
+        );
+
+        kickPracticePage = Mathf.Clamp(
+            kickPracticePage, 0, maxPage
+        );
+
+        kickSuccessPage = Mathf.Clamp(
+            kickSuccessPage, 0, maxPage
+        );
     }
 
 #endif
