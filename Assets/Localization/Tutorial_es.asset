@@ -128,6 +128,26 @@ MonoBehaviour:
     m_Localized: "Ac\xE9rcate y ag\xE1rrate a los pelda\xF1os."
     m_Metadata:
       m_Items: []
+  - m_Id: 6140589537964032
+    m_Localized: "\xBFVes las flechas hacia arriba y hacia abajo?"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6144760567771136
+    m_Localized: Prueba a subir y bajar.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6145098473484288
+    m_Localized: "\xA1Muy bien! \xBFVes el palo que est\xE1 arriba?"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6145643238076416
+    m_Localized: "Sube y ac\xE9rcate a \xE9l."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6178152562765824
+    m_Localized: "Para subir de un salto, pulsa Salto + \u2192"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

@@ -183,6 +183,15 @@ public class TutorialTextController : MonoBehaviour
     [SerializeField] private PrisonDarknessMask prisonDarknessMask;
 
     // ============================================================
+    // 17 - AUTOSAVE - MAIN KEEPER
+    // ============================================================
+
+    [Header("AUTOSAVE - MAIN KEEPER")]
+    [Tooltip("Remember the exact right Keeper dialogue page. " +
+             "Existing lesson progress is preserved.")]
+    [SerializeField] private bool enableExactPageAutosave = true;
+
+    // ============================================================
     // PRIVATE STATE
     // ============================================================
 
@@ -331,12 +340,42 @@ public class TutorialTextController : MonoBehaviour
         kickTutorialCompleted =
             TutorialProgressManager.KickCompleted;
 
-        movementLeftUsed = movementTutorialCompleted;
-        movementRightUsed = movementTutorialCompleted;
+        movementLeftUsed = movementTutorialCompleted ||
+            TutorialProgressManager.MovementLeftUsed;
+
+        movementRightUsed = movementTutorialCompleted ||
+            TutorialProgressManager.MovementRightUsed;
     }
 
     private int GetResumePage()
     {
+        // The exact page is preferred when a saved page exists.
+        // Legacy saves without a page still use the original
+        // milestone-based resume logic below.
+        if (enableExactPageAutosave &&
+            TutorialProgressManager.HasSavedMainTutorialPage)
+        {
+            int savedPage = TutorialProgressManager.SavedMainTutorialPage;
+
+            if (IsValidPage(savedPage))
+            {
+                // Do not skip name entry with an old saved page.
+                if (!nameConfirmed)
+                {
+                    if (savedPage <= nameInputPage)
+                        return savedPage;
+                }
+                else
+                {
+                    // Once the name is confirmed, don't send the
+                    // player back to the name input field.
+                    return savedPage == nameInputPage
+                        ? nameConfirmationPage
+                        : savedPage;
+                }
+            }
+        }
+
         if (!nameConfirmed)
             return startPage;
 
@@ -637,6 +676,11 @@ public class TutorialTextController : MonoBehaviour
         if (currentPage >= doorStartPage)
             TutorialProgressManager.ReachDoorLesson();
 
+        // Save on each real page change (and on first display),
+        // not only on application quit. This is reliable on mobile.
+        if (enableExactPageAutosave)
+            TutorialProgressManager.SaveMainTutorialPage(currentPage);
+
         bool shouldShowNameInput =
             !nameConfirmed && currentPage == nameInputPage;
 
@@ -689,11 +733,17 @@ public class TutorialTextController : MonoBehaviour
             movementTutorialCompleted)
             return;
 
-        if (horizontalInput < -0.001f)
+        if (horizontalInput < -0.001f && !movementLeftUsed)
+        {
             movementLeftUsed = true;
+            TutorialProgressManager.MarkMovementLeftUsed();
+        }
 
-        if (horizontalInput > 0.001f)
+        if (horizontalInput > 0.001f && !movementRightUsed)
+        {
             movementRightUsed = true;
+            TutorialProgressManager.MarkMovementRightUsed();
+        }
 
         if (movementLeftUsed && movementRightUsed)
             CompleteMovementTutorial();

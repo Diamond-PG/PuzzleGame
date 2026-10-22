@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -313,6 +312,20 @@ public class PrisonDarknessMask : MonoBehaviour
     private float fullLevelRevealDuration = 2f;
 
     // ============================================================
+    // 17A - AUTOSAVE FULL LEVEL REVEAL
+    // ============================================================
+
+    [Header("AUTOSAVE - FULL LEVEL REVEAL")]
+
+    [Tooltip(
+        "If the prison door was destroyed in a previous session, " +
+        "open the entire level immediately when loading the scene. " +
+        "The normal first-time reveal animation is unchanged."
+    )]
+    [SerializeField]
+    private bool restoreFullRevealFromAutosave = true;
+
+    // ============================================================
     // 18 - KEEPER FADE SYNCHRONIZATION
     // ============================================================
 
@@ -437,7 +450,16 @@ public class PrisonDarknessMask : MonoBehaviour
             showKickWindow = false;
         }
 
-        if (showMaskOnStart)
+        // The saved door state belongs to the previous play session.
+        // We must not replay the black mask or the fade after loading.
+        // Restore in Awake so other components can read the completed
+        // reveal state as soon as their Start/Update methods run.
+        if (restoreFullRevealFromAutosave &&
+            TutorialProgressManager.DoorBroken)
+        {
+            RestoreFullRevealImmediatelyFromAutosave();
+        }
+        else if (showMaskOnStart)
         {
             RefreshMask();
         }
@@ -484,8 +506,37 @@ public class PrisonDarknessMask : MonoBehaviour
 
         Canvas.ForceUpdateCanvases();
 
-        if (showMaskOnStart)
+        // Never re-create the prison darkness for a completed save.
+        if (showMaskOnStart && !fullLevelRevealCompleted)
             RefreshMask();
+    }
+
+    // ============================================================
+    // 18A - RESTORE FULL REVEAL AFTER LOADING A BROKEN DOOR
+    // ============================================================
+
+    private void RestoreFullRevealImmediatelyFromAutosave()
+    {
+        // The door's own script restores its broken sprite and collider.
+        // This component restores only the level visibility and the
+        // completion flags watched by the LEFT Keeper tutorial.
+        // Do not start the celebration, door-reveal or fade coroutines.
+        doorRevealStarted = true;
+        doorRevealCompleted = true;
+        doorRevealProgress = 1f;
+
+        fullLevelRevealStarted = true;
+        fullLevelRevealCompleted = true;
+        fullLevelMaskOpacity = 0f;
+
+        if (maskImage == null)
+            maskImage = GetComponent<RawImage>();
+
+        if (maskImage != null)
+        {
+            ApplyMaskOpacity();
+            maskImage.enabled = false;
+        }
     }
 
     // ============================================================

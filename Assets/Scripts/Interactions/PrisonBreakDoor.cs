@@ -160,6 +160,14 @@ public class PrisonBreakDoor : MonoBehaviour
     [SerializeField] private bool skipPrisonIntroForTesting = false;
 
     // ============================================================
+    // 15A. DOOR AUTOSAVE
+    // ============================================================
+
+    [Header("DOOR AUTOSAVE")]
+    [Tooltip("Automatically save partial door damage and restore door state after reopening the game. Leave enabled for normal gameplay.")]
+    [SerializeField] private bool enableDoorAutosave = true;
+
+    // ============================================================
     // 15. DEBUG
     // ============================================================
 
@@ -176,11 +184,18 @@ public class PrisonBreakDoor : MonoBehaviour
 
     private bool doorUnlockedByTutorial;
 
+    // True only when the broken door was restored from a permanent save.
+    // The darkness-mask restoration will use this on the next step.
+    private bool restoredBrokenDoorFromSave;
+
     private Vector3 originalLocalPosition;
     private Vector3 originalLocalScale;
     private Quaternion originalLocalRotation;
 
     public bool IsBroken => isBroken;
+
+    // Allows the darkness mask to tell a real-time break from a loaded save.
+    public bool WasRestoredBrokenFromSave => restoredBrokenDoorFromSave;
 
     // ============================================================
     // AWAKE
@@ -240,6 +255,15 @@ public class PrisonBreakDoor : MonoBehaviour
             return;
         }
 
+        // Restore a permanently broken door without replaying the
+        // eighth kick, wood chips, celebration, sound or haptics.
+        if (enableDoorAutosave && TutorialProgressManager.DoorBroken)
+        {
+            RestoreBrokenDoorFromAutosave();
+            return;
+        }
+
+        // Also restores partial damage using SavedDoorHits.
         ResetDoorState();
     }
 
@@ -372,6 +396,13 @@ public class PrisonBreakDoor : MonoBehaviour
 
         hits += Mathf.Max(1, damage);
         hits = Mathf.Min(hits, hitsToBreak);
+
+        // Save accepted, non-final hits immediately, so leaving the
+        // game mid-animation does not erase actual door progress.
+        // The final hit is saved only via MarkDoorBroken after the
+        // real destruction sequence has completed.
+        if (enableDoorAutosave && hits < hitsToBreak)
+            TutorialProgressManager.SaveDoorHits(hits);
 
         if (debugLogs)
         {
@@ -1013,6 +1044,43 @@ public class PrisonBreakDoor : MonoBehaviour
 
     private void ApplyBrokenStateForTesting()
     {
+        ApplyBrokenStateImmediately();
+
+        if (debugLogs)
+        {
+            Debug.Log(
+                "PrisonBreakDoor: тестовый старт. Дверь разрушена.",
+                this
+            );
+        }
+    }
+
+    // ============================================================
+    // RESTORE PERMANENT DOOR AUTOSAVE
+    // ============================================================
+
+    private void RestoreBrokenDoorFromAutosave()
+    {
+        restoredBrokenDoorFromSave = true;
+        doorUnlockedByTutorial = true;
+
+        ApplyBrokenStateImmediately();
+
+        // No celebration, movement lock, chips, sound or haptics here.
+        // The saved LEFT Keeper tutorial state is handled separately.
+        if (debugLogs)
+        {
+            Debug.Log(
+                "PrisonBreakDoor: broken door restored from autosave.",
+                this
+            );
+        }
+    }
+
+    // Applies the same physical state to Editor testing and save loading,
+    // without simulating an eighth kick or writing any PlayerPrefs.
+    private void ApplyBrokenStateImmediately()
+    {
         StopAllCoroutines();
 
         hits = hitsToBreak;
@@ -1035,14 +1103,6 @@ public class PrisonBreakDoor : MonoBehaviour
 
         if (blackBackground != null)
             blackBackground.SetActive(false);
-
-        if (debugLogs)
-        {
-            Debug.Log(
-                "PrisonBreakDoor: тестовый старт. Дверь разрушена.",
-                this
-            );
-        }
     }
 
     // ============================================================
@@ -1053,9 +1113,17 @@ public class PrisonBreakDoor : MonoBehaviour
     {
         StopAllCoroutines();
 
-        hits = 0;
+        hits = enableDoorAutosave
+            ? Mathf.Clamp(
+                TutorialProgressManager.SavedDoorHits,
+                0,
+                hitsToBreak - 1
+              )
+            : 0;
+
         isBusy = false;
         isBroken = false;
+        restoredBrokenDoorFromSave = false;
 
         doorUnlockedByTutorial =
             TutorialProgressManager.DoorLessonReached;
@@ -1067,7 +1135,12 @@ public class PrisonBreakDoor : MonoBehaviour
             doorSpriteRenderer.enabled = true;
             doorSpriteRenderer.color = Color.white;
 
-            if (intactSprite != null)
+            // Use the damaged visual if the player previously reached
+            // the configured damage threshold (not necessarily exactly
+            // on the hit number used when saving).
+            if (hits >= damagedSpriteHit && damagedSprite != null)
+                doorSpriteRenderer.sprite = damagedSprite;
+            else if (intactSprite != null)
                 doorSpriteRenderer.sprite = intactSprite;
         }
 

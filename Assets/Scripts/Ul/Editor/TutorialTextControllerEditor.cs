@@ -134,6 +134,15 @@ public class TutorialTextControllerEditor : Editor
             new Section(
                 "DARKNESS MASK TUTORIAL WINDOWS",
                 "prisonDarknessMask"
+            ),
+
+            // ====================================================
+            // NEW - AUTOSAVE RIGHT KEEPER PAGE
+            // ====================================================
+
+            new Section(
+                "AUTOSAVE - MAIN KEEPER",
+                "enableExactPageAutosave"
             )
         };
 

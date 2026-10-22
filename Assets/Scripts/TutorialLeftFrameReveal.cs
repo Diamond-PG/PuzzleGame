@@ -39,6 +39,61 @@ public class TutorialLeftFrameReveal : MonoBehaviour
     private PlayerController playerController;
 
     // ============================================================
+    // KEEPER - TWO INDEPENDENT POSES
+    // ============================================================
+
+    [Header("KEEPER - UI REFERENCES")]
+
+    [Tooltip("Image component on PuzzleKeeper_Left. Auto-found if empty.")]
+    [SerializeField]
+    private Image keeperImage;
+
+    [Tooltip("RectTransform of KeeperPuzzleIcon. Auto-found if empty.")]
+    [SerializeField]
+    private RectTransform keeperPuzzleIconRect;
+
+    [System.Serializable]
+    private class KeeperPoseSettings
+    {
+        [Tooltip("Keeper sprite for this pose. For the happy pose, None uses the original sprite.")]
+        public Sprite keeperSprite;
+
+        [Header("Keeper position, size, rotation and scale")]
+        public Vector2 keeperPosition = new Vector2(134.8f, -221f);
+        public Vector2 keeperSize = new Vector2(230f, 230f);
+        public float keeperRotationZ = 0f;
+        public Vector2 keeperScale = Vector2.one;
+
+        [Header("Blue puzzle position, size, rotation and scale")]
+        public Vector2 puzzlePosition = new Vector2(6.9f, -63.8f);
+        public Vector2 puzzleSize = new Vector2(27f, 27f);
+        public float puzzleRotationZ = 20f;
+        public Vector2 puzzleScale = Vector2.one;
+    }
+
+    [Header("KEEPER - HAPPY POSE (TUTORIAL 23)")]
+
+    [Tooltip(
+        "ON (recommended): preserve the exact appearance already set " +
+        "on PuzzleKeeper_Left and KeeperPuzzleIcon in the scene. " +
+        "OFF: use the Happy Pose values below."
+    )]
+    [SerializeField]
+    private bool preserveOriginalHappyPose = true;
+
+    [SerializeField]
+    private KeeperPoseSettings happyPose = new KeeperPoseSettings();
+
+    [Header("KEEPER - POINTING POSE (TUTORIAL 24 AND 25)")]
+
+    [Tooltip(
+        "Choose the existing Guardian sprite pointing slightly upward. " +
+        "Keeper and blue puzzle each have their own pose settings."
+    )]
+    [SerializeField]
+    private KeeperPoseSettings pointingPose = new KeeperPoseSettings();
+
+    // ============================================================
     // 02 - LEFT FRAME APPEARANCE
     // ============================================================
 
@@ -202,6 +257,20 @@ public class TutorialLeftFrameReveal : MonoBehaviour
         "Подойди к ней и ухватись за скобы.";
 
     // ============================================================
+    // 06A - AUTOSAVE - LEFT KEEPER
+    // ============================================================
+
+    [Header("AUTOSAVE - LEFT KEEPER")]
+
+    [Tooltip(
+        "Save and restore the exact left Keeper stage: " +
+        "tutorial_23, tutorial_24, tutorial_25 or walk to ladder. " +
+        "Does not change the configured keeper poses or ladder spotlight."
+    )]
+    [SerializeField]
+    private bool enableExactLeftStageAutosave = true;
+
+    // ============================================================
     // 07 - PRIVATE STATE
     // ============================================================
 
@@ -216,6 +285,11 @@ public class TutorialLeftFrameReveal : MonoBehaviour
 
     private TutorialStage currentStage =
         TutorialStage.WaitingForReveal;
+
+    // Read only when the scene starts. Do not alter the saved stage
+    // while waiting for the camera or localization to become ready.
+    private TutorialStage stageToRestoreAfterReveal =
+        TutorialStage.Greeting;
 
     private CanvasGroup frameCanvasGroup;
 
@@ -253,6 +327,21 @@ public class TutorialLeftFrameReveal : MonoBehaviour
 
     private bool warnedMissingLadder;
     private bool warnedCameraTimeout;
+    private bool warnedMissingKeeperPointingSprite;
+
+    // Capture actual scene values, so the existing joyful pose
+    // remains pixel-identical by default.
+    private Sprite originalKeeperSprite;
+    private Vector2 originalKeeperPosition;
+    private Vector2 originalKeeperSize;
+    private Quaternion originalKeeperRotation;
+    private Vector3 originalKeeperScale;
+
+    private Vector2 originalPuzzlePosition;
+    private Vector2 originalPuzzleSize;
+    private Quaternion originalPuzzleRotation;
+    private Vector3 originalPuzzleScale;
+    private bool originalKeeperPoseCaptured;
 
     // ============================================================
     // 08 - PUBLIC STATE
@@ -277,6 +366,8 @@ public class TutorialLeftFrameReveal : MonoBehaviour
             GetComponent<CanvasGroup>();
 
         FindReferences();
+
+        CaptureOriginalKeeperPose();
 
         frameCanvasGroup.alpha = 0f;
         frameCanvasGroup.interactable = false;
@@ -398,6 +489,26 @@ public class TutorialLeftFrameReveal : MonoBehaviour
         {
             playerController = FindFirstObjectByType<PlayerController>();
         }
+
+        // Keeper sits directly inside TutorialFrame_Left.
+        // The blue puzzle is a child of the keeper.
+        if (keeperImage == null)
+        {
+            Transform keeperObject = transform.Find("PuzzleKeeper_Left");
+
+            if (keeperObject != null)
+                keeperImage = keeperObject.GetComponent<Image>();
+        }
+
+        if (keeperPuzzleIconRect == null && keeperImage != null)
+        {
+            Transform puzzleObject =
+                keeperImage.transform.Find("KeeperPuzzleIcon");
+
+            if (puzzleObject != null)
+                keeperPuzzleIconRect =
+                    puzzleObject.GetComponent<RectTransform>();
+        }
     }
 
     // ============================================================
@@ -492,6 +603,8 @@ public class TutorialLeftFrameReveal : MonoBehaviour
 
         currentStage =
             TutorialStage.WaitingForReveal;
+
+        stageToRestoreAfterReveal = GetSavedLeftStage();
 
         started = true;
 
@@ -661,11 +774,40 @@ public class TutorialLeftFrameReveal : MonoBehaviour
         // START GREETING / DIMMING / PAUSE TOGETHER
         // ========================================================
 
-        currentStage = TutorialStage.Greeting;
+        currentStage = stageToRestoreAfterReveal;
 
+        ApplyKeeperPose(currentStage != TutorialStage.Greeting);
         ShowCurrentStageText();
 
-        if (dimScreenDuringGreeting)
+        // On reload after tutorial_25 the hero is already free to
+        // approach the ladder. Keep the Keeper visible, without
+        // reintroducing a pause, darkness or navigation arrow.
+        if (currentStage == TutorialStage.WalkToLadder)
+        {
+            HideDimmer();
+            ResumeGame();
+            UnlockPlayerHorizontalMovement();
+            SetArrowPulse(false);
+
+            tutorialNextButtonLeft.gameObject.SetActive(false);
+            frameCanvasGroup.alpha = 1f;
+            frameCanvasGroup.interactable = false;
+            frameCanvasGroup.blocksRaycasts = false;
+
+            appearanceFinished = true;
+            appearanceRoutine = null;
+            SaveCurrentLeftStage();
+            yield break;
+        }
+
+        // Restored tutorial_24 and tutorial_25 show the same exact
+        // ladder spotlight and pointing pose as ordinary navigation.
+        if (currentStage == TutorialStage.LadderQuestion ||
+            currentStage == TutorialStage.LadderInstruction)
+        {
+            ShowLadderDimmer();
+        }
+        else if (dimScreenDuringGreeting)
         {
             ShowNormalDimmer();
         }
@@ -674,6 +816,8 @@ public class TutorialLeftFrameReveal : MonoBehaviour
         {
             PauseGame();
         }
+
+        SaveCurrentLeftStage();
 
         // Fade in the left frame.
         // Time.unscaledDeltaTime keeps this animation
@@ -810,6 +954,63 @@ public class TutorialLeftFrameReveal : MonoBehaviour
     }
 
     // ============================================================
+    // AUTOSAVE - EXACT LEFT KEEPER STAGE
+    // ============================================================
+
+    private TutorialStage GetSavedLeftStage()
+    {
+        // The left Keeper belongs to the story AFTER the door breaks.
+        // On a fresh playthrough always begin with tutorial_23.
+        if (!enableExactLeftStageAutosave ||
+            !TutorialProgressManager.DoorBroken ||
+            !TutorialProgressManager.HasSavedLeftTutorialStage)
+        {
+            return TutorialStage.Greeting;
+        }
+
+        int saved = TutorialProgressManager.SavedLeftTutorialStage;
+
+        if (saved == (int)TutorialStage.Greeting ||
+            saved == (int)TutorialStage.LadderQuestion ||
+            saved == (int)TutorialStage.LadderInstruction)
+        {
+            return (TutorialStage)saved;
+        }
+
+        // Also tolerate stages added by a future ladder tutorial:
+        // this older controller must not force the story backward.
+        if (saved >= (int)TutorialStage.WalkToLadder)
+        {
+            return TutorialStage.WalkToLadder;
+        }
+
+        return TutorialStage.Greeting;
+    }
+
+    private void SaveCurrentLeftStage()
+    {
+        if (!enableExactLeftStageAutosave ||
+            !TutorialProgressManager.DoorBroken ||
+            currentStage == TutorialStage.WaitingForReveal)
+        {
+            return;
+        }
+
+        // A future controller can own higher stage numbers. Do not
+        // overwrite a newer checkpoint with this controller's stage 4.
+        if (TutorialProgressManager.HasSavedLeftTutorialStage &&
+            TutorialProgressManager.SavedLeftTutorialStage >
+                (int)TutorialStage.WalkToLadder)
+        {
+            return;
+        }
+
+        TutorialProgressManager.SaveLeftTutorialStage(
+            (int)currentStage
+        );
+    }
+
+    // ============================================================
     // 19 - NEXT BUTTON
     // ============================================================
 
@@ -830,11 +1031,14 @@ public class TutorialLeftFrameReveal : MonoBehaviour
                 currentStage =
                     TutorialStage.LadderQuestion;
 
+                ApplyKeeperPose(true);
                 ShowCurrentStageText();
 
                 ShowLadderDimmer();
 
                 SetArrowPulse(true);
+
+                SaveCurrentLeftStage();
 
                 break;
 
@@ -845,11 +1049,14 @@ public class TutorialLeftFrameReveal : MonoBehaviour
                 currentStage =
                     TutorialStage.LadderInstruction;
 
+                ApplyKeeperPose(true);
                 ShowCurrentStageText();
 
                 ShowLadderDimmer();
 
                 SetArrowPulse(true);
+
+                SaveCurrentLeftStage();
 
                 break;
 
@@ -881,6 +1088,8 @@ public class TutorialLeftFrameReveal : MonoBehaviour
                 frameCanvasGroup.blocksRaycasts =
                     false;
 
+                SaveCurrentLeftStage();
+
                 break;
         }
     }
@@ -905,6 +1114,137 @@ public class TutorialLeftFrameReveal : MonoBehaviour
                 "Cannot unlock horizontal movement after tutorial_25.",
                 this
             );
+        }
+    }
+
+    // ============================================================
+    // KEEPER - CAPTURE ORIGINAL HAPPY APPEARANCE
+    // ============================================================
+
+    private void CaptureOriginalKeeperPose()
+    {
+        if (keeperImage == null)
+            return;
+
+        RectTransform keeperRect = keeperImage.rectTransform;
+
+        if (keeperRect == null)
+            return;
+
+        originalKeeperSprite = keeperImage.sprite;
+        originalKeeperPosition = keeperRect.anchoredPosition;
+        originalKeeperSize = keeperRect.sizeDelta;
+        originalKeeperRotation = keeperRect.localRotation;
+        originalKeeperScale = keeperRect.localScale;
+
+        if (keeperPuzzleIconRect != null)
+        {
+            originalPuzzlePosition = keeperPuzzleIconRect.anchoredPosition;
+            originalPuzzleSize = keeperPuzzleIconRect.sizeDelta;
+            originalPuzzleRotation = keeperPuzzleIconRect.localRotation;
+            originalPuzzleScale = keeperPuzzleIconRect.localScale;
+        }
+
+        originalKeeperPoseCaptured = true;
+    }
+
+    // ============================================================
+    // KEEPER - APPLY HAPPY OR POINTING POSE
+    // ============================================================
+
+    private void ApplyKeeperPose(bool showPointing)
+    {
+        if (keeperImage == null)
+            FindReferences();
+
+        if (keeperImage == null)
+            return;
+
+        if (showPointing &&
+            (pointingPose == null || pointingPose.keeperSprite == null))
+        {
+            // Avoid moving the keeper or puzzle if the pointing
+            // sprite has not yet been assigned in the Inspector.
+            if (!warnedMissingKeeperPointingSprite)
+            {
+                Debug.LogWarning(
+                    "TutorialLeftFrameReveal: assign the existing " +
+                    "upward-pointing Guardian sprite in " +
+                    "KEEPER - POINTING POSE.",
+                    this
+                );
+
+                warnedMissingKeeperPointingSprite = true;
+            }
+
+            return;
+        }
+
+        if (!showPointing && preserveOriginalHappyPose &&
+            originalKeeperPoseCaptured)
+        {
+            RestoreOriginalKeeperPose();
+            return;
+        }
+
+        KeeperPoseSettings pose = showPointing ? pointingPose : happyPose;
+
+        if (pose == null)
+            return;
+
+        RectTransform keeperRect = keeperImage.rectTransform;
+        keeperImage.sprite = pose.keeperSprite != null
+            ? pose.keeperSprite
+            : originalKeeperSprite;
+
+        keeperRect.anchoredPosition = pose.keeperPosition;
+        keeperRect.sizeDelta = new Vector2(
+            Mathf.Max(1f, pose.keeperSize.x),
+            Mathf.Max(1f, pose.keeperSize.y)
+        );
+        keeperRect.localRotation = Quaternion.Euler(
+            0f, 0f, pose.keeperRotationZ
+        );
+        keeperRect.localScale = new Vector3(
+            pose.keeperScale.x, pose.keeperScale.y,
+            originalKeeperPoseCaptured ? originalKeeperScale.z : 1f
+        );
+
+        if (keeperPuzzleIconRect != null)
+        {
+            keeperPuzzleIconRect.anchoredPosition = pose.puzzlePosition;
+            keeperPuzzleIconRect.sizeDelta = new Vector2(
+                Mathf.Max(1f, pose.puzzleSize.x),
+                Mathf.Max(1f, pose.puzzleSize.y)
+            );
+            keeperPuzzleIconRect.localRotation = Quaternion.Euler(
+                0f, 0f, pose.puzzleRotationZ
+            );
+            keeperPuzzleIconRect.localScale = new Vector3(
+                pose.puzzleScale.x, pose.puzzleScale.y,
+                originalKeeperPoseCaptured ? originalPuzzleScale.z : 1f
+            );
+        }
+    }
+
+    private void RestoreOriginalKeeperPose()
+    {
+        if (keeperImage == null || !originalKeeperPoseCaptured)
+            return;
+
+        RectTransform keeperRect = keeperImage.rectTransform;
+        keeperImage.sprite = originalKeeperSprite;
+        keeperRect.anchoredPosition = originalKeeperPosition;
+        keeperRect.sizeDelta = originalKeeperSize;
+        keeperRect.localRotation = originalKeeperRotation;
+        keeperRect.localScale = originalKeeperScale;
+
+        if (keeperPuzzleIconRect != null)
+        {
+            keeperPuzzleIconRect.anchoredPosition = originalPuzzlePosition;
+            keeperPuzzleIconRect.sizeDelta = originalPuzzleSize;
+            keeperPuzzleIconRect.localRotation = originalPuzzleRotation;
+            keeperPuzzleIconRect.localScale = originalPuzzleScale;
         }
     }
 

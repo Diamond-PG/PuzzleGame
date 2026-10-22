@@ -914,6 +914,7 @@ MonoBehaviour:
   lockedControlAlpha: 0.3
   unlockedControlAlpha: 1
   prisonDarknessMask: {fileID: 2039153962}
+  enableExactPageAutosave: 1
 --- !u!114 &18069330
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1557,6 +1558,7 @@ GameObject:
   - component: {fileID: 51118973}
   - component: {fileID: 51118972}
   - component: {fileID: 51118971}
+  - component: {fileID: 51118974}
   m_Layer: 5
   m_Name: TutorialPreviousButton
   m_TagString: Untagged
@@ -1665,6 +1667,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 51118969}
   m_CullTransparentMesh: 1
+--- !u!114 &51118974
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 51118969}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79485b106da2e614391cd756cceed1ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UIHapticsOnPress
+  enable: 1
+  mobileOnly: 1
 --- !u!1 &53205905
 GameObject:
   m_ObjectHideFlags: 0
@@ -14373,6 +14389,7 @@ MonoBehaviour:
   playerCelebrationVolume: 1
   playerCelebrationDelay: 0
   skipPrisonIntroForTesting: 0
+  enableDoorAutosave: 1
   debugLogs: 0
 --- !u!82 &499127401
 AudioSource:
@@ -16032,6 +16049,7 @@ GameObject:
   - component: {fileID: 610955515}
   - component: {fileID: 610955518}
   - component: {fileID: 610955517}
+  - component: {fileID: 610955519}
   m_Layer: 5
   m_Name: TutorialFrame_Left
   m_TagString: Untagged
@@ -16118,6 +16136,29 @@ MonoBehaviour:
   tutorialNextButtonLeft: {fileID: 1044552962}
   nextArrowPulse: {fileID: 1044552959}
   playerController: {fileID: 0}
+  keeperImage: {fileID: 233771945}
+  keeperPuzzleIconRect: {fileID: 1525713185}
+  preserveOriginalHappyPose: 1
+  happyPose:
+    keeperSprite: {fileID: 21300000, guid: 27682df6b5f38324bbbcfd81c521a124, type: 3}
+    keeperPosition: {x: 134.8, y: -221}
+    keeperSize: {x: 230, y: 230}
+    keeperRotationZ: 0
+    keeperScale: {x: 1, y: 1}
+    puzzlePosition: {x: 6.9, y: -63.8}
+    puzzleSize: {x: 27, y: 27}
+    puzzleRotationZ: 20
+    puzzleScale: {x: 1, y: 1}
+  pointingPose:
+    keeperSprite: {fileID: 21300000, guid: c24132fb019defe4e8e9eafdf59f0e7f, type: 3}
+    keeperPosition: {x: 134.8, y: -221}
+    keeperSize: {x: 230, y: 230}
+    keeperRotationZ: 0
+    keeperScale: {x: 1, y: 1}
+    puzzlePosition: {x: -17, y: -62}
+    puzzleSize: {x: 27, y: 27}
+    puzzleRotationZ: 20
+    puzzleScale: {x: 1, y: 1}
   appearanceDelay: 0.2
   appearanceDuration: 0.8
   useUnscaledTime: 1
@@ -16152,6 +16193,7 @@ MonoBehaviour:
   grabLadderKey: tutorial_25
   grabLadderFallback: "\u041F\u043E\u0434\u043E\u0439\u0434\u0438 \u043A \u043D\u0435\u0439
     \u0438 \u0443\u0445\u0432\u0430\u0442\u0438\u0441\u044C \u0437\u0430 \u0441\u043A\u043E\u0431\u044B."
+  enableExactLeftStageAutosave: 1
 --- !u!225 &610955518
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -16164,6 +16206,84 @@ CanvasGroup:
   m_Interactable: 0
   m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
+--- !u!114 &610955519
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 610955513}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 472294bb19615314d84c95b96202d2b7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TutorialClimbLesson
+  leftFrame: {fileID: 610955517}
+  leftTutorialText: {fileID: 277639956}
+  tutorialDimmer: {fileID: 1518919445}
+  mobileInput: {fileID: 183108814}
+  playerController: {fileID: 1904351161}
+  upButtonGraphic: {fileID: 29769250}
+  downButtonGraphic: {fileID: 1040143514}
+  stickTarget: {fileID: 1284557354}
+  worldCamera: {fileID: 519420031}
+  stickPadding: 0.0008
+  minimumStickWindowWidth: 0.1
+  minimumStickWindowHeight: 0.12
+  requiredTravelEachDirection: 0.12
+  pauseUntilFirstVerticalPress: 1
+  textureResolution: 256
+  windowPadding: 0.012
+  arrowSpotlightScale: 0.72
+  windowSoftness: 0.012
+  localizationTable: Tutorial
+  arrowsQuestionKey: tutorial_26
+  arrowsQuestionFallback: "\u0412\u0438\u0434\u0438\u0448\u044C \u0441\u0442\u0440\u0435\u043B\u043A\u0438
+    \u0432\u0432\u0435\u0440\u0445 \u0438 \u0432\u043D\u0438\u0437?"
+  climbPracticeKey: tutorial_27
+  climbPracticeFallback: "\u041F\u043E\u043F\u0440\u043E\u0431\u0443\u0439 \u043F\u043E\u0434\u043D\u044F\u0442\u044C\u0441\u044F
+    \u0438 \u0441\u043F\u0443\u0441\u0442\u0438\u0442\u044C\u0441\u044F."
+  stickQuestionKey: tutorial_28
+  stickQuestionFallback: "\u041E\u0442\u043B\u0438\u0447\u043D\u043E! \u0412\u0438\u0434\u0438\u0448\u044C
+    \u043F\u0430\u043B\u043A\u0443 \u043D\u0430\u0432\u0435\u0440\u0445\u0443?"
+  stickApproachKey: tutorial_29
+  stickApproachFallback: "\u041F\u043E\u0434\u043D\u0438\u043C\u0438\u0441\u044C
+    \u0438 \u043F\u043E\u0434\u043E\u0439\u0434\u0438 \u043A \u043D\u0435\u0439."
+  jumpHintKey: tutorial_30
+  jumpHintFallback: "\u0427\u0442\u043E\u0431\u044B \u0437\u0430\u043F\u0440\u044B\u0433\u043D\u0443\u0442\u044C,
+    \u043D\u0430\u0436\u043C\u0438 \u041F\u0440\u044B\u0436\u043E\u043A + \u2192"
+  keeperImage: {fileID: 233771945}
+  keeperPuzzleIcon: {fileID: 1525713185}
+  downPointingPose:
+    keeperSprite: {fileID: 21300000, guid: 0919c573b8030a9469f98764b3459c31, type: 3}
+    keeperPosition: {x: 134.8, y: -221}
+    keeperSize: {x: 230, y: 230}
+    keeperRotationZ: 0
+    keeperScale: {x: 1, y: 1}
+    puzzlePosition: {x: 3, y: -61.8}
+    puzzleSize: {x: 27, y: 27}
+    puzzleRotationZ: 20
+    puzzleScale: {x: 1, y: 1}
+  sidePointingPose:
+    keeperSprite: {fileID: 21300000, guid: c24132fb019defe4e8e9eafdf59f0e7f, type: 3}
+    keeperPosition: {x: 134.8, y: -221}
+    keeperSize: {x: 230, y: 230}
+    keeperRotationZ: 0
+    keeperScale: {x: 1, y: 1}
+    puzzlePosition: {x: -17, y: -62}
+    puzzleSize: {x: 27, y: 27}
+    puzzleRotationZ: 20
+    puzzleScale: {x: 1, y: 1}
+  openPalmPose:
+    keeperSprite: {fileID: 21300000, guid: 83884512de509784488a476f6b30f331, type: 3}
+    keeperPosition: {x: 134.8, y: -221}
+    keeperSize: {x: 230, y: 230}
+    keeperRotationZ: 0
+    keeperScale: {x: 1, y: 1}
+    puzzlePosition: {x: -13, y: -63.8}
+    puzzleSize: {x: 27, y: 27}
+    puzzleRotationZ: 20
+    puzzleScale: {x: 1, y: 1}
 --- !u!1 &613771820
 GameObject:
   m_ObjectHideFlags: 0
@@ -23031,6 +23151,7 @@ GameObject:
   - component: {fileID: 1044552961}
   - component: {fileID: 1044552960}
   - component: {fileID: 1044552959}
+  - component: {fileID: 1044552965}
   m_Layer: 5
   m_Name: TutorialNextButton_Left
   m_TagString: Untagged
@@ -23196,6 +23317,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1044552957}
   m_CullTransparentMesh: 1
+--- !u!114 &1044552965
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1044552957}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79485b106da2e614391cd756cceed1ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UIHapticsOnPress
+  enable: 1
+  mobileOnly: 1
 --- !u!1 &1049818291
 GameObject:
   m_ObjectHideFlags: 0
@@ -26095,6 +26230,7 @@ GameObject:
   - component: {fileID: 1241655367}
   - component: {fileID: 1241655368}
   - component: {fileID: 1241655369}
+  - component: {fileID: 1241655370}
   m_Layer: 5
   m_Name: TutorialNextButton
   m_TagString: Untagged
@@ -26260,6 +26396,20 @@ MonoBehaviour:
   pulsePeriod: 1.2
   useUnscaledTime: 1
   pulsePages: 000000000d0000000f00000011000000120000001400000018000000
+--- !u!114 &1241655370
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1241655362}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79485b106da2e614391cd756cceed1ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UIHapticsOnPress
+  enable: 1
+  mobileOnly: 1
 --- !u!1 &1274150873
 GameObject:
   m_ObjectHideFlags: 0
@@ -41309,6 +41459,7 @@ MonoBehaviour:
   automaticFullLevelReveal: 1
   fullLevelRevealDelay: 0.9
   fullLevelRevealDuration: 2
+  restoreFullRevealFromAutosave: 1
   fadeKeeperWithLevel: 1
   tutorialKeeperFade: {fileID: 408873395}
 --- !u!114 &2039153963

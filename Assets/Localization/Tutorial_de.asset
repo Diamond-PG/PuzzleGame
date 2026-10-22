@@ -129,6 +129,26 @@ MonoBehaviour:
     m_Localized: Geh hin und halte dich an den Sprossen fest.
     m_Metadata:
       m_Items: []
+  - m_Id: 6140589537964032
+    m_Localized: Siehst du die Pfeile nach oben und unten?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6144760567771136
+    m_Localized: Versuch, hoch- und runterzuklettern.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6145098473484288
+    m_Localized: Sehr gut! Siehst du den Stock dort oben?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6145643238076416
+    m_Localized: Kletter hoch und geh zu ihm.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6178152562765824
+    m_Localized: "Um hochzuspringen, dr\xFCcke Sprung + \u2192"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

@@ -126,6 +126,26 @@ MonoBehaviour:
     m_Localized: Walk over and grab the rungs.
     m_Metadata:
       m_Items: []
+  - m_Id: 6140589537964032
+    m_Localized: See the up and down arrows?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6144760567771136
+    m_Localized: Try climbing up and down.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6145098473484288
+    m_Localized: Great! See the stick above?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6145643238076416
+    m_Localized: Climb up and approach it.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6178152562765824
+    m_Localized: "To jump up, press Jump + \u2192"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

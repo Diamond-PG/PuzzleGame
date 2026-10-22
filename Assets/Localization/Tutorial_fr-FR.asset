@@ -131,6 +131,26 @@ MonoBehaviour:
     m_Localized: Approche-toi et agrippe-toi aux barreaux.
     m_Metadata:
       m_Items: []
+  - m_Id: 6140589537964032
+    m_Localized: "Tu vois les fl\xE8ches vers le haut et vers le bas ?"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6144760567771136
+    m_Localized: Essaie de monter et de descendre.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6145098473484288
+    m_Localized: "Bravo ! Tu vois le b\xE2ton l\xE0-haut ?"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6145643238076416
+    m_Localized: Grimpe et approche-toi de lui.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6178152562765824
+    m_Localized: "Pour sauter l\xE0-haut, appuie sur Saut + \u2192"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

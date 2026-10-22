@@ -135,6 +135,12 @@ public class PrisonBreakDoorEditor : Editor
         new Section(
             "15 - DEBUG",
             "debugLogs"
+        ),
+
+        // New settings only. All original Inspector groups remain intact.
+        new Section(
+            "16 - DOOR AUTOSAVE",
+            "enableDoorAutosave"
         )
     };
 
@@ -332,7 +338,7 @@ public class PrisonBreakDoorEditor : Editor
                 rect.width - 20,
                 rect.height - 10
             ),
-            "16 - ADDITIONAL SETTINGS",
+            "17 - ADDITIONAL SETTINGS",
             labelStyle
         );
 

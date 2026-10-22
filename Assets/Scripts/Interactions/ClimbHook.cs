@@ -9,6 +9,59 @@ public class ClimbHook : MonoBehaviour
 
     public static bool PlayerIsOnHook { get; private set; }
 
+    // Tutorial systems can listen for a REAL hook grab.
+    // Trigger contact alone does not count as a grab.
+    public static event System.Action<ClimbHook> PlayerGrabbedHook;
+
+    // Fired after ONE bounded training movement has finished.
+    // Direction: +1 for up, -1 for down.
+    public static event System.Action<ClimbHook, int> TutorialSingleTapCompleted;
+
+    // Tutorial-only input limiter. Does not change normal climbing.
+    private static bool tutorialSingleTapEnabled;
+    private static float tutorialSingleTapDistance = 0.12f;
+    private static bool tutorialUpAlreadyUsed;
+    private static bool tutorialDownAlreadyUsed;
+    private static bool tutorialMustReleaseButton;
+    private static int tutorialMovingDirection;
+    private static float tutorialDistanceRemaining;
+    private static bool tutorialMovementFinishedPending;
+
+    /// <summary>
+    /// Temporarily allow exactly ONE short climb per direction.
+    /// Held input never causes extra travel. Both directions can be
+    /// performed in either order. Call EndTutorialSingleTapClimb()
+    /// when the lesson ends to restore normal hold-to-climb behavior.
+    /// </summary>
+    public static void BeginTutorialSingleTapClimb(
+        float stepDistance, bool upDone = false, bool downDone = false,
+        bool requireRelease = true)
+    {
+        tutorialSingleTapDistance = Mathf.Max(0.02f, stepDistance);
+        tutorialUpAlreadyUsed = upDone;
+        tutorialDownAlreadyUsed = downDone;
+        tutorialMustReleaseButton = requireRelease;
+        tutorialMovingDirection = 0;
+        tutorialDistanceRemaining = 0f;
+        tutorialMovementFinishedPending = false;
+        tutorialSingleTapEnabled = true;
+
+        if (activeClimbZone != null && activeClimbZone.playerRb != null)
+            activeClimbZone.playerRb.linearVelocity = Vector2.zero;
+    }
+
+    public static void EndTutorialSingleTapClimb()
+    {
+        tutorialSingleTapEnabled = false;
+        tutorialMustReleaseButton = false;
+        tutorialMovingDirection = 0;
+        tutorialDistanceRemaining = 0f;
+        tutorialMovementFinishedPending = false;
+
+        if (activeClimbZone != null && activeClimbZone.playerRb != null)
+            activeClimbZone.playerRb.linearVelocity = Vector2.zero;
+    }
+
     private static float climbVerticalInput;
     private static ClimbHook activeClimbZone;
 
@@ -702,6 +755,11 @@ public class ClimbHook : MonoBehaviour
                 this
             );
         }
+
+        // Notify tutorial AFTER the grab is fully established:
+        // active zone, gravity, anchor and climb pose are ready.
+        // No pause or UI changes happen here; the listener decides.
+        PlayerGrabbedHook?.Invoke(this);
     }
 
     // ============================================================
@@ -721,6 +779,15 @@ public class ClimbHook : MonoBehaviour
 
         float vertical =
             ReadVerticalInputRaw();
+
+        // Tutorial 27: bypass the regular hold-to-climb, bottom drop
+        // and horizontal exit entirely. No held button can send the
+        // player down to the guard during this short practice.
+        if (tutorialSingleTapEnabled)
+        {
+            UpdateTutorialSingleTapClimb(vertical);
+            return;
+        }
 
         // ========================================================
         // HORIZONTAL EXIT
@@ -837,6 +904,97 @@ public class ClimbHook : MonoBehaviour
         }
 
         StopActiveClimb();
+    }
+
+    // ============================================================
+    // TUTORIAL 27 - ONE BOUNDED MOVE PER BUTTON PRESS
+    // ============================================================
+
+    private void UpdateTutorialSingleTapClimb(float vertical)
+    {
+        if (playerRb == null)
+            return;
+
+        // Keep the established hook attachment and anchor intact.
+        ApplyClimbAnchorX(false);
+        playerRb.linearVelocity = Vector2.zero;
+
+        // Notify on the following physics tick, AFTER MovePosition
+        // has been applied by the physics engine.
+        if (tutorialMovementFinishedPending)
+        {
+            tutorialMovementFinishedPending = false;
+            int completedDirection = tutorialMovingDirection;
+            tutorialMovingDirection = 0;
+            tutorialDistanceRemaining = 0f;
+
+            if (completedDirection > 0)
+                tutorialUpAlreadyUsed = true;
+            else if (completedDirection < 0)
+                tutorialDownAlreadyUsed = true;
+
+            TutorialSingleTapCompleted?.Invoke(this, completedDirection);
+            return;
+        }
+
+        // A held button must be released before ANY new press counts.
+        // Repeated presses in an already-completed direction do nothing.
+        if (Mathf.Abs(vertical) <= verticalInputThreshold)
+            tutorialMustReleaseButton = false;
+
+        if (tutorialMovingDirection == 0 && !tutorialMustReleaseButton &&
+            Mathf.Abs(vertical) > verticalInputThreshold)
+        {
+            tutorialMustReleaseButton = true;
+            int direction = vertical > 0f ? 1 : -1;
+
+            if ((direction > 0 && !tutorialUpAlreadyUsed) ||
+                (direction < 0 && !tutorialDownAlreadyUsed))
+            {
+                tutorialMovingDirection = direction;
+                tutorialDistanceRemaining = tutorialSingleTapDistance;
+
+                if (playerVisual != null)
+                    playerVisual.SetClimbLook(direction, hookIsOnRight);
+            }
+        }
+
+        if (tutorialMovingDirection == 0)
+            return;
+
+        // Move only the remaining short distance, independently of
+        // how long the player keeps holding the button.
+        float step = Mathf.Min(
+            Mathf.Max(0.001f, climbSpeed * Time.fixedDeltaTime),
+            tutorialDistanceRemaining);
+
+        // Respect existing top-stop and the bottom of ClimbZone.
+        // The regular bottom-drop mechanic is disabled in practice.
+        if (tutorialMovingDirection > 0 && useTopStop && topStop != null)
+        {
+            step = Mathf.Min(step, Mathf.Max(
+                0f, topStop.position.y - playerRb.position.y));
+        }
+        else if (tutorialMovingDirection < 0 && zoneCollider != null)
+        {
+            float lowerLimit = zoneCollider.bounds.min.y +
+                Mathf.Max(0.05f, bottomExitTolerance);
+            step = Mathf.Min(step, Mathf.Max(
+                0f, playerRb.position.y - lowerLimit));
+        }
+
+        if (step > 0.0001f)
+        {
+            playerRb.MovePosition(new Vector2(
+                playerRb.position.x,
+                playerRb.position.y + tutorialMovingDirection * step));
+            tutorialDistanceRemaining -= step;
+        }
+
+        // At a stop, a press still counts as an attempted direction;
+        // we never let the player descend past the bottom boundary.
+        if (step <= 0.0001f || tutorialDistanceRemaining <= 0.0001f)
+            tutorialMovementFinishedPending = true;
     }
 
     // ============================================================
@@ -1583,6 +1741,9 @@ public class ClimbHook : MonoBehaviour
 
     private void OnDisable()
     {
+        if (activeClimbZone == this)
+            EndTutorialSingleTapClimb();
+
         if (isActivelyClimbing)
         {
             StopActiveClimb();
