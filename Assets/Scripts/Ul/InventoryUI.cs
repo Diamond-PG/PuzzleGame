@@ -125,6 +125,11 @@ public class InventoryUI : MonoBehaviour
     private readonly List<GameObject> runtimeSlots =
         new List<GameObject>();
 
+    // Runtime index of the weapon assigned to each existing or created slot.
+    // Used by tutorials to find Club without guessing slot names or sprites.
+    private readonly Dictionary<GameObject, string> weaponIdsBySlot =
+        new Dictionary<GameObject, string>();
+
 
     // ============================================================
     // EQUIPPED WEAPON STATE
@@ -250,6 +255,8 @@ public class InventoryUI : MonoBehaviour
 
 
         runtimeSlots.Clear();
+
+        weaponIdsBySlot.Clear();
 
 
         foreach (GameObject slot
@@ -1233,6 +1240,8 @@ public class InventoryUI : MonoBehaviour
             return;
         }
 
+        weaponIdsBySlot.Remove(slot);
+
 
         Transform itemTransform =
             FindItemTransform(
@@ -1493,6 +1502,9 @@ public class InventoryUI : MonoBehaviour
             weaponButtonGlowOffset,
             weaponButtonGlowRotationOffset
         );
+
+        // The slot might have held a different weapon previously.
+        weaponIdsBySlot[slot] = weaponId;
 
 
         if (debugLogs)
@@ -2036,6 +2048,7 @@ public class InventoryUI : MonoBehaviour
             oldWeaponSlot.ClearWeaponData();
         }
 
+        weaponIdsBySlot.Remove(sourceSlot);
 
         RefreshInventorySlots();
 
@@ -2922,6 +2935,42 @@ public class InventoryUI : MonoBehaviour
             slot.GetComponent<
                 RectTransform
             >();
+    }
+
+
+    // ============================================================
+    // FIND OCCUPIED WEAPON SLOT FOR TUTORIAL SPOTLIGHT
+    // ============================================================
+
+    /// <summary>
+    /// Returns the active, occupied slot for the specified weapon ID.
+    /// Tracks real inventory assignments, including dynamically created slots
+    /// and slots whose icon child is named Item_Sword, Item_Club, etc.
+    /// Does not equip or alter any weapon.
+    /// </summary>
+    public RectTransform FindOccupiedWeaponSlot(string weaponId)
+    {
+        if (string.IsNullOrEmpty(weaponId))
+            return null;
+
+        foreach (GameObject slot in runtimeSlots)
+        {
+            if (slot == null || !slot.activeInHierarchy)
+                continue;
+
+            string configuredId;
+            if (!weaponIdsBySlot.TryGetValue(slot, out configuredId) ||
+                !string.Equals(configuredId, weaponId,
+                    System.StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            if (!IsSlotOccupied(slot))
+                continue;
+
+            return GetSlotRect(slot);
+        }
+
+        return null;
     }
 
 

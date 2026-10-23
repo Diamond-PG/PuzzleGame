@@ -121,7 +121,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 5455946715181056
-    m_Localized: "\xBFVes esa escalera de pared?"
+    m_Localized: "\xBFVes esa escalera en la pared?"
     m_Metadata:
       m_Items: []
   - m_Id: 5456094581174272
@@ -137,7 +137,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 6145098473484288
-    m_Localized: "\xA1Muy bien! \xBFVes el palo que est\xE1 arriba?"
+    m_Localized: "\xA1Genial! \xBFVes el garrote ah\xED arriba?"
     m_Metadata:
       m_Items: []
   - m_Id: 6145643238076416
@@ -146,6 +146,54 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 6178152562765824
     m_Localized: "Para subir de un salto, pulsa Salto + \u2192"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6459245987835904
+    m_Localized: "\xBFVes el icono de la mano?"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6459685689307136
+    m_Localized: "P\xFAlsalo para recoger el garrote."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6482168182157312
+    m_Localized: "\xA1Genial! Ahora puedes luchar."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6482850545086464
+    m_Localized: "\xA1No solo con patadas, sino tambi\xE9n con armas!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6483758796451840
+    m_Localized: 'Pero recuerda: cada arma tiene una durabilidad limitada.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6484393642110976
+    m_Localized: "\xA1Vigila la barra roja!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6505529830486016
+    m_Localized: Ahora pulsa el garrote en el inventario.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6506721310617600
+    m_Localized: "\xA1Genial! \xA1Tu garrote est\xE1 listo para combatir!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6507115273203712
+    m_Localized: "Este bot\xF3n devuelve tu arma al inventario."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6514608200167424
+    m_Localized: "\xA1Prueba a pulsarlo!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6535238110883840
+    m_Localized: Ahora vuelve a seleccionar el garrote.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6535849749458944
+    m_Localized: "\xA1Ahora prueba a usarlo!"
     m_Metadata:
       m_Items: []
   references:

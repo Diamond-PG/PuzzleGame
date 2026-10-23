@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UI;
 
 [CustomEditor(typeof(TutorialTextController))]
 [CanEditMultipleObjects]
@@ -62,18 +63,28 @@ public class TutorialTextControllerEditor : Editor
             new Section(
                 "KEEPER 1 - DIALOGUE",
                 "dialogueKeeperSprite",
+                "dialogueKeeperPosition",
+                "dialogueKeeperSize",
+                "dialogueKeeperRotationZ",
+                "dialogueKeeperScale",
                 "dialoguePuzzleIconPosition",
                 "dialoguePuzzleIconSize",
-                "dialoguePuzzleIconRotation"
+                "dialoguePuzzleIconRotation",
+                "dialoguePuzzleIconScale"
             ),
 
             new Section(
                 "KEEPER 2 - TRAINING",
                 "trainingKeeperSprite",
                 "trainingStartPage",
+                "trainingKeeperPosition",
+                "trainingKeeperSize",
+                "trainingKeeperRotationZ",
+                "trainingKeeperScale",
                 "trainingPuzzleIconPosition",
                 "trainingPuzzleIconSize",
-                "trainingPuzzleIconRotation"
+                "trainingPuzzleIconRotation",
+                "trainingPuzzleIconScale"
             ),
 
             new Section(
@@ -81,9 +92,14 @@ public class TutorialTextControllerEditor : Editor
                 "rejoicesKeeperSprite",
                 "rejoicesStartPage",
                 "rejoicesEndPage",
+                "rejoicesKeeperPosition",
+                "rejoicesKeeperSize",
+                "rejoicesKeeperRotationZ",
+                "rejoicesKeeperScale",
                 "rejoicesPuzzleIconPosition",
                 "rejoicesPuzzleIconSize",
-                "rejoicesPuzzleIconRotation"
+                "rejoicesPuzzleIconRotation",
+                "rejoicesPuzzleIconScale"
             ),
 
             new Section(
@@ -91,9 +107,14 @@ public class TutorialTextControllerEditor : Editor
                 "doorKeeperSprite",
                 "doorStartPage",
                 "doorEndPage",
+                "doorKeeperPosition",
+                "doorKeeperSize",
+                "doorKeeperRotationZ",
+                "doorKeeperScale",
                 "doorPuzzleIconPosition",
                 "doorPuzzleIconSize",
-                "doorPuzzleIconRotation"
+                "doorPuzzleIconRotation",
+                "doorPuzzleIconScale"
             ),
 
             new Section(
@@ -227,6 +248,7 @@ public class TutorialTextControllerEditor : Editor
 
     public override void OnInspectorGUI()
     {
+        InitializeKeeperTransformsInEditor();
         serializedObject.Update();
 
         EnsureStyles();
@@ -241,6 +263,75 @@ public class TutorialTextControllerEditor : Editor
         EditorGUILayout.Space(5);
 
         serializedObject.ApplyModifiedProperties();
+    }
+
+    // ============================================================
+    // SAFE ONE-TIME KEEPER TRANSFORM MIGRATION
+    // ============================================================
+    // Newly added per-pose fields must start at the Keeper's CURRENT
+    // scene placement. No default (0,0) jump and no lost icon tuning.
+    private void InitializeKeeperTransformsInEditor()
+    {
+        foreach (Object targetObject in targets)
+        {
+            TutorialTextController controller =
+                targetObject as TutorialTextController;
+            if (controller == null)
+                continue;
+
+            SerializedObject objectData = new SerializedObject(controller);
+            SerializedProperty initialized = objectData.FindProperty(
+                "keeperTransformsInitialized");
+            SerializedProperty keeperImage = objectData.FindProperty(
+                "puzzleKeeperImage");
+
+            if (initialized == null || initialized.boolValue ||
+                keeperImage == null)
+                continue;
+
+            Image image = keeperImage.objectReferenceValue as Image;
+            if (image == null)
+                continue;
+
+            RectTransform rect = image.rectTransform;
+            Vector2 position = rect.anchoredPosition;
+            Vector2 size = rect.sizeDelta;
+            float rotation = rect.localEulerAngles.z;
+            Vector2 scale = new Vector2(
+                rect.localScale.x, rect.localScale.y);
+
+            Undo.RecordObject(controller, "Initialize Keeper Pose Transforms");
+            foreach (string prefix in new[]
+                     { "dialogue", "training", "rejoices", "door" })
+            {
+                objectData.FindProperty(prefix + "KeeperPosition")
+                    .vector2Value = position;
+                objectData.FindProperty(prefix + "KeeperSize")
+                    .vector2Value = size;
+                objectData.FindProperty(prefix + "KeeperRotationZ")
+                    .floatValue = rotation;
+                objectData.FindProperty(prefix + "KeeperScale")
+                    .vector2Value = scale;
+            }
+
+            SerializedProperty iconTransform = objectData.FindProperty(
+                "keeperPuzzleIcon");
+            RectTransform icon = iconTransform != null
+                ? iconTransform.objectReferenceValue as RectTransform
+                : null;
+            Vector2 iconScale = icon != null
+                ? new Vector2(icon.localScale.x, icon.localScale.y)
+                : Vector2.one;
+            foreach (string prefix in new[]
+                     { "dialogue", "training", "rejoices", "door" })
+            {
+                objectData.FindProperty(prefix + "PuzzleIconScale")
+                    .vector2Value = iconScale;
+            }
+
+            initialized.boolValue = true;
+            objectData.ApplyModifiedProperties();
+        }
     }
 
     // ============================================================
@@ -302,6 +393,19 @@ public class TutorialTextControllerEditor : Editor
 
         foreach (string propertyName in section.properties)
         {
+            if (propertyName.EndsWith("KeeperPosition"))
+            {
+                EditorGUILayout.Space(5);
+                EditorGUILayout.LabelField(
+                    "KEEPER RECT TRANSFORM", EditorStyles.boldLabel);
+            }
+            else if (propertyName.EndsWith("PuzzleIconPosition"))
+            {
+                EditorGUILayout.Space(5);
+                EditorGUILayout.LabelField(
+                    "BLUE PUZZLE MEDALLION", EditorStyles.boldLabel);
+            }
+
             SerializedProperty property =
                 serializedObject.FindProperty(
                     propertyName
@@ -318,8 +422,27 @@ public class TutorialTextControllerEditor : Editor
                 continue;
             }
 
+            string label = property.displayName;
+            if (propertyName.EndsWith("KeeperPosition"))
+                label = "Keeper Position";
+            else if (propertyName.EndsWith("KeeperSize"))
+                label = "Keeper Size";
+            else if (propertyName.EndsWith("KeeperRotationZ"))
+                label = "Keeper Rotation Z";
+            else if (propertyName.EndsWith("KeeperScale"))
+                label = "Keeper Scale";
+            else if (propertyName.EndsWith("PuzzleIconPosition"))
+                label = "Puzzle Position";
+            else if (propertyName.EndsWith("PuzzleIconSize"))
+                label = "Puzzle Size";
+            else if (propertyName.EndsWith("PuzzleIconRotation"))
+                label = "Puzzle Rotation Z";
+            else if (propertyName.EndsWith("PuzzleIconScale"))
+                label = "Puzzle Scale";
+
             EditorGUILayout.PropertyField(
                 property,
+                new GUIContent(label),
                 true
             );
         }

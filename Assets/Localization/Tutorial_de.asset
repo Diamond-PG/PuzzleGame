@@ -24,7 +24,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 2960647991296
-    m_Localized: "Sag mir, wie hei\xDFt du?"
+    m_Localized: "Sag mal, wie hei\xDFt du?"
     m_Metadata:
       m_Items: []
   - m_Id: 4410803433472
@@ -138,15 +138,63 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 6145098473484288
-    m_Localized: Sehr gut! Siehst du den Stock dort oben?
+    m_Localized: Super! Siehst du die Keule da oben?
     m_Metadata:
       m_Items: []
   - m_Id: 6145643238076416
-    m_Localized: Kletter hoch und geh zu ihm.
+    m_Localized: Kletter hoch und geh zu ihr.
     m_Metadata:
       m_Items: []
   - m_Id: 6178152562765824
     m_Localized: "Um hochzuspringen, dr\xFCcke Sprung + \u2192"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6459245987835904
+    m_Localized: Siehst du das Handsymbol?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6459685689307136
+    m_Localized: Tippe darauf, um die Keule aufzuheben.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6482168182157312
+    m_Localized: "Super! Jetzt kannst du k\xE4mpfen."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6482850545086464
+    m_Localized: Nicht nur mit Tritten, sondern auch mit Waffen!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6483758796451840
+    m_Localized: 'Denk dran: Jede Waffe hat eine begrenzte Haltbarkeit.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6484393642110976
+    m_Localized: Behalte den roten Balken im Auge!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6505529830486016
+    m_Localized: Tippe jetzt im Inventar auf die Keule.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6506721310617600
+    m_Localized: Super! Deine Keule ist jetzt kampfbereit!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6507115273203712
+    m_Localized: "Mit diesem Knopf legst du deine Waffe zur\xFCck ins Inventar."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6514608200167424
+    m_Localized: "Versuch, sie zu dr\xFCcken!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6535238110883840
+    m_Localized: "W\xE4hle jetzt die Keule erneut aus."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6535849749458944
+    m_Localized: Jetzt probier die Keule aus!
     m_Metadata:
       m_Items: []
   references:

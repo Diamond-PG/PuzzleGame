@@ -738,7 +738,6 @@ RectTransform:
   - {fileID: 253638932}
   - {fileID: 928954691}
   - {fileID: 1241655363}
-  - {fileID: 51118970}
   - {fileID: 1404420820}
   m_Father: {fileID: 408873392}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -866,34 +865,55 @@ MonoBehaviour:
   localizationTableName: Tutorial
   localizationKeyPrefix: tutorial_
   nextButton: {fileID: 1241655364}
-  previousButton: {fileID: 51118971}
+  previousButton: {fileID: 0}
   startPage: 0
   nameInputPage: 1
   nameConfirmationPage: 2
   playerNameInputController: {fileID: 18069330}
   puzzleKeeperImage: {fileID: 983991475}
   keeperPuzzleIcon: {fileID: 1317981909}
+  keeperTransformsInitialized: 1
   dialogueKeeperSprite: {fileID: 21300000, guid: 83884512de509784488a476f6b30f331, type: 3}
+  dialogueKeeperPosition: {x: -191.8, y: -367.4}
+  dialogueKeeperSize: {x: 230, y: 230}
+  dialogueKeeperRotationZ: 0
+  dialogueKeeperScale: {x: -1, y: 1}
   dialoguePuzzleIconPosition: {x: -13.1, y: -64.6}
   dialoguePuzzleIconSize: {x: 27, y: 27}
-  dialoguePuzzleIconRotation: -20
+  dialoguePuzzleIconRotation: 20
+  dialoguePuzzleIconScale: {x: 1, y: 1}
   trainingKeeperSprite: {fileID: 21300000, guid: d494df2e9086cba4eacb8bb038b8cb1f, type: 3}
   trainingStartPage: 13
+  trainingKeeperPosition: {x: -180, y: -367.4}
+  trainingKeeperSize: {x: 230, y: 230}
+  trainingKeeperRotationZ: 0
+  trainingKeeperScale: {x: -1, y: 1}
   trainingPuzzleIconPosition: {x: -11, y: -57}
   trainingPuzzleIconSize: {x: 27, y: 27}
-  trainingPuzzleIconRotation: -20
+  trainingPuzzleIconRotation: 20
+  trainingPuzzleIconScale: {x: 1, y: 1}
   rejoicesKeeperSprite: {fileID: 21300000, guid: 27682df6b5f38324bbbcfd81c521a124, type: 3}
   rejoicesStartPage: 20
   rejoicesEndPage: 21
+  rejoicesKeeperPosition: {x: -180, y: -367.4}
+  rejoicesKeeperSize: {x: 230, y: 230}
+  rejoicesKeeperRotationZ: 0
+  rejoicesKeeperScale: {x: -1, y: 1}
   rejoicesPuzzleIconPosition: {x: 6.5, y: -63}
   rejoicesPuzzleIconSize: {x: 27, y: 27}
-  rejoicesPuzzleIconRotation: -20
+  rejoicesPuzzleIconRotation: 20
+  rejoicesPuzzleIconScale: {x: 1, y: 1}
   doorKeeperSprite: {fileID: 21300000, guid: c24132fb019defe4e8e9eafdf59f0e7f, type: 3}
   doorStartPage: 22
   doorEndPage: 22
+  doorKeeperPosition: {x: -191.8, y: -367.4}
+  doorKeeperSize: {x: 230, y: 230}
+  doorKeeperRotationZ: 0
+  doorKeeperScale: {x: -1, y: 1}
   doorPuzzleIconPosition: {x: -18, y: -62}
   doorPuzzleIconSize: {x: 27, y: 27}
-  doorPuzzleIconRotation: -20
+  doorPuzzleIconRotation: 20
+  doorPuzzleIconScale: {x: 1, y: 1}
   movementIntroPage: 13
   movementPracticePage: 14
   movementSuccessPage: 15
@@ -1546,141 +1566,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 46025733}
   m_CullTransparentMesh: 1
---- !u!1 &51118969
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 51118970}
-  - component: {fileID: 51118973}
-  - component: {fileID: 51118972}
-  - component: {fileID: 51118971}
-  - component: {fileID: 51118974}
-  m_Layer: 5
-  m_Name: TutorialPreviousButton
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &51118970
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 51118969}
-  m_LocalRotation: {x: 0, y: 0, z: 1, w: 0}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 18069326}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 180}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -94, y: 137}
-  m_SizeDelta: {x: 100, y: 100}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &51118971
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 51118969}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
-  m_Navigation:
-    m_Mode: 3
-    m_WrapAround: 0
-    m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 0}
-    m_SelectOnLeft: {fileID: 0}
-    m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
-  m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
-    m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
-  m_SpriteState:
-    m_HighlightedSprite: {fileID: 0}
-    m_PressedSprite: {fileID: 0}
-    m_SelectedSprite: {fileID: 0}
-    m_DisabledSprite: {fileID: 0}
-  m_AnimationTriggers:
-    m_NormalTrigger: Normal
-    m_HighlightedTrigger: Highlighted
-    m_PressedTrigger: Pressed
-    m_SelectedTrigger: Selected
-    m_DisabledTrigger: Disabled
-  m_Interactable: 1
-  m_TargetGraphic: {fileID: 51118972}
-  m_OnClick:
-    m_PersistentCalls:
-      m_Calls: []
---- !u!114 &51118972
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 51118969}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 8d0d00c94979fa5459a2e3074163a360, type: 3}
-  m_Type: 0
-  m_PreserveAspect: 1
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
---- !u!222 &51118973
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 51118969}
-  m_CullTransparentMesh: 1
---- !u!114 &51118974
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 51118969}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 79485b106da2e614391cd756cceed1ca, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UIHapticsOnPress
-  enable: 1
-  mobileOnly: 1
 --- !u!1 &53205905
 GameObject:
   m_ObjectHideFlags: 0
@@ -13553,6 +13438,9 @@ MonoBehaviour:
   armorDurability01: 1
   weaponMaxSuccessfulHits: 20
   useWeaponDurability: 1
+  tutorialFlashCount: 3
+  tutorialFlashVisibleSeconds: 0.22
+  tutorialFlashHiddenSeconds: 0.18
 --- !u!1 &453173559
 GameObject:
   m_ObjectHideFlags: 0
@@ -16050,6 +15938,7 @@ GameObject:
   - component: {fileID: 610955518}
   - component: {fileID: 610955517}
   - component: {fileID: 610955519}
+  - component: {fileID: 610955520}
   m_Layer: 5
   m_Name: TutorialFrame_Left
   m_TagString: Untagged
@@ -16141,7 +16030,7 @@ MonoBehaviour:
   preserveOriginalHappyPose: 1
   happyPose:
     keeperSprite: {fileID: 21300000, guid: 27682df6b5f38324bbbcfd81c521a124, type: 3}
-    keeperPosition: {x: 134.8, y: -221}
+    keeperPosition: {x: 128, y: -221}
     keeperSize: {x: 230, y: 230}
     keeperRotationZ: 0
     keeperScale: {x: 1, y: 1}
@@ -16228,8 +16117,8 @@ MonoBehaviour:
   stickTarget: {fileID: 1284557354}
   worldCamera: {fileID: 519420031}
   stickPadding: 0.0008
-  minimumStickWindowWidth: 0.1
-  minimumStickWindowHeight: 0.12
+  minimumStickWindowWidth: 0.08
+  minimumStickWindowHeight: 0.1
   requiredTravelEachDirection: 0.12
   pauseUntilFirstVerticalPress: 1
   textureResolution: 256
@@ -16284,6 +16173,117 @@ MonoBehaviour:
     puzzleSize: {x: 27, y: 27}
     puzzleRotationZ: 20
     puzzleScale: {x: 1, y: 1}
+--- !u!114 &610955520
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 610955513}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ffd13ba55b82c55479fd95b83b40f4ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TutorialClubLesson
+  clubPickup: {fileID: 1284557356}
+  playerController: {fileID: 1904351161}
+  climbLesson: {fileID: 610955519}
+  leftTutorialText: {fileID: 277639956}
+  leftFrameCanvasGroup: {fileID: 610955518}
+  goldNextButton: {fileID: 1044552962}
+  goldNextPulse: {fileID: 1044552959}
+  tutorialDimmer: {fileID: 1518919445}
+  handButton: {fileID: 397394384}
+  handButtonGraphic: {fileID: 397394381}
+  textureResolution: 256
+  windowPadding: 0.012
+  handSpotlightScale: 1
+  windowSoftness: 0.012
+  localizationTable: Tutorial
+  handQuestionKey: tutorial_31
+  handQuestionFallback: "\u0412\u0438\u0434\u0438\u0448\u044C \u0437\u043D\u0430\u0447\u043E\u043A
+    \u0440\u0443\u043A\u0438?"
+  handUseKey: tutorial_32
+  handUseFallback: "\u041D\u0430\u0436\u043C\u0438 \u043D\u0430 \u043D\u0435\u0433\u043E,
+    \u0447\u0442\u043E\u0431\u044B \u0432\u0437\u044F\u0442\u044C \u0434\u0443\u0431\u0438\u043D\u043A\u0443."
+  keeperImage: {fileID: 233771945}
+  handInstructionKeeperSprite: {fileID: 21300000, guid: c24132fb019defe4e8e9eafdf59f0e7f, type: 3}
+  keeperPuzzleIcon: {fileID: 1525713185}
+  keeperPosition: {x: 134.8, y: -221}
+  keeperSize: {x: 230, y: 230}
+  keeperRotationZ: 0
+  keeperScale: {x: 1, y: 1}
+  puzzlePosition: {x: -17, y: -62}
+  puzzleSize: {x: 27, y: 27}
+  puzzleRotationZ: 20
+  puzzleScale: {x: 1, y: 1}
+  congratulationsKey: tutorial_33
+  congratulationsFallback: "\u041E\u0442\u043B\u0438\u0447\u043D\u043E! \u0422\u0435\u043F\u0435\u0440\u044C
+    \u0442\u044B \u043C\u043E\u0436\u0435\u0448\u044C \u0441\u0440\u0430\u0436\u0430\u0442\u044C\u0441\u044F."
+  combatKey: tutorial_34
+  combatFallback: "\u041D\u0435 \u0442\u043E\u043B\u044C\u043A\u043E \u043D\u043E\u0433\u0430\u043C\u0438,
+    \u043D\u043E \u0438 \u043E\u0440\u0443\u0436\u0438\u0435\u043C!"
+  durabilityKey: tutorial_35
+  durabilityFallback: "\u041D\u043E \u043F\u043E\u043C\u043D\u0438: \u0443 \u043A\u0430\u0436\u0434\u043E\u0433\u043E
+    \u043E\u0440\u0443\u0436\u0438\u044F \u0435\u0441\u0442\u044C \u0437\u0430\u043F\u0430\u0441
+    \u043F\u0440\u043E\u0447\u043D\u043E\u0441\u0442\u0438."
+  redBarKey: tutorial_36
+  redBarFallback: "\u0421\u043B\u0435\u0434\u0438 \u0437\u0430 \u043A\u0440\u0430\u0441\u043D\u043E\u0439
+    \u043F\u043E\u043B\u043E\u0441\u043A\u043E\u0439!"
+  equipInstructionKey: tutorial_37
+  equipInstructionFallback: "\u0422\u0435\u043F\u0435\u0440\u044C \u043D\u0430\u0436\u043C\u0438
+    \u043D\u0430 \u0434\u0443\u0431\u0438\u043D\u043A\u0443 \u0432 \u0438\u043D\u0432\u0435\u043D\u0442\u0430\u0440\u0435."
+  equippedSuccessKey: tutorial_38
+  equippedSuccessFallback: "\u041E\u0442\u043B\u0438\u0447\u043D\u043E! \u0422\u0435\u043F\u0435\u0440\u044C
+    \u0434\u0443\u0431\u0438\u043D\u043A\u0430 \u0433\u043E\u0442\u043E\u0432\u0430
+    \u043A \u0431\u043E\u044E!"
+  finalTryWeaponKey: tutorial_42
+  finalTryWeaponFallback: "\u0410 \u0442\u0435\u043F\u0435\u0440\u044C \u043F\u043E\u043F\u0440\u043E\u0431\u0443\u0439
+    \u043F\u0440\u0438\u043C\u0435\u043D\u0438\u0442\u044C \u0435\u0451 \u0432 \u0434\u0435\u043B\u0435!"
+  unequipExplanationKey: tutorial_39
+  unequipExplanationFallback: "\u042D\u0442\u0430 \u043A\u043D\u043E\u043F\u043A\u0430
+    \u0432\u043E\u0437\u0432\u0440\u0430\u0449\u0430\u0435\u0442 \u043E\u0440\u0443\u0436\u0438\u0435
+    \u0432 \u0438\u043D\u0432\u0435\u043D\u0442\u0430\u0440\u044C."
+  unequipPracticeKey: tutorial_40
+  unequipPracticeFallback: "\u041F\u043E\u043F\u0440\u043E\u0431\u0443\u0439 \u043D\u0430\u0436\u0430\u0442\u044C
+    \u043D\u0430 \u043D\u0435\u0451!"
+  reEquipKey: tutorial_41
+  reEquipFallback: "\u0410 \u0442\u0435\u043F\u0435\u0440\u044C \u0441\u043D\u043E\u0432\u0430
+    \u0432\u044B\u0431\u0435\u0440\u0438 \u0434\u0443\u0431\u0438\u043D\u043A\u0443."
+  happyKeeperPose:
+    keeperSprite: {fileID: 21300000, guid: 27682df6b5f38324bbbcfd81c521a124, type: 3}
+    keeperPosition: {x: 128, y: -221}
+    keeperSize: {x: 230, y: 230}
+    keeperRotationZ: 0
+    keeperScale: {x: 1, y: 1}
+    puzzlePosition: {x: 6.9, y: -63.8}
+    puzzleSize: {x: 27, y: 27}
+    puzzleRotationZ: 20
+    puzzleScale: {x: 1, y: 1}
+  openPalmKeeperPose:
+    keeperSprite: {fileID: 21300000, guid: 83884512de509784488a476f6b30f331, type: 3}
+    keeperPosition: {x: 134.8, y: -221}
+    keeperSize: {x: 230, y: 230}
+    keeperRotationZ: 0
+    keeperScale: {x: 1, y: 1}
+    puzzlePosition: {x: -13, y: -63.8}
+    puzzleSize: {x: 27, y: 27}
+    puzzleRotationZ: 20
+    puzzleScale: {x: 1, y: 1}
+  weaponButtonGraphic: {fileID: 452550980}
+  weaponSpotlightScale: 0.95
+  weaponDurabilityUI: {fileID: 452550984}
+  inventoryUI: {fileID: 2040547187}
+  clubInventorySlotGraphic: {fileID: 0}
+  clubSlotSpotlightScale: 1.1
+  unequipButton: {fileID: 143506240}
+  unequipButtonGraphic: {fileID: 143506238}
+  unequipSpotlightScale: 1.2
+  weaponDurabilityFill: {fileID: 1752157712}
+  previewBarWhenUnequipped: 1
+  tutorialFlashCount: 3
+  flashVisibleSeconds: 0.8
+  flashHiddenSeconds: 0.5
 --- !u!1 &613771820
 GameObject:
   m_ObjectHideFlags: 0
@@ -23175,7 +23175,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -1, y: -41}
+  m_AnchoredPosition: {x: -0.4, y: -89.4}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1044552959
@@ -26254,7 +26254,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -94, y: -192}
+  m_AnchoredPosition: {x: 7.799988, y: -238}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1241655364
@@ -35965,7 +35965,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 0.7254902}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.78431374}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1

@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -124,6 +125,29 @@ public class WeaponButtonDurabilityUI : MonoBehaviour
 
 
     // ============================================================
+    // TUTORIAL - WEAPON DURABILITY FLASH (VISUAL ONLY)
+    // ============================================================
+
+    [Header("TUTORIAL - WEAPON DURABILITY FLASH")]
+
+    [Tooltip("How many times the red durability indicator flashes in tutorial_33.")]
+    [SerializeField, Range(1, 10)]
+    private int tutorialFlashCount = 3;
+
+    [Tooltip("How long each visible flash lasts, in real seconds.")]
+    [SerializeField, Min(0.02f)]
+    private float tutorialFlashVisibleSeconds = 0.22f;
+
+    [Tooltip("How long the indicator stays hidden between flashes, in real seconds.")]
+    [SerializeField, Min(0.02f)]
+    private float tutorialFlashHiddenSeconds = 0.18f;
+
+    private Coroutine tutorialFlashRoutine;
+    private Color tutorialOriginalFillColor;
+    private bool tutorialOriginalFillEnabled;
+
+
+    // ============================================================
     // UNITY
     // ============================================================
 
@@ -159,6 +183,12 @@ public class WeaponButtonDurabilityUI : MonoBehaviour
     }
 
 
+    private void OnDisable()
+    {
+        StopTutorialDurabilityFlash();
+    }
+
+
 #if UNITY_EDITOR
 
     private void OnValidate()
@@ -190,6 +220,11 @@ public class WeaponButtonDurabilityUI : MonoBehaviour
                 1,
                 weaponMaxSuccessfulHits
             );
+
+
+        tutorialFlashCount = Mathf.Clamp(tutorialFlashCount, 1, 10);
+        tutorialFlashVisibleSeconds = Mathf.Max(0.02f, tutorialFlashVisibleSeconds);
+        tutorialFlashHiddenSeconds = Mathf.Max(0.02f, tutorialFlashHiddenSeconds);
 
         /*
          * Благодаря этому даже если во время Play Mode
@@ -460,6 +495,106 @@ public class WeaponButtonDurabilityUI : MonoBehaviour
             false;
 
         RefreshUI();
+    }
+
+
+    // ============================================================
+    // TUTORIAL DURABILITY FLASH - PUBLIC CONTROLS
+    // ============================================================
+
+    /// <summary>
+    /// Visually flashes the EXISTING red weapon durability Image.
+    /// Does not change fillAmount, durability values, weapon hits, or equipment.
+    /// Uses real time, so it also works while Time.timeScale is zero.
+    /// Call after a weapon is actually equipped in the big weapon button.
+    /// </summary>
+    public void PlayTutorialDurabilityFlash()
+    {
+        CacheReferences();
+        SyncWeaponStateFromInventory(false);
+
+        // Do not invent a red weapon bar for an unequipped weapon.
+        // The pickup tutorial must equip it (or show the equipment step)
+        // before calling this method.
+        if (weaponDurabilityFill == null ||
+            !hasWeapon ||
+            weaponDurability01 <= EPSILON ||
+            !isActiveAndEnabled)
+        {
+            Debug.LogWarning(
+                "[WEAPON TUTORIAL] Cannot flash durability: " +
+                "a weapon must be equipped and its red Image assigned.",
+                this
+            );
+            return;
+        }
+
+        StopTutorialDurabilityFlash();
+
+        tutorialOriginalFillColor = weaponDurabilityFill.color;
+        tutorialOriginalFillEnabled = weaponDurabilityFill.enabled;
+        tutorialFlashRoutine = StartCoroutine(TutorialDurabilityFlashRoutine());
+    }
+
+
+    /// <summary>
+    /// Stops the tutorial flash and restores the exact original red bar look.
+    /// </summary>
+    public void StopTutorialDurabilityFlash()
+    {
+        if (tutorialFlashRoutine == null)
+            return;
+
+        StopCoroutine(tutorialFlashRoutine);
+        tutorialFlashRoutine = null;
+        RestoreTutorialDurabilityFill();
+    }
+
+
+    private IEnumerator TutorialDurabilityFlashRoutine()
+    {
+        int flashes = Mathf.Max(1, tutorialFlashCount);
+        float visibleSeconds = Mathf.Max(0.02f, tutorialFlashVisibleSeconds);
+        float hiddenSeconds = Mathf.Max(0.02f, tutorialFlashHiddenSeconds);
+
+        for (int i = 0; i < flashes; i++)
+        {
+            // A bright flash, followed by a completely transparent red bar.
+            SetTutorialFillVisible(true);
+            yield return new WaitForSecondsRealtime(visibleSeconds);
+
+            SetTutorialFillVisible(false);
+            yield return new WaitForSecondsRealtime(hiddenSeconds);
+        }
+
+        tutorialFlashRoutine = null;
+        RestoreTutorialDurabilityFill();
+    }
+
+
+    private void SetTutorialFillVisible(bool visible)
+    {
+        if (weaponDurabilityFill == null)
+            return;
+
+        Color color = tutorialOriginalFillColor;
+        color.a = visible ? tutorialOriginalFillColor.a : 0f;
+        weaponDurabilityFill.color = color;
+
+        // Keep the red Image enabled during its flash cycle. We only
+        // change the visibility, never its actual durability fill.
+        weaponDurabilityFill.enabled = true;
+    }
+
+
+    private void RestoreTutorialDurabilityFill()
+    {
+        if (weaponDurabilityFill == null)
+            return;
+
+        weaponDurabilityFill.color = tutorialOriginalFillColor;
+        weaponDurabilityFill.enabled = tutorialOriginalFillEnabled;
+        RefreshWeapon();
     }
 
 

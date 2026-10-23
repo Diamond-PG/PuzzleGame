@@ -140,15 +140,63 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 6145098473484288
-    m_Localized: "Bravo ! Tu vois le b\xE2ton l\xE0-haut ?"
+    m_Localized: "Super ! Tu vois la massue l\xE0-haut ?"
     m_Metadata:
       m_Items: []
   - m_Id: 6145643238076416
-    m_Localized: Grimpe et approche-toi de lui.
+    m_Localized: "Grimpe et approche-toi d\u2019elle."
     m_Metadata:
       m_Items: []
   - m_Id: 6178152562765824
     m_Localized: "Pour sauter l\xE0-haut, appuie sur Saut + \u2192"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6459245987835904
+    m_Localized: "Tu vois l'ic\xF4ne de la main ?"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6459685689307136
+    m_Localized: Appuie dessus pour ramasser la massue.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6482168182157312
+    m_Localized: Super ! Maintenant, tu peux combattre.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6482850545086464
+    m_Localized: Pas seulement avec tes pieds, mais aussi avec des armes !
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6483758796451840
+    m_Localized: "Mais rappelle-toi : chaque arme a une durabilit\xE9 limit\xE9e."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6484393642110976
+    m_Localized: Surveille la barre rouge !
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6505529830486016
+    m_Localized: Maintenant, appuie sur la massue dans ton inventaire.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6506721310617600
+    m_Localized: "Super ! Ta massue est pr\xEAte au combat !"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6507115273203712
+    m_Localized: Ce bouton remet ton arme dans l'inventaire.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6514608200167424
+    m_Localized: Essaie d'appuyer dessus !
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6535238110883840
+    m_Localized: "Maintenant, s\xE9lectionne \xE0 nouveau la massue."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6535849749458944
+    m_Localized: "Maintenant, essaie de t\u2019en servir !"
     m_Metadata:
       m_Items: []
   references:

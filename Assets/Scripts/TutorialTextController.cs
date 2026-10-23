@@ -64,12 +64,22 @@ public class TutorialTextController : MonoBehaviour
     [SerializeField] private Image puzzleKeeperImage;
     [SerializeField] private RectTransform keeperPuzzleIcon;
 
+    // Serialized once to avoid resetting carefully tuned per-pose values.
+    [SerializeField, HideInInspector] private bool keeperTransformsInitialized;
+
     // ============================================================
     // 08 - KEEPER 1 - DIALOGUE
     // ============================================================
 
     [Header("KEEPER 1 - DIALOGUE")]
     [SerializeField] private Sprite dialogueKeeperSprite;
+
+    // Per-pose Keeper RectTransform. Auto-captured from the existing
+    // Keeper UI on first setup, preserving scene placement.
+    [SerializeField] private Vector2 dialogueKeeperPosition;
+    [SerializeField] private Vector2 dialogueKeeperSize;
+    [SerializeField] private float dialogueKeeperRotationZ;
+    [SerializeField] private Vector2 dialogueKeeperScale = Vector2.one;
 
     [SerializeField] private Vector2 dialoguePuzzleIconPosition =
         new Vector2(-27.6f, -75.8f);
@@ -78,6 +88,7 @@ public class TutorialTextController : MonoBehaviour
         new Vector2(27f, 27f);
 
     [SerializeField] private float dialoguePuzzleIconRotation = -20f;
+    [SerializeField] private Vector2 dialoguePuzzleIconScale = Vector2.one;
 
     // ============================================================
     // 09 - KEEPER 2 - TRAINING
@@ -88,6 +99,13 @@ public class TutorialTextController : MonoBehaviour
 
     [SerializeField, Min(0)] private int trainingStartPage = 13;
 
+    // Per-pose Keeper RectTransform. Auto-captured from the existing
+    // Keeper UI on first setup, preserving scene placement.
+    [SerializeField] private Vector2 trainingKeeperPosition;
+    [SerializeField] private Vector2 trainingKeeperSize;
+    [SerializeField] private float trainingKeeperRotationZ;
+    [SerializeField] private Vector2 trainingKeeperScale = Vector2.one;
+
     [SerializeField] private Vector2 trainingPuzzleIconPosition =
         new Vector2(-22f, -62f);
 
@@ -95,6 +113,7 @@ public class TutorialTextController : MonoBehaviour
         new Vector2(27f, 27f);
 
     [SerializeField] private float trainingPuzzleIconRotation = -20f;
+    [SerializeField] private Vector2 trainingPuzzleIconScale = Vector2.one;
 
     // ============================================================
     // 10 - KEEPER 3 - REJOICES
@@ -106,6 +125,13 @@ public class TutorialTextController : MonoBehaviour
     [SerializeField, Min(0)] private int rejoicesStartPage = 20;
     [SerializeField, Min(0)] private int rejoicesEndPage = 21;
 
+    // Per-pose Keeper RectTransform. Auto-captured from the existing
+    // Keeper UI on first setup, preserving scene placement.
+    [SerializeField] private Vector2 rejoicesKeeperPosition;
+    [SerializeField] private Vector2 rejoicesKeeperSize;
+    [SerializeField] private float rejoicesKeeperRotationZ;
+    [SerializeField] private Vector2 rejoicesKeeperScale = Vector2.one;
+
     [SerializeField] private Vector2 rejoicesPuzzleIconPosition =
         new Vector2(-22f, -62f);
 
@@ -113,6 +139,7 @@ public class TutorialTextController : MonoBehaviour
         new Vector2(27f, 27f);
 
     [SerializeField] private float rejoicesPuzzleIconRotation = -20f;
+    [SerializeField] private Vector2 rejoicesPuzzleIconScale = Vector2.one;
 
     // ============================================================
     // 11 - KEEPER 4 - DOOR
@@ -124,6 +151,13 @@ public class TutorialTextController : MonoBehaviour
     [SerializeField, Min(0)] private int doorStartPage = 22;
     [SerializeField, Min(0)] private int doorEndPage = 22;
 
+    // Per-pose Keeper RectTransform. Auto-captured from the existing
+    // Keeper UI on first setup, preserving scene placement.
+    [SerializeField] private Vector2 doorKeeperPosition;
+    [SerializeField] private Vector2 doorKeeperSize;
+    [SerializeField] private float doorKeeperRotationZ;
+    [SerializeField] private Vector2 doorKeeperScale = Vector2.one;
+
     [SerializeField] private Vector2 doorPuzzleIconPosition =
         new Vector2(-22f, -62f);
 
@@ -131,6 +165,7 @@ public class TutorialTextController : MonoBehaviour
         new Vector2(27f, 27f);
 
     [SerializeField] private float doorPuzzleIconRotation = -20f;
+    [SerializeField] private Vector2 doorPuzzleIconScale = Vector2.one;
 
     // ============================================================
     // 12 - MOVEMENT TUTORIAL
@@ -216,12 +251,31 @@ public class TutorialTextController : MonoBehaviour
 
     private int lastKeeperPose = -1;
     private Sprite lastKeeperSprite;
+    private Vector2 lastKeeperPosition;
+    private Vector2 lastKeeperSize;
+    private float lastKeeperRotationZ;
+    private Vector2 lastKeeperScale;
     private Vector2 lastPuzzlePosition;
     private Vector2 lastPuzzleSize;
     private float lastPuzzleRotation;
+    private Vector2 lastPuzzleScale;
     private bool keeperVisualInitialized;
 
     private int lastAppliedMaskStage = -1;
+
+    // ============================================================
+    // FORWARD-ONLY NAVIGATION / NEXT ARROW PULSE
+    // ============================================================
+    // Preserve nextButton / previousButton as serialized fields so
+    // existing scene assignments and the custom Inspector stay intact.
+    // If the Next button already has TutorialArrowPulse, use it.
+    // Otherwise pulse its Transform directly without extra components.
+    private TutorialArrowPulse nextArrowPulse;
+    private Vector3 nextButtonOriginalScale = Vector3.one;
+    private bool nextPulseVisible;
+    private float nextPulseStartTime;
+    private const float NextPulseAmount = 0.19f;
+    private const float NextPulsePeriod = 1.2f;
 
     // ============================================================
     // AWAKE
@@ -229,16 +283,28 @@ public class TutorialTextController : MonoBehaviour
 
     private void Awake()
     {
+        InitializeKeeperTransformSettingsIfNeeded();
+
         if (nextButton != null)
         {
             nextButton.onClick.RemoveListener(NextPage);
             nextButton.onClick.AddListener(NextPage);
         }
 
+        // The previous-page arrow is permanently disabled. Keep the
+        // serialized reference but remove any old runtime listener.
         if (previousButton != null)
         {
             previousButton.onClick.RemoveListener(PreviousPage);
-            previousButton.onClick.AddListener(PreviousPage);
+            previousButton.interactable = false;
+            if (previousButton != nextButton)
+                previousButton.gameObject.SetActive(false);
+        }
+
+        if (nextButton != null)
+        {
+            nextArrowPulse = nextButton.GetComponent<TutorialArrowPulse>();
+            nextButtonOriginalScale = nextButton.transform.localScale;
         }
 
         RestoreSavedProgress();
@@ -462,11 +528,67 @@ public class TutorialTextController : MonoBehaviour
     }
 
     // ============================================================
+    // KEEPER RECT TRANSFORM - ONE-TIME INITIALIZATION
+    // ============================================================
+
+    private void InitializeKeeperTransformSettingsIfNeeded()
+    {
+        if (keeperTransformsInitialized || puzzleKeeperImage == null)
+            return;
+
+        RectTransform rect = puzzleKeeperImage.rectTransform;
+        Vector2 position = rect.anchoredPosition;
+        Vector2 size = rect.sizeDelta;
+        float rotation = rect.localEulerAngles.z;
+        Vector2 scale = new Vector2(rect.localScale.x, rect.localScale.y);
+
+        dialogueKeeperPosition = position;
+        dialogueKeeperSize = size;
+        dialogueKeeperRotationZ = rotation;
+        dialogueKeeperScale = scale;
+
+        trainingKeeperPosition = position;
+        trainingKeeperSize = size;
+        trainingKeeperRotationZ = rotation;
+        trainingKeeperScale = scale;
+
+        rejoicesKeeperPosition = position;
+        rejoicesKeeperSize = size;
+        rejoicesKeeperRotationZ = rotation;
+        rejoicesKeeperScale = scale;
+
+        doorKeeperPosition = position;
+        doorKeeperSize = size;
+        doorKeeperRotationZ = rotation;
+        doorKeeperScale = scale;
+
+        if (keeperPuzzleIcon != null)
+        {
+            Vector2 iconScale = new Vector2(
+                keeperPuzzleIcon.localScale.x, keeperPuzzleIcon.localScale.y);
+            dialoguePuzzleIconScale = iconScale;
+            trainingPuzzleIconScale = iconScale;
+            rejoicesPuzzleIconScale = iconScale;
+            doorPuzzleIconScale = iconScale;
+        }
+
+        keeperTransformsInitialized = true;
+    }
+
+    // ============================================================
     // KEEPER LIVE PREVIEW
     // ============================================================
 
     private void LateUpdate()
     {
+        // No backwards navigation, even if a separate UI component
+        // accidentally reactivates the old button during Play.
+        if (previousButton != null && previousButton != nextButton &&
+            previousButton.gameObject.activeSelf)
+            previousButton.gameObject.SetActive(false);
+
+        UpdateNextButtonPulse();
+
         if (!tutorialStarted || tutorialSuppressed)
             return;
 
@@ -485,11 +607,25 @@ public class TutorialTextController : MonoBehaviour
             out rotation
         );
 
+        Vector2 keeperPosition;
+        Vector2 keeperSize;
+        float keeperRotation;
+        Vector2 keeperScale;
+        GetKeeperTransformSettings(
+            pose, out keeperPosition, out keeperSize,
+            out keeperRotation, out keeperScale
+        );
+
         if (!keeperVisualInitialized ||
             lastKeeperPose != pose ||
             lastKeeperSprite != sprite ||
+            lastKeeperPosition != keeperPosition ||
+            lastKeeperSize != keeperSize ||
+            !Mathf.Approximately(lastKeeperRotationZ, keeperRotation) ||
+            lastKeeperScale != keeperScale ||
             lastPuzzlePosition != position ||
             lastPuzzleSize != size ||
+            lastPuzzleScale != GetPuzzleScaleForPose(pose) ||
             !Mathf.Approximately(lastPuzzleRotation, rotation))
         {
             ApplyKeeperSettings(
@@ -605,16 +741,8 @@ public class TutorialTextController : MonoBehaviour
 
     public void PreviousPage()
     {
-        if (!CanNavigate() || IsPracticePageBlocked())
-            return;
-
-        int targetPage = GetPreviousPageIndex();
-
-        if (!IsValidPage(targetPage))
-            return;
-
-        currentPage = targetPage;
-        ShowCurrentPage();
+        // Intentionally disabled: this tutorial advances only forward.
+        // Keep the public method for compatibility with any old UI events.
     }
 
     private bool CanNavigate()
@@ -1089,6 +1217,58 @@ public class TutorialTextController : MonoBehaviour
         }
     }
 
+    // The image and the blue medallion have independent pose settings.
+    private void GetKeeperTransformSettings(
+        int pose,
+        out Vector2 position,
+        out Vector2 size,
+        out float rotation,
+        out Vector2 scale
+    )
+    {
+        switch (pose)
+        {
+            case 4:
+                position = doorKeeperPosition;
+                size = doorKeeperSize;
+                rotation = doorKeeperRotationZ;
+                scale = doorKeeperScale;
+                break;
+
+            case 3:
+                position = rejoicesKeeperPosition;
+                size = rejoicesKeeperSize;
+                rotation = rejoicesKeeperRotationZ;
+                scale = rejoicesKeeperScale;
+                break;
+
+            case 2:
+                position = trainingKeeperPosition;
+                size = trainingKeeperSize;
+                rotation = trainingKeeperRotationZ;
+                scale = trainingKeeperScale;
+                break;
+
+            default:
+                position = dialogueKeeperPosition;
+                size = dialogueKeeperSize;
+                rotation = dialogueKeeperRotationZ;
+                scale = dialogueKeeperScale;
+                break;
+        }
+    }
+
+    private Vector2 GetPuzzleScaleForPose(int pose)
+    {
+        switch (pose)
+        {
+            case 4: return doorPuzzleIconScale;
+            case 3: return rejoicesPuzzleIconScale;
+            case 2: return trainingPuzzleIconScale;
+            default: return dialoguePuzzleIconScale;
+        }
+    }
+
     private void UpdateKeeperVisual()
     {
         if (tutorialSuppressed)
@@ -1122,8 +1302,28 @@ public class TutorialTextController : MonoBehaviour
         float rotation
     )
     {
-        if (puzzleKeeperImage != null && sprite != null)
-            puzzleKeeperImage.sprite = sprite;
+        Vector2 keeperPosition;
+        Vector2 keeperSize;
+        float keeperRotation;
+        Vector2 keeperScale;
+        GetKeeperTransformSettings(
+            pose, out keeperPosition, out keeperSize,
+            out keeperRotation, out keeperScale
+        );
+
+        if (puzzleKeeperImage != null)
+        {
+            if (sprite != null)
+                puzzleKeeperImage.sprite = sprite;
+
+            RectTransform keeperRect = puzzleKeeperImage.rectTransform;
+            keeperRect.anchoredPosition = keeperPosition;
+            keeperRect.sizeDelta = keeperSize;
+            keeperRect.localRotation = Quaternion.Euler(0f, 0f, keeperRotation);
+            keeperRect.localScale = new Vector3(
+                keeperScale.x, keeperScale.y, keeperRect.localScale.z
+            );
+        }
 
         if (keeperPuzzleIcon != null)
         {
@@ -1133,13 +1333,22 @@ public class TutorialTextController : MonoBehaviour
             Vector3 euler = keeperPuzzleIcon.localEulerAngles;
             euler.z = rotation;
             keeperPuzzleIcon.localEulerAngles = euler;
+
+            Vector2 iconScale = GetPuzzleScaleForPose(pose);
+            keeperPuzzleIcon.localScale = new Vector3(
+                iconScale.x, iconScale.y, keeperPuzzleIcon.localScale.z);
         }
 
         lastKeeperPose = pose;
         lastKeeperSprite = sprite;
+        lastKeeperPosition = keeperPosition;
+        lastKeeperSize = keeperSize;
+        lastKeeperRotationZ = keeperRotation;
+        lastKeeperScale = keeperScale;
         lastPuzzlePosition = position;
         lastPuzzleSize = size;
         lastPuzzleRotation = rotation;
+        lastPuzzleScale = GetPuzzleScaleForPose(pose);
         keeperVisualInitialized = true;
     }
 
@@ -1178,10 +1387,8 @@ public class TutorialTextController : MonoBehaviour
             return;
         }
 
-        SetButtonVisible(
-            previousButton,
-            IsValidPage(GetPreviousPageIndex())
-        );
+        // Never show the old previous-page arrow.
+        SetButtonVisible(previousButton, false);
 
         SetButtonVisible(
             nextButton,
@@ -1211,8 +1418,63 @@ public class TutorialTextController : MonoBehaviour
 
     private void SetButtonVisible(Button button, bool visible)
     {
-        if (button != null)
+        if (button == null)
+            return;
+
+        if (button == previousButton)
+            visible = false;
+
+        if (button.gameObject.activeSelf != visible)
             button.gameObject.SetActive(visible);
+
+        if (button == previousButton)
+            button.interactable = false;
+
+        if (button == nextButton)
+            SetNextButtonPulseActive(visible);
+    }
+
+    private void SetNextButtonPulseActive(bool visible)
+    {
+        if (nextButton == null)
+            return;
+
+        // Prefer the same animation component used by the left Keeper.
+        if (nextArrowPulse == null)
+            nextArrowPulse = nextButton.GetComponent<TutorialArrowPulse>();
+
+        if (nextArrowPulse != null)
+        {
+            nextArrowPulse.SetPulseActive(visible);
+            nextPulseVisible = false;
+            return;
+        }
+
+        // Fallback: no extra script or Inspector reference is needed.
+        if (visible && !nextPulseVisible)
+        {
+            nextButtonOriginalScale = nextButton.transform.localScale;
+            nextPulseStartTime = Time.unscaledTime;
+        }
+
+        nextPulseVisible = visible;
+
+        if (!visible)
+            nextButton.transform.localScale = nextButtonOriginalScale;
+    }
+
+    private void UpdateNextButtonPulse()
+    {
+        if (!nextPulseVisible || nextArrowPulse != null ||
+            nextButton == null || !nextButton.gameObject.activeInHierarchy)
+            return;
+
+        // Use unscaled time so the arrow pulses even when the game pauses.
+        float phase = (Time.unscaledTime - nextPulseStartTime) *
+                      (2f * Mathf.PI / NextPulsePeriod);
+        float amount = 0.5f - 0.5f * Mathf.Cos(phase);
+        nextButton.transform.localScale = nextButtonOriginalScale *
+                                          (1f + NextPulseAmount * amount);
     }
 
     // ============================================================
@@ -1349,7 +1611,13 @@ public class TutorialTextController : MonoBehaviour
     private void OnDestroy()
     {
         if (nextButton != null)
+        {
             nextButton.onClick.RemoveListener(NextPage);
+            if (nextArrowPulse != null)
+                nextArrowPulse.SetPulseActive(false);
+            else
+                nextButton.transform.localScale = nextButtonOriginalScale;
+        }
 
         if (previousButton != null)
             previousButton.onClick.RemoveListener(PreviousPage);
