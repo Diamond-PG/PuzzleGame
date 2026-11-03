@@ -197,6 +197,54 @@ MonoBehaviour:
     m_Localized: Jetzt probier die Keule aus!
     m_Metadata:
       m_Items: []
+  - m_Id: 10107954248232960
+    m_Localized: Siehst du die Kiste dort?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10108333253931008
+    m_Localized: Versuch, sie mit der Keule zu zerschlagen!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10126431323369472
+    m_Localized: "Gl\xFCckwunsch! Du hast ein Herz gefunden!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10127184171577344
+    m_Localized: "Es erh\xF6ht deinen Herzvorrat!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10441284294488064
+    m_Localized: "Jetzt wei\xDFt du, wie du innerhalb dieser Mauern \xFCberlebst."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10441615501897728
+    m_Localized: Ab jetzt liegt alles an dir. Bleib wachsam!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10489151713390592
+    m_Localized: Das erste Teil ist gefunden!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10489595734994944
+    m_Localized: "Du hast einen Teil des verlorenen Bildes zur\xFCckgebracht!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10489864606658560
+    m_Localized: Danke, {name}! Das ist der erste Schritt
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10490230014423040
+    m_Localized: "zur L\xF6sung des R\xE4tsels um das verlorene Bild!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10490472612966400
+    m_Localized: Unsere Reise beginnt gerade erst.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10490648035536896
+    m_Localized: Bis bald, {name}!
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

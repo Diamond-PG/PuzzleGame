@@ -716,6 +716,7 @@ GameObject:
   - component: {fileID: 18069330}
   - component: {fileID: 18069331}
   - component: {fileID: 18069332}
+  - component: {fileID: 18069333}
   m_Layer: 5
   m_Name: TutorialFrame
   m_TagString: Untagged
@@ -1070,6 +1071,27 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &18069333
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 18069325}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e27b976b6b89364fadbb7a641e36936, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KeeperFirstAppearanceSound
+  tutorialController: {fileID: 18069329}
+  keeperVisual: {fileID: 983991473}
+  tutorialTextObject: {fileID: 928954690}
+  firstTutorialPage: 0
+  audioSource: {fileID: 18069331}
+  appearanceSound: {fileID: 8300000, guid: 6996140d33a3afb4dbd8562f3ba76073, type: 3}
+  appearanceVolume: 1
+  appearanceDelay: 0
+  debugLogs: 0
 --- !u!1 &18863880
 GameObject:
   m_ObjectHideFlags: 0
@@ -14273,7 +14295,7 @@ MonoBehaviour:
   breakVolume: 1
   usePlayerCelebrationSound: 1
   playerCelebrationAudioSource: {fileID: 499127401}
-  playerCelebrationSound: {fileID: 8300000, guid: b0b1ad588d5a9cf4d9e53ccab53f62c5, type: 3}
+  playerCelebrationSound: {fileID: 8300000, guid: 6bb89e4e9ba191f47b9943d03bfd362c, type: 3}
   playerCelebrationVolume: 1
   playerCelebrationDelay: 0
   skipPrisonIntroForTesting: 0
@@ -15939,6 +15961,12 @@ GameObject:
   - component: {fileID: 610955517}
   - component: {fileID: 610955519}
   - component: {fileID: 610955520}
+  - component: {fileID: 610955521}
+  - component: {fileID: 610955522}
+  - component: {fileID: 610955523}
+  - component: {fileID: 610955525}
+  - component: {fileID: 610955526}
+  - component: {fileID: 610955524}
   m_Layer: 5
   m_Name: TutorialFrame_Left
   m_TagString: Untagged
@@ -16188,6 +16216,7 @@ MonoBehaviour:
   clubPickup: {fileID: 1284557356}
   playerController: {fileID: 1904351161}
   climbLesson: {fileID: 610955519}
+  handLessonNearDistance: 0.35
   leftTutorialText: {fileID: 277639956}
   leftFrameCanvasGroup: {fileID: 610955518}
   goldNextButton: {fileID: 1044552962}
@@ -16250,6 +16279,12 @@ MonoBehaviour:
   reEquipKey: tutorial_41
   reEquipFallback: "\u0410 \u0442\u0435\u043F\u0435\u0440\u044C \u0441\u043D\u043E\u0432\u0430
     \u0432\u044B\u0431\u0435\u0440\u0438 \u0434\u0443\u0431\u0438\u043D\u043A\u0443."
+  firstBoxQuestionKey: tutorial_43
+  firstBoxQuestionFallback: "\u0412\u0438\u0434\u0438\u0448\u044C \u0432\u043E\u043D
+    \u0442\u043E\u0442 \u044F\u0449\u0438\u043A?"
+  firstBoxInstructionKey: tutorial_44
+  firstBoxInstructionFallback: "\u041F\u043E\u043F\u0440\u043E\u0431\u0443\u0439
+    \u0440\u0430\u0437\u0431\u0438\u0442\u044C \u0435\u0433\u043E \u0434\u0443\u0431\u0438\u043D\u043A\u043E\u0439!"
   happyKeeperPose:
     keeperSprite: {fileID: 21300000, guid: 27682df6b5f38324bbbcfd81c521a124, type: 3}
     keeperPosition: {x: 128, y: -221}
@@ -16279,11 +16314,392 @@ MonoBehaviour:
   unequipButton: {fileID: 143506240}
   unequipButtonGraphic: {fileID: 143506238}
   unequipSpotlightScale: 1.2
+  firstHeartBoxTarget: {fileID: 931952440}
+  firstBoxWorldCamera: {fileID: 519420031}
+  firstBoxSpotlightScale: 0.85
+  firstBoxSpotlightOffset: {x: 0, y: -0.2}
+  firstBoxSpotlightPadding: 0.012
+  firstBoxMinimumWindowWidth: 0.1
+  firstBoxMinimumWindowHeight: 0.12
+  boxResumeTriggerDistance: 5
+  downwardKeeperPose:
+    keeperSprite: {fileID: 21300000, guid: d494df2e9086cba4eacb8bb038b8cb1f, type: 3}
+    keeperPosition: {x: 134.8, y: -221}
+    keeperSize: {x: 230, y: 230}
+    keeperRotationZ: 0
+    keeperScale: {x: 1, y: 1}
+    puzzlePosition: {x: -11, y: -58}
+    puzzleSize: {x: 27, y: 27}
+    puzzleRotationZ: 20
+    puzzleScale: {x: 1, y: 1}
   weaponDurabilityFill: {fileID: 1752157712}
   previewBarWhenUnequipped: 1
   tutorialFlashCount: 3
   flashVisibleSeconds: 0.8
   flashHiddenSeconds: 0.5
+--- !u!114 &610955521
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 610955513}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5ba7d7b9edceaf448d7a124e0e0e9e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TutorialHeartLesson
+  firstHeartPickup: {fileID: 1501569180}
+  firstHeartBoxTarget: {fileID: 931952440}
+  playerController: {fileID: 1904351161}
+  resumeNearBoxDistance: 5
+  afterPickupUIWait: 0.22
+  leftTutorialText: {fileID: 277639956}
+  leftFrameCanvasGroup: {fileID: 610955518}
+  goldNextButton: {fileID: 1044552962}
+  goldNextPulse: {fileID: 1044552959}
+  tutorialDimmer: {fileID: 1518919445}
+  keeperImage: {fileID: 233771945}
+  keeperPuzzleIcon: {fileID: 1525713185}
+  heartsUI: {fileID: 1635788706}
+  heartsContainer: {fileID: 1501043034}
+  bonusHeartBadge: {fileID: 54587518}
+  localizationTable: Tutorial
+  congratulationsKey: tutorial_45
+  congratulationsFallback: "\u0423\u0445 \u0442\u044B! \u0422\u044B \u043D\u0430\u0448\u0451\u043B
+    \u0441\u0435\u0440\u0434\u0435\u0447\u043A\u043E!"
+  explanationKey: tutorial_46
+  explanationFallback: "\u041E\u043D\u043E \u043F\u043E\u043F\u043E\u043B\u043D\u044F\u0435\u0442
+    \u0442\u0432\u043E\u0439 \u0437\u0430\u043F\u0430\u0441 \u0441\u0435\u0440\u0434\u0435\u0447\u0435\u043A!"
+  happyKeeperPose:
+    keeperSprite: {fileID: 21300000, guid: 27682df6b5f38324bbbcfd81c521a124, type: 3}
+    keeperPosition: {x: 134.8, y: -221}
+    keeperSize: {x: 230, y: 230}
+    keeperRotationZ: 0
+    keeperScale: {x: 1, y: 1}
+    puzzlePosition: {x: 6.9, y: -63.8}
+    puzzleSize: {x: 27, y: 27}
+    puzzleRotationZ: 20
+    puzzleScale: {x: 1, y: 1}
+  openPalmKeeperPose:
+    keeperSprite: {fileID: 21300000, guid: 83884512de509784488a476f6b30f331, type: 3}
+    keeperPosition: {x: 134.8, y: -221}
+    keeperSize: {x: 230, y: 230}
+    keeperRotationZ: 0
+    keeperScale: {x: 1, y: 1}
+    puzzlePosition: {x: -13, y: -63.8}
+    puzzleSize: {x: 27, y: 27}
+    puzzleRotationZ: 20
+    puzzleScale: {x: 1, y: 1}
+  ovalOffsetX: -0.04
+  ovalOffsetY: 0
+  ovalWidthMultiplier: 1
+  ovalHeightMultiplier: 1.55
+  ovalExtraWidth: 0.012
+  ovalExtraHeight: 0.018
+  spotlightTextureResolution: 256
+  ovalEdgeSoftness: 0.06
+  flashCount: 3
+  flashVisibleSeconds: 0.8
+  flashHiddenSeconds: 0.5
+  flashStartDelay: 0.35
+  survivalKey: tutorial_47
+  survivalFallback: "\u0422\u0435\u043F\u0435\u0440\u044C \u0442\u044B \u0437\u043D\u0430\u0435\u0448\u044C,
+    \u043A\u0430\u043A \u0432\u044B\u0436\u0438\u0442\u044C \u0432 \u044D\u0442\u0438\u0445
+    \u0441\u0442\u0435\u043D\u0430\u0445."
+  warningKey: tutorial_48
+  warningFallback: "\u0414\u0430\u043B\u044C\u0448\u0435 \u0432\u0441\u0451 \u0437\u0430\u0432\u0438\u0441\u0438\u0442
+    \u043E\u0442 \u0442\u0435\u0431\u044F. \u0411\u0443\u0434\u044C \u043D\u0430\u0447\u0435\u043A\u0443."
+  survivalKeeperPose:
+    keeperSprite: {fileID: 21300000, guid: 83884512de509784488a476f6b30f331, type: 3}
+    keeperPosition: {x: 134.8, y: -221}
+    keeperSize: {x: 230, y: 230}
+    keeperRotationZ: 0
+    keeperScale: {x: 1, y: 1}
+    puzzlePosition: {x: -13, y: -63.8}
+    puzzleSize: {x: 27, y: 27}
+    puzzleRotationZ: 20
+    puzzleScale: {x: 1, y: 1}
+  warningKeeperPose:
+    keeperSprite: {fileID: 21300000, guid: 83884512de509784488a476f6b30f331, type: 3}
+    keeperPosition: {x: 134.8, y: -221}
+    keeperSize: {x: 230, y: 230}
+    keeperRotationZ: 0
+    keeperScale: {x: 1, y: 1}
+    puzzlePosition: {x: -13, y: -63.8}
+    puzzleSize: {x: 27, y: 27}
+    puzzleRotationZ: 20
+    puzzleScale: {x: 1, y: 1}
+  goodbyeFadeSeconds: 0.65
+--- !u!114 &610955522
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 610955513}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89b18241a6b06294f86b9776dca10b65, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TutorialClubButtonGuard
+  weaponButton: {fileID: 452550983}
+  unequipButton: {fileID: 143506240}
+  keeperFrame: {fileID: 610955518}
+  goldNextButton: {fileID: 1044552962}
+  enableProtection: 1
+  firstProtectedStage: 25
+  lastProtectedStage: 28
+  requireVisibleKeeper: 1
+  requireGoldNextButton: 1
+  protectTutorial38And39: 1
+  debugLogs: 0
+--- !u!114 &610955523
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 610955513}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56d5ad2751563584592e53ecf0447954, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TutorialPuzzleFinale
+  firstPuzzlePiece: {fileID: 574704014}
+  puzzlePieceRenderer: {fileID: 574704013}
+  waitAfterPuzzleDisappears: 0.25
+  requireCompletedHeartLesson: 1
+  leftTutorialText: {fileID: 277639956}
+  leftFrameCanvasGroup: {fileID: 610955518}
+  goldNextButton: {fileID: 1044552962}
+  goldNextPulse: {fileID: 1044552959}
+  keeperImage: {fileID: 233771945}
+  keeperPuzzleIcon: {fileID: 1525713185}
+  tutorialDimmer: {fileID: 1518919445}
+  playerController: {fileID: 1904351161}
+  actionControlsGroup: {fileID: 0}
+  inventoryControlsGroup: {fileID: 0}
+  localizationTable: Tutorial
+  page49Key: tutorial_49
+  page49Fallback: "\u041F\u0435\u0440\u0432\u044B\u0439 \u0444\u0440\u0430\u0433\u043C\u0435\u043D\u0442
+    \u043D\u0430\u0439\u0434\u0435\u043D!"
+  page50Key: tutorial_50
+  page50Fallback: "\u0422\u044B \u0432\u0435\u0440\u043D\u0443\u043B \u0447\u0430\u0441\u0442\u044C
+    \u0443\u0442\u0440\u0430\u0447\u0435\u043D\u043D\u043E\u0439 \u043A\u0430\u0440\u0442\u0438\u043D\u044B!"
+  page51Key: tutorial_51
+  page51Fallback: "\u0421\u043F\u0430\u0441\u0438\u0431\u043E, {name}! \u042D\u0442\u043E
+    \u043F\u0435\u0440\u0432\u044B\u0439 \u0448\u0430\u0433"
+  page52Key: tutorial_52
+  page52Fallback: "\u043A \u0440\u0430\u0437\u0433\u0430\u0434\u043A\u0435 \u0442\u0430\u0439\u043D\u044B
+    \u0443\u0442\u0440\u0430\u0447\u0435\u043D\u043D\u043E\u0439 \u043A\u0430\u0440\u0442\u0438\u043D\u044B!"
+  page53Key: tutorial_53
+  page53Fallback: "\u041D\u0430\u0448 \u043F\u0443\u0442\u044C \u0442\u043E\u043B\u044C\u043A\u043E
+    \u043D\u0430\u0447\u0438\u043D\u0430\u0435\u0442\u0441\u044F."
+  page54Key: tutorial_54
+  page54Fallback: "\u0414\u043E \u0441\u043A\u043E\u0440\u043E\u0439 \u0432\u0441\u0442\u0440\u0435\u0447\u0438,
+    {name}!"
+  page49Pose:
+    keeperSprite: {fileID: 21300000, guid: 27682df6b5f38324bbbcfd81c521a124, type: 3}
+    keeperPosition: {x: 134.8, y: -221}
+    keeperSize: {x: 230, y: 230}
+    keeperRotationZ: 0
+    keeperScale: {x: 1, y: 1}
+    puzzlePosition: {x: 6.9, y: -63.8}
+    puzzleSize: {x: 27, y: 27}
+    puzzleRotationZ: 20
+    puzzleScale: {x: 1, y: 1}
+  page50Pose:
+    keeperSprite: {fileID: 21300000, guid: 27682df6b5f38324bbbcfd81c521a124, type: 3}
+    keeperPosition: {x: 134.8, y: -221}
+    keeperSize: {x: 230, y: 230}
+    keeperRotationZ: 0
+    keeperScale: {x: 1, y: 1}
+    puzzlePosition: {x: 6.9, y: -63.8}
+    puzzleSize: {x: 27, y: 27}
+    puzzleRotationZ: 20
+    puzzleScale: {x: 1, y: 1}
+  page51Pose:
+    keeperSprite: {fileID: 21300000, guid: 83884512de509784488a476f6b30f331, type: 3}
+    keeperPosition: {x: 134.8, y: -221}
+    keeperSize: {x: 230, y: 230}
+    keeperRotationZ: 0
+    keeperScale: {x: 1, y: 1}
+    puzzlePosition: {x: -13, y: -63.8}
+    puzzleSize: {x: 27, y: 27}
+    puzzleRotationZ: 20
+    puzzleScale: {x: 1, y: 1}
+  page52Pose:
+    keeperSprite: {fileID: 21300000, guid: 83884512de509784488a476f6b30f331, type: 3}
+    keeperPosition: {x: 134.8, y: -221}
+    keeperSize: {x: 230, y: 230}
+    keeperRotationZ: 0
+    keeperScale: {x: 1, y: 1}
+    puzzlePosition: {x: -13, y: -63.8}
+    puzzleSize: {x: 27, y: 27}
+    puzzleRotationZ: 20
+    puzzleScale: {x: 1, y: 1}
+  page53Pose:
+    keeperSprite: {fileID: 21300000, guid: 83884512de509784488a476f6b30f331, type: 3}
+    keeperPosition: {x: 134.8, y: -221}
+    keeperSize: {x: 230, y: 230}
+    keeperRotationZ: 0
+    keeperScale: {x: 1, y: 1}
+    puzzlePosition: {x: -13, y: -63.8}
+    puzzleSize: {x: 27, y: 27}
+    puzzleRotationZ: 20
+    puzzleScale: {x: 1, y: 1}
+  page54Pose:
+    keeperSprite: {fileID: 21300000, guid: 2a224a8f9f04a0848bb2c825b3db5f8e, type: 3}
+    keeperPosition: {x: 134.8, y: -221}
+    keeperSize: {x: 230, y: 230}
+    keeperRotationZ: 0
+    keeperScale: {x: 1, y: 1}
+    puzzlePosition: {x: -2, y: -63.8}
+    puzzleSize: {x: 27, y: 27}
+    puzzleRotationZ: 20
+    puzzleScale: {x: 1, y: 1}
+  finalFadeDuration: 0.75
+  saveCompletedDialogue: 1
+  saveKey: TutorialPuzzleFinale_Completed
+  debugLogs: 0
+--- !u!82 &610955524
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 610955513}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!114 &610955525
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 610955513}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9dda6d7ce14fe244c902c0d03e489119, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KeeperLeftAppearanceSound
+  leftFrameReveal: {fileID: 610955517}
+  leftFrameCanvasGroup: {fileID: 610955518}
+  audioSource: {fileID: 610955524}
+  appearanceSound: {fileID: 8300000, guid: 24117ecd826fd2f4d8476c3515452018, type: 3}
+  appearanceVolume: 0.8
+  appearancePitch: 1
+  soundDelay: 0
+  triggerAlpha: 0.02
+  debugLogs: 0
+--- !u!114 &610955526
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 610955513}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4cad6cd695eea6848810f4ffeae76e45, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KeeperFinalFarewellSound
+  completedDialogueSaveKey: TutorialPuzzleFinale_Completed
+  audioSource: {fileID: 610955524}
+  farewellSound: {fileID: 8300000, guid: 477dd36b4bd3859438c5e14f24c7b9eb, type: 3}
+  farewellVolume: 0.8
+  farewellPitch: 1
+  soundDelay: 0
+  debugLogs: 0
 --- !u!1 &613771820
 GameObject:
   m_ObjectHideFlags: 0
@@ -21236,6 +21652,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BreakableMiddleBox
   hitsToBreak: 3
+  protectUntilTutorial44: 1
+  unlockAtLeftTutorialStage: 29
+  blockKickDamage: 1
   playerTag: Player
   player: {fileID: 0}
   playerCollider: {fileID: 0}
@@ -26840,7 +27259,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1289782097
 Transform:
   m_ObjectHideFlags: 0
@@ -37679,6 +38098,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BreakableMiddleBox
   hitsToBreak: 3
+  protectUntilTutorial44: 0
+  unlockAtLeftTutorialStage: 29
+  blockKickDamage: 0
   playerTag: Player
   player: {fileID: 0}
   playerCollider: {fileID: 0}
@@ -38751,6 +39173,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BreakableMiddleBox
   hitsToBreak: 3
+  protectUntilTutorial44: 0
+  unlockAtLeftTutorialStage: 29
+  blockKickDamage: 0
   playerTag: Player
   player: {fileID: 0}
   playerCollider: {fileID: 0}
@@ -40072,7 +40497,7 @@ Transform:
   m_GameObject: {fileID: 1904351154}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -9.551, y: 8.091, z: 0}
+  m_LocalPosition: {x: -9.55, y: 8.09, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -40151,8 +40576,8 @@ MonoBehaviour:
   blinkCount: 3
   blinkInterval: 0.3
   sfxSource: {fileID: 1904351163}
-  damageClip: {fileID: 8300000, guid: e263224f4a612ee49b1499a55be4a13e, type: 3}
-  damageVolume: 0.5
+  damageClip: {fileID: 8300000, guid: 6436d3560f25c034f9bea3c580bb0864, type: 3}
+  damageVolume: 0.8
   deathClip: {fileID: 8300000, guid: 8f333782c62773d4387da8d751d8863d, type: 3}
   deathVolume: 0.9
   useHitFlash: 1
@@ -40417,13 +40842,13 @@ MonoBehaviour:
   airborneFramesToArmLanding: 2
   landingAudioSource: {fileID: 1904351168}
   normalLandingClip: {fileID: 8300000, guid: f1b83fc18bc024b469b4bfa9a666b1c5, type: 3}
-  hurtLandingClip: {fileID: 8300000, guid: 5f9435b480ddeae4a8c30a5f39b4917d, type: 3}
+  hurtLandingClip: {fileID: 8300000, guid: 6436d3560f25c034f9bea3c580bb0864, type: 3}
   smallLandingVolume: 0.75
   smallLandingPitch: 1
-  mediumLandingVolume: 0.9
+  mediumLandingVolume: 0.8
   mediumLandingPitch: 1
-  heavyLandingVolume: 1
-  heavyLandingPitch: 0.94
+  heavyLandingVolume: 0.8
+  heavyLandingPitch: 0.9
   smallLandingVibrationMs: 12
   mediumLandingVibrationMs: 28
   heavyLandingVibrationMs: 45
@@ -40453,7 +40878,7 @@ MonoBehaviour:
   stopHorizontalMovement: 1
   lockMovementDuringKick: 1
   kickAudioSource: {fileID: 1904351168}
-  kickVoiceSound: {fileID: 8300000, guid: af8305d354996404bbf4e9ed7054ad3d, type: 3}
+  kickVoiceSound: {fileID: 8300000, guid: dc8e0b1b78889584487a0a0ed75ae344, type: 3}
   kickVoiceVolume: 0.7
   kickVoiceDelay: 0
 --- !u!82 &1904351168
@@ -41357,6 +41782,8 @@ GameObject:
   - component: {fileID: 2039153963}
   - component: {fileID: 2039153962}
   - component: {fileID: 2039153965}
+  - component: {fileID: 2039153967}
+  - component: {fileID: 2039153966}
   m_Layer: 5
   m_Name: PrisonDarknessMask
   m_TagString: Untagged
@@ -41515,6 +41942,122 @@ MonoBehaviour:
   offsetX: -0.035
   offsetY: 0.12
   alignOnStart: 1
+--- !u!114 &2039153966
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2039153960}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01316a4637ae3c640b67b3b2a8cf7dee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PrisonRevealSound
+  darknessMask: {fileID: 2039153962}
+  darknessImage: {fileID: 2039153963}
+  audioSource: {fileID: 2039153967}
+  revealSound: {fileID: 8300000, guid: c80b2caf57403f64ca883ddaabf7d450, type: 3}
+  volume: 0.8
+  fadeStartThreshold: 0.999
+  debugLogs: 0
+--- !u!82 &2039153967
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2039153960}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &2040547184
 GameObject:
   m_ObjectHideFlags: 0

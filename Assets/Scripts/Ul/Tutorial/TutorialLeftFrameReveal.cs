@@ -608,6 +608,29 @@ public class TutorialLeftFrameReveal : MonoBehaviour
 
         started = true;
 
+        // A resumed climb / club / later tutorial owns this shared Keeper UI.
+        // The old post-door controller must not revive its empty "walk to
+        // ladder" frame when the scene is loaded again. Stage 4 retains its
+        // original intentional blank frame until the ladder is reached.
+        if (HasAdvancedBeyondLadderApproach())
+        {
+            currentStage = TutorialStage.WalkToLadder;
+            appearanceStarted = true;
+            appearanceFinished = true;
+            localizationReady = true;
+
+            frameCanvasGroup.alpha = 0f;
+            frameCanvasGroup.interactable = false;
+            frameCanvasGroup.blocksRaycasts = false;
+            tutorialTextLeft.text = "";
+            tutorialNextButtonLeft.gameObject.SetActive(false);
+            SetArrowPulse(false);
+
+            // Later lessons control Keeper text, pose, dimmer and pause.
+            // Do not change their UI or rewrite the saved stage here.
+            return;
+        }
+
         BeginLocalizationLoad();
     }
 
@@ -773,6 +796,15 @@ public class TutorialLeftFrameReveal : MonoBehaviour
         // CAMERA IS READY
         // START GREETING / DIMMING / PAUSE TOGETHER
         // ========================================================
+
+        // A later lesson may have started while this camera-wait coroutine
+        // was running. Never overwrite its Keeper sprite, message or frame.
+        if (HasAdvancedBeyondLadderApproach())
+        {
+            appearanceFinished = true;
+            appearanceRoutine = null;
+            yield break;
+        }
 
         currentStage = stageToRestoreAfterReveal;
 
@@ -956,6 +988,16 @@ public class TutorialLeftFrameReveal : MonoBehaviour
     // ============================================================
     // AUTOSAVE - EXACT LEFT KEEPER STAGE
     // ============================================================
+
+    // Stage 4 is the intentional blank-frame walk toward the ladder.
+    // Stage 5 and later belong to the climbing, club and future lessons.
+    private bool HasAdvancedBeyondLadderApproach()
+    {
+        return TutorialProgressManager.DoorBroken &&
+               TutorialProgressManager.HasSavedLeftTutorialStage &&
+               TutorialProgressManager.SavedLeftTutorialStage >
+                   (int)TutorialStage.WalkToLadder;
+    }
 
     private TutorialStage GetSavedLeftStage()
     {
@@ -1835,7 +1877,9 @@ public class TutorialLeftFrameReveal : MonoBehaviour
 
     private void ShowCurrentStageText()
     {
-        if (tutorialTextLeft == null)
+        // An old localization request may complete after a newer lesson
+        // takes ownership. Do not blank out that lesson's dialogue.
+        if (HasAdvancedBeyondLadderApproach() || tutorialTextLeft == null)
             return;
 
         string textToShow = "";
@@ -1879,7 +1923,7 @@ public class TutorialLeftFrameReveal : MonoBehaviour
 
     private void OnSelectedLocaleChanged(Locale locale)
     {
-        if (!started)
+        if (!started || HasAdvancedBeyondLadderApproach())
             return;
 
         BeginLocalizationLoad();

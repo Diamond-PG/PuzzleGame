@@ -66,6 +66,10 @@ public class BonusHeartPickup : MonoBehaviour, IHandInteractable
     private Camera mainCamera;
     private Transform playerTransform;
 
+    // Fires exactly once, AFTER the reward is credited to the player UI.
+    // Only a lesson explicitly subscribed to THIS BonusHeart receives it.
+    public event System.Action<BonusHeartPickup> PickupCompleted;
+
     private bool pickedUp;
     private bool shouldRestoreRegularHeart;
 
@@ -859,6 +863,12 @@ public class BonusHeartPickup : MonoBehaviour, IHandInteractable
         {
             heartsUI.AddBonusHeart();
         }
+
+        // At this point the flying animation is finished (if enabled)
+        // and TryRestoreHeart/AddBonusHeart has already updated the UI.
+        // Do not freeze the game here: the tutorial will wait briefly for
+        // the existing pop animation and then pause on its own.
+        PickupCompleted?.Invoke(this);
 
         if (spriteRenderer != null)
         {

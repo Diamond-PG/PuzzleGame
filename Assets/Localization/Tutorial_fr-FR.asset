@@ -199,6 +199,54 @@ MonoBehaviour:
     m_Localized: "Maintenant, essaie de t\u2019en servir !"
     m_Metadata:
       m_Items: []
+  - m_Id: 10107954248232960
+    m_Localized: "Tu vois cette caisse l\xE0-bas ?"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10108333253931008
+    m_Localized: Essaie de la casser avec ta massue !
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10126431323369472
+    m_Localized: "F\xE9licitations ! Tu as trouv\xE9 un c\u0153ur !"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10127184171577344
+    m_Localized: "Il augmente ta r\xE9serve de c\u0153urs !"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10441284294488064
+    m_Localized: Tu sais maintenant comment survivre entre ces murs.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10441615501897728
+    m_Localized: "La suite d\xE9pend de toi. Reste sur tes gardes !"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10489151713390592
+    m_Localized: "Tu as trouv\xE9 le premier fragment !"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10489595734994944
+    m_Localized: "Tu as retrouv\xE9 une partie de l'image perdue !"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10489864606658560
+    m_Localized: Merci, {name} ! C'est le premier pas
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10490230014423040
+    m_Localized: "pour percer le myst\xE8re de l'image perdue !"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10490472612966400
+    m_Localized: Notre voyage ne fait que commencer.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10490648035536896
+    m_Localized: "\xC0 bient\xF4t, {name} !"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

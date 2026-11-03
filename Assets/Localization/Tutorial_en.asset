@@ -194,6 +194,54 @@ MonoBehaviour:
     m_Localized: Now put your club to use!
     m_Metadata:
       m_Items: []
+  - m_Id: 10107954248232960
+    m_Localized: See that box over there?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10108333253931008
+    m_Localized: Try breaking it with your club!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10126431323369472
+    m_Localized: Congratulations! You found a heart!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10127184171577344
+    m_Localized: It adds to your heart reserve!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10441284294488064
+    m_Localized: Now you know how to survive within these walls.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10441615501897728
+    m_Localized: The rest is up to you. Stay alert!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10489151713390592
+    m_Localized: The first piece has been found!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10489595734994944
+    m_Localized: You've recovered part of the lost picture!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10489864606658560
+    m_Localized: Thank you, {name}! This is the first step
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10490230014423040
+    m_Localized: toward solving the mystery of the lost picture!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10490472612966400
+    m_Localized: Our journey is only beginning.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10490648035536896
+    m_Localized: See you soon, {name}!
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

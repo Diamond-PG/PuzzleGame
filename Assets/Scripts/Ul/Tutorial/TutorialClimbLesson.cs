@@ -30,6 +30,12 @@ public class TutorialClimbLesson : MonoBehaviour
     private const int StageApproachExplanation = 11;
     private const int StageJumpExplanation = 12;
 
+    // Once the club tutorial starts, the ladder lesson must never
+    // restart or overwrite its saved progress. Values 11 and 12 are
+    // still the last two CLIMB pages; 10 is the completed checkpoint.
+    private const int StageClubLessonStarted = 13;
+    private const int StageCompletedClubLesson = 26;
+
     [Header("01 - EXISTING TUTORIAL REFERENCES")]
     [SerializeField] private TutorialLeftFrameReveal leftFrame;
     [SerializeField] private TMP_Text leftTutorialText;
@@ -168,8 +174,6 @@ public class TutorialClimbLesson : MonoBehaviour
     private Phase phase = Phase.Waiting;
     private bool upDone;
     private bool downDone;
-    private float lastPlayerY;
-    private bool hasLastPlayerY;
     private Transform hero;
     private bool pausedByThis;
     private bool movementLockApplied;
@@ -218,7 +222,10 @@ public class TutorialClimbLesson : MonoBehaviour
         BindNextButton();
         isReady = true;
         int saved = TutorialProgressManager.SavedLeftTutorialStage;
-        if (saved == StageWalkToStick)
+        // 10 means the climb lesson ended; 11 and 12 are still climb pages.
+        // Any saved stage 13+ belongs to the club/future lessons and must
+        // NOT be started again when the player grabs the ladder.
+        if (saved == StageWalkToStick || saved >= StageClubLessonStarted)
             phase = Phase.Finished;
 
         // Previously learned arrows remain available after reloading.
@@ -374,6 +381,15 @@ public class TutorialClimbLesson : MonoBehaviour
 
     private void OnHookGrabbed(ClimbHook hook)
     {
+        // Guard before all other checks: even if this component was
+        // re-enabled while a later lesson is active, the old ladder
+        // instruction must not overwrite saved club progress.
+        if (TutorialProgressManager.SavedLeftTutorialStage >= StageClubLessonStarted)
+        {
+            phase = Phase.Finished;
+            return;
+        }
+
         if (!isReady || phase != Phase.Waiting || leftFrame == null ||
             !leftFrame.IsWaitingForLadder || !TutorialProgressManager.DoorBroken)
             return;
@@ -404,7 +420,7 @@ public class TutorialClimbLesson : MonoBehaviour
         }
 
         int saved = TutorialProgressManager.SavedLeftTutorialStage;
-        if (saved == StageWalkToStick)
+        if (saved == StageWalkToStick || saved >= StageClubLessonStarted)
         {
             phase = Phase.Finished;
             SetClimbButtonsEnabled(true);
@@ -420,8 +436,6 @@ public class TutorialClimbLesson : MonoBehaviour
                    saved == StageStickQuestion ||
                    saved == StageApproachExplanation ||
                    saved == StageJumpExplanation;
-        lastPlayerY = hero.position.y;
-        hasLastPlayerY = true;
         TutorialProgressManager.MarkLadderReached();
 
         // Restore the exact lesson part after reload.
@@ -472,8 +486,6 @@ public class TutorialClimbLesson : MonoBehaviour
         ShowArrowSpotlights();
         SetGoldNextVisible(false);
         practiceInputReleased = !pauseUntilFirstVerticalPress;
-        lastPlayerY = hero != null ? hero.position.y : 0f;
-        hasLastPlayerY = hero != null;
         // A SINGLE short movement is allowed for each UP/DOWN press.
         // Holding either button has no effect beyond that short step.
         ClimbHook.BeginTutorialSingleTapClimb(
@@ -704,6 +716,11 @@ public class TutorialClimbLesson : MonoBehaviour
     {
         if (leftFrame == null) return;
         int saved = TutorialProgressManager.SavedLeftTutorialStage;
+        // Club and later tutorials now own the shared Keeper frame.
+        // Never hide their text or their gold Next arrow from this script.
+        if (saved >= StageClubLessonStarted)
+            return;
+
         if (phase == Phase.Finished ||
             (phase == Phase.Waiting && leftFrame.IsWaitingForLadder))
         {
@@ -967,6 +984,35 @@ public class TutorialClimbLesson : MonoBehaviour
     }
 
 #if UNITY_EDITOR
+    // ONE-TIME SAVE REPAIR FOR TESTING: the previous build could overwrite
+    // an already completed club lesson (stage 26) with old ladder stage 9.
+    // This action does not run by itself and never affects new players.
+    [UnityEditor.MenuItem("Tools/Realm of the Lost Puzzle/Restore Completed Club Tutorial 42")]
+    private static void RestoreCompletedClubTutorial42()
+    {
+        if (Application.isPlaying)
+        {
+            Debug.LogWarning("Stop Play Mode before restoring tutorial progress.");
+            return;
+        }
+
+        bool confirmed = UnityEditor.EditorUtility.DisplayDialog(
+            "Restore Completed Club Tutorial",
+            "Use this ONLY if you already completed tutorial_42, but " +
+            "a previous reload restarted the ladder lesson.\n\n" +
+            "This restores the completed club checkpoint (stage 26). " +
+            "It does not change the scene or restore the physical inventory.",
+            "Restore stage 26",
+            "Cancel");
+
+        if (!confirmed) return;
+
+        TutorialProgressManager.CompleteClimb();
+        TutorialProgressManager.SaveLeftTutorialStage(StageCompletedClubLesson);
+        Debug.Log("Tutorial checkpoint restored: club lesson completed (stage 26). " +
+                  "The ladder and club explanations will not repeat on reload.");
+    }
+
     // Test ONLY the new climb lesson again from tutorial_26.
     // The door, name, main lessons, and left Keeper 23..25 remain saved.
     [UnityEditor.MenuItem("Tools/Realm of the Lost Puzzle/Reset Climb Lesson For Testing")]

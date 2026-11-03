@@ -23,7 +23,10 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 /// 39 - explain the UnequipButton (gold Next; button protected).
 /// 40 - tap the real UnequipButton; club returns to inventory.
 /// 41 - tap the club in inventory again to re-equip it.
-/// 42 - invite the player to try the club (gold Next; then unpause).
+/// 42 - invite the player to try the club (gold Next; then page 43).
+/// 43 - point down to the first heart box, spotlight, gold Next.
+/// 44 - ask the player to break the box with the club, gold Next.
+///      Only AFTER this arrow, saved stage 29 unlocks the FIRST protected box.
 ///
 /// All stage values are saved using TutorialProgressManager.SaveLeftTutorialStage.
 /// This component lives on the EXISTING TutorialFrame_Left.
@@ -52,12 +55,22 @@ public sealed class TutorialClubLesson : MonoBehaviour
     private const int StageUnequipPractice = 23;
     private const int StageClubReequip = 24;
     private const int StageClubTryWeapon = 25;
+    // Historical checkpoint: version with tutorials 31-42 ended here.
+    // On upgrade, stage 26 continues into tutorial 43 without resetting progress.
     private const int StageClubLessonFinished = 26;
+    private const int StageFirstBoxQuestion = 27;     // tutorial_43
+    private const int StageFirstBoxInstruction = 28;  // tutorial_44
+    private const int StageFirstBoxUnlocked = 29;     // after gold Next on 44
+
 
     [Header("01 - CLUB AND PLAYER")]
     [SerializeField] private ClubPickup clubPickup;
     [SerializeField] private PlayerController playerController;
     [SerializeField] private TutorialClimbLesson climbLesson;
+
+    [Header("01B - CLIMB TO CLUB HANDOFF")]
+    [Tooltip("Fallback distance to begin tutorial_31 when the HAND button has not updated its interactable state yet. Keep this within the real HAND interaction reach (0.35 in the current project).")]
+    [SerializeField, Min(0.05f)] private float handLessonNearDistance = 0.35f;
 
     [Header("02 - EXISTING KEEPER UI")]
     [SerializeField] private TMP_Text leftTutorialText;
@@ -157,6 +170,14 @@ public sealed class TutorialClubLesson : MonoBehaviour
     [SerializeField, TextArea(2, 4)]
     private string reEquipFallback = "А теперь снова выбери дубинку.";
 
+    [Header("07D - LOCALIZATION (TUTORIAL 43-44)")]
+    [SerializeField] private string firstBoxQuestionKey = "tutorial_43";
+    [SerializeField, TextArea(2, 4)]
+    private string firstBoxQuestionFallback = "Видишь вон тот ящик?";
+    [SerializeField] private string firstBoxInstructionKey = "tutorial_44";
+    [SerializeField, TextArea(2, 4)]
+    private string firstBoxInstructionFallback = "Попробуй разбить его дубинкой!";
+
     [Header("08 - HAPPY KEEPER (TUTORIAL 33)")]
     [Tooltip("Guardian celebrating with both fists raised; own medallion settings.")]
     [SerializeField] private IndependentKeeperPose happyKeeperPose =
@@ -188,6 +209,26 @@ public sealed class TutorialClubLesson : MonoBehaviour
     [SerializeField] private RectTransform unequipButtonGraphic;
     [SerializeField, Range(0.35f, 1.5f)] private float unequipSpotlightScale = 0.95f;
 
+    [Header("10D - FIRST HEART BOX SPOTLIGHT (TUTORIAL 43-44)")]
+    [Tooltip("Assign ONLY Boxes/Middle box Heart 2 from the Level1 scene, not a prefab asset.")]
+    [SerializeField] private Transform firstHeartBoxTarget;
+    [Tooltip("Main Camera in Level1. If empty, Camera.main is used.")]
+    [SerializeField] private Camera firstBoxWorldCamera;
+    [SerializeField, Range(0.35f, 1.75f)] private float firstBoxSpotlightScale = 1f;
+    [Tooltip("Move only the spotlight circle in WORLD units, without moving the box. X: positive = right. Y: negative = down. Start with Y = -0.25.")]
+    [SerializeField] private Vector2 firstBoxSpotlightOffset = Vector2.zero;
+    [Tooltip("Extra radius around the first box. Same normalized units as Window Padding.")]
+    [SerializeField, Range(0f, 0.10f)] private float firstBoxSpotlightPadding = 0.012f;
+    [SerializeField, Range(0.02f, 0.6f)] private float firstBoxMinimumWindowWidth = 0.10f;
+    [SerializeField, Range(0.02f, 0.6f)] private float firstBoxMinimumWindowHeight = 0.12f;
+    [Tooltip("After a scene reload, show the SAVED tutorial 43/44 only when the hero approaches the first box again. This does not delay 42 -> 43 in the same session.")]
+    [SerializeField, Min(0.5f)] private float boxResumeTriggerDistance = 5f;
+
+    [Header("10E - DOWNWARD POINTING KEEPER (TUTORIAL 43-44)")]
+    [Tooltip("Assign sprite 'The guardian points downward' to this independent pose.")]
+    [SerializeField] private IndependentKeeperPose downwardKeeperPose =
+        new IndependentKeeperPose();
+
     [Header("11 - RED DURABILITY BAR DEMO (TUTORIAL 36)")]
     [Tooltip("The REAL WeaponDurabilityFill image below WeaponButton.")]
     [SerializeField] private Image weaponDurabilityFill;
@@ -203,7 +244,7 @@ public sealed class TutorialClubLesson : MonoBehaviour
         Congratulations, Combat, Durability, RedBar,
         EquipInstruction, EquippedSuccess,
         UnequipExplanation, UnequipPractice, ReequipInstruction,
-        TryWeapon, Finished
+        TryWeapon, FirstBoxQuestion, FirstBoxInstruction, Finished
     }
 
     private Phase phase = Phase.Waiting;
@@ -236,6 +277,8 @@ public sealed class TutorialClubLesson : MonoBehaviour
     private string localizedUnequipExplanation;
     private string localizedUnequipPractice;
     private string localizedReequip;
+    private string localizedFirstBoxQuestion;
+    private string localizedFirstBoxInstruction;
     private RectTransform resolvedClubInventorySlot;
     private int postEquipResumeStage = StageClubEquipped;
     private bool unequipRaycastStateCaptured;
@@ -297,6 +340,8 @@ public sealed class TutorialClubLesson : MonoBehaviour
         localizedUnequipExplanation = unequipExplanationFallback;
         localizedUnequipPractice = unequipPracticeFallback;
         localizedReequip = reEquipFallback;
+        localizedFirstBoxQuestion = firstBoxQuestionFallback;
+        localizedFirstBoxInstruction = firstBoxInstructionFallback;
 
         if (dimmerImage != null)
         {
@@ -320,7 +365,9 @@ public sealed class TutorialClubLesson : MonoBehaviour
         BindButtonListeners();
 
         int saved = TutorialProgressManager.SavedLeftTutorialStage;
-        phase = saved >= StageClubLessonFinished ? Phase.Finished : Phase.Waiting;
+        // 26 is now an upgrade checkpoint, NOT the end of the tutorial.
+        // Pages 43/44 use persisted stages 27/28; the box unlocks at 29.
+        phase = saved >= StageFirstBoxUnlocked ? Phase.Finished : Phase.Waiting;
         resumePostPickupStage = Mathf.Clamp(saved, StageWeaponCongratulations, StageClubTryWeapon);
 
         // After a scene reload the actual club may need to be picked up
@@ -328,11 +375,11 @@ public sealed class TutorialClubLesson : MonoBehaviour
         if (saved >= StageClubCollected && saved < StageClubLessonFinished)
             SetInventoryRaycastsEnabled(false);
 
-        // Stop the old climbing lesson from hiding the shared Keeper frame.
-        // Leave the actual climbing and movement mechanics unchanged.
-        if (saved >= StageClubQuestion && saved < StageClubLessonFinished &&
-            climbLesson != null && climbLesson.enabled)
-            climbLesson.enabled = false;
+        // Do NOT disable TutorialClimbLesson in Start: Unity does not
+        // guarantee Start ordering between components. That lesson must
+        // first finish enabling the already-learned UP/DOWN hitboxes after
+        // loading a saved climb. The handoff happens in our first Update,
+        // after all Start callbacks are finished.
     }
 
     private void BindButtonListeners()
@@ -383,10 +430,33 @@ public sealed class TutorialClubLesson : MonoBehaviour
         if (phase == Phase.Waiting)
         {
             int saved = TutorialProgressManager.SavedLeftTutorialStage;
+            // IMPORTANT: saved stages 11 and 12 are STILL tutorial_29/30.
+            // Stage 10 is the completed-climb checkpoint even though its
+            // number is lower! A numeric "saved >= 10" check would let the
+            // club lesson steal control from the unfinished climb lesson.
+            bool climbHasHandedOff =
+                saved == StageFinishedClimbLesson || saved >= StageClubQuestion;
             if (!TutorialProgressManager.DoorBroken ||
-                saved < StageFinishedClimbLesson ||
-                saved >= StageClubLessonFinished)
+                !climbHasHandedOff || saved >= StageFirstBoxUnlocked)
                 return;
+
+            // Resume tutorials 43/44 directly. Do not force the hero through
+            // an already-completed ladder or club lesson after a scene reload.
+            if (saved >= StageClubLessonFinished)
+            {
+                ReleaseCompletedClimbLesson();
+                // The world position is not saved by the tutorial manager.
+                // Never show the 43/44 Keeper frame back in the prison cell.
+                if (!HeroReachedFirstBoxForResume()) return;
+                StartFirstBoxLesson(saved);
+                return;
+            }
+
+            // The first Play after tutorial_30 must hand off just like a
+            // fresh Play that resumes from saved stage 10. No dependence on
+            // the player grabbing the ladder again, and no stale LateUpdate
+            // from the old lesson overwriting the left Keeper frame.
+            ReleaseCompletedClimbLesson();
 
             // On a new run, physical items reset, but the saved Keeper page
             // must remain. Let the player pick up the respawned club, then
@@ -413,8 +483,7 @@ public sealed class TutorialClubLesson : MonoBehaviour
                 return;
             }
 
-            if (clubPickup == null || handButton == null ||
-                !handButton.interactable || !clubPickup.CanHandInteract)
+            if (!CanBeginHandLesson())
                 return;
 
             StartHandLesson(saved == StageClubHandInstruction);
@@ -439,6 +508,38 @@ public sealed class TutorialClubLesson : MonoBehaviour
     }
 
     // ============================================================
+    // RELIABLE FIRST-RUN CLIMB -> CLUB TRANSITION
+    // ============================================================
+
+    private void ReleaseCompletedClimbLesson()
+    {
+        if (climbLesson == null) ResolveReferences();
+        if (climbLesson != null && climbLesson.enabled)
+            climbLesson.enabled = false;
+    }
+
+    private bool CanBeginHandLesson()
+    {
+        if (clubPickup == null || handButton == null ||
+            playerController == null || !clubPickup.CanHandInteract)
+            return false;
+
+        // The existing HandInteractionButton normally becomes interactable
+        // when it detects a nearby pickup. Its Update and this Update may
+        // run in either order on the first approach after the ladder lesson.
+        if (handButton.interactable)
+            return true;
+
+        // Do not trigger from the club's broader pickupDistance alone:
+        // that can freeze the hero too far away to press HAND on page 32.
+        // Use the current HAND interaction distance as a conservative
+        // proximity fallback, configurable in the Inspector.
+        float distance = Vector2.Distance(
+            playerController.transform.position, clubPickup.transform.position);
+        return distance <= handLessonNearDistance;
+    }
+
+    // ============================================================
     // 31-32: EXPLAIN THE HAND BUTTON
     // ============================================================
 
@@ -454,8 +555,7 @@ public sealed class TutorialClubLesson : MonoBehaviour
             return;
         }
 
-        if (climbLesson != null && climbLesson.enabled)
-            climbLesson.enabled = false;
+        ReleaseCompletedClimbLesson();
 
         CaptureKeeperBaseline();
         ApplyHandInstructionKeeperPose();
@@ -787,11 +887,83 @@ public sealed class TutorialClubLesson : MonoBehaviour
         return null;
     }
 
-    private void FinishClubLesson()
+    // ============================================================
+    // 43-44: FIRST HEART BOX; UNLOCK ON THE FINAL GOLD ARROW
+    // ============================================================
+
+    private bool HeroReachedFirstBoxForResume()
     {
-        if (phase == Phase.Finished) return;
+        ResolveReferences();
+        if (firstHeartBoxTarget == null || playerController == null)
+            return false;
+        return Vector2.Distance(playerController.transform.position,
+            firstHeartBoxTarget.position) <= boxResumeTriggerDistance;
+    }
+
+    private void StartFirstBoxLesson(int savedStage)
+    {
+        ResolveReferences();
+        if (leftFrameCanvasGroup == null || leftTutorialText == null ||
+            tutorialDimmer == null || dimmerImage == null ||
+            goldNextButton == null || playerController == null)
+        {
+            Debug.LogWarning(
+                "[CLUB TUTORIAL] Missing Keeper references for tutorials 43/44.", this);
+            return;
+        }
+
+        ReleaseCompletedClimbLesson();
+        StopBarFlashAndRestore();
+        CaptureKeeperBaseline();
+        SetHandRaycastsEnabled(false);
+        SetInventoryRaycastsEnabled(false);
+        SetUnequipRaycastsEnabled(false);
+        PauseAndLockPlayer();
+        ShowKeeperFrame();
+
+        if (firstHeartBoxTarget == null)
+        {
+            Debug.LogWarning(
+                "[CLUB TUTORIAL] Assign Middle box Heart 2 in section 10D. " +
+                "The spotlight cannot find its target yet.", this);
+        }
+
+        if (savedStage == StageFirstBoxInstruction)
+            ShowFirstBoxInstructionPage();
+        else
+            ShowFirstBoxQuestionPage();
+    }
+
+    private void ShowFirstBoxQuestionPage()
+    {
+        phase = Phase.FirstBoxQuestion;
+        TutorialProgressManager.SaveLeftTutorialStage(StageFirstBoxQuestion);
+        ApplyIndependentKeeperPose(downwardKeeperPose);
+        SetKeeperMessage(localizedFirstBoxQuestion);
+        ShowFirstBoxSpotlight();
+        SetGoldNextVisible(true);
+    }
+
+    private void ShowFirstBoxInstructionPage()
+    {
+        phase = Phase.FirstBoxInstruction;
+        TutorialProgressManager.SaveLeftTutorialStage(StageFirstBoxInstruction);
+        ApplyIndependentKeeperPose(downwardKeeperPose);
+        SetKeeperMessage(localizedFirstBoxInstruction);
+        ShowFirstBoxSpotlight();
+        SetGoldNextVisible(true);
+    }
+
+    private void FinishFirstBoxIntroduction()
+    {
+        if (phase != Phase.FirstBoxInstruction) return;
+
+        // This is the same progress stage expected by the individual
+        // BreakableMiddleBox protection (Unlock At Left Tutorial Stage = 29).
+        // SAVE FIRST, then unfreeze. Otherwise an early player hit could still
+        // be blocked on the first gameplay frame.
+        TutorialProgressManager.SaveLeftTutorialStage(StageFirstBoxUnlocked);
         phase = Phase.Finished;
-        TutorialProgressManager.SaveLeftTutorialStage(StageClubLessonFinished);
         StopBarFlashAndRestore();
         RestoreHandRaycasts();
         RestoreUnequipRaycasts();
@@ -801,6 +973,9 @@ public sealed class TutorialClubLesson : MonoBehaviour
         RestoreDimmer();
         ReleasePlayerAndTime();
         RestoreKeeperBaseline();
+
+        // Tutorial 45 (heart pickup) will be added in a later lesson.
+        // Do NOT replay 43/44 after this checkpoint, even after restarting.
     }
 
     // ============================================================
@@ -863,7 +1038,14 @@ public sealed class TutorialClubLesson : MonoBehaviour
                 break;
             case Phase.EquippedSuccess: ShowUnequipExplanationPage(); break;
             case Phase.UnequipExplanation: ShowUnequipPracticePage(); break;
-            case Phase.TryWeapon: FinishClubLesson(); break;
+            case Phase.TryWeapon:
+                // Retain the historical completed-club checkpoint, then
+                // immediately advance to the first-box explanation.
+                TutorialProgressManager.SaveLeftTutorialStage(StageClubLessonFinished);
+                StartFirstBoxLesson(StageFirstBoxQuestion);
+                break;
+            case Phase.FirstBoxQuestion: ShowFirstBoxInstructionPage(); break;
+            case Phase.FirstBoxInstruction: FinishFirstBoxIntroduction(); break;
         }
     }
 
@@ -1229,6 +1411,101 @@ public sealed class TutorialClubLesson : MonoBehaviour
         tutorialDimmer.SetActive(true);
     }
 
+    // The box exists in WORLD space, unlike all previous UI-button spotlights.
+    // Calculate its visible sprite bounds through the game camera and draw an
+    // independent circle in the SAME existing TutorialDimmer. No new Canvas.
+    private void ShowFirstBoxSpotlight()
+    {
+        ResolveReferences();
+        if (firstHeartBoxTarget == null || dimmerImage == null ||
+            tutorialDimmer == null || Screen.width <= 0 || Screen.height <= 0)
+        {
+            ShowPlainDimmer();
+            return;
+        }
+
+        Camera cam = firstBoxWorldCamera != null ? firstBoxWorldCamera : Camera.main;
+        if (cam == null)
+        {
+            Debug.LogWarning("[CLUB TUTORIAL] Main Camera not found for box spotlight.", this);
+            ShowPlainDimmer();
+            return;
+        }
+
+        SpriteRenderer sr = firstHeartBoxTarget.GetComponent<SpriteRenderer>();
+        if (sr == null)
+            sr = firstHeartBoxTarget.GetComponentInChildren<SpriteRenderer>(true);
+        Collider2D col = firstHeartBoxTarget.GetComponent<Collider2D>();
+        if (sr == null && col == null)
+        {
+            ShowPlainDimmer();
+            return;
+        }
+
+        Bounds bounds = sr != null ? sr.bounds : col.bounds;
+        Vector3 centerWorld = bounds.center;
+        Vector3[] corners = {
+            new Vector3(bounds.min.x, bounds.min.y, centerWorld.z),
+            new Vector3(bounds.max.x, bounds.min.y, centerWorld.z),
+            new Vector3(bounds.min.x, bounds.max.y, centerWorld.z),
+            new Vector3(bounds.max.x, bounds.max.y, centerWorld.z)
+        };
+        float xMin = float.PositiveInfinity, xMax = float.NegativeInfinity;
+        float yMin = float.PositiveInfinity, yMax = float.NegativeInfinity;
+        foreach (Vector3 corner in corners)
+        {
+            Vector3 screen = cam.WorldToScreenPoint(corner);
+            if (screen.z <= 0f)
+            {
+                ShowPlainDimmer();
+                return;
+            }
+            xMin = Mathf.Min(xMin, screen.x / Screen.width);
+            xMax = Mathf.Max(xMax, screen.x / Screen.width);
+            yMin = Mathf.Min(yMin, screen.y / Screen.height);
+            yMax = Mathf.Max(yMax, screen.y / Screen.height);
+        }
+
+        float w = Mathf.Max(xMax - xMin, firstBoxMinimumWindowWidth);
+        float h = Mathf.Max(yMax - yMin, firstBoxMinimumWindowHeight);
+        float aspect = (float)Screen.width / Screen.height;
+        // Independent WORLD-space offset, projected through the same camera.
+        // This moves the tutorial spotlight only, never the real box or Collider.
+        Vector3 projectedBase = cam.WorldToScreenPoint(centerWorld);
+        Vector3 projectedOffset = cam.WorldToScreenPoint(
+            centerWorld + new Vector3(firstBoxSpotlightOffset.x,
+                firstBoxSpotlightOffset.y, 0f));
+        Vector3 pixelShift = projectedOffset - projectedBase;
+        Vector2 center = new Vector2(
+            ((xMin + xMax) * 0.5f + pixelShift.x / Screen.width) * aspect,
+            (yMin + yMax) * 0.5f + pixelShift.y / Screen.height);
+        float radius = (Mathf.Max(w * aspect, h) * 0.5f +
+            firstBoxSpotlightPadding) * firstBoxSpotlightScale;
+
+        EnsureMaskTexture();
+        int n = maskTexture.width;
+        for (int y = 0; y < n; y++)
+        {
+            float ny = (float)y / (n - 1);
+            for (int x = 0; x < n; x++)
+            {
+                float nx = (float)x / (n - 1);
+                float d = Vector2.Distance(new Vector2(nx * aspect, ny), center) - radius;
+                float a = Mathf.SmoothStep(0f, 1f,
+                    Mathf.Clamp01(d / Mathf.Max(0.001f, windowSoftness)));
+                maskPixels[y * n + x] =
+                    new Color32(255, 255, 255, (byte)Mathf.RoundToInt(a * 255f));
+            }
+        }
+        maskTexture.SetPixels32(maskPixels);
+        maskTexture.Apply(false, false);
+        dimmerImage.sprite = maskSprite;
+        dimmerImage.type = Image.Type.Simple;
+        dimmerImage.preserveAspect = false;
+        dimmerImage.raycastTarget = false;
+        tutorialDimmer.SetActive(true);
+    }
+
     private void EnsureMaskTexture()
     {
         int n = Mathf.Clamp(textureResolution, 64, 512);
@@ -1360,14 +1637,14 @@ public sealed class TutorialClubLesson : MonoBehaviour
             combatKey, durabilityKey, redBarKey,
             equipInstructionKey, equippedSuccessKey,
             unequipExplanationKey, unequipPracticeKey, reEquipKey,
-            finalTryWeaponKey
+            finalTryWeaponKey, firstBoxQuestionKey, firstBoxInstructionKey
         };
         string[] fallback = {
             handQuestionFallback, handUseFallback, congratulationsFallback,
             combatFallback, durabilityFallback, redBarFallback,
             equipInstructionFallback, equippedSuccessFallback,
             unequipExplanationFallback, unequipPracticeFallback, reEquipFallback,
-            finalTryWeaponFallback
+            finalTryWeaponFallback, firstBoxQuestionFallback, firstBoxInstructionFallback
         };
         string[] result = (string[])fallback.Clone();
 
@@ -1394,6 +1671,8 @@ public sealed class TutorialClubLesson : MonoBehaviour
         localizedUnequipPractice = result[9];
         localizedReequip = result[10];
         localizedTryWeapon = result[11];
+        localizedFirstBoxQuestion = result[12];
+        localizedFirstBoxInstruction = result[13];
         localizationCoroutine = null;
 
         switch (phase)
@@ -1410,6 +1689,8 @@ public sealed class TutorialClubLesson : MonoBehaviour
             case Phase.UnequipPractice: SetKeeperMessage(localizedUnequipPractice); break;
             case Phase.ReequipInstruction: SetKeeperMessage(localizedReequip); break;
             case Phase.TryWeapon: SetKeeperMessage(localizedTryWeapon); break;
+            case Phase.FirstBoxQuestion: SetKeeperMessage(localizedFirstBoxQuestion); break;
+            case Phase.FirstBoxInstruction: SetKeeperMessage(localizedFirstBoxInstruction); break;
         }
     }
 
@@ -1452,9 +1733,14 @@ public sealed class TutorialClubLesson : MonoBehaviour
         weaponSpotlightScale = Mathf.Clamp(weaponSpotlightScale, 0.35f, 1.5f);
         clubSlotSpotlightScale = Mathf.Clamp(clubSlotSpotlightScale, 0.35f, 1.5f);
         unequipSpotlightScale = Mathf.Clamp(unequipSpotlightScale, 0.35f, 1.5f);
+        firstBoxSpotlightScale = Mathf.Clamp(firstBoxSpotlightScale, 0.35f, 1.75f);
+        firstBoxMinimumWindowWidth = Mathf.Clamp(firstBoxMinimumWindowWidth, 0.02f, 0.6f);
+        firstBoxMinimumWindowHeight = Mathf.Clamp(firstBoxMinimumWindowHeight, 0.02f, 0.6f);
+        boxResumeTriggerDistance = Mathf.Max(0.5f, boxResumeTriggerDistance);
         if (finalTryWeaponKey == "tutorial_39")
             finalTryWeaponKey = "tutorial_42";
         windowSoftness = Mathf.Max(0.001f, windowSoftness);
+        handLessonNearDistance = Mathf.Max(0.05f, handLessonNearDistance);
         tutorialFlashCount = Mathf.Clamp(tutorialFlashCount, 1, 10);
         flashVisibleSeconds = Mathf.Max(0.02f, flashVisibleSeconds);
         flashHiddenSeconds = Mathf.Max(0.02f, flashHiddenSeconds);

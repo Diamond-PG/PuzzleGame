@@ -196,6 +196,54 @@ MonoBehaviour:
     m_Localized: "\xA1Ahora prueba a usarlo!"
     m_Metadata:
       m_Items: []
+  - m_Id: 10107954248232960
+    m_Localized: "\xBFVes aquella caja?"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10108333253931008
+    m_Localized: "\xA1Intenta romperla con el garrote!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10126431323369472
+    m_Localized: "\xA1Felicidades! \xA1Has encontrado un coraz\xF3n!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10127184171577344
+    m_Localized: "\xA1Aumenta tu reserva de corazones!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10441284294488064
+    m_Localized: "Ahora sabes c\xF3mo sobrevivir entre estos muros."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10441615501897728
+    m_Localized: "Ahora todo depende de ti. \xA1Mantente alerta!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10489151713390592
+    m_Localized: "\xA1Has encontrado la primera pieza!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10489595734994944
+    m_Localized: "\xA1Has recuperado parte de la imagen perdida!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10489864606658560
+    m_Localized: "\xA1Gracias, {name}! Este es el primer paso"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10490230014423040
+    m_Localized: para desvelar el misterio de la imagen perdida!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10490472612966400
+    m_Localized: Nuestro viaje apenas comienza.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10490648035536896
+    m_Localized: "\xA1Hasta pronto, {name}!"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
