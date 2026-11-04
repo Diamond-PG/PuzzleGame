@@ -3,22 +3,20 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// Protects the large WeaponButton and small UnequipButton
-/// during selected Keeper explanation pages.
+/// Protects WeaponButton and UnequipButton during
+/// selected Puzzle Keeper tutorial pages.
 ///
-/// Tutorial 38 - Club is ready: both buttons blocked.
-/// Tutorial 39 - Explain unequip: both buttons blocked.
-/// Tutorial 40 - Practice unequip: guard releases both buttons.
-/// Tutorial 41 - Re-equip using inventory: no guard lock.
-/// Tutorial 42 - Try the club: both buttons blocked.
-/// Tutorial 43 - Look at first box: both buttons blocked.
-/// Tutorial 44 - Break box with club: both buttons blocked.
+/// Tutorial 38: both buttons protected.
+/// Tutorial 39: both buttons protected.
+/// Tutorial 40: unequip practice is allowed.
+/// Tutorial 41: inventory practice is allowed.
+/// Tutorial 42-44: both buttons protected.
 ///
-/// Protection is applied only while the gold Next
-/// button and the Keeper frame are visible.
+/// After the full Keeper training ends (saved stage 35),
+/// restores the small UnequipButton raycast once.
 ///
-/// Does not alter the inventory, equipped weapon,
-/// weapon durability, tutorial stages or saved progress.
+/// Does not change inventory data, weapon durability,
+/// equipment state, tutorial progress or saved data.
 /// </summary>
 [DisallowMultipleComponent]
 [DefaultExecutionOrder(200)]
@@ -34,7 +32,7 @@ public sealed class TutorialClubButtonGuard : MonoBehaviour
     [SerializeField]
     private Button weaponButton;
 
-    [Tooltip("Small UnequipButton.")]
+    [Tooltip("Small UnequipButton in ActionControls.")]
     [SerializeField]
     private Button unequipButton;
 
@@ -66,14 +64,14 @@ public sealed class TutorialClubButtonGuard : MonoBehaviour
 
     [Tooltip(
         "Saved stage 25 begins tutorial 42. " +
-        "Existing Inspector value remains unchanged."
+        "Keep the existing Inspector value."
     )]
     [SerializeField, Min(0)]
     private int firstProtectedStage = 25;
 
     [Tooltip(
         "Saved stage 28 is tutorial 44. " +
-        "Stage 29 releases tutorial protection."
+        "Stage 29 releases this tutorial protection."
     )]
     [SerializeField, Min(0)]
     private int lastProtectedStage = 28;
@@ -83,8 +81,8 @@ public sealed class TutorialClubButtonGuard : MonoBehaviour
     private bool requireVisibleKeeper = true;
 
     [Tooltip(
-        "Only block on explanation pages that show " +
-        "the gold Next button."
+        "Require the gold Next button during " +
+        "protected explanation pages."
     )]
     [SerializeField]
     private bool requireGoldNextButton = true;
@@ -97,8 +95,8 @@ public sealed class TutorialClubButtonGuard : MonoBehaviour
     [Header("03B - ADDITIONAL PROTECTION (38-39)")]
 
     [Tooltip(
-        "Block WeaponButton and UnequipButton on " +
-        "tutorial 38 and tutorial 39. " +
+        "Protect WeaponButton and UnequipButton " +
+        "during tutorials 38 and 39. " +
         "Tutorial 40 remains interactive."
     )]
     [SerializeField]
@@ -123,6 +121,9 @@ public sealed class TutorialClubButtonGuard : MonoBehaviour
     private const int StageTutorial39 = 22;
     private const int StageTutorial40 = 23;
 
+    // Full Keeper training ends after tutorial 48.
+    private const int StageFullTrainingCompleted = 35;
+
 
     // ============================================================
     // PRIVATE STATE
@@ -141,6 +142,9 @@ public sealed class TutorialClubButtonGuard : MonoBehaviour
     private bool unequipGuardOwnsBlock;
 
     private bool protectionActive;
+
+    // Prevents continuous changes after the training.
+    private bool postTutorialUnequipRestored;
 
 
     // ============================================================
@@ -176,7 +180,10 @@ public sealed class TutorialClubButtonGuard : MonoBehaviour
     private void OnValidate()
     {
         firstProtectedStage =
-            Mathf.Max(0, firstProtectedStage);
+            Mathf.Max(
+                0,
+                firstProtectedStage
+            );
 
         lastProtectedStage =
             Mathf.Max(
@@ -201,7 +208,9 @@ public sealed class TutorialClubButtonGuard : MonoBehaviour
         if (goldNextButton == null)
         {
             Transform next =
-                transform.Find("TutorialNextButton_Left");
+                transform.Find(
+                    "TutorialNextButton_Left"
+                );
 
             if (next != null)
             {
@@ -225,7 +234,8 @@ public sealed class TutorialClubButtonGuard : MonoBehaviour
                 if (weaponButton == null)
                 {
                     weaponButton =
-                        durability.GetComponentInParent<Button>();
+                        durability
+                            .GetComponentInParent<Button>();
                 }
             }
         }
@@ -248,7 +258,8 @@ public sealed class TutorialClubButtonGuard : MonoBehaviour
             weaponGroup == null)
         {
             weaponGroup =
-                weaponButton.GetComponent<CanvasGroup>();
+                weaponButton
+                    .GetComponent<CanvasGroup>();
 
             if (weaponGroup == null)
             {
@@ -262,7 +273,8 @@ public sealed class TutorialClubButtonGuard : MonoBehaviour
             unequipGroup == null)
         {
             unequipGroup =
-                unequipButton.GetComponent<CanvasGroup>();
+                unequipButton
+                    .GetComponent<CanvasGroup>();
 
             if (unequipGroup == null)
             {
@@ -281,19 +293,25 @@ public sealed class TutorialClubButtonGuard : MonoBehaviour
     private bool ShouldProtectButtons()
     {
         if (!enableProtection)
+        {
             return false;
+        }
 
         int stage =
-            TutorialProgressManager.SavedLeftTutorialStage;
+            TutorialProgressManager
+                .SavedLeftTutorialStage;
 
-        // Tutorial 38 and 39 are explanation pages.
-        // The player must NOT use either weapon button.
+        // Tutorials 38 and 39:
+        // explanation only, no weapon button input.
         bool earlierExplanation =
             protectTutorial38And39 &&
-            (stage == StageTutorial38 ||
-             stage == StageTutorial39);
+            (
+                stage == StageTutorial38 ||
+                stage == StageTutorial39
+            );
 
-        // Tutorial 42-44 also require button protection.
+        // Tutorials 42-44:
+        // explanation and protected box sequence.
         bool finalClubExplanation =
             stage >= firstProtectedStage &&
             stage <= lastProtectedStage;
@@ -304,36 +322,49 @@ public sealed class TutorialClubButtonGuard : MonoBehaviour
             return false;
         }
 
-        // Tutorial 40 is an interactive practice lesson.
-        // Never block its UnequipButton here.
+        // Tutorial 40 must allow the real
+        // UnequipButton interaction.
         if (stage == StageTutorial40)
+        {
             return false;
+        }
 
         if (requireVisibleKeeper)
         {
             if (keeperFrame == null)
+            {
                 return false;
+            }
 
-            if (!keeperFrame.gameObject.activeInHierarchy)
+            if (!keeperFrame.gameObject
+                .activeInHierarchy)
+            {
                 return false;
+            }
 
             if (keeperFrame.alpha <= 0.01f)
+            {
                 return false;
+            }
         }
 
-        // This prevents the guard from interfering with
-        // pages where the player is explicitly asked to
-        // equip or unequip using real UI buttons.
         if (requireGoldNextButton)
         {
             if (goldNextButton == null)
+            {
                 return false;
+            }
 
-            if (!goldNextButton.gameObject.activeInHierarchy)
+            if (!goldNextButton.gameObject
+                .activeInHierarchy)
+            {
                 return false;
+            }
 
             if (!goldNextButton.interactable)
+            {
                 return false;
+            }
         }
 
         return true;
@@ -346,7 +377,8 @@ public sealed class TutorialClubButtonGuard : MonoBehaviour
 
     private void UpdateProtection()
     {
-        bool shouldProtect = ShouldProtectButtons();
+        bool shouldProtect =
+            ShouldProtectButtons();
 
         if (!shouldProtect)
         {
@@ -356,6 +388,8 @@ public sealed class TutorialClubButtonGuard : MonoBehaviour
             {
                 ReleaseProtection();
             }
+
+            RestoreUnequipAfterFullTraining();
 
             return;
         }
@@ -379,7 +413,8 @@ public sealed class TutorialClubButtonGuard : MonoBehaviour
                     "[CLUB BUTTON GUARD] " +
                     "Weapon and Unequip buttons protected. " +
                     "Saved tutorial stage: " +
-                    TutorialProgressManager.SavedLeftTutorialStage,
+                    TutorialProgressManager
+                        .SavedLeftTutorialStage,
                     this
                 );
             }
@@ -394,7 +429,9 @@ public sealed class TutorialClubButtonGuard : MonoBehaviour
     private void ProtectWeaponButton()
     {
         if (weaponGroup == null)
+        {
             return;
+        }
 
         if (!weaponStateCaptured)
         {
@@ -403,8 +440,9 @@ public sealed class TutorialClubButtonGuard : MonoBehaviour
 
             weaponStateCaptured = true;
 
-            // Another tutorial component might already
-            // own a blocked state.
+            // If another component had already
+            // blocked this button, do not claim
+            // ownership of that block.
             weaponGuardOwnsBlock =
                 weaponOriginalRaycasts;
         }
@@ -420,7 +458,9 @@ public sealed class TutorialClubButtonGuard : MonoBehaviour
     private void ProtectUnequipButton()
     {
         if (unequipGroup == null)
+        {
             return;
+        }
 
         if (!unequipStateCaptured)
         {
@@ -438,14 +478,13 @@ public sealed class TutorialClubButtonGuard : MonoBehaviour
 
 
     // ============================================================
-    // RELEASE PROTECTION
+    // RELEASE TUTORIAL PROTECTION
     // ============================================================
 
     private void ReleaseProtection()
     {
-        // Only undo blocks that this component owns.
-        // Other tutorial systems retain control of
-        // their own CanvasGroup settings.
+        // Keep the previous ownership-based
+        // release behavior unchanged.
 
         if (weaponGroup != null &&
             weaponStateCaptured &&
@@ -461,7 +500,8 @@ public sealed class TutorialClubButtonGuard : MonoBehaviour
             unequipGroup.blocksRaycasts = true;
         }
 
-        bool wasActive = protectionActive;
+        bool wasActive =
+            protectionActive;
 
         weaponStateCaptured = false;
         unequipStateCaptured = false;
@@ -479,5 +519,75 @@ public sealed class TutorialClubButtonGuard : MonoBehaviour
                 this
             );
         }
+    }
+
+
+    // ============================================================
+    // RESTORE AFTER COMPLETED KEEPER TRAINING
+    // ============================================================
+
+    private void RestoreUnequipAfterFullTraining()
+    {
+        if (postTutorialUnequipRestored)
+        {
+            return;
+        }
+
+        // Never perform this recovery while
+        // the player is still in the tutorial.
+        int savedStage =
+            TutorialProgressManager
+                .SavedLeftTutorialStage;
+
+        if (savedStage <
+            StageFullTrainingCompleted)
+        {
+            return;
+        }
+
+        if (unequipButton == null ||
+            unequipGroup == null)
+        {
+            ResolveReferences();
+        }
+
+        if (unequipButton == null ||
+            unequipGroup == null)
+        {
+            return;
+        }
+
+        // Wait until the previous Keeper frame
+        // has finished fading out.
+        if (keeperFrame != null &&
+            keeperFrame.gameObject.activeInHierarchy &&
+            keeperFrame.alpha > 0.01f)
+        {
+            return;
+        }
+
+        // Recover the button once after
+        // tutorial 48 is fully completed.
+        //
+        // This is not a per-frame override,
+        // so other gameplay UI systems remain
+        // free to manage the button afterward.
+        if (!unequipGroup.blocksRaycasts)
+        {
+            unequipGroup.blocksRaycasts = true;
+
+            if (debugLogs)
+            {
+                Debug.Log(
+                    "[CLUB BUTTON GUARD] " +
+                    "UnequipButton raycasts restored " +
+                    "after completed Keeper training. " +
+                    "Stage: " + savedStage,
+                    this
+                );
+            }
+        }
+
+        postTutorialUnequipRestored = true;
     }
 }
