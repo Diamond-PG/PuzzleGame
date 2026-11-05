@@ -1,4 +1,3 @@
-
 Shader "Custom/UI/ForestEdgeBlend"
 {
     Properties
@@ -8,6 +7,8 @@ Shader "Custom/UI/ForestEdgeBlend"
 
         _LeftFade ("Left Edge Smoothness", Range(0, 0.4)) = 0.06
         _RightFade ("Right Edge Smoothness", Range(0, 0.4)) = 0.05
+        _TopFade ("Top Edge Smoothness", Range(0, 0.4)) = 0.06
+        _BottomFade ("Bottom Edge Smoothness", Range(0, 0.4)) = 0.06
 
         _StencilComp ("Stencil Comparison", Float) = 8
         _Stencil ("Stencil ID", Float) = 0
@@ -92,6 +93,8 @@ Shader "Custom/UI/ForestEdgeBlend"
 
             float _LeftFade;
             float _RightFade;
+            float _TopFade;
+            float _BottomFade;
 
             v2f vert(appdata_t v)
             {
@@ -126,7 +129,19 @@ Shader "Custom/UI/ForestEdgeBlend"
                     1.0 - i.uv.x
                 );
 
-                col.a *= leftFade * rightFade;
+                float bottomFade = smoothstep(
+                    0.0,
+                    max(_BottomFade, 0.00001),
+                    i.uv.y
+                );
+
+                float topFade = smoothstep(
+                    0.0,
+                    max(_TopFade, 0.00001),
+                    1.0 - i.uv.y
+                );
+
+                col.a *= leftFade * rightFade * topFade * bottomFade;
 
                 #ifdef UNITY_UI_CLIP_RECT
                 col.a *= UnityGet2DClipping(
