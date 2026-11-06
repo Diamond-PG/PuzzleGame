@@ -20,20 +20,24 @@ MonoBehaviour:
     - rid: 4513267079657816141
   m_TableData:
   - m_Id: 1633578594304
-    m_Localized: JUGAR
+    m_Localized: NUEVA PARTIDA
     m_Metadata:
       m_Items:
       - rid: 4513267079657816141
   - m_Id: 11159892473622528
-    m_Localized: OPCIONES
+    m_Localized: CONTINUAR
     m_Metadata:
       m_Items: []
   - m_Id: 11163846309785600
-    m_Localized: SALIR
+    m_Localized: OPCIONES
     m_Metadata:
       m_Items: []
   - m_Id: 72085325515534336
     m_Localized: "GALER\xCDA"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 72085123094228992
+    m_Localized: SALIR
     m_Metadata:
       m_Items: []
   references:
