@@ -59,31 +59,13 @@ public class ContinueButtonUI : MonoBehaviour,
         RefreshState();
     }
 
-    // Check existing saved tutorial progress.
     private bool HasSavedProgress()
     {
-        return
-            TutorialProgressManager.SavedMainTutorialPage
-                >= minimumSavedTutorialPage ||
-
-            TutorialProgressManager.HasPlayerName ||
-
-            TutorialProgressManager.HasSavedLeftTutorialStage ||
-
-            TutorialProgressManager.MovementLeftUsed ||
-            TutorialProgressManager.MovementRightUsed ||
-
-            TutorialProgressManager.MovementCompleted ||
-            TutorialProgressManager.JumpCompleted ||
-            TutorialProgressManager.KickCompleted ||
-
-            TutorialProgressManager.DoorLessonReached ||
-            TutorialProgressManager.DoorBroken ||
-
-            TutorialProgressManager.LadderReached ||
-            TutorialProgressManager.ClimbCompleted ||
-
-            TutorialProgressManager.SavedDoorHits > 0;
+        // A restored save from an older installation
+        // must not activate Continue.
+        return GameInstallationSave.CanContinue(
+            minimumSavedTutorialPage
+        );
     }
 
     public void RefreshState()

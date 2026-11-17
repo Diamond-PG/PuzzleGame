@@ -73,6 +73,7 @@ public class GuardianBlink : MonoBehaviour
                 "GuardianBlink: Assign both sprites.",
                 this
             );
+
             return;
         }
 
@@ -106,13 +107,14 @@ public class GuardianBlink : MonoBehaviour
                 minTime, maxTime
             );
 
-            yield return new WaitForSecondsRealtime(waitTime);
+            // Scaled waiting stops when Time.timeScale = 0.
+            yield return new WaitForSeconds(waitTime);
 
             yield return BlinkOnce();
 
             if (Random.value < doubleBlinkChance)
             {
-                yield return new WaitForSecondsRealtime(
+                yield return new WaitForSeconds(
                     doubleBlinkDelay
                 );
 
@@ -123,9 +125,10 @@ public class GuardianBlink : MonoBehaviour
 
     private IEnumerator BlinkOnce()
     {
-        guardianImage.sprite = eyesClosed;
+        if (guardianImage != null)
+            guardianImage.sprite = eyesClosed;
 
-        yield return new WaitForSecondsRealtime(
+        yield return new WaitForSeconds(
             Mathf.Max(0.02f, closedEyesDuration)
         );
 

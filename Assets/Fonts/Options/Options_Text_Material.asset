@@ -71,12 +71,12 @@ Material:
     - _OutlineSoftness: 0
     - _OutlineUVSpeedX: 0
     - _OutlineUVSpeedY: 0
-    - _OutlineWidth: 0.35
+    - _OutlineWidth: 0.24
     - _PerspectiveFilter: 0.875
     - _Reflectivity: 10
     - _ScaleRatioA: 0.9
     - _ScaleRatioB: 0.55125
-    - _ScaleRatioC: 0.42403847
+    - _ScaleRatioC: 0.45557848
     - _ScaleX: 1
     - _ScaleY: 1
     - _ShaderFlags: 0
@@ -89,10 +89,10 @@ Material:
     - _StencilWriteMask: 255
     - _TextureHeight: 1024
     - _TextureWidth: 1024
-    - _UnderlayDilate: 0
-    - _UnderlayOffsetX: 1
-    - _UnderlayOffsetY: -1
-    - _UnderlaySoftness: 0.3
+    - _UnderlayDilate: 0.16
+    - _UnderlayOffsetX: 0.7
+    - _UnderlayOffsetY: -0.7
+    - _UnderlaySoftness: 0.35
     - _VertexOffsetX: 0
     - _VertexOffsetY: 0
     - _WeightBold: 0.75
@@ -100,14 +100,14 @@ Material:
     m_Colors:
     - _ClipRect: {r: -32767, g: -32767, b: 32767, a: 32767}
     - _EnvMatrixRotation: {r: 0, g: 0, b: 0, a: 0}
-    - _FaceColor: {r: 0.47058824, g: 0.8235294, b: 1, a: 1}
+    - _FaceColor: {r: 0.9411765, g: 0.96862745, b: 1, a: 1}
     - _GlowColor: {r: 0, g: 1, b: 0, a: 0.5}
     - _MaskCoord: {r: 0, g: 0, b: 32767, a: 32767}
-    - _OutlineColor: {r: 0.078431375, g: 0.3529412, b: 0.6666667, a: 1}
+    - _OutlineColor: {r: 0.21960784, g: 0.27450982, b: 0.4862745, a: 1}
     - _ReflectFaceColor: {r: 0, g: 0, b: 0, a: 1}
     - _ReflectOutlineColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecularColor: {r: 1, g: 1, b: 1, a: 1}
-    - _UnderlayColor: {r: 0, g: 0, b: 0, a: 0.7058824}
+    - _UnderlayColor: {r: 0.09411765, g: 0.15686275, b: 0.32156864, a: 0.9411765}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
 --- !u!114 &11400000

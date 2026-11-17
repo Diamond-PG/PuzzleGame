@@ -22,7 +22,6 @@ public class MainMenu : MonoBehaviour
     [SerializeField, Min(0f)]
     private float playLoadDelay = 0.25f;
 
-    // Separate save flags for the final Keeper dialogue.
     private const string PuzzleFinaleKeyV1 =
         "TutorialPuzzleFinale_Completed";
 
@@ -41,7 +40,6 @@ public class MainMenu : MonoBehaviour
     // NEW GAME
     // =========================================
 
-    // Keep existing Inspector connection.
     public void PlayGame()
     {
         NewGame();
@@ -55,9 +53,7 @@ public class MainMenu : MonoBehaviour
         isTransitioning = true;
 
         if (playButtonAnimator != null)
-        {
             playButtonAnimator.SetTrigger("Pressed");
-        }
 
         StartCoroutine(
             LoadGameRoutine(true, playClip)
@@ -65,7 +61,7 @@ public class MainMenu : MonoBehaviour
     }
 
     // =========================================
-    // CONTINUE GAME
+    // CONTINUE
     // =========================================
 
     public void ContinueGame()
@@ -73,12 +69,20 @@ public class MainMenu : MonoBehaviour
         if (isTransitioning)
             return;
 
+        if (!GameInstallationSave.CanContinue())
+        {
+            Debug.LogWarning(
+                "[MainMenu] Continue blocked: " +
+                "no valid save for this installation."
+            );
+
+            return;
+        }
+
         isTransitioning = true;
 
         if (continueButtonAnimator != null)
-        {
             continueButtonAnimator.SetTrigger("Pressed");
-        }
 
         AudioClip sound = continueClip != null
             ? continueClip
@@ -90,7 +94,7 @@ public class MainMenu : MonoBehaviour
     }
 
     // =========================================
-    // LOAD LEVEL
+    // LOAD GAME
     // =========================================
 
     private IEnumerator LoadGameRoutine(
@@ -98,9 +102,7 @@ public class MainMenu : MonoBehaviour
         AudioClip sound)
     {
         if (audioSource != null && sound != null)
-        {
             audioSource.PlayOneShot(sound);
-        }
 
         yield return new WaitForSecondsRealtime(
             playLoadDelay
@@ -120,24 +122,22 @@ public class MainMenu : MonoBehaviour
 
         if (startNewGame)
         {
-            // Reset the existing tutorial progress.
             TutorialProgressManager.ResetAllProgress();
 
-            // Also reset the final Keeper dialogue.
             ResetPuzzleFinaleForNewGame();
 
+            // Register a new playthrough
+            // for the current installation.
+            GameInstallationSave.MarkNewGameStarted();
+
             Debug.Log(
-                "[MainMenu] New Game: tutorial and " +
-                "puzzle finale progress reset."
+                "[MainMenu] Starting new game."
             );
         }
         else
         {
-            // Preserve all existing tutorial progress
-            // and final Keeper dialogue completion.
             Debug.Log(
-                "[MainMenu] Continue Game: " +
-                "saved progress preserved."
+                "[MainMenu] Continuing saved game."
             );
         }
 
@@ -146,33 +146,20 @@ public class MainMenu : MonoBehaviour
         SceneManager.LoadScene(firstLevelScene);
     }
 
-    // =========================================
-    // RESET FINAL KEEPER DIALOGUE
-    // =========================================
-
     private static void ResetPuzzleFinaleForNewGame()
     {
-        bool wasCompletedV1 =
-            PlayerPrefs.GetInt(PuzzleFinaleKeyV1, 0) == 1;
-
-        bool wasCompletedV2 =
-            PlayerPrefs.GetInt(PuzzleFinaleKeyV2, 0) == 1;
-
         PlayerPrefs.DeleteKey(PuzzleFinaleKeyV1);
         PlayerPrefs.DeleteKey(PuzzleFinaleKeyV2);
 
         PlayerPrefs.Save();
 
         Debug.Log(
-            "[MainMenu] Puzzle finale reset. " +
-            "Previous completion flags: " +
-            "V1=" + wasCompletedV1 +
-            ", V2=" + wasCompletedV2
+            "[MainMenu] Puzzle finale reset."
         );
     }
 
     // =========================================
-    // QUIT GAME
+    // QUIT
     // =========================================
 
     public void QuitGame()
@@ -183,9 +170,7 @@ public class MainMenu : MonoBehaviour
         isTransitioning = true;
 
         if (quitButtonAnimator != null)
-        {
             quitButtonAnimator.SetTrigger("Pressed");
-        }
 
         StartCoroutine(QuitRoutine());
     }

@@ -34,7 +34,9 @@ public class TorchFlameAnimator : MonoBehaviour
     private Color originalColor;
 
     private float elapsedTime;
+    private float flickerElapsedTime;
     private float flickerSeed;
+
     private int frameIndex;
     private int frameDirection = 1;
 
@@ -47,24 +49,37 @@ public class TorchFlameAnimator : MonoBehaviour
 
         flickerSeed = Random.Range(0f, 100f);
 
-        if (randomStartFrame && fireFrames.Length > 0)
-            frameIndex = Random.Range(0, fireFrames.Length);
+        if (fireFrames != null && fireFrames.Length > 0)
+        {
+            if (randomStartFrame)
+                frameIndex = Random.Range(0, fireFrames.Length);
+        }
 
         if (randomFrameDirection && Random.value > 0.5f)
             frameDirection = -1;
 
         elapsedTime = timeOffset;
+        flickerElapsedTime = timeOffset;
 
         UpdateSprite();
     }
 
     private void Update()
     {
+        // Freeze the current visual frame while Options
+        // has paused the main menu.
+        if (Time.timeScale <= 0f)
+            return;
+
         float deltaTime = useUnscaledTime
             ? Time.unscaledDeltaTime
             : Time.deltaTime;
 
+        if (deltaTime <= 0f)
+            return;
+
         elapsedTime += deltaTime;
+        flickerElapsedTime += deltaTime;
 
         UpdateAnimation();
         UpdateFlicker();
@@ -75,7 +90,8 @@ public class TorchFlameAnimator : MonoBehaviour
         if (fireFrames == null || fireFrames.Length == 0)
             return;
 
-        float frameTime = 1f / Mathf.Max(1f, framesPerSecond);
+        float frameTime =
+            1f / Mathf.Max(1f, framesPerSecond);
 
         while (elapsedTime >= frameTime)
         {
@@ -98,7 +114,9 @@ public class TorchFlameAnimator : MonoBehaviour
         if (flameImage == null ||
             fireFrames == null ||
             fireFrames.Length == 0)
+        {
             return;
+        }
 
         Sprite sprite = fireFrames[frameIndex];
 
@@ -108,7 +126,13 @@ public class TorchFlameAnimator : MonoBehaviour
 
     private void UpdateFlicker()
     {
-        float t = Time.unscaledTime * flickerSpeed + flickerSeed;
+        if (flameImage == null)
+            return;
+
+        // Local accumulated time prevents a jump
+        // in flicker after closing Options.
+        float t =
+            flickerElapsedTime * flickerSpeed + flickerSeed;
 
         float noise = Mathf.PerlinNoise(t, flickerSeed);
         float centeredNoise = noise * 2f - 1f;
@@ -117,6 +141,7 @@ public class TorchFlameAnimator : MonoBehaviour
             1f + centeredNoise * brightnessFlicker;
 
         Color color = originalColor;
+
         color.a = Mathf.Clamp01(
             originalColor.a * alphaMultiplier
         );

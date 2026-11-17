@@ -128,10 +128,16 @@ public class MainMenuPlayerBlink : MonoBehaviour
 
     private void Update()
     {
+        // Freeze current pose and blink timers.
+        if (Time.timeScale <= 0f)
+            return;
+
         if (playerImage == null ||
             eyesOpenSprite == null ||
             eyesClosedSprite == null)
+        {
             return;
+        }
 
         if (isTransitioning)
             return;
@@ -178,8 +184,6 @@ public class MainMenuPlayerBlink : MonoBehaviour
 
     private IEnumerator ChangePose(PlayerPose nextPose)
     {
-        // Show the intermediate hands position.
-        // No transparency or overlapping images.
         if (useTransitionSprite &&
             transitionSprite != null &&
             transitionDuration > 0f)
@@ -190,12 +194,19 @@ public class MainMenuPlayerBlink : MonoBehaviour
 
             while (elapsed < transitionDuration)
             {
-                elapsed += GetDeltaTime();
+                // Keep the transition sprite visible
+                // and retain elapsed time during pause.
+                if (Time.timeScale > 0f)
+                    elapsed += GetDeltaTime();
+
                 yield return null;
             }
         }
 
-        // Switch to the destination pose.
+        // Do not finish a transition during pause.
+        while (Time.timeScale <= 0f)
+            yield return null;
+
         currentPose = nextPose;
 
         playerImage.sprite = GetOpenSprite();
@@ -262,7 +273,6 @@ public class MainMenuPlayerBlink : MonoBehaviour
 
         playerImage.sprite = GetOpenSprite();
 
-        // In the resting pose, perform one wink.
         if (currentPose == PlayerPose.Rest &&
             winkOnceInRest)
         {
@@ -270,7 +280,6 @@ public class MainMenuPlayerBlink : MonoBehaviour
             return;
         }
 
-        // Double blinking is used in the title pose.
         if (currentPose == PlayerPose.Title &&
             !isSecondBlink &&
             Random.value < doubleBlinkChance)

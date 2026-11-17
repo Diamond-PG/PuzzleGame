@@ -1,3 +1,4 @@
+
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -23,14 +24,25 @@ public class GalleryController : MonoBehaviour
     [SerializeField] private GameObject galleryPanel;
     [SerializeField] private GameObject menuButtonsRoot;
 
+    [Header("Gallery Navigation")]
+    [SerializeField] private GameObject galleryArtworkRoot;
+    [SerializeField] private GameObject galleryLevelsView;
+    [SerializeField] private GameObject galleryCollectionView;
+
     private void Awake()
     {
+        maxPages = Mathf.Max(1, maxPages);
         currentPage = Mathf.Clamp(currentPage, 1, maxPages);
+
+        ShowSectionSelection();
         UpdateGalleryUI();
     }
 
+    // Opens the gallery at the section selection screen.
     public void OpenGallery()
     {
+        ShowSectionSelection();
+
         if (galleryPanel != null)
             galleryPanel.SetActive(true);
 
@@ -40,6 +52,7 @@ public class GalleryController : MonoBehaviour
         UpdateGalleryUI();
     }
 
+    // Closes the entire gallery and returns to the main menu.
     public void CloseGallery()
     {
         if (galleryPanel != null)
@@ -47,6 +60,66 @@ public class GalleryController : MonoBehaviour
 
         if (menuButtonsRoot != null)
             menuButtonsRoot.SetActive(true);
+
+        ShowSectionSelection();
+    }
+
+    // Opens the level selection screen.
+    public void OpenLevelsView()
+    {
+        if (galleryLevelsView == null)
+        {
+            Debug.LogWarning(
+                "GalleryController: Gallery Levels View is not assigned.");
+            return;
+        }
+
+        if (galleryArtworkRoot != null)
+            galleryArtworkRoot.SetActive(false);
+
+        galleryLevelsView.SetActive(true);
+
+        if (galleryCollectionView != null)
+            galleryCollectionView.SetActive(false);
+    }
+
+    // Opens the collection screen.
+    public void OpenCollectionView()
+    {
+        if (galleryCollectionView == null)
+        {
+            Debug.LogWarning(
+                "GalleryController: Gallery Collection View is not assigned.");
+            return;
+        }
+
+        if (galleryArtworkRoot != null)
+            galleryArtworkRoot.SetActive(false);
+
+        if (galleryLevelsView != null)
+            galleryLevelsView.SetActive(false);
+
+        galleryCollectionView.SetActive(true);
+
+        UpdateGalleryUI();
+    }
+
+    // Returns from Levels or Collection to Section Selection.
+    public void BackToSectionSelection()
+    {
+        ShowSectionSelection();
+    }
+
+    private void ShowSectionSelection()
+    {
+        if (galleryLevelsView != null)
+            galleryLevelsView.SetActive(false);
+
+        if (galleryCollectionView != null)
+            galleryCollectionView.SetActive(false);
+
+        if (galleryArtworkRoot != null)
+            galleryArtworkRoot.SetActive(true);
     }
 
     public void PreviousPage()

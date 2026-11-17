@@ -40,6 +40,22 @@ MonoBehaviour:
     m_Localized: SALIR
     m_Metadata:
       m_Items: []
+  - m_Id: 106442066281574400
+    m_Localized: "SELECCI\xD3N DE SECCI\xD3N"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 106505065524572160
+    m_Localized: NIVELES
+    m_Metadata:
+      m_Items: []
+  - m_Id: 106505464042172416
+    m_Localized: "COLECCI\xD3N"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 106848135516467200
+    m_Localized: "\u2190 Atr\xE1s"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:

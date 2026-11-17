@@ -39,6 +39,22 @@ MonoBehaviour:
 '
     m_Metadata:
       m_Items: []
+  - m_Id: 106442066281574400
+    m_Key: gallery_choose_section
+    m_Metadata:
+      m_Items: []
+  - m_Id: 106505065524572160
+    m_Key: gallery_levels_button
+    m_Metadata:
+      m_Items: []
+  - m_Id: 106505464042172416
+    m_Key: gallery_collection_button
+    m_Metadata:
+      m_Items: []
+  - m_Id: 106848135516467200
+    m_Key: gallery_back_butt
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

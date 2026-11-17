@@ -55,7 +55,8 @@ public class CrownSparkleWave : MonoBehaviour
                 continue;
 
             originalColors[i] = image.color;
-            originalScales[i] = image.rectTransform.localScale;
+            originalScales[i] =
+                image.rectTransform.localScale;
 
             SetAlpha(i, 0f);
         }
@@ -108,30 +109,47 @@ public class CrownSparkleWave : MonoBehaviour
         do
         {
             float totalWaveTime =
-                (sparkles.Length - 1) * delayBetweenSparkles
-                + sparkleDuration;
+                (sparkles.Length - 1) *
+                delayBetweenSparkles +
+                sparkleDuration;
 
             float elapsed = 0f;
 
             while (elapsed < totalWaveTime)
             {
+                // Keep every sparkle on its current frame
+                // while the main menu is paused.
+                if (Time.timeScale <= 0f)
+                {
+                    yield return null;
+                    continue;
+                }
+
                 for (int i = 0; i < sparkles.Length; i++)
                 {
                     float localTime =
                         elapsed - i * delayBetweenSparkles;
 
-                    float intensity = EvaluateSparkle(localTime);
+                    float intensity =
+                        EvaluateSparkle(localTime);
 
-                    SetAlpha(i, intensity * sparkleBrightness);
+                    SetAlpha(
+                        i,
+                        intensity * sparkleBrightness
+                    );
+
                     SetSize(i);
                 }
 
-                yield return null;
+                elapsed += GetDeltaTime();
 
-                elapsed += useUnscaledTime
-                    ? Time.unscaledDeltaTime
-                    : Time.deltaTime;
+                yield return null;
             }
+
+            // Wait for Options to close before
+            // clearing the last sparkle frame.
+            while (Time.timeScale <= 0f)
+                yield return null;
 
             for (int i = 0; i < sparkles.Length; i++)
                 SetAlpha(i, 0f);
@@ -140,16 +158,27 @@ public class CrownSparkleWave : MonoBehaviour
 
             while (pauseElapsed < pauseBetweenWaves)
             {
-                yield return null;
+                if (Time.timeScale <= 0f)
+                {
+                    yield return null;
+                    continue;
+                }
 
-                pauseElapsed += useUnscaledTime
-                    ? Time.unscaledDeltaTime
-                    : Time.deltaTime;
+                pauseElapsed += GetDeltaTime();
+
+                yield return null;
             }
 
         } while (loop);
 
         waveCoroutine = null;
+    }
+
+    private float GetDeltaTime()
+    {
+        return useUnscaledTime
+            ? Time.unscaledDeltaTime
+            : Time.deltaTime;
     }
 
     private float EvaluateSparkle(float time)
@@ -172,9 +201,13 @@ public class CrownSparkleWave : MonoBehaviour
         {
             float t =
                 (normalized - fadeOutStart) /
-                Mathf.Max(0.001f, 1f - fadeOutStart);
+                Mathf.Max(
+                    0.001f,
+                    1f - fadeOutStart
+                );
 
-            return 1f - Mathf.SmoothStep(0f, 1f, t);
+            return 1f -
+                Mathf.SmoothStep(0f, 1f, t);
         }
 
         return 1f;
@@ -191,8 +224,10 @@ public class CrownSparkleWave : MonoBehaviour
             return;
 
         Color color = originalColors[index];
-        color.a = originalColors[index].a *
-                  Mathf.Clamp01(alpha);
+
+        color.a =
+            originalColors[index].a *
+            Mathf.Clamp01(alpha);
 
         image.color = color;
     }
