@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: b4917d9f4eda9184783c811c847d5315
+guid: fb71a0776535b3649a0ccad85d31fa96
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 2791605925655380801
-    second: Level Menu_2_2_0
+      213: 8234881845414606734
+    second: Bowl 1_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -53,7 +53,7 @@ TextureImporter:
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
-  spriteGenerateFallbackPhysicsShape: 1
+  spriteGenerateFallbackPhysicsShape: 0
   alphaUsage: 1
   alphaIsTransparency: 1
   spriteTessellationDetail: -1
@@ -72,10 +72,10 @@ TextureImporter:
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 2048
+    maxTextureSize: 512
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 2
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -126,13 +126,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Level Menu_2_2_0
+      name: Bowl 1_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 1672
-        height: 941
+        x: 257
+        y: 97
+        width: 1010
+        height: 800
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 143809f7cc6cdb620800000000000000
-      internalID: 2791605925655380801
+      spriteID: e87304b786d284270800000000000000
+      internalID: 8234881845414606734
       vertices: []
       indices: 
       edges: []
@@ -161,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Level Menu_2_2_0: 2791605925655380801
+      Bowl 1_0: 8234881845414606734
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
