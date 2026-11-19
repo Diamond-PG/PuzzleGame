@@ -56,6 +56,10 @@ MonoBehaviour:
     m_Localized: "\u2190 Back"
     m_Metadata:
       m_Items: []
+  - m_Id: 107578684908449792
+    m_Localized: Select Level
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:

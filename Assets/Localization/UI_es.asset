@@ -56,6 +56,10 @@ MonoBehaviour:
     m_Localized: "\u2190 Atr\xE1s"
     m_Metadata:
       m_Items: []
+  - m_Id: 107578684908449792
+    m_Localized: Seleccionar nivel
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:

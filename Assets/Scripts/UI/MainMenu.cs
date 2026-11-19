@@ -15,6 +15,10 @@ public class MainMenu : MonoBehaviour
     public AudioClip continueClip;
     public AudioClip quitClip;
 
+    [SerializeField, Range(0f, 1f)] private float playVolume = 1f;
+    [SerializeField, Range(0f, 1f)] private float continueVolume = 1f;
+    [SerializeField, Range(0f, 1f)] private float quitVolume = 1f;
+
     [Header("Game Settings")]
     [SerializeField]
     private string firstLevelScene = "Level1";
@@ -56,7 +60,7 @@ public class MainMenu : MonoBehaviour
             playButtonAnimator.SetTrigger("Pressed");
 
         StartCoroutine(
-            LoadGameRoutine(true, playClip)
+            LoadGameRoutine(true, playClip, playVolume)
         );
     }
 
@@ -89,7 +93,7 @@ public class MainMenu : MonoBehaviour
             : playClip;
 
         StartCoroutine(
-            LoadGameRoutine(false, sound)
+            LoadGameRoutine(false, sound, continueClip != null ? continueVolume : playVolume)
         );
     }
 
@@ -99,10 +103,10 @@ public class MainMenu : MonoBehaviour
 
     private IEnumerator LoadGameRoutine(
         bool startNewGame,
-        AudioClip sound)
+        AudioClip sound, float volume)
     {
         if (audioSource != null && sound != null)
-            audioSource.PlayOneShot(sound);
+            audioSource.PlayOneShot(sound, volume);
 
         yield return new WaitForSecondsRealtime(
             playLoadDelay
@@ -143,6 +147,7 @@ public class MainMenu : MonoBehaviour
 
         Time.timeScale = 1f;
 
+        LevelLaunchSession.BeginStory(startNewGame);
         SceneManager.LoadScene(firstLevelScene);
     }
 
@@ -179,7 +184,7 @@ public class MainMenu : MonoBehaviour
     {
         if (audioSource != null && quitClip != null)
         {
-            audioSource.PlayOneShot(quitClip);
+            audioSource.PlayOneShot(quitClip, quitVolume);
 
             yield return new WaitForSecondsRealtime(
                 quitClip.length

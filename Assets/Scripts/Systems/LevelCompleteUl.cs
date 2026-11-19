@@ -126,6 +126,12 @@ public class LevelCompleteUI : MonoBehaviour
 
     public void LoadNextLevel()
     {
+        if (LevelLaunchSession.Mode == LevelLaunchMode.GalleryReplay)
+        {
+            LevelLaunchSession.AdvanceReplayOrReturnToMenu();
+            return;
+        }
+
         Time.timeScale = 1f;
 
         int currentIndex = SceneManager.GetActiveScene().buildIndex;
