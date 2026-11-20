@@ -29,6 +29,7 @@ public class GalleryButtonPressEffect : MonoBehaviour,
 
     private Vector3 originalScale;
     private Vector2 originalPosition;
+    private Vector2 lastAppliedPosition;
     private float originalAlpha;
 
     private bool isPressed;
@@ -41,6 +42,7 @@ public class GalleryButtonPressEffect : MonoBehaviour,
 
         originalScale = rectTransform.localScale;
         originalPosition = rectTransform.anchoredPosition;
+        lastAppliedPosition = originalPosition;
         originalAlpha = canvasGroup.alpha;
     }
 
@@ -75,6 +77,7 @@ public class GalleryButtonPressEffect : MonoBehaviour,
             ? originalAlpha * pressedAlpha
             : originalAlpha;
 
+        Vector2 currentPosition = CapturePositionEdits();
         Vector2 targetPosition = originalPosition;
 
         if (isPressed)
@@ -96,17 +99,29 @@ public class GalleryButtonPressEffect : MonoBehaviour,
             t
         );
 
-        rectTransform.anchoredPosition = Vector2.Lerp(
-            rectTransform.anchoredPosition,
-            targetPosition,
-            t
-        );
+        Vector2 animatedPosition = Vector2.Lerp(currentPosition, targetPosition, t);
+        if (!animatedPosition.Equals(currentPosition))
+            rectTransform.anchoredPosition = animatedPosition;
+        lastAppliedPosition = rectTransform.anchoredPosition;
 
         canvasGroup.alpha = Mathf.Lerp(
             canvasGroup.alpha,
             targetAlpha,
             t
         );
+    }
+
+    private Vector2 CapturePositionEdits()
+    {
+        Vector2 position = rectTransform.anchoredPosition;
+
+        // Preserve external edits per axis without treating the animated press offset as a layout edit.
+        if (position.x != lastAppliedPosition.x)
+            originalPosition.x = position.x;
+        if (position.y != lastAppliedPosition.y)
+            originalPosition.y = position.y;
+
+        return position;
     }
 
     private void OnDisable()
@@ -116,7 +131,9 @@ public class GalleryButtonPressEffect : MonoBehaviour,
         if (rectTransform != null)
         {
             rectTransform.localScale = originalScale;
+            CapturePositionEdits();
             rectTransform.anchoredPosition = originalPosition;
+            lastAppliedPosition = rectTransform.anchoredPosition;
         }
 
         if (canvasGroup != null)

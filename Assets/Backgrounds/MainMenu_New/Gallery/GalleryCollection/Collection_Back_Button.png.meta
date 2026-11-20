@@ -1,0 +1,4745 @@
+fileFormatVersion: 2
+guid: 677c87784b02dbb4ca4320dc7b896240
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 4863005374691781460
+    second: Collection_Back_Button_0
+  - first:
+      213: -3429188566248499670
+    second: Collection_Back_Button_1
+  - first:
+      213: -4937927147238881399
+    second: Collection_Back_Button_2
+  - first:
+      213: -5961691962559061543
+    second: Collection_Back_Button_3
+  - first:
+      213: 2056148673041675897
+    second: Collection_Back_Button_4
+  - first:
+      213: 7172989885713332112
+    second: Collection_Back_Button_5
+  - first:
+      213: 8011116023723249347
+    second: Collection_Back_Button_6
+  - first:
+      213: 5101491488817762832
+    second: Collection_Back_Button_7
+  - first:
+      213: 5128425216537151724
+    second: Collection_Back_Button_8
+  - first:
+      213: -1011702251964158001
+    second: Collection_Back_Button_9
+  - first:
+      213: -1368963318183872945
+    second: Collection_Back_Button_10
+  - first:
+      213: -8454504704569254535
+    second: Collection_Back_Button_11
+  - first:
+      213: -5860824192566964183
+    second: Collection_Back_Button_12
+  - first:
+      213: 5986513294734818103
+    second: Collection_Back_Button_13
+  - first:
+      213: 641794649111232637
+    second: Collection_Back_Button_14
+  - first:
+      213: -3576091708424579509
+    second: Collection_Back_Button_15
+  - first:
+      213: 8405713208392939
+    second: Collection_Back_Button_16
+  - first:
+      213: 473526846863459397
+    second: Collection_Back_Button_17
+  - first:
+      213: -6033622825039981484
+    second: Collection_Back_Button_18
+  - first:
+      213: 6910337463097835895
+    second: Collection_Back_Button_19
+  - first:
+      213: -8890385773491893060
+    second: Collection_Back_Button_20
+  - first:
+      213: -1889165360704514382
+    second: Collection_Back_Button_21
+  - first:
+      213: -7420373888008495007
+    second: Collection_Back_Button_22
+  - first:
+      213: -7579819943983331090
+    second: Collection_Back_Button_23
+  - first:
+      213: -7639498674265444583
+    second: Collection_Back_Button_24
+  - first:
+      213: -5777881609053260807
+    second: Collection_Back_Button_25
+  - first:
+      213: -1091866370311635357
+    second: Collection_Back_Button_26
+  - first:
+      213: 4671709575850459466
+    second: Collection_Back_Button_27
+  - first:
+      213: -6950075822212658981
+    second: Collection_Back_Button_28
+  - first:
+      213: 7684624353214400639
+    second: Collection_Back_Button_29
+  - first:
+      213: 2934444697353732453
+    second: Collection_Back_Button_30
+  - first:
+      213: -1586948203707724097
+    second: Collection_Back_Button_31
+  - first:
+      213: 9188832238614447716
+    second: Collection_Back_Button_32
+  - first:
+      213: -2811975822523846167
+    second: Collection_Back_Button_33
+  - first:
+      213: 5607355321631471145
+    second: Collection_Back_Button_34
+  - first:
+      213: -1065771257718411012
+    second: Collection_Back_Button_35
+  - first:
+      213: -4622956160771961003
+    second: Collection_Back_Button_36
+  - first:
+      213: -5463888298348979583
+    second: Collection_Back_Button_37
+  - first:
+      213: -4546431905758635289
+    second: Collection_Back_Button_38
+  - first:
+      213: 2960756370225990163
+    second: Collection_Back_Button_39
+  - first:
+      213: -8150302139193385313
+    second: Collection_Back_Button_40
+  - first:
+      213: -6860531599080565683
+    second: Collection_Back_Button_41
+  - first:
+      213: -6230734773724509130
+    second: Collection_Back_Button_42
+  - first:
+      213: 6987389038563475049
+    second: Collection_Back_Button_43
+  - first:
+      213: -7045638899784688663
+    second: Collection_Back_Button_44
+  - first:
+      213: -7786407147383300356
+    second: Collection_Back_Button_45
+  - first:
+      213: 5373583004559116577
+    second: Collection_Back_Button_46
+  - first:
+      213: 5130920296221653278
+    second: Collection_Back_Button_47
+  - first:
+      213: -449197851079062620
+    second: Collection_Back_Button_48
+  - first:
+      213: -2226681940447554788
+    second: Collection_Back_Button_49
+  - first:
+      213: 4898344457140691934
+    second: Collection_Back_Button_50
+  - first:
+      213: -8134539986904887773
+    second: Collection_Back_Button_51
+  - first:
+      213: -4772113725550864204
+    second: Collection_Back_Button_52
+  - first:
+      213: 208014983057539220
+    second: Collection_Back_Button_53
+  - first:
+      213: -1393407995027164035
+    second: Collection_Back_Button_54
+  - first:
+      213: 5998916275572100093
+    second: Collection_Back_Button_55
+  - first:
+      213: -1295050189301629714
+    second: Collection_Back_Button_56
+  - first:
+      213: -2353158693977542338
+    second: Collection_Back_Button_57
+  - first:
+      213: 4052836740162264844
+    second: Collection_Back_Button_58
+  - first:
+      213: -6696990764368516262
+    second: Collection_Back_Button_59
+  - first:
+      213: -2240947860501039658
+    second: Collection_Back_Button_60
+  - first:
+      213: 7360557291317436281
+    second: Collection_Back_Button_61
+  - first:
+      213: 5537688790075215400
+    second: Collection_Back_Button_62
+  - first:
+      213: 6268752154810341097
+    second: Collection_Back_Button_63
+  - first:
+      213: 1839033811859944366
+    second: Collection_Back_Button_64
+  - first:
+      213: -8661719875463058563
+    second: Collection_Back_Button_65
+  - first:
+      213: -3790777114093341308
+    second: Collection_Back_Button_66
+  - first:
+      213: 5140122539188750648
+    second: Collection_Back_Button_67
+  - first:
+      213: 1237939150707640536
+    second: Collection_Back_Button_68
+  - first:
+      213: 502382937827580321
+    second: Collection_Back_Button_69
+  - first:
+      213: -1519143965257893546
+    second: Collection_Back_Button_70
+  - first:
+      213: -8655697610222844929
+    second: Collection_Back_Button_71
+  - first:
+      213: -5881838734460757935
+    second: Collection_Back_Button_72
+  - first:
+      213: -6230785578449100763
+    second: Collection_Back_Button_73
+  - first:
+      213: -2113089326468703930
+    second: Collection_Back_Button_74
+  - first:
+      213: -8185109060834047041
+    second: Collection_Back_Button_75
+  - first:
+      213: -6902082907625677948
+    second: Collection_Back_Button_76
+  - first:
+      213: -7387014554197091195
+    second: Collection_Back_Button_77
+  - first:
+      213: 3353940920960203880
+    second: Collection_Back_Button_78
+  - first:
+      213: 2107070912466498585
+    second: Collection_Back_Button_79
+  - first:
+      213: -5587550441707997408
+    second: Collection_Back_Button_80
+  - first:
+      213: 4802568809798255660
+    second: Collection_Back_Button_81
+  - first:
+      213: 8270573082268974706
+    second: Collection_Back_Button_82
+  - first:
+      213: -3189417837394225861
+    second: Collection_Back_Button_83
+  - first:
+      213: 6514227935430661380
+    second: Collection_Back_Button_84
+  - first:
+      213: -5126038889577871142
+    second: Collection_Back_Button_85
+  - first:
+      213: 532283951576214318
+    second: Collection_Back_Button_86
+  - first:
+      213: 5102973289385027793
+    second: Collection_Back_Button_87
+  - first:
+      213: 5783475042118820675
+    second: Collection_Back_Button_88
+  - first:
+      213: -7255744726415880049
+    second: Collection_Back_Button_89
+  - first:
+      213: -7966351940208323055
+    second: Collection_Back_Button_90
+  - first:
+      213: 6009689178665088901
+    second: Collection_Back_Button_91
+  - first:
+      213: 2370268740474680003
+    second: Collection_Back_Button_92
+  - first:
+      213: -6772682068876745835
+    second: Collection_Back_Button_93
+  - first:
+      213: -5433570949777520302
+    second: Collection_Back_Button_94
+  - first:
+      213: -7423496990787592512
+    second: Collection_Back_Button_95
+  - first:
+      213: -8412235026591119309
+    second: Collection_Back_Button_96
+  - first:
+      213: 2627722582508557999
+    second: Collection_Back_Button_97
+  - first:
+      213: 3489080049203633667
+    second: Collection_Back_Button_98
+  - first:
+      213: -4931407192659915454
+    second: Collection_Back_Button_99
+  - first:
+      213: 4313512214256965227
+    second: Collection_Back_Button_100
+  - first:
+      213: 2052214712843059223
+    second: Collection_Back_Button_101
+  - first:
+      213: 7946185550979246049
+    second: Collection_Back_Button_102
+  - first:
+      213: -5658768921693276613
+    second: Collection_Back_Button_103
+  - first:
+      213: 6376174432949650936
+    second: Collection_Back_Button_104
+  - first:
+      213: 276366444123545534
+    second: Collection_Back_Button_105
+  - first:
+      213: -9064346613047294933
+    second: Collection_Back_Button_106
+  - first:
+      213: -2005939118018388845
+    second: Collection_Back_Button_107
+  - first:
+      213: -6496657008861354946
+    second: Collection_Back_Button_108
+  - first:
+      213: -4034011452793927261
+    second: Collection_Back_Button_109
+  - first:
+      213: -520485325770605044
+    second: Collection_Back_Button_110
+  - first:
+      213: 8402477644729145448
+    second: Collection_Back_Button_111
+  - first:
+      213: 5251749946104346606
+    second: Collection_Back_Button_112
+  - first:
+      213: 8620373490353771951
+    second: Collection_Back_Button_113
+  - first:
+      213: 6663283205708836173
+    second: Collection_Back_Button_114
+  - first:
+      213: 1493754959774565736
+    second: Collection_Back_Button_115
+  - first:
+      213: 5723588547319096412
+    second: Collection_Back_Button_116
+  - first:
+      213: -7569920693486325619
+    second: Collection_Back_Button_117
+  - first:
+      213: 5036944560525110098
+    second: Collection_Back_Button_118
+  - first:
+      213: 3533461035224870978
+    second: Collection_Back_Button_119
+  - first:
+      213: 2019077848770053583
+    second: Collection_Back_Button_120
+  - first:
+      213: -3472985034311141984
+    second: Collection_Back_Button_121
+  - first:
+      213: 2156743332603672534
+    second: Collection_Back_Button_122
+  - first:
+      213: -8237953661010665019
+    second: Collection_Back_Button_123
+  - first:
+      213: 4860768916404872747
+    second: Collection_Back_Button_124
+  - first:
+      213: 8214653513353350369
+    second: Collection_Back_Button_125
+  - first:
+      213: -6605345390571434945
+    second: Collection_Back_Button_126
+  - first:
+      213: 4558821269905345692
+    second: Collection_Back_Button_127
+  - first:
+      213: 7631757499994011213
+    second: Collection_Back_Button_128
+  - first:
+      213: -1443166340526532174
+    second: Collection_Back_Button_129
+  - first:
+      213: -9012377894726610921
+    second: Collection_Back_Button_130
+  - first:
+      213: 505198870386062020
+    second: Collection_Back_Button_131
+  - first:
+      213: -191128831338018680
+    second: Collection_Back_Button_132
+  - first:
+      213: -3703212810745346682
+    second: Collection_Back_Button_133
+  - first:
+      213: 3562440702719971685
+    second: Collection_Back_Button_134
+  - first:
+      213: 6718849109996647645
+    second: Collection_Back_Button_135
+  - first:
+      213: 5068418677651285442
+    second: Collection_Back_Button_136
+  - first:
+      213: -8947419912682321929
+    second: Collection_Back_Button_137
+  - first:
+      213: -7420383403461788521
+    second: Collection_Back_Button_138
+  - first:
+      213: -8956241839167777070
+    second: Collection_Back_Button_139
+  - first:
+      213: -8832777283852014900
+    second: Collection_Back_Button_140
+  - first:
+      213: -3485855734452321626
+    second: Collection_Back_Button_141
+  - first:
+      213: 7719647929112470140
+    second: Collection_Back_Button_142
+  - first:
+      213: 7499234342183427033
+    second: Collection_Back_Button_143
+  - first:
+      213: -8013594255147998617
+    second: Collection_Back_Button_144
+  - first:
+      213: 4635503256994418384
+    second: Collection_Back_Button_145
+  - first:
+      213: -2379234349376687
+    second: Collection_Back_Button_146
+  - first:
+      213: -563682757271060652
+    second: Collection_Back_Button_147
+  - first:
+      213: 3380559988613571385
+    second: Collection_Back_Button_148
+  - first:
+      213: -8115478611723816925
+    second: Collection_Back_Button_149
+  - first:
+      213: 620804612285731614
+    second: Collection_Back_Button_150
+  - first:
+      213: -984855794436956626
+    second: Collection_Back_Button_151
+  - first:
+      213: 5245233313341912233
+    second: Collection_Back_Button_152
+  - first:
+      213: 7516875356675456192
+    second: Collection_Back_Button_153
+  - first:
+      213: -1597155897348461018
+    second: Collection_Back_Button_154
+  - first:
+      213: 1161948869938126344
+    second: Collection_Back_Button_155
+  - first:
+      213: -2224329257490718112
+    second: Collection_Back_Button_156
+  - first:
+      213: 8541017657376432724
+    second: Collection_Back_Button_157
+  - first:
+      213: -5336538204522376292
+    second: Collection_Back_Button_158
+  - first:
+      213: 2787536311581778011
+    second: Collection_Back_Button_159
+  - first:
+      213: -8299813090745531197
+    second: Collection_Back_Button_160
+  - first:
+      213: -8156392210550142707
+    second: Collection_Back_Button_161
+  - first:
+      213: 3182468600333626083
+    second: Collection_Back_Button_162
+  - first:
+      213: -3448382001025969099
+    second: Collection_Back_Button_163
+  - first:
+      213: -7989418663034364465
+    second: Collection_Back_Button_164
+  - first:
+      213: -4792284108751243005
+    second: Collection_Back_Button_165
+  - first:
+      213: -2128466769552534366
+    second: Collection_Back_Button_166
+  - first:
+      213: -9184905206943899052
+    second: Collection_Back_Button_167
+  - first:
+      213: -5318964624579183070
+    second: Collection_Back_Button_168
+  - first:
+      213: -3138067929224425842
+    second: Collection_Back_Button_169
+  - first:
+      213: 7088648738837386570
+    second: Collection_Back_Button_170
+  - first:
+      213: 3755427478250009502
+    second: Collection_Back_Button_171
+  - first:
+      213: 8677869319749228733
+    second: Collection_Back_Button_172
+  - first:
+      213: 2405059813026322255
+    second: Collection_Back_Button_173
+  - first:
+      213: -1022183451994619210
+    second: Collection_Back_Button_174
+  - first:
+      213: 2505902722625180211
+    second: Collection_Back_Button_175
+  - first:
+      213: -7368093835765643863
+    second: Collection_Back_Button_176
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Collection_Back_Button_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 1761
+        height: 880
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 45ba15b7f9ddc7340800000000000000
+      internalID: 4863005374691781460
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_1
+      rect:
+        serializedVersion: 2
+        x: 427
+        y: 850
+        width: 8
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a265de8ea231960d0800000000000000
+      internalID: -3429188566248499670
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_2
+      rect:
+        serializedVersion: 2
+        x: 433
+        y: 854
+        width: 26
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 987811efb65f87bb0800000000000000
+      internalID: -4937927147238881399
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_3
+      rect:
+        serializedVersion: 2
+        x: 996
+        y: 844
+        width: 21
+        height: 36
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9d1ad571fb0d34da0800000000000000
+      internalID: -5961691962559061543
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_4
+      rect:
+        serializedVersion: 2
+        x: 1250
+        y: 864
+        width: 23
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9763a0ef258e88c10800000000000000
+      internalID: 2056148673041675897
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_5
+      rect:
+        serializedVersion: 2
+        x: 1290
+        y: 854
+        width: 9
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 097b9630c449b8360800000000000000
+      internalID: 7172989885713332112
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_6
+      rect:
+        serializedVersion: 2
+        x: 572
+        y: 854
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3cec67034933d2f60800000000000000
+      internalID: 8011116023723249347
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_7
+      rect:
+        serializedVersion: 2
+        x: 774
+        y: 834
+        width: 23
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 01259afea732cc640800000000000000
+      internalID: 5101491488817762832
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_8
+      rect:
+        serializedVersion: 2
+        x: 830
+        y: 846
+        width: 10
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ce84ad81093db2740800000000000000
+      internalID: 5128425216537151724
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_9
+      rect:
+        serializedVersion: 2
+        x: 877
+        y: 804
+        width: 64
+        height: 54
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fcfa63d7926b5f1f0800000000000000
+      internalID: -1011702251964158001
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_10
+      rect:
+        serializedVersion: 2
+        x: 1020
+        y: 820
+        width: 21
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f463c1d7d17700de0800000000000000
+      internalID: -1368963318183872945
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_11
+      rect:
+        serializedVersion: 2
+        x: 1298
+        y: 855
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 97dd74cd3c09baa80800000000000000
+      internalID: -8454504704569254535
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_12
+      rect:
+        serializedVersion: 2
+        x: 375
+        y: 821
+        width: 11
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 920d707e27b2aaea0800000000000000
+      internalID: -5860824192566964183
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_13
+      rect:
+        serializedVersion: 2
+        x: 401
+        y: 830
+        width: 9
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 73b72d7af1e541350800000000000000
+      internalID: 5986513294734818103
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_14
+      rect:
+        serializedVersion: 2
+        x: 677
+        y: 838
+        width: 18
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d70850f35dc18e800800000000000000
+      internalID: 641794649111232637
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_15
+      rect:
+        serializedVersion: 2
+        x: 697
+        y: 844
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b461223c98b2f5ec0800000000000000
+      internalID: -3576091708424579509
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_16
+      rect:
+        serializedVersion: 2
+        x: 758
+        y: 838
+        width: 7
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: becbedd93fcdd1000800000000000000
+      internalID: 8405713208392939
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_17
+      rect:
+        serializedVersion: 2
+        x: 845
+        y: 835
+        width: 9
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 54448ea882e429600800000000000000
+      internalID: 473526846863459397
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_18
+      rect:
+        serializedVersion: 2
+        x: 861
+        y: 831
+        width: 9
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4549dc41204444ca0800000000000000
+      internalID: -6033622825039981484
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_19
+      rect:
+        serializedVersion: 2
+        x: 1040
+        y: 819
+        width: 74
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 77145066f4376ef50800000000000000
+      internalID: 6910337463097835895
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_20
+      rect:
+        serializedVersion: 2
+        x: 331
+        y: 812
+        width: 23
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cbc44d60e310f9480800000000000000
+      internalID: -8890385773491893060
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_21
+      rect:
+        serializedVersion: 2
+        x: 701
+        y: 825
+        width: 10
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2b61c391d1658c5e0800000000000000
+      internalID: -1889165360704514382
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_22
+      rect:
+        serializedVersion: 2
+        x: 716
+        y: 824
+        width: 7
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1606ba08349850990800000000000000
+      internalID: -7420373888008495007
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_23
+      rect:
+        serializedVersion: 2
+        x: 720
+        y: 828
+        width: 9
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ee8c379abe11fc690800000000000000
+      internalID: -7579819943983331090
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_24
+      rect:
+        serializedVersion: 2
+        x: 869
+        y: 832
+        width: 9
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 91f275a7e6c0bf590800000000000000
+      internalID: -7639498674265444583
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_25
+      rect:
+        serializedVersion: 2
+        x: 937
+        y: 773
+        width: 60
+        height: 69
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9f33e120a47d0dfa0800000000000000
+      internalID: -5777881609053260807
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_26
+      rect:
+        serializedVersion: 2
+        x: 1016
+        y: 820
+        width: 7
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 36e31673259e8d0f0800000000000000
+      internalID: -1091866370311635357
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_27
+      rect:
+        serializedVersion: 2
+        x: 1369
+        y: 814
+        width: 17
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a418b528b1f35d040800000000000000
+      internalID: 4671709575850459466
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_28
+      rect:
+        serializedVersion: 2
+        x: 1490
+        y: 820
+        width: 7
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bd8cbfedcde5c8f90800000000000000
+      internalID: -6950075822212658981
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_29
+      rect:
+        serializedVersion: 2
+        x: 290
+        y: 811
+        width: 15
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f7809a5622545aa60800000000000000
+      internalID: 7684624353214400639
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_30
+      rect:
+        serializedVersion: 2
+        x: 304
+        y: 817
+        width: 6
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5614cc6a7ed39b820800000000000000
+      internalID: 2934444697353732453
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_31
+      rect:
+        serializedVersion: 2
+        x: 443
+        y: 821
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fbe8e0944070af9e0800000000000000
+      internalID: -1586948203707724097
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_32
+      rect:
+        serializedVersion: 2
+        x: 687
+        y: 803
+        width: 24
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 466854b8c3a458f70800000000000000
+      internalID: 9188832238614447716
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_33
+      rect:
+        serializedVersion: 2
+        x: 720
+        y: 815
+        width: 7
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9e1ba7d43ead9f8d0800000000000000
+      internalID: -2811975822523846167
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_34
+      rect:
+        serializedVersion: 2
+        x: 857
+        y: 818
+        width: 7
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9267d3bb4f351dd40800000000000000
+      internalID: 5607355321631471145
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_35
+      rect:
+        serializedVersion: 2
+        x: 1191
+        y: 819
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cf07fd310be9531f0800000000000000
+      internalID: -1065771257718411012
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_36
+      rect:
+        serializedVersion: 2
+        x: 1443
+        y: 824
+        width: 10
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 55fcbf08dd5f7dfb0800000000000000
+      internalID: -4622956160771961003
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_37
+      rect:
+        serializedVersion: 2
+        x: 322
+        y: 813
+        width: 8
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 18ade74aa8e5c24b0800000000000000
+      internalID: -5463888298348979583
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_38
+      rect:
+        serializedVersion: 2
+        x: 798
+        y: 807
+        width: 7
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7ea11cd0544d7e0c0800000000000000
+      internalID: -4546431905758635289
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_39
+      rect:
+        serializedVersion: 2
+        x: 855
+        y: 805
+        width: 7
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 31a8bc16b38b61920800000000000000
+      internalID: 2960756370225990163
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_40
+      rect:
+        serializedVersion: 2
+        x: 994
+        y: 801
+        width: 11
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f9e9545f26f44ee80800000000000000
+      internalID: -8150302139193385313
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_41
+      rect:
+        serializedVersion: 2
+        x: 1013
+        y: 811
+        width: 7
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d44d57afbde7ac0a0800000000000000
+      internalID: -6860531599080565683
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_42
+      rect:
+        serializedVersion: 2
+        x: 1111
+        y: 805
+        width: 9
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 63c0a723cbbf789a0800000000000000
+      internalID: -6230734773724509130
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_43
+      rect:
+        serializedVersion: 2
+        x: 1193
+        y: 813
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 96eb80f4f4138f060800000000000000
+      internalID: 6987389038563475049
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_44
+      rect:
+        serializedVersion: 2
+        x: 1203
+        y: 807
+        width: 8
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9ebd8a200ccd83e90800000000000000
+      internalID: -7045638899784688663
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_45
+      rect:
+        serializedVersion: 2
+        x: 1228
+        y: 799
+        width: 17
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cfed7af14ff11f390800000000000000
+      internalID: -7786407147383300356
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_46
+      rect:
+        serializedVersion: 2
+        x: 756
+        y: 791
+        width: 7
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 12982dda54dc29a40800000000000000
+      internalID: 5373583004559116577
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_47
+      rect:
+        serializedVersion: 2
+        x: 808
+        y: 797
+        width: 16
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e19322b13d0b43740800000000000000
+      internalID: 5130920296221653278
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_48
+      rect:
+        serializedVersion: 2
+        x: 830
+        y: 799
+        width: 8
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4ab40943fe024c9f0800000000000000
+      internalID: -449197851079062620
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_49
+      rect:
+        serializedVersion: 2
+        x: 1030
+        y: 775
+        width: 21
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c1398d7929c3911e0800000000000000
+      internalID: -2226681940447554788
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_50
+      rect:
+        serializedVersion: 2
+        x: 1072
+        y: 797
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ed3ef5bc45a6af340800000000000000
+      internalID: 4898344457140691934
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_51
+      rect:
+        serializedVersion: 2
+        x: 1101
+        y: 797
+        width: 11
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 32ec2550bfe4c1f80800000000000000
+      internalID: -8134539986904887773
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_52
+      rect:
+        serializedVersion: 2
+        x: 1118
+        y: 791
+        width: 10
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4b856c0b9db06cdb0800000000000000
+      internalID: -4772113725550864204
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_53
+      rect:
+        serializedVersion: 2
+        x: 1190
+        y: 775
+        width: 43
+        height: 36
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4908a15668403e200800000000000000
+      internalID: 208014983057539220
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_54
+      rect:
+        serializedVersion: 2
+        x: 1248
+        y: 797
+        width: 9
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d747735afce99ace0800000000000000
+      internalID: -1393407995027164035
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_55
+      rect:
+        serializedVersion: 2
+        x: 1459
+        y: 792
+        width: 10
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dfbc8caa19e604350800000000000000
+      internalID: 5998916275572100093
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_56
+      rect:
+        serializedVersion: 2
+        x: 1465
+        y: 777
+        width: 18
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: eecbf5cd6be070ee0800000000000000
+      internalID: -1295050189301629714
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_57
+      rect:
+        serializedVersion: 2
+        x: 651
+        y: 780
+        width: 9
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e31b859a2a6e75fd0800000000000000
+      internalID: -2353158693977542338
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_58
+      rect:
+        serializedVersion: 2
+        x: 683
+        y: 781
+        width: 6
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c0f1606da819e3830800000000000000
+      internalID: 4052836740162264844
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_59
+      rect:
+        serializedVersion: 2
+        x: 687
+        y: 779
+        width: 18
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a5b2eb9c1628f03a0800000000000000
+      internalID: -6696990764368516262
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_60
+      rect:
+        serializedVersion: 2
+        x: 699
+        y: 780
+        width: 10
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6d5f9ae3bcd86e0e0800000000000000
+      internalID: -2240947860501039658
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_61
+      rect:
+        serializedVersion: 2
+        x: 766
+        y: 780
+        width: 7
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 97f13e9cbd3f52660800000000000000
+      internalID: 7360557291317436281
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_62
+      rect:
+        serializedVersion: 2
+        x: 1159
+        y: 776
+        width: 19
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 82e88195d92d9dc40800000000000000
+      internalID: 5537688790075215400
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_63
+      rect:
+        serializedVersion: 2
+        x: 1441
+        y: 776
+        width: 12
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9e65f6c1fd41ff650800000000000000
+      internalID: 6268752154810341097
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_64
+      rect:
+        serializedVersion: 2
+        x: 1570
+        y: 789
+        width: 10
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ea338dd128f858910800000000000000
+      internalID: 1839033811859944366
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_65
+      rect:
+        serializedVersion: 2
+        x: 790
+        y: 775
+        width: 7
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d7b651f3aa36bc780800000000000000
+      internalID: -8661719875463058563
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_66
+      rect:
+        serializedVersion: 2
+        x: 935
+        y: 773
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 48539c39c44746bc0800000000000000
+      internalID: -3790777114093341308
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_67
+      rect:
+        serializedVersion: 2
+        x: 1072
+        y: 773
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 83903524732655740800000000000000
+      internalID: 5140122539188750648
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_68
+      rect:
+        serializedVersion: 2
+        x: 1250
+        y: 766
+        width: 9
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8d84a73491b0e2110800000000000000
+      internalID: 1237939150707640536
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_69
+      rect:
+        serializedVersion: 2
+        x: 1461
+        y: 769
+        width: 10
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1a91e66ce92d8f600800000000000000
+      internalID: 502382937827580321
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_70
+      rect:
+        serializedVersion: 2
+        x: 1474
+        y: 757
+        width: 23
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 659ff14cc9aeaeae0800000000000000
+      internalID: -1519143965257893546
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_71
+      rect:
+        serializedVersion: 2
+        x: 827
+        y: 753
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ff3487322e8c0e780800000000000000
+      internalID: -8655697610222844929
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_72
+      rect:
+        serializedVersion: 2
+        x: 877
+        y: 736
+        width: 17
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 158555695d28f5ea0800000000000000
+      internalID: -5881838734460757935
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_73
+      rect:
+        serializedVersion: 2
+        x: 1234
+        y: 757
+        width: 7
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5202aec478dc789a0800000000000000
+      internalID: -6230785578449100763
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_74
+      rect:
+        serializedVersion: 2
+        x: 1295
+        y: 730
+        width: 35
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 649d925047ccca2e0800000000000000
+      internalID: -2113089326468703930
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_75
+      rect:
+        serializedVersion: 2
+        x: 1395
+        y: 759
+        width: 9
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fbbc72dfca6a86e80800000000000000
+      internalID: -8185109060834047041
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_76
+      rect:
+        serializedVersion: 2
+        x: 441
+        y: 731
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 48b1da01a20e630a0800000000000000
+      internalID: -6902082907625677948
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_77
+      rect:
+        serializedVersion: 2
+        x: 895
+        y: 733
+        width: 7
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 58c117aa66d0c7990800000000000000
+      internalID: -7387014554197091195
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_78
+      rect:
+        serializedVersion: 2
+        x: 1274
+        y: 723
+        width: 23
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 86cba776f779b8e20800000000000000
+      internalID: 3353940920960203880
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_79
+      rect:
+        serializedVersion: 2
+        x: 1320
+        y: 717
+        width: 10
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 914bf16c4d1dd3d10800000000000000
+      internalID: 2107070912466498585
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_80
+      rect:
+        serializedVersion: 2
+        x: 210
+        y: 697
+        width: 7
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 027fa653a780572b0800000000000000
+      internalID: -5587550441707997408
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_81
+      rect:
+        serializedVersion: 2
+        x: 216
+        y: 684
+        width: 9
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c24456d23e626a240800000000000000
+      internalID: 4802568809798255660
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_82
+      rect:
+        serializedVersion: 2
+        x: 183
+        y: 594
+        width: 22
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 27ebc81266af6c270800000000000000
+      internalID: 8270573082268974706
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_83
+      rect:
+        serializedVersion: 2
+        x: 1546
+        y: 596
+        width: 48
+        height: 61
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b3592d90069ecb3d0800000000000000
+      internalID: -3189417837394225861
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_84
+      rect:
+        serializedVersion: 2
+        x: 1560
+        y: 594
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 405554d1bcf276a50800000000000000
+      internalID: 6514227935430661380
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_85
+      rect:
+        serializedVersion: 2
+        x: 1568
+        y: 594
+        width: 14
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ad88fd1f9c6acd8b0800000000000000
+      internalID: -5126038889577871142
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_86
+      rect:
+        serializedVersion: 2
+        x: 1580
+        y: 565
+        width: 34
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e2b675d0f6d036700800000000000000
+      internalID: 532283951576214318
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_87
+      rect:
+        serializedVersion: 2
+        x: 175
+        y: 547
+        width: 14
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1d8e9148b2761d640800000000000000
+      internalID: 5102973289385027793
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_88
+      rect:
+        serializedVersion: 2
+        x: 189
+        y: 561
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 34364dc98e7034050800000000000000
+      internalID: 5783475042118820675
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_89
+      rect:
+        serializedVersion: 2
+        x: 202
+        y: 559
+        width: 11
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f8051192d9a6e4b90800000000000000
+      internalID: -7255744726415880049
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_90
+      rect:
+        serializedVersion: 2
+        x: 183
+        y: 553
+        width: 8
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 11693203e15d17190800000000000000
+      internalID: -7966351940208323055
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_91
+      rect:
+        serializedVersion: 2
+        x: 1707
+        y: 509
+        width: 6
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 58777d0a774b66350800000000000000
+      internalID: 6009689178665088901
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_92
+      rect:
+        serializedVersion: 2
+        x: 54
+        y: 458
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3c2b43a7cd2e4e020800000000000000
+      internalID: 2370268740474680003
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_93
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 461
+        width: 11
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 593a1f3aa899202a0800000000000000
+      internalID: -6772682068876745835
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_94
+      rect:
+        serializedVersion: 2
+        x: 91
+        y: 459
+        width: 13
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 25901ac62041894b0800000000000000
+      internalID: -5433570949777520302
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_95
+      rect:
+        serializedVersion: 2
+        x: 56
+        y: 432
+        width: 7
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0ce9ce871d07af890800000000000000
+      internalID: -7423496990787592512
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_96
+      rect:
+        serializedVersion: 2
+        x: 1707
+        y: 428
+        width: 10
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 33800f030dcb14b80800000000000000
+      internalID: -8412235026591119309
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_97
+      rect:
+        serializedVersion: 2
+        x: 40
+        y: 370
+        width: 7
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fa6d1ba34cb877420800000000000000
+      internalID: 2627722582508557999
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_98
+      rect:
+        serializedVersion: 2
+        x: 120
+        y: 362
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 30e5fad91d3bb6030800000000000000
+      internalID: 3489080049203633667
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_99
+      rect:
+        serializedVersion: 2
+        x: 50
+        y: 346
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 24d03b6394f109bb0800000000000000
+      internalID: -4931407192659915454
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_100
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 295
+        width: 5
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b665811418cacdb30800000000000000
+      internalID: 4313512214256965227
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_101
+      rect:
+        serializedVersion: 2
+        x: 1572
+        y: 314
+        width: 8
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 71047d1886eea7c10800000000000000
+      internalID: 2052214712843059223
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_102
+      rect:
+        serializedVersion: 2
+        x: 24
+        y: 293
+        width: 9
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1e7a57d68a5864e60800000000000000
+      internalID: 7946185550979246049
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_103
+      rect:
+        serializedVersion: 2
+        x: 1572
+        y: 281
+        width: 6
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b36b37ca5a30871b0800000000000000
+      internalID: -5658768921693276613
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_104
+      rect:
+        serializedVersion: 2
+        x: 1613
+        y: 275
+        width: 11
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8f544e54dd8bc7850800000000000000
+      internalID: 6376174432949650936
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_105
+      rect:
+        serializedVersion: 2
+        x: 183
+        y: 243
+        width: 14
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ebf52d111d9d5d300800000000000000
+      internalID: 276366444123545534
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_106
+      rect:
+        serializedVersion: 2
+        x: 189
+        y: 205
+        width: 14
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b240d48c7c8f43280800000000000000
+      internalID: -9064346613047294933
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_107
+      rect:
+        serializedVersion: 2
+        x: 200
+        y: 198
+        width: 11
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 39c147500097924e0800000000000000
+      internalID: -2005939118018388845
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_108
+      rect:
+        serializedVersion: 2
+        x: 419
+        y: 209
+        width: 7
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e3464470fdc37d5a0800000000000000
+      internalID: -6496657008861354946
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_109
+      rect:
+        serializedVersion: 2
+        x: 698
+        y: 192
+        width: 7
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3a94c50f4ff4408c0800000000000000
+      internalID: -4034011452793927261
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_110
+      rect:
+        serializedVersion: 2
+        x: 1574
+        y: 195
+        width: 8
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c0eb3a69a5dd6c8f0800000000000000
+      internalID: -520485325770605044
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_111
+      rect:
+        serializedVersion: 2
+        x: 250
+        y: 178
+        width: 7
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 868dd3f46e89b9470800000000000000
+      internalID: 8402477644729145448
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_112
+      rect:
+        serializedVersion: 2
+        x: 417
+        y: 176
+        width: 7
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ee7f9b240c6f1e840800000000000000
+      internalID: 5251749946104346606
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_113
+      rect:
+        serializedVersion: 2
+        x: 486
+        y: 180
+        width: 7
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fa51bbb4408b1a770800000000000000
+      internalID: 8620373490353771951
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_114
+      rect:
+        serializedVersion: 2
+        x: 260
+        y: 148
+        width: 29
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d4de912a5ccb87c50800000000000000
+      internalID: 6663283205708836173
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_115
+      rect:
+        serializedVersion: 2
+        x: 304
+        y: 158
+        width: 6
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 86547deb832eab410800000000000000
+      internalID: 1493754959774565736
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_116
+      rect:
+        serializedVersion: 2
+        x: 1004
+        y: 159
+        width: 13
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c54e27b75754e6f40800000000000000
+      internalID: 5723588547319096412
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_117
+      rect:
+        serializedVersion: 2
+        x: 1064
+        y: 158
+        width: 12
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d807ed68c3d32f690800000000000000
+      internalID: -7569920693486325619
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_118
+      rect:
+        serializedVersion: 2
+        x: 1455
+        y: 162
+        width: 14
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 25b6f631462d6e540800000000000000
+      internalID: 5036944560525110098
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_119
+      rect:
+        serializedVersion: 2
+        x: 1464
+        y: 166
+        width: 7
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 24033482710690130800000000000000
+      internalID: 3533461035224870978
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_120
+      rect:
+        serializedVersion: 2
+        x: 250
+        y: 152
+        width: 11
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fc58ccd1b94350c10800000000000000
+      internalID: 2019077848770053583
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_121
+      rect:
+        serializedVersion: 2
+        x: 433
+        y: 150
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0a5f2af038a7dcfc0800000000000000
+      internalID: -3472985034311141984
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_122
+      rect:
+        serializedVersion: 2
+        x: 691
+        y: 152
+        width: 8
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6d7b88352aa4eed10800000000000000
+      internalID: 2156743332603672534
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_123
+      rect:
+        serializedVersion: 2
+        x: 701
+        y: 146
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5c1a457bac8ecad80800000000000000
+      internalID: -8237953661010665019
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_124
+      rect:
+        serializedVersion: 2
+        x: 1072
+        y: 150
+        width: 6
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b26a295739be47340800000000000000
+      internalID: 4860768916404872747
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_125
+      rect:
+        serializedVersion: 2
+        x: 1292
+        y: 128
+        width: 13
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1ec4758e8df400270800000000000000
+      internalID: 8214653513353350369
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_126
+      rect:
+        serializedVersion: 2
+        x: 1336
+        y: 146
+        width: 10
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f3cc9382d591554a0800000000000000
+      internalID: -6605345390571434945
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_127
+      rect:
+        serializedVersion: 2
+        x: 1345
+        y: 148
+        width: 9
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c9c04339acf244f30800000000000000
+      internalID: 4558821269905345692
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_128
+      rect:
+        serializedVersion: 2
+        x: 1514
+        y: 144
+        width: 11
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d46f01fe20379e960800000000000000
+      internalID: 7631757499994011213
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_129
+      rect:
+        serializedVersion: 2
+        x: 272
+        y: 126
+        width: 19
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2b99d190cd7d8fbe0800000000000000
+      internalID: -1443166340526532174
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_130
+      rect:
+        serializedVersion: 2
+        x: 423
+        y: 133
+        width: 9
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 710dc3bed0a9de280800000000000000
+      internalID: -9012377894726610921
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_131
+      rect:
+        serializedVersion: 2
+        x: 1002
+        y: 127
+        width: 9
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4c23a4a22b3d20700800000000000000
+      internalID: 505198870386062020
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_132
+      rect:
+        serializedVersion: 2
+        x: 282
+        y: 114
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 88803cd2759f85df0800000000000000
+      internalID: -191128831338018680
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_133
+      rect:
+        serializedVersion: 2
+        x: 296
+        y: 112
+        width: 9
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 68509dfa19b8b9cc0800000000000000
+      internalID: -3703212810745346682
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_134
+      rect:
+        serializedVersion: 2
+        x: 357
+        y: 98
+        width: 63
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 561540bc1f4507130800000000000000
+      internalID: 3562440702719971685
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_135
+      rect:
+        serializedVersion: 2
+        x: 651
+        y: 111
+        width: 15
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dd4bcc4eaa52e3d50800000000000000
+      internalID: 6718849109996647645
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_136
+      rect:
+        serializedVersion: 2
+        x: 839
+        y: 102
+        width: 15
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2c52c560fe3a65640800000000000000
+      internalID: 5068418677651285442
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_137
+      rect:
+        serializedVersion: 2
+        x: 1413
+        y: 106
+        width: 7
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7f74050bef064d380800000000000000
+      internalID: -8947419912682321929
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_138
+      rect:
+        serializedVersion: 2
+        x: 1445
+        y: 112
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 79cb4730c90850990800000000000000
+      internalID: -7420383403461788521
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_139
+      rect:
+        serializedVersion: 2
+        x: 460
+        y: 78
+        width: 43
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2d6d9eddf7905b380800000000000000
+      internalID: -8956241839167777070
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_140
+      rect:
+        serializedVersion: 2
+        x: 570
+        y: 80
+        width: 12
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cca6cdfbbdbab6580800000000000000
+      internalID: -8832777283852014900
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_141
+      rect:
+        serializedVersion: 2
+        x: 577
+        y: 80
+        width: 11
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6a206b9ada0cf9fc0800000000000000
+      internalID: -3485855734452321626
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_142
+      rect:
+        serializedVersion: 2
+        x: 589
+        y: 80
+        width: 11
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c7224dd14e2b12b60800000000000000
+      internalID: 7719647929112470140
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_143
+      rect:
+        serializedVersion: 2
+        x: 691
+        y: 72
+        width: 22
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9dbd04dc6e1a21860800000000000000
+      internalID: 7499234342183427033
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_144
+      rect:
+        serializedVersion: 2
+        x: 740
+        y: 78
+        width: 19
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 762eac79b7ef9c090800000000000000
+      internalID: -8013594255147998617
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_145
+      rect:
+        serializedVersion: 2
+        x: 847
+        y: 49
+        width: 33
+        height: 33
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0de815cf6ad945040800000000000000
+      internalID: 4635503256994418384
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_146
+      rect:
+        serializedVersion: 2
+        x: 909
+        y: 47
+        width: 25
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 15b94c5591c87fff0800000000000000
+      internalID: -2379234349376687
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_147
+      rect:
+        serializedVersion: 2
+        x: 998
+        y: 49
+        width: 53
+        height: 42
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 45f78dec4856d28f0800000000000000
+      internalID: -563682757271060652
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_148
+      rect:
+        serializedVersion: 2
+        x: 1077
+        y: 76
+        width: 25
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 933e53f06692aee20800000000000000
+      internalID: 3380559988613571385
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_149
+      rect:
+        serializedVersion: 2
+        x: 1584
+        y: 83
+        width: 8
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 320fbe54337006f80800000000000000
+      internalID: -8115478611723816925
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_150
+      rect:
+        serializedVersion: 2
+        x: 454
+        y: 53
+        width: 13
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e131736718a8d9800800000000000000
+      internalID: 620804612285731614
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_151
+      rect:
+        serializedVersion: 2
+        x: 535
+        y: 67
+        width: 6
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e2e99997fd61552f0800000000000000
+      internalID: -984855794436956626
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_152
+      rect:
+        serializedVersion: 2
+        x: 552
+        y: 41
+        width: 52
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9a43ac578efcac840800000000000000
+      internalID: 5245233313341912233
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_153
+      rect:
+        serializedVersion: 2
+        x: 691
+        y: 47
+        width: 42
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0cc378f8f4e415860800000000000000
+      internalID: 7516875356675456192
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_154
+      rect:
+        serializedVersion: 2
+        x: 736
+        y: 61
+        width: 7
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 62eef976c23c5d9e0800000000000000
+      internalID: -1597155897348461018
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_155
+      rect:
+        serializedVersion: 2
+        x: 748
+        y: 41
+        width: 15
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 80e14d74752102010800000000000000
+      internalID: 1161948869938126344
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_156
+      rect:
+        serializedVersion: 2
+        x: 774
+        y: 63
+        width: 7
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 062e1c743589121e0800000000000000
+      internalID: -2224329257490718112
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_157
+      rect:
+        serializedVersion: 2
+        x: 940
+        y: 65
+        width: 11
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 452e240ae4ac78670800000000000000
+      internalID: 8541017657376432724
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_158
+      rect:
+        serializedVersion: 2
+        x: 948
+        y: 69
+        width: 7
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c939425f6cec0f5b0800000000000000
+      internalID: -5336538204522376292
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_159
+      rect:
+        serializedVersion: 2
+        x: 968
+        y: 33
+        width: 25
+        height: 44
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b50a552a1815fa620800000000000000
+      internalID: 2787536311581778011
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_160
+      rect:
+        serializedVersion: 2
+        x: 1056
+        y: 33
+        width: 40
+        height: 37
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3c4c9ffd7f321dc80800000000000000
+      internalID: -8299813090745531197
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_161
+      rect:
+        serializedVersion: 2
+        x: 1078
+        y: 63
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d094569bf7caece80800000000000000
+      internalID: -8156392210550142707
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_162
+      rect:
+        serializedVersion: 2
+        x: 1252
+        y: 57
+        width: 13
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3ea68bf94566a2c20800000000000000
+      internalID: 3182468600333626083
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_163
+      rect:
+        serializedVersion: 2
+        x: 447
+        y: 58
+        width: 10
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5341ff227d2e420d0800000000000000
+      internalID: -3448382001025969099
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_164
+      rect:
+        serializedVersion: 2
+        x: 633
+        y: 43
+        width: 19
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fcdd5f34e02ef1190800000000000000
+      internalID: -7989418663034364465
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_165
+      rect:
+        serializedVersion: 2
+        x: 675
+        y: 41
+        width: 7
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 309f1236ef26e7db0800000000000000
+      internalID: -4792284108751243005
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_166
+      rect:
+        serializedVersion: 2
+        x: 681
+        y: 49
+        width: 13
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2a4199c00ca2672e0800000000000000
+      internalID: -2128466769552534366
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_167
+      rect:
+        serializedVersion: 2
+        x: 732
+        y: 49
+        width: 17
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4522974c069a88080800000000000000
+      internalID: -9184905206943899052
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_168
+      rect:
+        serializedVersion: 2
+        x: 766
+        y: 47
+        width: 11
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 22eb613eadd3f26b0800000000000000
+      internalID: -5318964624579183070
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_169
+      rect:
+        serializedVersion: 2
+        x: 863
+        y: 31
+        width: 37
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e8e488538d75374d0800000000000000
+      internalID: -3138067929224425842
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_170
+      rect:
+        serializedVersion: 2
+        x: 623
+        y: 38
+        width: 11
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a455cef7870ff5260800000000000000
+      internalID: 7088648738837386570
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_171
+      rect:
+        serializedVersion: 2
+        x: 806
+        y: 33
+        width: 34
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e9335d4f465fd1430800000000000000
+      internalID: 3755427478250009502
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_172
+      rect:
+        serializedVersion: 2
+        x: 1024
+        y: 48
+        width: 7
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: db8d9e24b2cfd6870800000000000000
+      internalID: 8677869319749228733
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_173
+      rect:
+        serializedVersion: 2
+        x: 1111
+        y: 33
+        width: 19
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f47500b482d706120800000000000000
+      internalID: 2405059813026322255
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_174
+      rect:
+        serializedVersion: 2
+        x: 1169
+        y: 47
+        width: 7
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6b20490f09970d1f0800000000000000
+      internalID: -1022183451994619210
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_175
+      rect:
+        serializedVersion: 2
+        x: 1574
+        y: 46
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 33212c7df31c6c220800000000000000
+      internalID: 2505902722625180211
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Collection_Back_Button_176
+      rect:
+        serializedVersion: 2
+        x: 909
+        y: 22
+        width: 17
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9a58177b1b54fb990800000000000000
+      internalID: -7368093835765643863
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Collection_Back_Button_0: 4863005374691781460
+      Collection_Back_Button_1: -3429188566248499670
+      Collection_Back_Button_10: -1368963318183872945
+      Collection_Back_Button_100: 4313512214256965227
+      Collection_Back_Button_101: 2052214712843059223
+      Collection_Back_Button_102: 7946185550979246049
+      Collection_Back_Button_103: -5658768921693276613
+      Collection_Back_Button_104: 6376174432949650936
+      Collection_Back_Button_105: 276366444123545534
+      Collection_Back_Button_106: -9064346613047294933
+      Collection_Back_Button_107: -2005939118018388845
+      Collection_Back_Button_108: -6496657008861354946
+      Collection_Back_Button_109: -4034011452793927261
+      Collection_Back_Button_11: -8454504704569254535
+      Collection_Back_Button_110: -520485325770605044
+      Collection_Back_Button_111: 8402477644729145448
+      Collection_Back_Button_112: 5251749946104346606
+      Collection_Back_Button_113: 8620373490353771951
+      Collection_Back_Button_114: 6663283205708836173
+      Collection_Back_Button_115: 1493754959774565736
+      Collection_Back_Button_116: 5723588547319096412
+      Collection_Back_Button_117: -7569920693486325619
+      Collection_Back_Button_118: 5036944560525110098
+      Collection_Back_Button_119: 3533461035224870978
+      Collection_Back_Button_12: -5860824192566964183
+      Collection_Back_Button_120: 2019077848770053583
+      Collection_Back_Button_121: -3472985034311141984
+      Collection_Back_Button_122: 2156743332603672534
+      Collection_Back_Button_123: -8237953661010665019
+      Collection_Back_Button_124: 4860768916404872747
+      Collection_Back_Button_125: 8214653513353350369
+      Collection_Back_Button_126: -6605345390571434945
+      Collection_Back_Button_127: 4558821269905345692
+      Collection_Back_Button_128: 7631757499994011213
+      Collection_Back_Button_129: -1443166340526532174
+      Collection_Back_Button_13: 5986513294734818103
+      Collection_Back_Button_130: -9012377894726610921
+      Collection_Back_Button_131: 505198870386062020
+      Collection_Back_Button_132: -191128831338018680
+      Collection_Back_Button_133: -3703212810745346682
+      Collection_Back_Button_134: 3562440702719971685
+      Collection_Back_Button_135: 6718849109996647645
+      Collection_Back_Button_136: 5068418677651285442
+      Collection_Back_Button_137: -8947419912682321929
+      Collection_Back_Button_138: -7420383403461788521
+      Collection_Back_Button_139: -8956241839167777070
+      Collection_Back_Button_14: 641794649111232637
+      Collection_Back_Button_140: -8832777283852014900
+      Collection_Back_Button_141: -3485855734452321626
+      Collection_Back_Button_142: 7719647929112470140
+      Collection_Back_Button_143: 7499234342183427033
+      Collection_Back_Button_144: -8013594255147998617
+      Collection_Back_Button_145: 4635503256994418384
+      Collection_Back_Button_146: -2379234349376687
+      Collection_Back_Button_147: -563682757271060652
+      Collection_Back_Button_148: 3380559988613571385
+      Collection_Back_Button_149: -8115478611723816925
+      Collection_Back_Button_15: -3576091708424579509
+      Collection_Back_Button_150: 620804612285731614
+      Collection_Back_Button_151: -984855794436956626
+      Collection_Back_Button_152: 5245233313341912233
+      Collection_Back_Button_153: 7516875356675456192
+      Collection_Back_Button_154: -1597155897348461018
+      Collection_Back_Button_155: 1161948869938126344
+      Collection_Back_Button_156: -2224329257490718112
+      Collection_Back_Button_157: 8541017657376432724
+      Collection_Back_Button_158: -5336538204522376292
+      Collection_Back_Button_159: 2787536311581778011
+      Collection_Back_Button_16: 8405713208392939
+      Collection_Back_Button_160: -8299813090745531197
+      Collection_Back_Button_161: -8156392210550142707
+      Collection_Back_Button_162: 3182468600333626083
+      Collection_Back_Button_163: -3448382001025969099
+      Collection_Back_Button_164: -7989418663034364465
+      Collection_Back_Button_165: -4792284108751243005
+      Collection_Back_Button_166: -2128466769552534366
+      Collection_Back_Button_167: -9184905206943899052
+      Collection_Back_Button_168: -5318964624579183070
+      Collection_Back_Button_169: -3138067929224425842
+      Collection_Back_Button_17: 473526846863459397
+      Collection_Back_Button_170: 7088648738837386570
+      Collection_Back_Button_171: 3755427478250009502
+      Collection_Back_Button_172: 8677869319749228733
+      Collection_Back_Button_173: 2405059813026322255
+      Collection_Back_Button_174: -1022183451994619210
+      Collection_Back_Button_175: 2505902722625180211
+      Collection_Back_Button_176: -7368093835765643863
+      Collection_Back_Button_18: -6033622825039981484
+      Collection_Back_Button_19: 6910337463097835895
+      Collection_Back_Button_2: -4937927147238881399
+      Collection_Back_Button_20: -8890385773491893060
+      Collection_Back_Button_21: -1889165360704514382
+      Collection_Back_Button_22: -7420373888008495007
+      Collection_Back_Button_23: -7579819943983331090
+      Collection_Back_Button_24: -7639498674265444583
+      Collection_Back_Button_25: -5777881609053260807
+      Collection_Back_Button_26: -1091866370311635357
+      Collection_Back_Button_27: 4671709575850459466
+      Collection_Back_Button_28: -6950075822212658981
+      Collection_Back_Button_29: 7684624353214400639
+      Collection_Back_Button_3: -5961691962559061543
+      Collection_Back_Button_30: 2934444697353732453
+      Collection_Back_Button_31: -1586948203707724097
+      Collection_Back_Button_32: 9188832238614447716
+      Collection_Back_Button_33: -2811975822523846167
+      Collection_Back_Button_34: 5607355321631471145
+      Collection_Back_Button_35: -1065771257718411012
+      Collection_Back_Button_36: -4622956160771961003
+      Collection_Back_Button_37: -5463888298348979583
+      Collection_Back_Button_38: -4546431905758635289
+      Collection_Back_Button_39: 2960756370225990163
+      Collection_Back_Button_4: 2056148673041675897
+      Collection_Back_Button_40: -8150302139193385313
+      Collection_Back_Button_41: -6860531599080565683
+      Collection_Back_Button_42: -6230734773724509130
+      Collection_Back_Button_43: 6987389038563475049
+      Collection_Back_Button_44: -7045638899784688663
+      Collection_Back_Button_45: -7786407147383300356
+      Collection_Back_Button_46: 5373583004559116577
+      Collection_Back_Button_47: 5130920296221653278
+      Collection_Back_Button_48: -449197851079062620
+      Collection_Back_Button_49: -2226681940447554788
+      Collection_Back_Button_5: 7172989885713332112
+      Collection_Back_Button_50: 4898344457140691934
+      Collection_Back_Button_51: -8134539986904887773
+      Collection_Back_Button_52: -4772113725550864204
+      Collection_Back_Button_53: 208014983057539220
+      Collection_Back_Button_54: -1393407995027164035
+      Collection_Back_Button_55: 5998916275572100093
+      Collection_Back_Button_56: -1295050189301629714
+      Collection_Back_Button_57: -2353158693977542338
+      Collection_Back_Button_58: 4052836740162264844
+      Collection_Back_Button_59: -6696990764368516262
+      Collection_Back_Button_6: 8011116023723249347
+      Collection_Back_Button_60: -2240947860501039658
+      Collection_Back_Button_61: 7360557291317436281
+      Collection_Back_Button_62: 5537688790075215400
+      Collection_Back_Button_63: 6268752154810341097
+      Collection_Back_Button_64: 1839033811859944366
+      Collection_Back_Button_65: -8661719875463058563
+      Collection_Back_Button_66: -3790777114093341308
+      Collection_Back_Button_67: 5140122539188750648
+      Collection_Back_Button_68: 1237939150707640536
+      Collection_Back_Button_69: 502382937827580321
+      Collection_Back_Button_7: 5101491488817762832
+      Collection_Back_Button_70: -1519143965257893546
+      Collection_Back_Button_71: -8655697610222844929
+      Collection_Back_Button_72: -5881838734460757935
+      Collection_Back_Button_73: -6230785578449100763
+      Collection_Back_Button_74: -2113089326468703930
+      Collection_Back_Button_75: -8185109060834047041
+      Collection_Back_Button_76: -6902082907625677948
+      Collection_Back_Button_77: -7387014554197091195
+      Collection_Back_Button_78: 3353940920960203880
+      Collection_Back_Button_79: 2107070912466498585
+      Collection_Back_Button_8: 5128425216537151724
+      Collection_Back_Button_80: -5587550441707997408
+      Collection_Back_Button_81: 4802568809798255660
+      Collection_Back_Button_82: 8270573082268974706
+      Collection_Back_Button_83: -3189417837394225861
+      Collection_Back_Button_84: 6514227935430661380
+      Collection_Back_Button_85: -5126038889577871142
+      Collection_Back_Button_86: 532283951576214318
+      Collection_Back_Button_87: 5102973289385027793
+      Collection_Back_Button_88: 5783475042118820675
+      Collection_Back_Button_89: -7255744726415880049
+      Collection_Back_Button_9: -1011702251964158001
+      Collection_Back_Button_90: -7966351940208323055
+      Collection_Back_Button_91: 6009689178665088901
+      Collection_Back_Button_92: 2370268740474680003
+      Collection_Back_Button_93: -6772682068876745835
+      Collection_Back_Button_94: -5433570949777520302
+      Collection_Back_Button_95: -7423496990787592512
+      Collection_Back_Button_96: -8412235026591119309
+      Collection_Back_Button_97: 2627722582508557999
+      Collection_Back_Button_98: 3489080049203633667
+      Collection_Back_Button_99: -4931407192659915454
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
