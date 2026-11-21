@@ -221,11 +221,7 @@ public class PlayerNameInputController : MonoBehaviour
         nameConfirmed = true;
 
         // Сохраняем имя игрока.
-        PlayerPrefs.SetString(
-            playerNameSaveKey,
-            playerName
-        );
-
+        PlayerPrefs.SetString(playerNameSaveKey, playerName);
         PlayerPrefs.Save();
 
         // Звук подтверждения.

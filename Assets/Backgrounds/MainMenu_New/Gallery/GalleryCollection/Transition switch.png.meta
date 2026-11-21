@@ -1,10 +1,19 @@
 fileFormatVersion: 2
-guid: a43f9975056d267438908371a333d5fb
+guid: 1e6bacd9565fd5b4d816e1d95e2081a9
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 8336919644493979724
-    second: Gallery 3_0
+      213: 2352116503861409966
+    second: Transition switch_0
+  - first:
+      213: -5238371079046505791
+    second: Transition switch_1
+  - first:
+      213: 8763128592010316827
+    second: Transition switch_2
+  - first:
+      213: -7136993810367471738
+    second: Transition switch_3
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -48,15 +57,17 @@ TextureImporter:
   compressionQuality: 50
   spriteMode: 1
   spriteExtrude: 1
-  spriteMeshType: 1
+  spriteMeshType: 0
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
-  spriteGenerateFallbackPhysicsShape: 1
+  spriteGenerateFallbackPhysicsShape: 0
   alphaUsage: 1
   alphaIsTransparency: 1
+  spriteTessellationMethod: 0
   spriteTessellationDetail: -1
+  spriteGeometrySubdivision: -1
   textureType: 8
   textureShape: 1
   singleChannelComponent: 0
@@ -75,7 +86,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -109,30 +120,17 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: WebGL
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Gallery 3_0
+      name: Transition switch_0
       rect:
         serializedVersion: 2
         x: 0
-        y: 0
-        width: 1536
-        height: 1024
+        y: 22
+        width: 1053
+        height: 1396
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +139,74 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: c402a0bee30b2b370800000000000000
-      internalID: 8336919644493979724
+      spriteID: ea83efa8f7564a020800000000000000
+      internalID: 2352116503861409966
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Transition switch_1
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 1334
+        width: 13
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1cad0c7f1419d47b0800000000000000
+      internalID: -5238371079046505791
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Transition switch_2
+      rect:
+        serializedVersion: 2
+        x: 1043
+        y: 474
+        width: 10
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b1c08df7603ec9970800000000000000
+      internalID: 8763128592010316827
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Transition switch_3
+      rect:
+        serializedVersion: 2
+        x: 604
+        y: 45
+        width: 13
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 68f92e061fd44fc90800000000000000
+      internalID: -7136993810367471738
       vertices: []
       indices: 
       edges: []
@@ -161,7 +225,10 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Gallery 3_0: 8336919644493979724
+      Transition switch_0: 2352116503861409966
+      Transition switch_1: -5238371079046505791
+      Transition switch_2: 8763128592010316827
+      Transition switch_3: -7136993810367471738
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

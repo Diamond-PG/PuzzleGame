@@ -14,6 +14,8 @@ public static class GameInstallationSave
     private const string InstallFile =
         "rolp_install_id_v1.txt";
 
+    private const string CollectionLegacyOwner = "ROLP_CollectionLegacyOwner_V1";
+
     private static string cachedInstallId;
     private static bool installIdResolved;
 
@@ -115,6 +117,8 @@ public static class GameInstallationSave
         if (string.IsNullOrEmpty(installId))
             return;
 
+        ResolveCollectionInstallId();
+
         PlayerPrefs.SetString(
             SaveInstallKey, installId);
 
@@ -126,6 +130,45 @@ public static class GameInstallationSave
             "[GameInstallationSave] " +
             "New game registered."
         );
+    }
+
+    private static string ResolveCollectionInstallId()
+    {
+        string id = GetInstallId();
+        if (!string.IsNullOrEmpty(id) && !PlayerPrefs.HasKey(CollectionLegacyOwner))
+        {
+            // Decide before New Game can claim restored preferences for a new installation.
+            PlayerPrefs.SetString(CollectionLegacyOwner, HasCurrentInstallSave() ? id : "");
+            PlayerPrefs.Save();
+        }
+
+        return id;
+    }
+
+    internal static int GetCollectionInt(string key)
+    {
+        string id = ResolveCollectionInstallId();
+        if (string.IsNullOrEmpty(id))
+            return 0;
+
+        string ownedKey = key + "_Install_" + id;
+        if (PlayerPrefs.HasKey(ownedKey))
+            return PlayerPrefs.GetInt(ownedKey, 0);
+
+        return PlayerPrefs.GetString(CollectionLegacyOwner, "") == id
+            ? PlayerPrefs.GetInt(key, 0)
+            : 0;
+    }
+
+    internal static bool SetCollectionInt(string key, int value)
+    {
+        string id = ResolveCollectionInstallId();
+        if (string.IsNullOrEmpty(id))
+            return false;
+
+        PlayerPrefs.SetInt(key + "_Install_" + id, value);
+        PlayerPrefs.Save();
+        return true;
     }
 
     // Checks whether the save belongs to
@@ -142,6 +185,13 @@ public static class GameInstallationSave
 
         return PlayerPrefs.GetString(
             SaveInstallKey, "") == installId;
+    }
+
+    internal static void ClearStartedGame()
+    {
+        ResolveCollectionInstallId();
+        PlayerPrefs.DeleteKey(StartedKey);
+        PlayerPrefs.DeleteKey(SaveInstallKey);
     }
 
     // Also requires real tutorial progress.

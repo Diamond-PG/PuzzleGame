@@ -26,12 +26,6 @@ public class MainMenu : MonoBehaviour
     [SerializeField, Min(0f)]
     private float playLoadDelay = 0.25f;
 
-    private const string PuzzleFinaleKeyV1 =
-        "TutorialPuzzleFinale_Completed";
-
-    private const string PuzzleFinaleKeyV2 =
-        "TutorialPuzzleFinale_Completed_V2";
-
     private AudioSource audioSource;
     private bool isTransitioning;
 
@@ -126,13 +120,7 @@ public class MainMenu : MonoBehaviour
 
         if (startNewGame)
         {
-            TutorialProgressManager.ResetAllProgress();
-
-            ResetPuzzleFinaleForNewGame();
-
-            // Register a new playthrough
-            // for the current installation.
-            GameInstallationSave.MarkNewGameStarted();
+            LevelLaunchSession.ResetForNewGame();
 
             Debug.Log(
                 "[MainMenu] Starting new game."
@@ -149,18 +137,6 @@ public class MainMenu : MonoBehaviour
 
         LevelLaunchSession.BeginStory(startNewGame);
         SceneManager.LoadScene(firstLevelScene);
-    }
-
-    private static void ResetPuzzleFinaleForNewGame()
-    {
-        PlayerPrefs.DeleteKey(PuzzleFinaleKeyV1);
-        PlayerPrefs.DeleteKey(PuzzleFinaleKeyV2);
-
-        PlayerPrefs.Save();
-
-        Debug.Log(
-            "[MainMenu] Puzzle finale reset."
-        );
     }
 
     // =========================================

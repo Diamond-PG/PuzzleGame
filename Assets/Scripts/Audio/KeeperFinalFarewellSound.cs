@@ -70,9 +70,7 @@ public class KeeperFinalFarewellSound : MonoBehaviour
 
     private bool IsDialogueCompleted()
     {
-        return PlayerPrefs.GetInt(
-            completedDialogueSaveKey, 0
-        ) == 1;
+        return TutorialProgressManager.IsPuzzleFinaleComplete(completedDialogueSaveKey);
     }
 
     private IEnumerator PlayFarewellSoundRoutine()

@@ -286,6 +286,7 @@ public class PuzzlePiecePickup :
 
     private Transform playerTransform;
     private bool pickedUp;
+    private bool previouslyCollected;
 
     private float trailSpawnTimer;
     private Sprite trailSprite;
@@ -307,6 +308,10 @@ public class PuzzlePiecePickup :
 
     public bool IsPickedUp =>
         pickedUp;
+
+    public bool WasAlreadyCollected => previouslyCollected;
+
+    public event System.Action<PuzzlePiecePickup> PickupAccepted;
 
 
     // ============================================================
@@ -346,6 +351,18 @@ public class PuzzlePiecePickup :
                     glowTransform
                         .GetComponent<SpriteRenderer>();
             }
+        }
+
+        previouslyCollected = saveCollectedState && IsPieceCollected(puzzleId, pieceNumber);
+        if (previouslyCollected)
+        {
+            if (pickupCollider != null)
+                pickupCollider.enabled = false;
+            if (pieceRenderer != null)
+                pieceRenderer.enabled = false;
+            if (glowRenderer != null)
+                glowRenderer.enabled = false;
+            return;
         }
 
         initialLocalScale =
@@ -402,7 +419,7 @@ public class PuzzlePiecePickup :
     {
         get
         {
-            if (pickedUp)
+            if (pickedUp || previouslyCollected)
             {
                 return false;
             }
@@ -512,6 +529,7 @@ public class PuzzlePiecePickup :
         // --------------------------------------------------------
 
         SaveCollectedPiece();
+        PickupAccepted?.Invoke(this);
 
 
         // --------------------------------------------------------
@@ -545,12 +563,8 @@ public class PuzzlePiecePickup :
         string saveKey =
             GetSaveKey();
 
-        PlayerPrefs.SetInt(
-            saveKey,
-            1
-        );
-
-        PlayerPrefs.Save();
+        if (!GameInstallationSave.SetCollectionInt(saveKey, 1))
+            return;
 
         if (debugLogs)
         {
@@ -569,13 +583,10 @@ public class PuzzlePiecePickup :
 
     private string GetSaveKey()
     {
-        return
-            "Puzzle_" +
-            puzzleId +
-            "Piece" +
-            pieceNumber +
-            "_Collected";
+        return GetSaveKey(puzzleId, pieceNumber);
     }
+
+    private static string GetSaveKey(int puzzle, int piece) => $"Puzzle_{puzzle}Piece{piece}_Collected";
 
 
     // ============================================================
@@ -1375,18 +1386,7 @@ public class PuzzlePiecePickup :
         int pieceNumber
     )
     {
-        string saveKey =
-            "Puzzle_" +
-            puzzleId +
-            "Piece" +
-            pieceNumber +
-            "_Collected";
-
-        return
-            PlayerPrefs.GetInt(
-                saveKey,
-                0
-            ) == 1;
+        return GameInstallationSave.GetCollectionInt(GetSaveKey(puzzleId, pieceNumber)) == 1;
     }
 
 

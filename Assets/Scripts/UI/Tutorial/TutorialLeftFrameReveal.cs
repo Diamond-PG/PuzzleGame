@@ -640,6 +640,9 @@ public class TutorialLeftFrameReveal : MonoBehaviour
 
     private void Update()
     {
+        if (PauseManager.IsMenuPaused)
+            return;
+
         // The level reveal has completed,
         // but do NOT pause the game immediately.
 
@@ -691,7 +694,7 @@ public class TutorialLeftFrameReveal : MonoBehaviour
             float delta =
                 Mathf.Max(
                     0.0001f,
-                    Time.unscaledDeltaTime
+                    PauseManager.TutorialDeltaTime
                 );
 
             elapsed += delta;
@@ -787,7 +790,7 @@ public class TutorialLeftFrameReveal : MonoBehaviour
 
         if (appearanceDelay > 0f)
         {
-            yield return new WaitForSecondsRealtime(
+            yield return PauseManager.WaitForTutorialSeconds(
                 appearanceDelay
             );
         }
@@ -852,7 +855,7 @@ public class TutorialLeftFrameReveal : MonoBehaviour
         SaveCurrentLeftStage();
 
         // Fade in the left frame.
-        // Time.unscaledDeltaTime keeps this animation
+        // PauseManager.TutorialDeltaTime keeps this animation
         // working while the level is paused.
 
         frameCanvasGroup.alpha = 0f;
@@ -879,7 +882,7 @@ public class TutorialLeftFrameReveal : MonoBehaviour
         {
             float deltaTime =
                 (useUnscaledTime || gamePausedByTutorial)
-                    ? Time.unscaledDeltaTime
+                    ? PauseManager.TutorialDeltaTime
                     : Time.deltaTime;
 
             elapsedFade += deltaTime;
@@ -1058,6 +1061,9 @@ public class TutorialLeftFrameReveal : MonoBehaviour
 
     private void OnNextButtonClicked()
     {
+        if (PauseManager.IsMenuPaused)
+            return;
+
         if (!appearanceFinished ||
             !localizationReady)
         {

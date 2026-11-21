@@ -1192,6 +1192,9 @@ public class BreakableHardBox : MonoBehaviour
             return;
         }
 
+        if (!goalReveal.HasAvailableReward)
+            return;
+
         goalReveal.RevealGoal();
 
         StartCoroutine(

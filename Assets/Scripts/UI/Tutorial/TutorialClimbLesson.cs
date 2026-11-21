@@ -42,6 +42,7 @@ public class TutorialClimbLesson : MonoBehaviour
     [SerializeField] private GameObject tutorialDimmer;
     [SerializeField] private MobileInput mobileInput;
     [SerializeField] private PlayerController playerController;
+    [SerializeField] private BoxCollider2D climbProgressBarrier;
 
     [Header("02 - UP / DOWN BUTTON GRAPHICS")]
     [Tooltip("UP arrow visible graphic or its hitbox.")]
@@ -228,6 +229,9 @@ public class TutorialClimbLesson : MonoBehaviour
         if (saved == StageWalkToStick || saved >= StageClubLessonStarted)
             phase = Phase.Finished;
 
+        if (phase == Phase.Finished || saved == StageApproachExplanation || saved == StageJumpExplanation)
+            OpenClimbBarrier();
+
         // Previously learned arrows remain available after reloading.
         if (saved >= StagePracticeNone || TutorialProgressManager.ClimbCompleted)
             SetClimbButtonsEnabled(true);
@@ -326,6 +330,9 @@ public class TutorialClimbLesson : MonoBehaviour
 
     private void OnGoldNextClicked()
     {
+        if (PauseManager.IsMenuPaused)
+            return;
+
         if (phase == Phase.ArrowsQuestion)
         {
             StartPractice();
@@ -541,6 +548,7 @@ public class TutorialClimbLesson : MonoBehaviour
 
     private void ShowApproachExplanation()
     {
+        OpenClimbBarrier();
         phase = Phase.StickApproach;
         ApplyKeeperPose(sidePointingPose);
         LockOtherActions();
@@ -579,12 +587,19 @@ public class TutorialClimbLesson : MonoBehaviour
         phase = Phase.Finished;
         // Stage 10 was already the free-to-play checkpoint in existing saves.
         TutorialProgressManager.SaveLeftTutorialStage(StageWalkToStick);
+        OpenClimbBarrier();
         SetClimbButtonsEnabled(true);
         SetGoldNextVisible(false);
         RestoreDimmer();
         ResumeGame();
         UnlockOtherActions();
         HideKeeperFrame();
+    }
+
+    private void OpenClimbBarrier()
+    {
+        if (climbProgressBarrier != null)
+            climbProgressBarrier.enabled = false;
     }
 
     private void LockOtherActions()
@@ -1037,9 +1052,7 @@ public class TutorialClimbLesson : MonoBehaviour
         TutorialProgressManager.SaveLeftTutorialStage(4);
         // ClimbCompleted must also be cleared for a genuine new test.
         // These keys are the unchanged V1 keys in TutorialProgressManager.
-        PlayerPrefs.DeleteKey("ROLP_Tutorial_V1_ClimbCompleted");
-        PlayerPrefs.DeleteKey("ROLP_Tutorial_V1_LadderReached");
-        PlayerPrefs.Save();
+        TutorialProgressManager.ResetClimbMilestones();
         Debug.Log("Climb lesson reset for testing. Next grab starts at tutorial_26.");
     }
 

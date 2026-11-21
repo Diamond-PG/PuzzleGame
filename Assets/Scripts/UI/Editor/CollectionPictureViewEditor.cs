@@ -16,6 +16,8 @@ namespace Bakvand.UI
             var status = new Label();
             var next = new Button(view.PlayCollectionTestNextPiece) { text = "Play Next Piece", name = "collection-next" };
             var complete = new Button(view.PlayCollectionTestCompletion) { text = "Play Completion Animation", name = "collection-complete" };
+            var second = new Toggle("Simulate First Piece of Picture 2");
+            second.RegisterValueChangedCallback(change => view.SetCollectionTestSecondPictureUnlocked(change.newValue));
 
             void Refresh()
             {
@@ -23,6 +25,7 @@ namespace Bakvand.UI
                     return;
 
                 enabled.SetValueWithoutNotify(view.CollectionTestModeEnabled);
+                second.SetValueWithoutNotify(view.CollectionTestSecondPictureUnlocked);
                 enabled.SetEnabled(EditorApplication.isPlaying);
                 actions.SetEnabled(EditorApplication.isPlaying && view.CollectionTestModeEnabled);
                 bool ready = view.isActiveAndEnabled && !view.CollectionTestIsAnimating;
@@ -48,7 +51,8 @@ namespace Bakvand.UI
             }
             actions.Add(next);
             actions.Add(complete);
-            actions.Add(new Button(() => view.ShowCollectionTestPieces(0))
+            actions.Add(second);
+            actions.Add(new Button(view.ResetCollectionTest)
                 { text = "Reset Test", name = "collection-reset" });
             root.Add(actions);
             InspectorElement.FillDefaultInspector(root, serializedObject, this);

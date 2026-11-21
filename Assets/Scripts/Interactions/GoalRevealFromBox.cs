@@ -40,6 +40,9 @@ public class GoalRevealFromBox : MonoBehaviour
     private Vector3 startLocalPosition;
     private bool revealed;
 
+    public bool HasAvailableReward =>
+        !TryGetComponent<PuzzlePiecePickup>(out var puzzle) || !puzzle.WasAlreadyCollected;
+
     private void Awake()
     {
         if (goalTransform == null)
@@ -99,7 +102,7 @@ public class GoalRevealFromBox : MonoBehaviour
 
     public void RevealGoal()
     {
-        if (revealed)
+        if (revealed || !HasAvailableReward)
         {
             return;
         }

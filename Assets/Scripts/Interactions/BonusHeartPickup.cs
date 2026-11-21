@@ -68,6 +68,7 @@ public class BonusHeartPickup : MonoBehaviour, IHandInteractable
 
     // Fires exactly once, AFTER the reward is credited to the player UI.
     // Only a lesson explicitly subscribed to THIS BonusHeart receives it.
+    public event System.Action<BonusHeartPickup> PickupAccepted;
     public event System.Action<BonusHeartPickup> PickupCompleted;
 
     private bool pickedUp;
@@ -232,6 +233,7 @@ public class BonusHeartPickup : MonoBehaviour, IHandInteractable
             return;
 
         pickedUp = true;
+        PickupAccepted?.Invoke(this);
 
         if (playerHealth == null &&
             playerTransform != null)

@@ -398,6 +398,9 @@ public sealed class TutorialClubLesson : MonoBehaviour
 
     private void Update()
     {
+        if (PauseManager.IsMenuPaused)
+            return;
+
         if (phase == Phase.Finished) return;
 
         // Existing InventoryUI owns all real equipping/unequipping.
@@ -1027,6 +1030,9 @@ public sealed class TutorialClubLesson : MonoBehaviour
 
     private void OnGoldNextClicked()
     {
+        if (PauseManager.IsMenuPaused)
+            return;
+
         switch (phase)
         {
             case Phase.Question: ShowUseHandPage(); break;
@@ -1051,6 +1057,9 @@ public sealed class TutorialClubLesson : MonoBehaviour
 
     private void OnHandPressed()
     {
+        if (PauseManager.IsMenuPaused)
+            return;
+
         // The ORIGINAL HandInteractionButton.UseHand listener runs first.
         // We never call ClubPickup.HandInteract twice.
         if (phase == Phase.Instruction)
@@ -1580,11 +1589,11 @@ public sealed class TutorialClubLesson : MonoBehaviour
             Color c = originalBarColor;
             c.a = preview ? 1f : originalBarColor.a;
             weaponDurabilityFill.color = c;
-            yield return new WaitForSecondsRealtime(on);
+            yield return PauseManager.WaitForTutorialSeconds(on);
 
             c.a = 0f;
             weaponDurabilityFill.color = c;
-            yield return new WaitForSecondsRealtime(off);
+            yield return PauseManager.WaitForTutorialSeconds(off);
         }
         RestoreBarVisual();
         flashCoroutine = null;

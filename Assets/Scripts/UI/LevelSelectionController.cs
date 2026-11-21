@@ -53,6 +53,53 @@ public sealed class LevelSelectionController : MonoBehaviour
 
     private int page;
 
+#if UNITY_EDITOR
+    private readonly System.Collections.Generic.Dictionary<int, int> testStars = new();
+    public bool LevelsTestModeEnabled { get; private set; }
+    public bool LevelsTestGameStarted { get; private set; }
+    public int LevelsTestLevelCount => Mathf.Max(PageSize, scenePaths.Length);
+
+    public void SetLevelsTestMode(bool enabled)
+    {
+        if (!Application.isPlaying || LevelsTestModeEnabled == enabled)
+            return;
+
+        LevelsTestModeEnabled = enabled;
+        ResetLevelsTest();
+    }
+
+    public void SetLevelsTestStars(int level, int stars)
+    {
+        if (!Application.isPlaying || !LevelsTestModeEnabled || level < 1 || level > LevelsTestLevelCount)
+            return;
+
+        testStars[level] = Mathf.Clamp(stars, 0, 3);
+        if (isActiveAndEnabled)
+            Refresh();
+    }
+
+    public void SetLevelsTestGameStarted(bool started)
+    {
+        if (!Application.isPlaying || !LevelsTestModeEnabled)
+            return;
+
+        LevelsTestGameStarted = started;
+        if (isActiveAndEnabled)
+            Refresh();
+    }
+
+    public void ResetLevelsTest()
+    {
+        if (!Application.isPlaying)
+            return;
+
+        testStars.Clear();
+        LevelsTestGameStarted = false;
+        if (isActiveAndEnabled)
+            Refresh();
+    }
+#endif
+
     private void Awake()
     {
         for (int i = 0; i < cells.Length; i++)
@@ -80,19 +127,19 @@ public sealed class LevelSelectionController : MonoBehaviour
 
     private void Refresh()
     {
-        bool started = GameInstallationSave.HasCurrentInstallSave();
+        bool started = HasProgress();
         int lastPage = GetLastExistingPage();
         page = Mathf.Min(page, lastPage);
-        while (page > 0 && !CanAccessPage(page, started, SceneExists, LevelProgressSave.GetBestStars))
+        while (page > 0 && !CanAccessPage(page, started))
             page--;
 
         for (int i = 0; i < cells.Length; i++)
         {
             int level = page * PageSize + i + 1;
-            bool unlocked = LevelProgressSave.IsLevelUnlocked(level, started, LevelProgressSave.GetBestStars);
-            int stars = unlocked ? LevelProgressSave.GetBestStars(level) : 0;
+            bool unlocked = IsUnlocked(level, started);
+            int stars = started ? GetStars(level) : 0;
             RenderCell(cells[i], level, unlocked, stars, SceneExists(level) &&
-                LevelLaunchSession.SupportsReplay(scenePaths[level - 1]));
+                LevelLaunchSession.SupportsReplay(level, scenePaths[level - 1]));
         }
 
         pageCounter.text = (page + 1).ToString(CultureInfo.InvariantCulture) + " / " +
@@ -100,13 +147,36 @@ public sealed class LevelSelectionController : MonoBehaviour
 
         previousPage.gameObject.SetActive(page > 0);
         ApplyArrow(previousPage, page > 0);
-        ApplyArrow(nextPage, CanAccessPage(page + 1, started, SceneExists, LevelProgressSave.GetBestStars));
+        ApplyArrow(nextPage, CanAccessPage(page + 1, started));
 
         if (levelHighlight != null)
         {
-            int slot = FindHighlightSlot(page, scenePaths.Length, started, SceneExists, LevelProgressSave.GetBestStars);
+            int slot = FindHighlightSlot(started);
             levelHighlight.Show(slot >= 0 ? cells[slot].frame.rectTransform : null);
         }
+    }
+
+    private bool HasProgress()
+    {
+#if UNITY_EDITOR
+        if (LevelsTestModeEnabled)
+            return LevelsTestGameStarted;
+#endif
+        return GameInstallationSave.HasCurrentInstallSave();
+    }
+
+    private int GetStars(int level)
+    {
+#if UNITY_EDITOR
+        if (LevelsTestModeEnabled)
+            return testStars.TryGetValue(level, out int stars) ? stars : 0;
+#endif
+        return LevelProgressSave.GetBestStars(level);
+    }
+
+    private bool IsUnlocked(int level, bool started)
+    {
+        return LevelProgressSave.IsLevelUnlocked(level, started, GetStars);
     }
 
     private void RenderCell(Cell cell, int level, bool unlocked, int result, bool sceneExists)
@@ -163,8 +233,7 @@ public sealed class LevelSelectionController : MonoBehaviour
             return;
 
         if (TryTurnPage(ref page, direction,
-                candidate => CanAccessPage(candidate, GameInstallationSave.HasCurrentInstallSave(),
-                    SceneExists, LevelProgressSave.GetBestStars),
+                candidate => CanAccessPage(candidate, HasProgress()),
                 () =>
                 {
                     arrow.GetComponent<UIClickSfx>().PlayClick();
@@ -187,6 +256,10 @@ public sealed class LevelSelectionController : MonoBehaviour
 
     private void RequestLevel(int slot)
     {
+#if UNITY_EDITOR
+        if (LevelsTestModeEnabled)
+            return;
+#endif
         int level = page * PageSize + slot + 1;
         if (cells[slot].button.IsInteractable() && LevelLaunchSession.TryStartReplay(level, scenePaths))
             cells[slot].sound.PlayClick();
@@ -211,49 +284,36 @@ public sealed class LevelSelectionController : MonoBehaviour
         return LevelLaunchSession.GetLoadableSceneIndex(scenePaths[level - 1]) >= 0;
     }
 
-    internal static int FindHighlightSlot(int visiblePage, int levelCount, bool started,
-        Func<int, bool> sceneExists, Func<int, int> bestStars)
+    private int FindHighlightSlot(bool started)
     {
-        if (!started)
-            return -1;
-
-        for (int level = levelCount; level >= 1; level--)
+        for (int level = scenePaths.Length; level >= 1; level--)
         {
-            if (!sceneExists(level) || !LevelProgressSave.IsLevelUnlocked(level, started, bestStars))
+            if (!SceneExists(level) || !IsUnlocked(level, started))
                 continue;
 
             int candidatePage = (level - 1) / PageSize;
-            if (!CanAccessPage(candidatePage, started, sceneExists, bestStars))
+            if (!CanAccessPage(candidatePage, started))
                 continue;
 
-            return candidatePage == visiblePage ? (level - 1) % PageSize : -1;
+            return candidatePage == page ? (level - 1) % PageSize : -1;
         }
 
         return -1;
     }
 
-    internal static bool CanAccessPage(int requestedPage, bool started,
-        Func<int, bool> sceneExists, Func<int, int> bestStars)
+    private bool CanAccessPage(int requestedPage, bool started)
     {
-        if (requestedPage < 0 || !started)
+        if (requestedPage == 0)
+            return true;
+        if (requestedPage < 0 || !IsUnlocked(requestedPage * PageSize + 1, started))
             return false;
-
-        for (int pageIndex = 1; pageIndex <= requestedPage; pageIndex++)
+        int firstLevel = requestedPage * PageSize + 1;
+        for (int offset = 0; offset < PageSize; offset++)
         {
-            int firstLevel = pageIndex * PageSize + 1;
-            bool hasScene = false;
-            for (int offset = 0; offset < PageSize; offset++)
-            {
-                if (bestStars(firstLevel - PageSize + offset) < 3)
-                    return false;
-
-                hasScene |= sceneExists(firstLevel + offset);
-            }
-
-            if (!hasScene)
-                return false;
+            if (SceneExists(firstLevel + offset))
+                return true;
         }
 
-        return true;
+        return false;
     }
 }

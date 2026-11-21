@@ -161,6 +161,9 @@ public class HandInteractionButton : MonoBehaviour
 
     private void UseHand()
     {
+        if (PauseManager.IsMenuPaused)
+            return;
+
         if (currentInteractable == null)
             return;
 

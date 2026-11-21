@@ -126,7 +126,7 @@ public class PlayerController : MonoBehaviour
         actionLocked;
 
     public bool IsActionLocked =>
-        actionLocked;
+        actionLocked || PauseManager.IsMenuPaused;
 
     public bool IsHorizontalMovementLocked =>
         horizontalMovementLocked;
@@ -158,6 +158,12 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
+        if (PauseManager.IsMenuPaused)
+        {
+            input = Vector2.zero;
+            return;
+        }
+
         // ========================================================
         // WIN
         // ========================================================

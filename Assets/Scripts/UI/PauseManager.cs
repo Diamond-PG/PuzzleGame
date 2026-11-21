@@ -11,6 +11,11 @@ public class PauseManager : MonoBehaviour
     [SerializeField] private Sprite pauseSprite;              // иконка "Pause"
     [SerializeField] private Sprite playSprite;               // иконка "Play"
 
+    [Header("Level 1 Introduction (Optional)")]
+    [SerializeField] private Button introPauseButton;
+    [SerializeField] private CanvasGroup mainPauseButtonGroup;
+    [SerializeField] private PrisonDarknessMask prisonDarknessMask;
+
     [Header("Pause Menu (CanvasGroup on PauseMenu)")]
     [SerializeField] private CanvasGroup pauseMenuGroup;      // CanvasGroup на объекте PauseMenu
 
@@ -39,6 +44,20 @@ public class PauseManager : MonoBehaviour
 
     private bool isPaused;
     private bool isLoadingScene;
+    private float timeScaleBeforePause;
+
+    public static bool IsMenuPaused { get; private set; }
+    internal static float TutorialDeltaTime => IsMenuPaused ? 0f : Time.unscaledDeltaTime;
+
+    internal static IEnumerator WaitForTutorialSeconds(float duration)
+    {
+        float elapsed = 0f;
+        while (elapsed < duration || IsMenuPaused)
+        {
+            yield return null;
+            elapsed += TutorialDeltaTime;
+        }
+    }
 
     private void Awake()
     {
@@ -57,7 +76,6 @@ public class PauseManager : MonoBehaviour
 
         isPaused = false;
         isLoadingScene = false;
-        Time.timeScale = 1f;
 
         // ===== Bind buttons =====
         if (pauseButton != null)
@@ -81,6 +99,15 @@ public class PauseManager : MonoBehaviour
             {
                 PlayClickSafe();
                 Resume();
+            });
+        }
+
+        if (introPauseButton != null)
+        {
+            introPauseButton.onClick.AddListener(() =>
+            {
+                PlayClickSafe();
+                TogglePause();
             });
         }
 
@@ -111,15 +138,40 @@ public class PauseManager : MonoBehaviour
         }
     }
 
+    private void Start() => RefreshPauseButtons();
+
+    private void LateUpdate() => RefreshPauseButtons();
+
+    private void RefreshPauseButtons()
+    {
+        if (introPauseButton == null || mainPauseButtonGroup == null || prisonDarknessMask == null)
+            return;
+
+        bool useMainButton = prisonDarknessMask.IsFullLevelRevealComplete;
+        introPauseButton.gameObject.SetActive(!useMainButton);
+        introPauseButton.interactable = !isPaused;
+        mainPauseButtonGroup.alpha = useMainButton ? 1f : 0f;
+        mainPauseButtonGroup.interactable = useMainButton;
+        mainPauseButtonGroup.blocksRaycasts = useMainButton;
+    }
+
     private void OnDisable()
     {
         // На всякий случай не оставляем игру в паузе
-        Time.timeScale = 1f;
+        if (!isPaused)
+            return;
+
+        IsMenuPaused = false;
+        if (!isLoadingScene)
+            Time.timeScale = timeScaleBeforePause;
         if (gameMusic != null) gameMusic.UnPause();
     }
 
     public void TogglePause()
     {
+        if (isLoadingScene)
+            return;
+
         Debug.Log("[PauseManager] TogglePause called. isPaused=" + isPaused);
 
         if (isPaused) Resume();
@@ -128,7 +180,9 @@ public class PauseManager : MonoBehaviour
 
     private void Pause()
     {
+        timeScaleBeforePause = Time.timeScale;
         isPaused = true;
+        IsMenuPaused = true;
 
         Time.timeScale = 0f;
 
@@ -146,9 +200,13 @@ public class PauseManager : MonoBehaviour
 
     private void Resume()
     {
-        isPaused = false;
+        if (!isPaused || isLoadingScene)
+            return;
 
-        Time.timeScale = 1f;
+        isPaused = false;
+        IsMenuPaused = false;
+
+        Time.timeScale = timeScaleBeforePause;
         SetMenuVisible(false);
 
         if (pauseButtonImage != null && pauseSprite != null)
@@ -165,14 +223,9 @@ public class PauseManager : MonoBehaviour
         Debug.Log("[PauseManager] RestartAfterClick");
 
         // снять паузу, чтобы новая сцена не стартанула с timeScale=0
-        Time.timeScale = 1f;
-        isPaused = false;
-
-        SetMenuVisible(false);
-        if (gameMusic != null) gameMusic.UnPause();
-
         yield return WaitClickRealtime();
 
+        Time.timeScale = 1f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
@@ -180,14 +233,9 @@ public class PauseManager : MonoBehaviour
     {
         Debug.Log("[PauseManager] MainMenuAfterClick -> " + mainMenuSceneName);
 
-        Time.timeScale = 1f;
-        isPaused = false;
-
-        SetMenuVisible(false);
-        if (gameMusic != null) gameMusic.UnPause();
-
         yield return WaitClickRealtime();
 
+        Time.timeScale = 1f;
         SceneManager.LoadScene(mainMenuSceneName);
     }
 

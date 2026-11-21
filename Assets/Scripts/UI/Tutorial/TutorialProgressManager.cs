@@ -7,11 +7,83 @@ using UnityEngine;
 /// </summary>
 public static class TutorialProgressManager
 {
+    internal const string LegacyPuzzleFinaleKey = "TutorialPuzzleFinale_Completed";
+    internal const string PuzzleFinaleKey = "TutorialPuzzleFinale_Completed_V2";
+    private const string PuzzleFinalePageKey = Prefix + "PuzzleFinalePage";
+    private const string PuzzleOwnedAtNewGameKey = Prefix + "PuzzleOwnedAtNewGame";
+    private const string TutorialHeartPickedKey = Prefix + "TutorialHeartPicked";
+
+    internal static void RestoreLegacyMilestones()
+    {
+        if (!GameInstallationSave.HasCurrentInstallSave())
+            return;
+
+        // Older Gallery runs could save objectives but discard tutorial pages.
+        bool finished = LevelProgressSave.HasObjective(1, LevelProgressSave.Objective.Finish);
+        bool pickedHeart = LevelProgressSave.HasObjective(1, LevelProgressSave.Objective.TutorialHeart);
+        bool finaleComplete = IsPuzzleFinaleComplete(PuzzleFinaleKey);
+        if (!DoorBroken && (HasSavedLeftTutorialStage || finaleComplete || pickedHeart || finished))
+            MarkDoorBroken();
+
+        // Keep any exact stage. For runs with no stage at all, the saved
+        // tutorial heart proves the box was reached, but not that its dialogue ended.
+        if (pickedHeart && !HasSavedLeftTutorialStage)
+            SaveLeftTutorialStage(TutorialHeartLesson.StageBoxUnlocked);
+
+        if (finaleComplete || (finished && LevelProgressSave.GetBestStars(1) == 3))
+        {
+            if (!ClimbCompleted)
+                CompleteClimb();
+            if (SavedLeftTutorialStage < TutorialHeartLesson.StageHeartCompleted)
+                SaveLeftTutorialStage(TutorialHeartLesson.StageHeartCompleted);
+            MarkPuzzleFinaleComplete(PuzzleFinaleKey);
+        }
+        else if (SavedPuzzleFinalePage < 0 && !PuzzleOwnedAtNewGame &&
+                 PuzzlePiecePickup.IsPieceCollected(1, 1))
+        {
+            // Older builds kept the piece but could lose the Gallery dialogue.
+            // The farewell closes an unknown state without replaying the pickup.
+            SavePuzzleFinalePage(TutorialPuzzleFinale.LastPage);
+        }
+    }
+
     // ============================================================
     // 01 - EXISTING SAVE KEYS (DO NOT RENAME)
     // ============================================================
 
     private const string Prefix = "ROLP_Tutorial_V1_";
+    internal static bool IsPuzzleFinaleComplete(string key) =>
+        PlayerPrefs.GetInt(key, 0) == 1 ||
+        (key == PuzzleFinaleKey && PlayerPrefs.GetInt(LegacyPuzzleFinaleKey, 0) == 1);
+
+    internal static void MarkPuzzleFinaleComplete(string key)
+    {
+        if (PlayerPrefs.GetInt(key, 0) == 1 && !PlayerPrefs.HasKey(PuzzleFinalePageKey))
+            return;
+
+        PlayerPrefs.SetInt(key, 1);
+        PlayerPrefs.DeleteKey(PuzzleFinalePageKey);
+        PlayerPrefs.Save();
+    }
+
+    internal static int SavedPuzzleFinalePage => PlayerPrefs.GetInt(PuzzleFinalePageKey, -1);
+    internal static bool PuzzleOwnedAtNewGame => PlayerPrefs.GetInt(PuzzleOwnedAtNewGameKey, 0) == 1;
+    internal static bool TutorialHeartPicked => PlayerPrefs.GetInt(TutorialHeartPickedKey, 0) == 1;
+    internal static void MarkPuzzleOwnedAtNewGame() => SaveFlag(PuzzleOwnedAtNewGameKey);
+    internal static void MarkTutorialHeartPicked() => SaveFlag(TutorialHeartPickedKey);
+
+    internal static void SavePuzzleFinalePage(int page)
+    {
+        PlayerPrefs.SetInt(PuzzleFinalePageKey, page);
+        PlayerPrefs.Save();
+    }
+
+    internal static void ResetClimbMilestones()
+    {
+        PlayerPrefs.DeleteKey(ClimbCompletedKey);
+        PlayerPrefs.DeleteKey(LadderReachedKey);
+        PlayerPrefs.Save();
+    }
 
     private const string NameKey = Prefix + "PlayerName";
     private const string MovementKey = Prefix + "Movement";
@@ -49,8 +121,7 @@ public static class TutorialProgressManager
     // 03 - EXISTING PLAYER NAME
     // ============================================================
 
-    public static string PlayerName =>
-        PlayerPrefs.GetString(NameKey, "");
+    public static string PlayerName => PlayerPrefs.GetString(NameKey, "");
 
     public static bool HasPlayerName =>
         !string.IsNullOrWhiteSpace(PlayerName);
@@ -81,9 +152,6 @@ public static class TutorialProgressManager
         PlayerPrefs.GetInt(ClimbCompletedKey, 0) == 1;
 
     public static bool IntroCompleted =>
-        MovementCompleted &&
-        JumpCompleted &&
-        KickCompleted &&
         DoorBroken;
 
     // ============================================================
@@ -122,7 +190,7 @@ public static class TutorialProgressManager
 
         string trimmed = name.Trim();
 
-        if (PlayerPrefs.GetString(NameKey, "") == trimmed)
+        if (PlayerName == trimmed)
             return;
 
         PlayerPrefs.SetString(NameKey, trimmed);
@@ -296,6 +364,11 @@ public static class TutorialProgressManager
         PlayerPrefs.DeleteKey(MovementLeftUsedKey);
         PlayerPrefs.DeleteKey(MovementRightUsedKey);
         PlayerPrefs.DeleteKey(DoorHitsKey);
+        PlayerPrefs.DeleteKey(TutorialHeartPickedKey);
+        PlayerPrefs.DeleteKey(PuzzleFinalePageKey);
+        PlayerPrefs.DeleteKey(PuzzleFinaleKey);
+        PlayerPrefs.DeleteKey(LegacyPuzzleFinaleKey);
+        PlayerPrefs.DeleteKey(PuzzleOwnedAtNewGameKey);
 
         PlayerPrefs.Save();
 

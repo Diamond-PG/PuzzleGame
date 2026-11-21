@@ -12,6 +12,7 @@ public class MobileInput : MonoBehaviour
     {
         get
         {
+            if (PauseManager.IsMenuPaused) return 0f;
             float value = 0f;
             if (right != null && right.IsHeld) value += 1f;
             if (left != null && left.IsHeld) value -= 1f;
@@ -23,6 +24,7 @@ public class MobileInput : MonoBehaviour
     {
         get
         {
+            if (PauseManager.IsMenuPaused) return 0f;
             float value = 0f;
             if (up != null && up.IsHeld) value += 1f;
             if (down != null && down.IsHeld) value -= 1f;

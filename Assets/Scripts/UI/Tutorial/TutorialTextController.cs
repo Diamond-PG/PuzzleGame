@@ -581,6 +581,9 @@ public class TutorialTextController : MonoBehaviour
 
     private void LateUpdate()
     {
+        if (PauseManager.IsMenuPaused)
+            return;
+
         // No backwards navigation, even if a separate UI component
         // accidentally reactivates the old button during Play.
         if (previousButton != null && previousButton != nextButton &&
@@ -747,7 +750,7 @@ public class TutorialTextController : MonoBehaviour
 
     private bool CanNavigate()
     {
-        if (tutorialSuppressed || !presentationVisible ||
+        if (PauseManager.IsMenuPaused || tutorialSuppressed || !presentationVisible ||
             pages == null || pages.Length == 0)
             return false;
 
@@ -974,12 +977,13 @@ public class TutorialTextController : MonoBehaviour
 
     private void UpdateTutorialControls()
     {
+        bool restoredDoor = TutorialProgressManager.DoorBroken;
         bool horizontalVisible =
-            movementTutorialCompleted ||
+            restoredDoor || movementTutorialCompleted ||
             currentPage >= movementIntroPage;
 
         bool horizontalInteractable =
-            movementTutorialCompleted ||
+            restoredDoor || movementTutorialCompleted ||
             currentPage >= movementPracticePage;
 
         SetControlGroupState(
@@ -1002,12 +1006,12 @@ public class TutorialTextController : MonoBehaviour
                     group == kickControlGroup)
                     continue;
 
-                SetControlGroupState(group, false, false);
+                SetControlGroupState(group, restoredDoor, restoredDoor);
             }
         }
 
         bool jumpUnlocked =
-            jumpTutorialCompleted ||
+            restoredDoor || jumpTutorialCompleted ||
             currentPage >= jumpPracticePage;
 
         SetControlGroupState(
@@ -1016,7 +1020,7 @@ public class TutorialTextController : MonoBehaviour
             jumpUnlocked
         );
 
-        if (kickTutorialCompleted)
+        if (restoredDoor || kickTutorialCompleted)
         {
             SetControlGroupState(kickControlGroup, true, true);
         }

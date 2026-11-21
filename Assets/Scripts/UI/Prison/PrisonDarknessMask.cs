@@ -545,6 +545,9 @@ public class PrisonDarknessMask : MonoBehaviour
 
     private void Update()
     {
+        if (PauseManager.IsMenuPaused)
+            return;
+
         // The actual broken door has priority.
         // The complete level reveal can start only once.
 
@@ -1468,7 +1471,7 @@ public class PrisonDarknessMask : MonoBehaviour
 
         if (fullLevelRevealDelay > 0f)
         {
-            yield return new WaitForSecondsRealtime(
+            yield return PauseManager.WaitForTutorialSeconds(
                 fullLevelRevealDelay
             );
         }
@@ -1506,7 +1509,7 @@ public class PrisonDarknessMask : MonoBehaviour
 
         while (elapsed < duration)
         {
-            elapsed += Time.unscaledDeltaTime;
+            elapsed += PauseManager.TutorialDeltaTime;
 
             float progress = Mathf.Clamp01(
                 elapsed / duration

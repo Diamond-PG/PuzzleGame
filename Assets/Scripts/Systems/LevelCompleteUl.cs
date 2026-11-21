@@ -8,6 +8,7 @@ public class LevelCompleteUI : MonoBehaviour
     [Header("Trigger")]
     [SerializeField] private string playerTag = "Player";
     [SerializeField] private bool triggerOnlyOnce = true;
+    [SerializeField] private bool recordsFirstLevelCompletion;
 
     [Header("Панель победы")]
     [SerializeField] private CanvasGroup levelCompletePanel;
@@ -75,6 +76,8 @@ public class LevelCompleteUI : MonoBehaviour
     {
         if (triggerOnlyOnce && IsShown) return;
         if (!other.CompareTag(playerTag)) return;
+        if (recordsFirstLevelCompletion && other.GetComponentInParent<PlayerHealth>() is { IsDead: true })
+            return;
 
         ShowPanel();
     }
@@ -90,6 +93,8 @@ public class LevelCompleteUI : MonoBehaviour
         if (IsShown) return;
 
         IsShown = true;
+        if (recordsFirstLevelCompletion)
+            LevelProgressSave.RecordObjective(1, LevelProgressSave.Objective.Finish);
 
         foreach (GameObject obj in hideOnVictory)
         {
@@ -132,15 +137,7 @@ public class LevelCompleteUI : MonoBehaviour
             return;
         }
 
-        Time.timeScale = 1f;
-
-        int currentIndex = SceneManager.GetActiveScene().buildIndex;
-        int nextIndex = currentIndex + 1;
-
-        if (nextIndex < SceneManager.sceneCountInBuildSettings)
-            SceneManager.LoadScene(nextIndex);
-        else
-            SceneManager.LoadScene(currentIndex);
+        LevelLaunchSession.AdvanceFromStoryLevel(SceneManager.GetActiveScene().path);
     }
 
     private void HideInstant()

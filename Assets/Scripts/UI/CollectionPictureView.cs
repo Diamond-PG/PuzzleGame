@@ -7,6 +7,7 @@ namespace Bakvand.UI
     {
         private const int PieceCount = 4;
         private const int CompleteMask = (1 << PieceCount) - 1;
+        private const int CompletionPending = 1 << PieceCount;
         private static readonly int JoinedEdges = Shader.PropertyToID("_JoinedEdges");
         private static readonly int SeamOpacity = Shader.PropertyToID("_SeamOpacity");
         private static readonly int SeamThickness = Shader.PropertyToID("_SeamThickness");
@@ -65,6 +66,20 @@ namespace Bakvand.UI
         private int revealRestingSibling;
         private string PresentationKey => $"Collection_{pictureId}_PresentedMask";
 
+        internal int PictureId => pictureId;
+        internal bool IsConfigured => artwork != null && artwork.sprite != null && joinOverlay != null &&
+            fragments != null && fragments.Length == PieceCount &&
+            System.Array.TrueForAll(fragments, fragment => fragment != null && fragment.sprite != null);
+
+        internal int GetCollectedMask()
+        {
+            int mask = 0;
+            for (int index = 0; index < PieceCount; index++)
+                if (PuzzlePiecePickup.IsPieceCollected(pictureId, index + 1))
+                    mask |= 1 << index;
+            return mask;
+        }
+
 #if UNITY_EDITOR
         [System.NonSerialized] private bool testMode;
         [System.NonSerialized] private int testPieces;
@@ -73,6 +88,8 @@ namespace Bakvand.UI
         public bool CollectionTestModeEnabled => testMode;
         public int CollectionTestPieceCount => testPieces;
         public bool CollectionTestIsAnimating => animation != null;
+        public bool CollectionTestSecondPictureUnlocked { get; private set; }
+        internal event System.Action CollectionTestNavigationChanged;
 
         public void SetCollectionTestMode(bool enabled)
         {
@@ -83,8 +100,25 @@ namespace Bakvand.UI
             testMode = enabled;
             testPieces = 0;
             testFinished = false;
+            CollectionTestSecondPictureUnlocked = false;
             if (isActiveAndEnabled)
                 RefreshPicture();
+            CollectionTestNavigationChanged?.Invoke();
+        }
+
+        public void SetCollectionTestSecondPictureUnlocked(bool unlocked)
+        {
+            if (!Application.isPlaying || !testMode)
+                return;
+
+            CollectionTestSecondPictureUnlocked = unlocked;
+            CollectionTestNavigationChanged?.Invoke();
+        }
+
+        public void ResetCollectionTest()
+        {
+            ShowCollectionTestPieces(0);
+            SetCollectionTestSecondPictureUnlocked(false);
         }
 
         public void ShowCollectionTestPieces(int count)
@@ -134,6 +168,12 @@ namespace Bakvand.UI
 
         private void Awake()
         {
+            if (!IsConfigured)
+            {
+                enabled = false;
+                return;
+            }
+
             originalArtworkColor = artwork.color;
             for (int index = 0; index < PieceCount; index++)
                 originalPieceColors[index] = fragments[index].color;
@@ -175,26 +215,21 @@ namespace Bakvand.UI
                 return;
             }
 #endif
-            int collected = 0;
-            for (int index = 0; index < PieceCount; index++)
-            {
-                if (PuzzlePiecePickup.IsPieceCollected(pictureId, index + 1))
-                    collected |= 1 << index;
-            }
-
-            int stored = PlayerPrefs.GetInt(PresentationKey, 0);
+            int collected = GetCollectedMask();
+            int stored = GameInstallationSave.GetCollectionInt(PresentationKey);
             int presented = stored & collected;
-            if (stored != presented)
+            bool completionPending = presented == CompleteMask && (stored & CompletionPending) != 0;
+            if (!completionPending && stored != presented)
                 StorePresented(presented);
 
-            if (presented == CompleteMask)
+            if (presented == CompleteMask && !completionPending)
             {
                 ShowFinished();
                 return;
             }
 
             ShowPieces(presented);
-            if (presented != collected)
+            if (presented != collected || completionPending)
                 animation = StartCoroutine(RevealCollected(presented, collected));
         }
 
@@ -206,17 +241,17 @@ namespace Bakvand.UI
                 if ((collected & piece) == 0 || (presented & piece) != 0)
                     continue;
 
+                // A started reveal has been seen even if the player changes pages mid-effect.
+                int next = presented | piece;
+                StorePresented(next == CompleteMask ? next | CompletionPending : next);
                 yield return RevealPiece(index, presented);
                 presented |= piece;
                 ShowPieces(presented);
-                if (presented != CompleteMask)
-                    StorePresented(presented);
             }
 
             if (presented == CompleteMask)
             {
-                yield return AnimateCompletion();
-                StorePresented(CompleteMask);
+                yield return AnimateCompletion(rememberPresentation: true);
             }
 
             animation = null;
@@ -224,8 +259,7 @@ namespace Bakvand.UI
 
         private void StorePresented(int mask)
         {
-            PlayerPrefs.SetInt(PresentationKey, mask);
-            PlayerPrefs.Save();
+            GameInstallationSave.SetCollectionInt(PresentationKey, mask);
         }
 
         private IEnumerator RevealPiece(int index, int presented)
@@ -286,13 +320,15 @@ namespace Bakvand.UI
             revealingRect = null;
         }
 
-        private IEnumerator AnimateCompletion()
+        private IEnumerator AnimateCompletion(bool rememberPresentation = false)
         {
             float total = Mathf.Max(0.15f, completionSeconds);
             float hold = Mathf.Clamp(joinedHoldSeconds, 0f, total - 0.10f);
             if (hold > 0f)
                 yield return new WaitForSecondsRealtime(hold);
 
+            if (rememberPresentation)
+                StorePresented(CompleteMask);
             PlaySound(puzzleCompletedClip, puzzleCompletedVolume);
             float duration = total - hold;
             float sheenDuration = duration * 0.19f;

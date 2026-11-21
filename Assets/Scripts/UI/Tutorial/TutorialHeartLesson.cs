@@ -25,13 +25,13 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 [DisallowMultipleComponent]
 public sealed class TutorialHeartLesson : MonoBehaviour
 {
-    private const int StageBoxUnlocked = 29;
+    internal const int StageBoxUnlocked = 29;
     private const int StageHeartCongratulations = 30;
     private const int StageHeartExplanation = 31;
     private const int StageFarewellSurvival = 32;
     private const int StageFarewellWarning = 33;
     private const int StageLegacyFarewellByName = 34;
-    private const int StageHeartCompleted = 35;
+    internal const int StageHeartCompleted = 35;
 
     [Serializable]
     private class IndependentKeeperPose
@@ -65,6 +65,8 @@ public sealed class TutorialHeartLesson : MonoBehaviour
 
     [SerializeField]
     private Transform firstHeartBoxTarget;
+
+    [SerializeField] private BoxCollider2D progressBarrier;
 
     [SerializeField]
     private PlayerController playerController;
@@ -281,11 +283,19 @@ public sealed class TutorialHeartLesson : MonoBehaviour
             OnLocaleChanged;
 
         LoadLocalizedLines();
+
+        if (firstHeartPickup != null)
+        {
+            firstHeartPickup.PickupAccepted += OnFirstHeartPickupAccepted;
+            firstHeartPickup.PickupCompleted += OnFirstHeartPickupCompleted;
+        }
     }
 
     private void Start()
     {
         ResolveReferences();
+        if (firstHeartBoxTarget != null)
+            heartBoxLocation = firstHeartBoxTarget.position;
 
         if (goldNextButton != null)
         {
@@ -296,15 +306,7 @@ public sealed class TutorialHeartLesson : MonoBehaviour
                 OnGoldNextClicked);
         }
 
-        if (firstHeartPickup != null)
-        {
-            firstHeartPickup.PickupCompleted -=
-                OnFirstHeartPickupCompleted;
-
-            firstHeartPickup.PickupCompleted +=
-                OnFirstHeartPickupCompleted;
-        }
-        else
+        if (firstHeartPickup == null)
         {
             Debug.LogWarning(
                 "[HEART TUTORIAL] Assign FIRST BonusHeartPickup in section 01.",
@@ -315,16 +317,27 @@ public sealed class TutorialHeartLesson : MonoBehaviour
             StageHeartCompleted)
         {
             phase = Phase.Complete;
+            if (progressBarrier != null)
+                progressBarrier.enabled = false;
         }
     }
 
+    private Vector2? heartBoxLocation;
+    private bool heartPickedThisRun;
+
     private void Update()
     {
-        if (phase != Phase.Waiting)
+        if (PauseManager.IsMenuPaused)
+            return;
+
+        if (phase != Phase.Waiting || heartPickedThisRun)
             return;
 
         int saved =
             TutorialProgressManager.SavedLeftTutorialStage;
+        if (saved == StageBoxUnlocked && (TutorialProgressManager.TutorialHeartPicked ||
+            LevelProgressSave.HasObjective(1, LevelProgressSave.Objective.TutorialHeart)))
+            saved = StageHeartCongratulations;
 
         if (saved != StageHeartCongratulations &&
             saved != StageHeartExplanation &&
@@ -335,14 +348,14 @@ public sealed class TutorialHeartLesson : MonoBehaviour
             return;
         }
 
-        if (firstHeartBoxTarget == null ||
+        if (!heartBoxLocation.HasValue ||
             playerController == null)
         {
             return;
         }
 
         if (Vector2.Distance(
-            firstHeartBoxTarget.position,
+            heartBoxLocation.Value,
             playerController.transform.position) >
             resumeNearBoxDistance)
         {
@@ -370,6 +383,21 @@ public sealed class TutorialHeartLesson : MonoBehaviour
         }
     }
 
+    private void OnFirstHeartPickupAccepted(BonusHeartPickup source)
+    {
+        if (source == firstHeartPickup)
+        {
+            TutorialProgressManager.MarkTutorialHeartPicked();
+            if (phase == Phase.Waiting &&
+                TutorialProgressManager.SavedLeftTutorialStage == StageBoxUnlocked)
+            {
+                heartPickedThisRun = true;
+                TutorialProgressManager.SaveLeftTutorialStage(StageHeartCongratulations);
+            }
+            LevelProgressSave.RecordObjective(1, LevelProgressSave.Objective.TutorialHeart);
+        }
+    }
+
     private void OnFirstHeartPickupCompleted(
         BonusHeartPickup source)
     {
@@ -379,8 +407,7 @@ public sealed class TutorialHeartLesson : MonoBehaviour
             return;
         }
 
-        if (TutorialProgressManager.SavedLeftTutorialStage !=
-            StageBoxUnlocked)
+        if (!heartPickedThisRun)
         {
             return;
         }
@@ -396,15 +423,16 @@ public sealed class TutorialHeartLesson : MonoBehaviour
     {
         if (afterPickupUIWait > 0f)
         {
-            yield return new WaitForSecondsRealtime(
+            yield return PauseManager.WaitForTutorialSeconds(
                 afterPickupUIWait);
         }
 
         pickupWaitRoutine = null;
+        heartPickedThisRun = false;
 
         if (phase == Phase.Waiting &&
             TutorialProgressManager.SavedLeftTutorialStage ==
-            StageBoxUnlocked)
+            StageHeartCongratulations)
         {
             ShowCongratulationsPage();
         }
@@ -532,7 +560,7 @@ public sealed class TutorialHeartLesson : MonoBehaviour
         while (goodbyeFadeSeconds > 0f &&
             elapsed < goodbyeFadeSeconds)
         {
-            elapsed += Time.unscaledDeltaTime;
+            elapsed += PauseManager.TutorialDeltaTime;
 
             if (leftFrameCanvasGroup != null)
             {
@@ -554,6 +582,8 @@ public sealed class TutorialHeartLesson : MonoBehaviour
         ReleaseGameplay();
 
         phase = Phase.Complete;
+        if (progressBarrier != null)
+            progressBarrier.enabled = false;
     }
 
     private bool PrepareKeeper()
@@ -584,6 +614,9 @@ public sealed class TutorialHeartLesson : MonoBehaviour
 
     private void OnGoldNextClicked()
     {
+        if (PauseManager.IsMenuPaused)
+            return;
+
         if (phase == Phase.Congratulations)
         {
             ShowExplanationPage();
@@ -606,7 +639,7 @@ public sealed class TutorialHeartLesson : MonoBehaviour
     {
         if (flashStartDelay > 0f)
         {
-            yield return new WaitForSecondsRealtime(
+            yield return PauseManager.WaitForTutorialSeconds(
                 flashStartDelay);
         }
 
@@ -617,7 +650,7 @@ public sealed class TutorialHeartLesson : MonoBehaviour
 
             ShowHeartOvalSpotlight(true);
 
-            yield return new WaitForSecondsRealtime(
+            yield return PauseManager.WaitForTutorialSeconds(
                 flashVisibleSeconds);
 
             if (phase != Phase.Explanation)
@@ -625,7 +658,7 @@ public sealed class TutorialHeartLesson : MonoBehaviour
 
             ShowHeartOvalSpotlight(false);
 
-            yield return new WaitForSecondsRealtime(
+            yield return PauseManager.WaitForTutorialSeconds(
                 flashHiddenSeconds);
         }
 
@@ -1319,6 +1352,7 @@ public sealed class TutorialHeartLesson : MonoBehaviour
 
         if (firstHeartPickup != null)
         {
+            firstHeartPickup.PickupAccepted -= OnFirstHeartPickupAccepted;
             firstHeartPickup.PickupCompleted -=
                 OnFirstHeartPickupCompleted;
         }

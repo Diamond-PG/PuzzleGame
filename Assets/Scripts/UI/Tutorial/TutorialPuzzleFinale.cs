@@ -60,6 +60,8 @@ public sealed class TutorialPuzzleFinale : MonoBehaviour
     [SerializeField]
     private PuzzlePiecePickup firstPuzzlePiece;
 
+    [SerializeField] private BoxCollider2D progressBarrier;
+
     [Tooltip("SpriteRenderer on the same puzzle piece.")]
     [SerializeField]
     private SpriteRenderer puzzlePieceRenderer;
@@ -201,7 +203,9 @@ public sealed class TutorialPuzzleFinale : MonoBehaviour
 
     private FinalePhase phase = FinalePhase.Waiting;
 
-    private int currentPage = 49;
+    private const int FirstPage = 49;
+    internal const int LastPage = 54;
+    private int currentPage = FirstPage;
 
     private string[] localizedLines = new string[6];
 
@@ -277,6 +281,9 @@ public sealed class TutorialPuzzleFinale : MonoBehaviour
             OnLocaleChanged;
 
         LoadLocalization();
+
+        if (firstPuzzlePiece != null)
+            firstPuzzlePiece.PickupAccepted += OnFirstPuzzlePickupAccepted;
     }
 
     private void Start()
@@ -292,19 +299,34 @@ public sealed class TutorialPuzzleFinale : MonoBehaviour
                 OnGoldNextClicked);
         }
 
-        if (saveCompletedDialogue &&
-            PlayerPrefs.GetInt(saveKey, 0) == 1)
+        if (firstPuzzlePiece != null && firstPuzzlePiece.WasAlreadyCollected)
         {
-            phase = FinalePhase.Complete;
+            // The empty box can be destroyed before the player reaches it.
+            collectedPieceLocation = firstPuzzlePiece.transform.position;
+        }
+
+        if (saveCompletedDialogue && TutorialProgressManager.IsPuzzleFinaleComplete(saveKey))
+            OpenCompletedBarrier();
+    }
+
+    private Vector2? collectedPieceLocation;
+
+    private void OnFirstPuzzlePickupAccepted(PuzzlePiecePickup source)
+    {
+        if (source == firstPuzzlePiece && source.PuzzleId == 1 && source.PieceNumber == 1)
+        {
+            if (saveCompletedDialogue)
+                TutorialProgressManager.SavePuzzleFinalePage(FirstPage);
+            LevelProgressSave.RecordObjective(1, LevelProgressSave.Objective.CollectionPiece);
         }
     }
 
     private void Update()
     {
-        if (phase != FinalePhase.Waiting)
+        if (PauseManager.IsMenuPaused)
             return;
 
-        if (firstPuzzlePiece == null)
+        if (phase != FinalePhase.Waiting)
             return;
 
         if (requireCompletedHeartLesson &&
@@ -314,7 +336,19 @@ public sealed class TutorialPuzzleFinale : MonoBehaviour
             return;
         }
 
-        if (!firstPuzzlePiece.IsPickedUp)
+        if (TutorialProgressManager.PuzzleOwnedAtNewGame && collectedPieceLocation.HasValue)
+        {
+            if (saveCompletedDialogue)
+                TutorialProgressManager.MarkPuzzleFinaleComplete(saveKey);
+            OpenCompletedBarrier();
+            return;
+        }
+
+        bool returningToCollectedPiece = TutorialProgressManager.SavedPuzzleFinalePage >= FirstPage &&
+            collectedPieceLocation.HasValue &&
+            playerController != null &&
+            Vector2.Distance(playerController.transform.position, collectedPieceLocation.Value) <= 1.8f;
+        if (!returningToCollectedPiece && (firstPuzzlePiece == null || !firstPuzzlePiece.IsPickedUp))
             return;
 
         phase = FinalePhase.WaitingForAnimation;
@@ -349,7 +383,7 @@ public sealed class TutorialPuzzleFinale : MonoBehaviour
 
         if (waitAfterPuzzleDisappears > 0f)
         {
-            yield return new WaitForSecondsRealtime(
+            yield return PauseManager.WaitForTutorialSeconds(
                 waitAfterPuzzleDisappears);
         }
 
@@ -393,7 +427,10 @@ public sealed class TutorialPuzzleFinale : MonoBehaviour
         PauseGameplay();
 
         phase = FinalePhase.Conversation;
-        currentPage = 49;
+        int savedPage = TutorialProgressManager.SavedPuzzleFinalePage;
+        currentPage = Mathf.Clamp(savedPage, FirstPage, LastPage);
+        if (saveCompletedDialogue)
+            TutorialProgressManager.SavePuzzleFinalePage(currentPage);
 
         ShowPage();
 
@@ -487,12 +524,17 @@ public sealed class TutorialPuzzleFinale : MonoBehaviour
 
     private void OnGoldNextClicked()
     {
+        if (PauseManager.IsMenuPaused)
+            return;
+
         if (phase != FinalePhase.Conversation)
             return;
 
-        if (currentPage < 54)
+        if (currentPage < LastPage)
         {
             currentPage++;
+            if (saveCompletedDialogue)
+                TutorialProgressManager.SavePuzzleFinalePage(currentPage);
             ShowPage();
         }
         else
@@ -513,10 +555,7 @@ public sealed class TutorialPuzzleFinale : MonoBehaviour
         phase = FinalePhase.Fading;
 
         if (saveCompletedDialogue)
-        {
-            PlayerPrefs.SetInt(saveKey, 1);
-            PlayerPrefs.Save();
-        }
+            TutorialProgressManager.MarkPuzzleFinaleComplete(saveKey);
 
         goldNextButton.interactable = false;
 
@@ -541,7 +580,7 @@ public sealed class TutorialPuzzleFinale : MonoBehaviour
         while (finalFadeDuration > 0f &&
                elapsed < finalFadeDuration)
         {
-            elapsed += Time.unscaledDeltaTime;
+            elapsed += PauseManager.TutorialDeltaTime;
 
             if (leftFrameCanvasGroup != null)
             {
@@ -564,7 +603,7 @@ public sealed class TutorialPuzzleFinale : MonoBehaviour
         RestoreKeeperBaseline();
         ResumeGameplay();
 
-        phase = FinalePhase.Complete;
+        OpenCompletedBarrier();
 
         if (debugLogs)
         {
@@ -575,6 +614,13 @@ public sealed class TutorialPuzzleFinale : MonoBehaviour
 
         // No Level Complete.
         // The player continues Level 1 normally.
+    }
+
+    private void OpenCompletedBarrier()
+    {
+        phase = FinalePhase.Complete;
+        if (progressBarrier != null)
+            progressBarrier.enabled = false;
     }
 
     // ============================================================
@@ -1054,6 +1100,9 @@ public sealed class TutorialPuzzleFinale : MonoBehaviour
 
     private void OnDisable()
     {
+        if (firstPuzzlePiece != null)
+            firstPuzzlePiece.PickupAccepted -= OnFirstPuzzlePickupAccepted;
+
         LocalizationSettings.SelectedLocaleChanged -=
             OnLocaleChanged;
 

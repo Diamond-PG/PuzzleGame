@@ -13,11 +13,10 @@ public enum LevelLaunchMode
 public static class LevelLaunchSession
 {
     private const string MainMenuPath = "Assets/Scenes/MainMenu.unity";
-    private const string ReviewedReplayScene = "Assets/Scenes/Level2.unity";
+    private const string FirstLevelPath = "Assets/Scenes/Level1.unity";
 
     public static LevelLaunchMode Mode { get; private set; }
     public static int ReplayLevel { get; private set; }
-    public static int ReplayBestStars { get; private set; }
     public static bool IsLoading { get; private set; }
 
     private static string[] replayCatalog;
@@ -34,14 +33,25 @@ public static class LevelLaunchSession
     {
         Reset();
         Mode = newGame ? LevelLaunchMode.NewGame : LevelLaunchMode.Continue;
+        TutorialProgressManager.RestoreLegacyMilestones();
     }
 
-    internal static bool SupportsReplay(string scenePath)
+    internal static void ResetForNewGame()
     {
-        // Level1 currently writes to the same tutorial state as Continue.
-        // Add other scenes only after checking their state, spawn and exit paths.
-        return string.Equals(scenePath, ReviewedReplayScene, StringComparison.Ordinal);
+        TutorialProgressManager.ResetAllProgress();
+        LevelProgressSave.ResetAllProgress();
+        GameInstallationSave.MarkNewGameStarted();
+        if (PuzzlePiecePickup.IsPieceCollected(1, 1))
+        {
+            LevelProgressSave.RetainCollectedPuzzleObjective(1);
+            TutorialProgressManager.MarkPuzzleOwnedAtNewGame();
+        }
     }
+
+    private static string LevelPath(int level) => $"Assets/Scenes/Level{level}.unity";
+
+    internal static bool SupportsReplay(int level, string scenePath) =>
+        string.Equals(scenePath, LevelPath(level), StringComparison.Ordinal);
 
     internal static bool TryStartReplay(int level, string[] scenePaths)
     {
@@ -49,7 +59,8 @@ public static class LevelLaunchSession
             !TryLoadReplayLevel(level, scenePaths))
             return false;
 
-        replayCatalog = (string[])scenePaths.Clone();
+        if (Mode == LevelLaunchMode.GalleryReplay)
+            replayCatalog = (string[])scenePaths.Clone();
         return true;
     }
 
@@ -70,8 +81,9 @@ public static class LevelLaunchSession
             return false;
 
         string path = scenePaths[level - 1];
-        if (!SupportsReplay(path) || !LevelProgressSave.IsLevelUnlocked(
-                level, GameInstallationSave.HasCurrentInstallSave(), LevelProgressSave.GetBestStars))
+        bool started = GameInstallationSave.HasCurrentInstallSave();
+        if (!SupportsReplay(level, path) || !LevelProgressSave.IsLevelUnlocked(
+                level, started, LevelProgressSave.GetBestStars))
             return false;
 
         int index = GetLoadableSceneIndex(path);
@@ -80,18 +92,31 @@ public static class LevelLaunchSession
 
         var previousMode = Mode;
         int previousLevel = ReplayLevel;
-        int previousStars = ReplayBestStars;
         Mode = LevelLaunchMode.GalleryReplay;
         ReplayLevel = level;
-        ReplayBestStars = LevelProgressSave.GetBestStars(level);
+        if (path == FirstLevelPath)
+            TutorialProgressManager.RestoreLegacyMilestones();
 
         if (BeginLoad(index))
             return true;
 
         Mode = previousMode;
         ReplayLevel = previousLevel;
-        ReplayBestStars = previousStars;
         return false;
+    }
+
+    internal static void AdvanceFromStoryLevel(string currentScenePath)
+    {
+        string name = System.IO.Path.GetFileNameWithoutExtension(currentScenePath);
+        if (name.StartsWith("Level", StringComparison.Ordinal) &&
+            int.TryParse(name.Substring("Level".Length), out int currentLevel) &&
+            SupportsReplay(currentLevel, currentScenePath) &&
+            LevelProgressSave.IsLevelUnlocked(currentLevel + 1,
+                GameInstallationSave.HasCurrentInstallSave(), LevelProgressSave.GetBestStars) &&
+            BeginLoad(GetLoadableSceneIndex(LevelPath(currentLevel + 1))))
+                return;
+
+        BeginLoad(GetLoadableSceneIndex(MainMenuPath));
     }
 
     internal static int GetLoadableSceneIndex(string path)
@@ -140,7 +165,6 @@ public static class LevelLaunchSession
     {
         Mode = LevelLaunchMode.None;
         ReplayLevel = 0;
-        ReplayBestStars = 0;
         IsLoading = false;
         replayCatalog = null;
     }
