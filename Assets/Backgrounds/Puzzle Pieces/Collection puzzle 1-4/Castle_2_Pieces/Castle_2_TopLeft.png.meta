@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 1d215ba93f4cb394d88aeb0864ac7947
+guid: 04ec5c6046ef3714fa3cef27de0b9525
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 8386583685525868285
-    second: Pazzle 3_0
+      213: -514779511081648864
+    second: Castle_2_TopLeft_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -37,7 +37,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -48,15 +48,17 @@ TextureImporter:
   compressionQuality: 50
   spriteMode: 1
   spriteExtrude: 1
-  spriteMeshType: 1
+  spriteMeshType: 0
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
-  spriteGenerateFallbackPhysicsShape: 1
+  spriteGenerateFallbackPhysicsShape: 0
   alphaUsage: 1
   alphaIsTransparency: 1
+  spriteTessellationMethod: 0
   spriteTessellationDetail: -1
+  spriteGeometrySubdivision: -1
   textureType: 8
   textureShape: 1
   singleChannelComponent: 0
@@ -109,30 +111,17 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: WebGL
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Pazzle 3_0
+      name: Castle_2_TopLeft_0
       rect:
         serializedVersion: 2
-        x: 184
-        y: 0
-        width: 144
-        height: 116
+        x: 0
+        y: 347
+        width: 837
+        height: 594
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +130,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: dfe0bde8d61236470800000000000000
-      internalID: 8386583685525868285
+      spriteID: 02d345813c22bd8f0800000000000000
+      internalID: -514779511081648864
       vertices: []
       indices: 
       edges: []
@@ -161,7 +150,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Pazzle 3_0: 8386583685525868285
+      Castle_2_TopLeft_0: -514779511081648864
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

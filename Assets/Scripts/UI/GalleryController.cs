@@ -29,6 +29,12 @@ public class GalleryController : MonoBehaviour
     [SerializeField] private GameObject galleryLevelsView;
     [SerializeField] private GameObject galleryCollectionView;
 
+    [Header("Collection Counter")]
+    [SerializeField] private TMP_Text collectionPageCounterText;
+    [SerializeField, Min(1)] private int collectionPictureCount = 10;
+
+    private int currentCollectionPicture = 1;
+
     private void Awake()
     {
         maxPages = Mathf.Max(1, maxPages);
@@ -101,7 +107,17 @@ public class GalleryController : MonoBehaviour
 
         galleryCollectionView.SetActive(true);
 
+        SetCollectionPicture(currentCollectionPicture);
         UpdateGalleryUI();
+    }
+
+    public void SetCollectionPicture(int pictureNumber)
+    {
+        int pictureCount = Mathf.Max(1, collectionPictureCount);
+        currentCollectionPicture = Mathf.Clamp(pictureNumber, 1, pictureCount);
+
+        if (collectionPageCounterText != null)
+            collectionPageCounterText.SetText($"{currentCollectionPicture}/{pictureCount}");
     }
 
     // Returns from Levels or Collection to Section Selection.

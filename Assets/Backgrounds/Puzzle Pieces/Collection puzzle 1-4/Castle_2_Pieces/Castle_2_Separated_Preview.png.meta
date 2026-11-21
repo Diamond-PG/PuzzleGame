@@ -1,10 +1,19 @@
 fileFormatVersion: 2
-guid: ff4e2139ac6d093428a683f69f9ca7e7
+guid: 0e00c920e32f8ea44a6d91c8d018e343
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 1373148008107933753
-    second: Pazzle 4_0
+      213: 3707080936790228796
+    second: Castle_2_Separated_Preview_0
+  - first:
+      213: -2042822482477700556
+    second: Castle_2_Separated_Preview_1
+  - first:
+      213: -6405938340486944324
+    second: Castle_2_Separated_Preview_2
+  - first:
+      213: -8942512488460445922
+    second: Castle_2_Separated_Preview_3
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -48,15 +57,17 @@ TextureImporter:
   compressionQuality: 50
   spriteMode: 1
   spriteExtrude: 1
-  spriteMeshType: 1
+  spriteMeshType: 0
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
-  spriteGenerateFallbackPhysicsShape: 1
+  spriteGenerateFallbackPhysicsShape: 0
   alphaUsage: 1
   alphaIsTransparency: 1
+  spriteTessellationMethod: 0
   spriteTessellationDetail: -1
+  spriteGeometrySubdivision: -1
   textureType: 8
   textureShape: 1
   singleChannelComponent: 0
@@ -109,30 +120,17 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: WebGL
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Pazzle 4_0
+      name: Castle_2_Separated_Preview_0
       rect:
         serializedVersion: 2
-        x: 198
-        y: 0
-        width: 116
-        height: 144
+        x: 23
+        y: 507
+        width: 838
+        height: 595
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +139,74 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 9300f4f86d66e0310800000000000000
-      internalID: 1373148008107933753
+      spriteID: c3ff0079872327330800000000000000
+      internalID: 3707080936790228796
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Castle_2_Separated_Preview_1
+      rect:
+        serializedVersion: 2
+        x: 872
+        y: 630
+        width: 961
+        height: 472
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 43a2cb886cf66a3e0800000000000000
+      internalID: -2042822482477700556
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Castle_2_Separated_Preview_2
+      rect:
+        serializedVersion: 2
+        x: 23
+        y: 23
+        width: 961
+        height: 473
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cb9683af4098917a0800000000000000
+      internalID: -6405938340486944324
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Castle_2_Separated_Preview_3
+      rect:
+        serializedVersion: 2
+        x: 995
+        y: 23
+        width: 838
+        height: 595
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e1712dd6540d5e380800000000000000
+      internalID: -8942512488460445922
       vertices: []
       indices: 
       edges: []
@@ -161,7 +225,10 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Pazzle 4_0: 1373148008107933753
+      Castle_2_Separated_Preview_0: 3707080936790228796
+      Castle_2_Separated_Preview_1: -2042822482477700556
+      Castle_2_Separated_Preview_2: -6405938340486944324
+      Castle_2_Separated_Preview_3: -8942512488460445922
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

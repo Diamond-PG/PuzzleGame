@@ -39,8 +39,20 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 632c0507d64872b4cab59fc4a16ce4f9
+    m_Address: Arabic (ar)
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 6b92c8c8ad26cc5478d2f05460a33b46
     m_Address: French (France) (fr-FR)
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a3ca7d06a9cf915428cbf0b41c8c6b89
+    m_Address: Hebrew (he)
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale

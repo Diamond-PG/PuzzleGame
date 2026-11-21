@@ -27,7 +27,7 @@ public class LanguageDropdownColor : MonoBehaviour
     private TMP_Dropdown dropdown;
     private bool initialized;
 
-    private int lastColoredListInstanceId = -1;
+    private EntityId lastColoredListEntityId = EntityId.None;
     private int lastTryFrame = -1;
 
     private void Awake()
@@ -128,8 +128,8 @@ public class LanguageDropdownColor : MonoBehaviour
         var list = FindOpenedDropdownList();
         if (list == null) return;
 
-        int id = list.GetInstanceID();
-        if (id == lastColoredListInstanceId) return;
+        EntityId id = list.GetEntityId();
+        if (id == lastColoredListEntityId) return;
 
         var content = list.transform.Find("Viewport/Content");
         if (content == null) return;
@@ -154,7 +154,7 @@ public class LanguageDropdownColor : MonoBehaviour
             label.color = GetColorFor(code);
         }
 
-        lastColoredListInstanceId = id;
+        lastColoredListEntityId = id;
     }
 
     private GameObject FindOpenedDropdownList()
