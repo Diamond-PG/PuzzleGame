@@ -13,8 +13,10 @@ public class PauseManager : MonoBehaviour
 
     [Header("Level 1 Introduction (Optional)")]
     [SerializeField] private Button introPauseButton;
+    [SerializeField] private TutorialKeeperFade keeperFade;
     [SerializeField] private CanvasGroup mainPauseButtonGroup;
     [SerializeField] private PrisonDarknessMask prisonDarknessMask;
+    [SerializeField] private LevelCompleteUI levelCompletion;
 
     [Header("Pause Menu (CanvasGroup on PauseMenu)")]
     [SerializeField] private CanvasGroup pauseMenuGroup;      // CanvasGroup на объекте PauseMenu
@@ -147,9 +149,11 @@ public class PauseManager : MonoBehaviour
         if (introPauseButton == null || mainPauseButtonGroup == null || prisonDarknessMask == null)
             return;
 
-        bool useMainButton = prisonDarknessMask.IsFullLevelRevealComplete;
+        bool introFinished = keeperFade != null
+            ? keeperFade.HasIntroPauseFadedOut
+            : prisonDarknessMask.IsFullLevelRevealComplete;
+        bool useMainButton = introFinished || (levelCompletion != null && levelCompletion.IsShown);
         introPauseButton.gameObject.SetActive(!useMainButton);
-        introPauseButton.interactable = !isPaused;
         mainPauseButtonGroup.alpha = useMainButton ? 1f : 0f;
         mainPauseButtonGroup.interactable = useMainButton;
         mainPauseButtonGroup.blocksRaycasts = useMainButton;
@@ -189,8 +193,7 @@ public class PauseManager : MonoBehaviour
         ForceMenuObjectActive();
         SetMenuVisible(true);
 
-        if (pauseButtonImage != null && playSprite != null)
-            pauseButtonImage.sprite = playSprite;
+        SetPauseIcon(playSprite);
 
         if (gameMusic != null && gameMusic.isPlaying)
             gameMusic.Pause();
@@ -209,13 +212,24 @@ public class PauseManager : MonoBehaviour
         Time.timeScale = timeScaleBeforePause;
         SetMenuVisible(false);
 
-        if (pauseButtonImage != null && pauseSprite != null)
-            pauseButtonImage.sprite = pauseSprite;
+        SetPauseIcon(pauseSprite);
 
         if (gameMusic != null)
             gameMusic.UnPause();
 
         Debug.Log("[PauseManager] RESUMED. timeScale=" + Time.timeScale);
+    }
+
+    private void SetPauseIcon(Sprite sprite)
+    {
+        if (sprite == null)
+            return;
+
+        if (pauseButtonImage != null)
+            pauseButtonImage.sprite = sprite;
+
+        if (introPauseButton != null && introPauseButton.image != null)
+            introPauseButton.image.sprite = sprite;
     }
 
     private IEnumerator RestartAfterClick()

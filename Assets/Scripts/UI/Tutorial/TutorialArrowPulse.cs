@@ -26,7 +26,7 @@ public class TutorialArrowPulse : MonoBehaviour
     [SerializeField, Range(0.4f, 3f)]
     private float pulsePeriod = 1.2f;
 
-    [Tooltip("Continue pulsing when game time is paused.")]
+    [Tooltip("Continue pulsing when a tutorial lesson stops game time.")]
     [SerializeField]
     private bool useUnscaledTime = true;
 
@@ -107,7 +107,7 @@ public class TutorialArrowPulse : MonoBehaviour
 
     private void Update()
     {
-        if (arrowRect == null)
+        if (arrowRect == null || PauseManager.IsMenuPaused)
             return;
 
         if (!ShouldPulse())

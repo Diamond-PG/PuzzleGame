@@ -53,14 +53,13 @@ public class IntroBlackScreenController : MonoBehaviour
 
     private IEnumerator PlayIntro()
     {
-        if (blackScreenDelay > 0f)
-            yield return new WaitForSecondsRealtime(blackScreenDelay);
+        yield return PauseManager.WaitForTutorialSeconds(blackScreenDelay);
 
         float elapsed = 0f;
 
         while (elapsed < fadeDuration)
         {
-            elapsed += Time.unscaledDeltaTime;
+            elapsed += PauseManager.TutorialDeltaTime;
 
             float progress = fadeDuration <= 0f
                 ? 1f

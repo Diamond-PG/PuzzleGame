@@ -69,7 +69,6 @@ public static class TutorialProgressManager
     internal static int SavedPuzzleFinalePage => PlayerPrefs.GetInt(PuzzleFinalePageKey, -1);
     internal static bool PuzzleOwnedAtNewGame => PlayerPrefs.GetInt(PuzzleOwnedAtNewGameKey, 0) == 1;
     internal static bool TutorialHeartPicked => PlayerPrefs.GetInt(TutorialHeartPickedKey, 0) == 1;
-    internal static void MarkPuzzleOwnedAtNewGame() => SaveFlag(PuzzleOwnedAtNewGameKey);
     internal static void MarkTutorialHeartPicked() => SaveFlag(TutorialHeartPickedKey);
 
     internal static void SavePuzzleFinalePage(int page)
@@ -348,8 +347,17 @@ public static class TutorialProgressManager
 
     public static void ResetAllProgress()
     {
+        ClearSavedProgress();
+        PlayerPrefs.Save();
+
+        Debug.Log("[Tutorial] Tutorial progress reset.");
+    }
+
+    internal static void ClearSavedProgress()
+    {
         // Original keys.
         PlayerPrefs.DeleteKey(NameKey);
+        PlayerPrefs.DeleteKey(PlayerNameInputController.DefaultNameSaveKey);
         PlayerPrefs.DeleteKey(MovementKey);
         PlayerPrefs.DeleteKey(JumpKey);
         PlayerPrefs.DeleteKey(KickKey);
@@ -369,13 +377,6 @@ public static class TutorialProgressManager
         PlayerPrefs.DeleteKey(PuzzleFinaleKey);
         PlayerPrefs.DeleteKey(LegacyPuzzleFinaleKey);
         PlayerPrefs.DeleteKey(PuzzleOwnedAtNewGameKey);
-
-        PlayerPrefs.Save();
-
-        Debug.Log(
-            "[Tutorial] Tutorial progress reset. " +
-            "Other game saves were not changed."
-        );
     }
 
     // ============================================================

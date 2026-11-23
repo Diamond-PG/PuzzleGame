@@ -10,6 +10,7 @@ public class TutorialKeeperFade : MonoBehaviour
     [Header("KEEPER APPEARANCE")]
     [SerializeField] private CanvasGroup tutorialFrame;
     [SerializeField] private CanvasGroup puzzleKeeper;
+    [SerializeField] private CanvasGroup introPause;
 
     // ============================================================
     // 02 - TIMING
@@ -46,6 +47,8 @@ public class TutorialKeeperFade : MonoBehaviour
     private bool introductionFinished;
     private bool appearanceStarted;
 
+    public bool HasIntroPauseFadedOut => introductionFinished && introPause != null && introPause.alpha <= 0f;
+
     // ============================================================
     // AWAKE
     // ============================================================
@@ -79,7 +82,7 @@ public class TutorialKeeperFade : MonoBehaviour
     // START
     // ============================================================
 
-    private IEnumerator Start()
+    private void Start()
     {
         if (tutorialFrame == null || puzzleKeeper == null)
         {
@@ -87,15 +90,20 @@ public class TutorialKeeperFade : MonoBehaviour
                 "TutorialKeeperFade: Assign both Canvas Groups."
             );
 
-            yield break;
+            return;
         }
 
         if (introductionFinished)
         {
             HideImmediately();
-            yield break;
+            return;
         }
 
+        activeFade = StartCoroutine(Appear());
+    }
+
+    private IEnumerator Appear()
+    {
         // Wait one frame so TutorialTextController.Start()
         // can initialize its current page.
         yield return null;
@@ -142,6 +150,8 @@ public class TutorialKeeperFade : MonoBehaviour
 
         if (!introductionFinished)
             SetGroupsInteraction(true);
+
+        activeFade = null;
     }
 
     // ============================================================
@@ -201,6 +211,13 @@ public class TutorialKeeperFade : MonoBehaviour
 
         if (puzzleKeeper != null)
             puzzleKeeper.alpha = alpha;
+
+        if (introPause != null)
+        {
+            introPause.alpha = alpha;
+            introPause.interactable = alpha > 0.01f;
+            introPause.blocksRaycasts = introPause.interactable;
+        }
     }
 
     private void SetGroupsInteraction(bool enabled)

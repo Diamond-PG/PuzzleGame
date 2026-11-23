@@ -73,17 +73,8 @@ public static class LevelProgressSave
         }
 
         PlayerPrefs.DeleteKey(HighestLevelKey);
-        GameInstallationSave.ClearStartedGame();
         PlayerPrefs.Save();
         BestStarsChanged?.Invoke();
-    }
-
-    internal static void RetainCollectedPuzzleObjective(int level)
-    {
-        // New Game clears the displayed result. Keep the objective behind the
-        // permanent pickup so the next new objective can still reach three stars.
-        PlayerPrefs.SetInt(ObjectivePrefix + level, (int)Objective.CollectionPiece);
-        PlayerPrefs.Save();
     }
 
     private static void RememberLevel(int level)

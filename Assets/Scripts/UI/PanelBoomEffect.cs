@@ -20,9 +20,14 @@ public class PanelBoomEffect : MonoBehaviour
 
     [Header("Sound (опционально)")]
     [SerializeField] private AudioSource audioSource;
+    [SerializeField] private bool pauseWithMenu;
 
     private Coroutine boomRoutine;
     private bool boomPlayed;
+    private Vector3 restingScale = Vector3.one;
+    private float multiplier = 1f;
+
+    internal float PeakScale => Mathf.Max(1f, startScale, boomScale, overshootScale);
 
     private void Awake()
     {
@@ -78,22 +83,20 @@ public class PanelBoomEffect : MonoBehaviour
         // задержка перед эффектом (для текста можно делать delay > 0)
         if (delay > 0f)
         {
-            yield return new WaitForSecondsRealtime(delay);
+            if (pauseWithMenu)
+                yield return PauseManager.WaitForTutorialSeconds(delay);
+            else
+                yield return new WaitForSecondsRealtime(delay);
         }
-
-        Vector3 normalScale = Vector3.one;
-        Vector3 s0 = normalScale * startScale;       // начальный размер (меньше 1)
-        Vector3 s1 = normalScale * boomScale;        // "взрыв" (больше 1)
-        Vector3 s2 = normalScale * overshootScale;   // отскок (чуть меньше 1)
 
         float t = 0f;
 
         // Фаза 1: маленькая → большая (взрыв)
         while (t < boomDuration)
         {
-            t += Time.unscaledDeltaTime;
+            t += DeltaTime;
             float k = t / boomDuration;
-            target.localScale = Vector3.Lerp(s0, s1, k);
+            SetMultiplier(Mathf.Lerp(startScale, boomScale, k));
             yield return null;
         }
 
@@ -104,9 +107,9 @@ public class PanelBoomEffect : MonoBehaviour
         {
             while (t < overshootDuration)
             {
-                t += Time.unscaledDeltaTime;
+                t += DeltaTime;
                 float k = t / overshootDuration;
-                target.localScale = Vector3.Lerp(s1, s2, k);
+                SetMultiplier(Mathf.Lerp(boomScale, overshootScale, k));
                 yield return null;
             }
         }
@@ -116,12 +119,26 @@ public class PanelBoomEffect : MonoBehaviour
         // Фаза 3: чуть меньше нормы → нормальный размер
         while (t < overshootDuration)
         {
-            t += Time.unscaledDeltaTime;
+            t += DeltaTime;
             float k = t / overshootDuration;
-            target.localScale = Vector3.Lerp(s2, normalScale, k);
+            SetMultiplier(Mathf.Lerp(overshootScale, 1f, k));
             yield return null;
         }
 
-        target.localScale = normalScale;
+        SetMultiplier(1f);
+    }
+
+    private float DeltaTime => pauseWithMenu ? PauseManager.TutorialDeltaTime : Time.unscaledDeltaTime;
+
+    internal void SetRestingScale(Vector3 scale)
+    {
+        restingScale = scale;
+        SetMultiplier(multiplier);
+    }
+
+    private void SetMultiplier(float value)
+    {
+        multiplier = value;
+        target.localScale = restingScale * value;
     }
 }

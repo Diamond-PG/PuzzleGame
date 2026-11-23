@@ -38,14 +38,9 @@ public static class LevelLaunchSession
 
     internal static void ResetForNewGame()
     {
-        TutorialProgressManager.ResetAllProgress();
-        LevelProgressSave.ResetAllProgress();
         GameInstallationSave.MarkNewGameStarted();
-        if (PuzzlePiecePickup.IsPieceCollected(1, 1))
-        {
-            LevelProgressSave.RetainCollectedPuzzleObjective(1);
-            TutorialProgressManager.MarkPuzzleOwnedAtNewGame();
-        }
+        TutorialProgressManager.ClearSavedProgress();
+        LevelProgressSave.ResetAllProgress();
     }
 
     private static string LevelPath(int level) => $"Assets/Scenes/Level{level}.unity";

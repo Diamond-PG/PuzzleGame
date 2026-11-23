@@ -15,6 +15,7 @@ public static class GameInstallationSave
         "rolp_install_id_v1.txt";
 
     private const string CollectionLegacyOwner = "ROLP_CollectionLegacyOwner_V1";
+    private const string CollectionRunKey = "ROLP_CollectionRun_V1";
 
     private static string cachedInstallId;
     private static bool installIdResolved;
@@ -110,7 +111,7 @@ public static class GameInstallationSave
     }
 
     // Called only when New Game starts.
-    public static void MarkNewGameStarted()
+    internal static void MarkNewGameStarted()
     {
         string installId = GetInstallId();
 
@@ -118,13 +119,12 @@ public static class GameInstallationSave
             return;
 
         ResolveCollectionInstallId();
+        PlayerPrefs.SetString(CollectionRunKey, Guid.NewGuid().ToString("N"));
 
         PlayerPrefs.SetString(
             SaveInstallKey, installId);
 
         PlayerPrefs.SetInt(StartedKey, 1);
-
-        PlayerPrefs.Save();
 
         Debug.Log(
             "[GameInstallationSave] " +
@@ -151,11 +151,13 @@ public static class GameInstallationSave
         if (string.IsNullOrEmpty(id))
             return 0;
 
-        string ownedKey = key + "_Install_" + id;
+        string run = PlayerPrefs.GetString(CollectionRunKey, "");
+        string ownedKey = GetOwnedCollectionKey(key, id, run);
         if (PlayerPrefs.HasKey(ownedKey))
             return PlayerPrefs.GetInt(ownedKey, 0);
 
-        return PlayerPrefs.GetString(CollectionLegacyOwner, "") == id
+        // Only existing saves can fall back to keys written before run IDs existed.
+        return string.IsNullOrEmpty(run) && PlayerPrefs.GetString(CollectionLegacyOwner, "") == id
             ? PlayerPrefs.GetInt(key, 0)
             : 0;
     }
@@ -166,9 +168,16 @@ public static class GameInstallationSave
         if (string.IsNullOrEmpty(id))
             return false;
 
-        PlayerPrefs.SetInt(key + "_Install_" + id, value);
+        string run = PlayerPrefs.GetString(CollectionRunKey, "");
+        PlayerPrefs.SetInt(GetOwnedCollectionKey(key, id, run), value);
         PlayerPrefs.Save();
         return true;
+    }
+
+    private static string GetOwnedCollectionKey(string key, string installId, string run)
+    {
+        string installKey = key + "_Install_" + installId;
+        return string.IsNullOrEmpty(run) ? installKey : installKey + "_Run_" + run;
     }
 
     // Checks whether the save belongs to
@@ -185,13 +194,6 @@ public static class GameInstallationSave
 
         return PlayerPrefs.GetString(
             SaveInstallKey, "") == installId;
-    }
-
-    internal static void ClearStartedGame()
-    {
-        ResolveCollectionInstallId();
-        PlayerPrefs.DeleteKey(StartedKey);
-        PlayerPrefs.DeleteKey(SaveInstallKey);
     }
 
     // Also requires real tutorial progress.

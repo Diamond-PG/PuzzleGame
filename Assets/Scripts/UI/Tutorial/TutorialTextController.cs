@@ -273,7 +273,7 @@ public class TutorialTextController : MonoBehaviour
     private TutorialArrowPulse nextArrowPulse;
     private Vector3 nextButtonOriginalScale = Vector3.one;
     private bool nextPulseVisible;
-    private float nextPulseStartTime;
+    private float nextPulseElapsed;
     private const float NextPulseAmount = 0.19f;
     private const float NextPulsePeriod = 1.2f;
 
@@ -714,6 +714,9 @@ public class TutorialTextController : MonoBehaviour
                 );
             }
         }
+
+        while (PauseManager.IsMenuPaused && loadVersion == localizationLoadVersion)
+            yield return null;
 
         if (loadVersion != localizationLoadVersion)
             yield break;
@@ -1458,7 +1461,7 @@ public class TutorialTextController : MonoBehaviour
         if (visible && !nextPulseVisible)
         {
             nextButtonOriginalScale = nextButton.transform.localScale;
-            nextPulseStartTime = Time.unscaledTime;
+            nextPulseElapsed = 0f;
         }
 
         nextPulseVisible = visible;
@@ -1473,8 +1476,8 @@ public class TutorialTextController : MonoBehaviour
             nextButton == null || !nextButton.gameObject.activeInHierarchy)
             return;
 
-        // Use unscaled time so the arrow pulses even when the game pauses.
-        float phase = (Time.unscaledTime - nextPulseStartTime) *
+        nextPulseElapsed += PauseManager.TutorialDeltaTime;
+        float phase = nextPulseElapsed *
                       (2f * Mathf.PI / NextPulsePeriod);
         float amount = 0.5f - 0.5f * Mathf.Cos(phase);
         nextButton.transform.localScale = nextButtonOriginalScale *

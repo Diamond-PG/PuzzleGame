@@ -3,6 +3,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(Collider2D))]
+[RequireComponent(typeof(EnemyHealthBar))]
 public class SkeletonEnemy : MonoBehaviour
 {
     [Header("PLAYER")]
@@ -132,6 +133,7 @@ public class SkeletonEnemy : MonoBehaviour
     private float rightPatrolX;
 
     private float currentHealth;
+    private EnemyHealthBar healthBar;
 
     private bool movingRight;
     private bool chasingPlayer;
@@ -163,6 +165,7 @@ public class SkeletonEnemy : MonoBehaviour
 
         currentHealth =
             maxHealth;
+        healthBar = GetComponent<EnemyHealthBar>();
 
         if (spriteRenderer == null)
         {
@@ -409,6 +412,8 @@ public class SkeletonEnemy : MonoBehaviour
                 currentHealth -
                 damage
             );
+        if (healthBar != null)
+            healthBar.ShowDamage(currentHealth / maxHealth, spriteRenderer);
 
         if (hitType ==
             PlayerHitType.Kick)

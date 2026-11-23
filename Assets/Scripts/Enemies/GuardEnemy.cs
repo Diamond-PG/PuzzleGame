@@ -3,6 +3,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(Collider2D))]
+[RequireComponent(typeof(EnemyHealthBar))]
 public class GuardEnemy : MonoBehaviour
 {
     [Header("PLAYER")]
@@ -238,6 +239,7 @@ public class GuardEnemy : MonoBehaviour
      * могли наносить разный дробный урон.
      */
     private float currentHealth;
+    private EnemyHealthBar healthBar;
 
     private bool movingRight;
     private bool chasingPlayer;
@@ -275,6 +277,7 @@ public class GuardEnemy : MonoBehaviour
 
         currentHealth =
             maxHealth;
+        healthBar = GetComponent<EnemyHealthBar>();
 
         if (spriteRenderer == null)
         {
@@ -555,6 +558,8 @@ public class GuardEnemy : MonoBehaviour
                 currentHealth -
                 damage
             );
+        if (healthBar != null)
+            healthBar.ShowDamage(currentHealth / maxHealth, spriteRenderer);
 
 
         // --------------------------------------------------------

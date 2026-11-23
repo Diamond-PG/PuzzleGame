@@ -15,6 +15,14 @@ public class LevelCompleteUI : MonoBehaviour
     [SerializeField] private float fadeDuration = 0.5f;
     [SerializeField] private bool useUnscaledTime = true;
 
+    [Header("Staged Victory (Optional)")]
+    [SerializeField] private CanvasGroup victoryBackdrop;
+    [SerializeField, Min(0f)] private float backdropFadeDuration = 0.32f;
+    [SerializeField] private CanvasGroup victoryTitle;
+    [SerializeField, Min(0f)] private float titleFadeDuration = 0.28f;
+    [SerializeField] private VictoryFireworks fireworks;
+    [SerializeField] private PanelBoomEffect frameAnimation;
+
     [Header("Next Level")]
     [SerializeField] private GameObject nextLevelButton;
     [SerializeField] private CanvasGroup nextLevelButtonCanvasGroup;
@@ -51,6 +59,9 @@ public class LevelCompleteUI : MonoBehaviour
     private Coroutine panelRoutine;
     private Coroutine buttonRoutine;
     private RectTransform nextButtonRect;
+    private RectTransform frameRect;
+    private RectTransform frameParent;
+    private Vector2 lastViewportSize;
 
     private void Awake()
     {
@@ -70,6 +81,27 @@ public class LevelCompleteUI : MonoBehaviour
         }
 
         HideInstant();
+
+        if (victoryBackdrop != null && levelCompletePanel != null)
+        {
+            frameRect = levelCompletePanel.transform as RectTransform;
+            frameParent = frameRect != null ? frameRect.parent as RectTransform : null;
+        }
+    }
+
+    private void LateUpdate()
+    {
+        if (!IsShown || frameParent == null || lastViewportSize == frameParent.rect.size)
+            return;
+
+        lastViewportSize = frameParent.rect.size;
+        Vector2 available = lastViewportSize * 0.94f;
+        Vector2 authoredSize = frameRect.rect.size * (frameAnimation != null ? frameAnimation.PeakScale : 1f);
+        float scale = Mathf.Min(1f, available.x / authoredSize.x, available.y / authoredSize.y);
+        if (frameAnimation != null)
+            frameAnimation.SetRestingScale(Vector3.one * scale);
+        else
+            frameRect.localScale = Vector3.one * scale;
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -119,11 +151,14 @@ public class LevelCompleteUI : MonoBehaviour
 
         levelCompletePanel.gameObject.SetActive(true);
 
-        panelRoutine = StartCoroutine(FadeCanvasGroup(levelCompletePanel, 1f, fadeDuration, true));
-        buttonRoutine = StartCoroutine(ShowNextButtonWithDelay());
-
-        if (winTextAnimator != null && !string.IsNullOrEmpty(winTextAnimState))
-            winTextAnimator.Play(winTextAnimState, 0, 0f);
+        if (victoryBackdrop != null)
+            panelRoutine = StartCoroutine(ShowStagedVictory());
+        else
+        {
+            panelRoutine = StartCoroutine(FadeCanvasGroup(levelCompletePanel, 1f, fadeDuration, true));
+            buttonRoutine = StartCoroutine(ShowNextButtonWithDelay());
+            PlayWinTextAnimation();
+        }
 
         if (debugLogs)
             Debug.Log("[LEVEL COMPLETE] Victory panel shown.", this);
@@ -131,6 +166,9 @@ public class LevelCompleteUI : MonoBehaviour
 
     public void LoadNextLevel()
     {
+        if (PauseManager.IsMenuPaused)
+            return;
+
         if (LevelLaunchSession.Mode == LevelLaunchMode.GalleryReplay)
         {
             LevelLaunchSession.AdvanceReplayOrReturnToMenu();
@@ -142,6 +180,11 @@ public class LevelCompleteUI : MonoBehaviour
 
     private void HideInstant()
     {
+        if (victoryBackdrop != null)
+            SetCanvasGroup(victoryBackdrop, 0f, false);
+        if (victoryTitle != null)
+            SetCanvasGroup(victoryTitle, 0f, false);
+
         if (levelCompletePanel != null)
         {
             levelCompletePanel.alpha = 0f;
@@ -163,6 +206,24 @@ public class LevelCompleteUI : MonoBehaviour
             nextButtonRect.anchoredPosition = new Vector2(nextButtonRect.anchoredPosition.x, nextButtonStartY);
 
         IsShown = false;
+    }
+
+    private IEnumerator ShowStagedVictory()
+    {
+        yield return FadeCanvasGroup(victoryBackdrop, 1f, backdropFadeDuration, false);
+        yield return FadeCanvasGroup(levelCompletePanel, 1f, fadeDuration, true);
+        buttonRoutine = StartCoroutine(ShowNextButtonWithDelay());
+        PlayWinTextAnimation();
+        yield return FadeCanvasGroup(victoryTitle, 1f, titleFadeDuration, false);
+        yield return buttonRoutine;
+        if (fireworks != null)
+            fireworks.Play();
+    }
+
+    private void PlayWinTextAnimation()
+    {
+        if (winTextAnimator != null && !string.IsNullOrEmpty(winTextAnimState))
+            winTextAnimator.Play(winTextAnimState, 0, 0f);
     }
 
     private IEnumerator ShowNextButtonWithDelay()
@@ -197,6 +258,8 @@ public class LevelCompleteUI : MonoBehaviour
                 t = Mathf.SmoothStep(0f, 1f, t);
 
                 nextButtonRect.anchoredPosition = Vector2.Lerp(startPos, endPos, t);
+                if (victoryBackdrop != null && nextLevelButtonCanvasGroup != null)
+                    nextLevelButtonCanvasGroup.alpha = 0.85f * t;
 
                 yield return null;
             }
@@ -226,19 +289,35 @@ public class LevelCompleteUI : MonoBehaviour
             yield return null;
         }
 
-        cg.alpha = targetAlpha;
-        cg.interactable = enableInputAtEnd;
-        cg.blocksRaycasts = enableInputAtEnd;
+        SetCanvasGroup(cg, targetAlpha, enableInputAtEnd);
+    }
+
+    private static void SetCanvasGroup(CanvasGroup group, float alpha, bool acceptsInput)
+    {
+        group.alpha = alpha;
+        group.interactable = acceptsInput;
+        group.blocksRaycasts = acceptsInput;
     }
 
     private float Delta()
     {
+        if (victoryBackdrop != null && PauseManager.IsMenuPaused)
+            return 0f;
         return useUnscaledTime ? Time.unscaledDeltaTime : Time.deltaTime;
     }
 
     private IEnumerator WaitSeconds(float seconds)
     {
-        if (useUnscaledTime)
+        if (victoryBackdrop != null)
+        {
+            float elapsed = 0f;
+            while (elapsed < seconds || PauseManager.IsMenuPaused)
+            {
+                yield return null;
+                elapsed += Delta();
+            }
+        }
+        else if (useUnscaledTime)
             yield return new WaitForSecondsRealtime(seconds);
         else
             yield return new WaitForSeconds(seconds);

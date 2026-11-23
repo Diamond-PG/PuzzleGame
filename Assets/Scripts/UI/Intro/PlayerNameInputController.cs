@@ -4,6 +4,8 @@ using UnityEngine.UI;
 
 public class PlayerNameInputController : MonoBehaviour
 {
+    internal const string DefaultNameSaveKey = "PlayerName";
+
     [Header("NAME INPUT")]
     [SerializeField] private TMP_InputField nameInputField;
 
@@ -22,7 +24,7 @@ public class PlayerNameInputController : MonoBehaviour
     [SerializeField] private string textAfterName = "{name}, рад знакомству!";
 
     [Header("SAVE SETTINGS")]
-    [SerializeField] private string playerNameSaveKey = "PlayerName";
+    [SerializeField] private string playerNameSaveKey = DefaultNameSaveKey;
 
     [Header("CONFIRM SOUND")]
     [SerializeField] private AudioSource audioSource;
