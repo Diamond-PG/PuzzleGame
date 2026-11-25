@@ -291,13 +291,19 @@ public class PlayerHealth : MonoBehaviour
         ApplyDamage(amount, true);
     }
 
+    internal void TakeCombatDamage(int amount, GuardHitType hitType, Transform attacker)
+    {
+        ApplyDamage(amount, true, hitType, attacker);
+    }
+
     public void TakeFallDamage(int amount)
     {
         // PlayerLanding отвечает за звук приземления.
         ApplyDamage(amount, false);
     }
 
-    private void ApplyDamage(int amount, bool playDamageSound)
+    private void ApplyDamage(int amount, bool playDamageSound,
+        GuardHitType hitType = GuardHitType.Unspecified, Transform attacker = null)
     {
         if (isDead || invulnerable || amount <= 0)
             return;
@@ -336,7 +342,14 @@ public class PlayerHealth : MonoBehaviour
             return;
         }
 
-        if (CameraShake2D.Instance != null)
+        CombatImpactEffects combatEffects = hitType != GuardHitType.Unspecified
+            ? CombatImpactEffects.ForScene(this)
+            : null;
+        if (combatEffects != null)
+        {
+            combatEffects.Play(hitType, CombatContact.Between(attacker, this, GetComponent<Collider2D>()));
+        }
+        else if (CameraShake2D.Instance != null)
             CameraShake2D.Instance.ShakeDefault();
 
         if (lostRegularHearts > 0 && heartsUI != null)
@@ -352,7 +365,7 @@ public class PlayerHealth : MonoBehaviour
             );
         }
 
-        PlayDamageFeedback(playDamageSound);
+        PlayDamageFeedback(playDamageSound, combatEffects == null);
 
         if (hearts <= 0)
         {
@@ -374,7 +387,7 @@ public class PlayerHealth : MonoBehaviour
     // DAMAGE FEEDBACK
     // ============================================================
 
-    private void PlayDamageFeedback(bool playDamageSound)
+    private void PlayDamageFeedback(bool playDamageSound, bool playLegacyHitEffect)
     {
         if (playDamageSound &&
             sfxSource != null &&
@@ -392,9 +405,7 @@ public class PlayerHealth : MonoBehaviour
         if (hitEffectRoutine != null)
             StopCoroutine(hitEffectRoutine);
 
-        hitEffectRoutine = StartCoroutine(
-            SpawnHitEffectRoutine()
-        );
+        hitEffectRoutine = playLegacyHitEffect ? StartCoroutine(SpawnHitEffectRoutine()) : null;
 
         if (useHitFlash && playerRenderer != null)
         {

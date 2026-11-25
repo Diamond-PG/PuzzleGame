@@ -222,6 +222,9 @@ public class PlayerSwordAttack : MonoBehaviour
 
     public void TryAttack()
     {
+        if (playerController != null && playerController.PuzzleGameplayActionsBlocked)
+            return;
+
         if (attackRunning)
             return;
 
@@ -252,6 +255,7 @@ public class PlayerSwordAttack : MonoBehaviour
 
     private IEnumerator AttackRoutine()
     {
+        int puzzleVersion = playerController != null ? playerController.PuzzleActionVersion : 0;
         attackRunning =
             true;
 
@@ -299,6 +303,12 @@ public class PlayerSwordAttack : MonoBehaviour
         yield return new WaitForSeconds(
             swingDuration
         );
+
+        if (playerController != null && puzzleVersion != playerController.PuzzleActionVersion)
+        {
+            CancelAttack();
+            yield break;
+        }
 
 
         // --------------------------------------------------------
@@ -516,12 +526,14 @@ public class PlayerSwordAttack : MonoBehaviour
                 >();
 
             if (guard != null &&
-                !guard.IsDead &&
+                guard.CanBeTargeted &&
                 hitGuards.Add(
                     guard))
             {
-                guard.ReceiveSwordHit(
-                    swordDamage
+                guard.ReceiveWeaponHit(
+                    swordDamage,
+                    GuardHitType.Sword,
+                    CombatContact.FromHitbox(hit, center, attackRight ? 1f : -1f)
                 );
 
                 enemyHit =
@@ -539,8 +551,10 @@ public class PlayerSwordAttack : MonoBehaviour
                 hitSkeletons.Add(
                     skeleton))
             {
-                skeleton.ReceiveSwordHit(
-                    swordDamage
+                skeleton.ReceiveWeaponHit(
+                    swordDamage,
+                    GuardHitType.Sword,
+                    CombatContact.FromHitbox(hit, center, attackRight ? 1f : -1f)
                 );
 
                 enemyHit =

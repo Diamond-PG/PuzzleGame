@@ -60,6 +60,32 @@ MonoBehaviour:
     m_Localized: "Level ausw\xE4hlen"
     m_Metadata:
       m_Items: []
+  - m_Id: 109671197207113728
+    m_Localized: "Men\xFC"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 109671197945311232
+    m_Localized: Kontrollpunkt
+    m_Metadata:
+      m_Items: []
+  - m_Id: 109671198616399872
+    m_Localized: Neu starten
+    m_Metadata:
+      m_Items: []
+  - m_Id: 109671199325237248
+    m_Localized: "Hauptmen\xFC"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 109671199698530304
+    m_Localized: '<size=76%>LEVEL {0}</size>
+
+      GESCHAFFT'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 109671200067629056
+    m_Localized: "N\xE4chstes Level"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:

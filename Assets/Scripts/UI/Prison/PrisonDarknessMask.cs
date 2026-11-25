@@ -1286,6 +1286,9 @@ public class PrisonDarknessMask : MonoBehaviour
         doorRevealCompleted = false;
         doorRevealProgress = 0f;
 
+        if (TryGetComponent(out PrisonRevealSound revealAudio))
+            revealAudio.PlayDoorReveal();
+
         if (doorRevealRoutine != null)
             StopCoroutine(doorRevealRoutine);
 

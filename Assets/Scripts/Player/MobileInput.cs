@@ -8,6 +8,14 @@ public class MobileInput : MonoBehaviour
     public HoldDirectionButton up;
     public HoldDirectionButton down;
 
+    internal void ReleaseDirections()
+    {
+        if (left != null) left.ReleaseButton();
+        if (right != null) right.ReleaseButton();
+        if (up != null) up.ReleaseButton();
+        if (down != null) down.ReleaseButton();
+    }
+
     public float Horizontal
     {
         get

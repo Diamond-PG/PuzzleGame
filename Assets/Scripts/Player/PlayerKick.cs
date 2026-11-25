@@ -202,6 +202,9 @@ public class PlayerKick : MonoBehaviour
 
     private bool GameplayActionsBlocked()
     {
+        if (ClimbHook.PlayerIsOnHook || PauseManager.IsMenuPaused)
+            return true;
+
         if (PlayerIsDead())
         {
             return true;
@@ -512,6 +515,13 @@ public class PlayerKick : MonoBehaviour
                 yield break;
             }
 
+            if (ClimbHook.PlayerIsOnHook ||
+                (playerController != null && playerController.IsPuzzleFinaleLocked))
+            {
+                FinishKickBecauseBlocked();
+                yield break;
+            }
+
             timer +=
                 Time.deltaTime;
 
@@ -590,7 +600,8 @@ public class PlayerKick : MonoBehaviour
             while (timer <
                    kickVoiceDelay)
             {
-                if (PlayerIsDead())
+                if (PlayerIsDead() || ClimbHook.PlayerIsOnHook ||
+                    (playerController != null && playerController.IsPuzzleFinaleLocked))
                 {
                     voiceRoutine =
                         null;
@@ -605,7 +616,8 @@ public class PlayerKick : MonoBehaviour
             }
         }
 
-        if (PlayerIsDead())
+        if (PlayerIsDead() || ClimbHook.PlayerIsOnHook ||
+            (playerController != null && playerController.IsPuzzleFinaleLocked))
         {
             voiceRoutine =
                 null;

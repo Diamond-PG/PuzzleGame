@@ -20,6 +20,16 @@ public sealed class EnemyHealthBar : MonoBehaviour
     private float hideAt;
     private float facing;
 
+    public void ResetHidden(float remainingFraction)
+    {
+        target = displayed = Mathf.Clamp01(remainingFraction);
+        if (bar == null)
+            return;
+
+        SetFill(displayed);
+        bar.gameObject.SetActive(false);
+    }
+
     public void ShowDamage(float remainingFraction, SpriteRenderer enemySprite)
     {
         target = Mathf.Clamp01(remainingFraction);

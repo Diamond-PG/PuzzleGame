@@ -60,6 +60,32 @@ MonoBehaviour:
     m_Localized: Seleccionar nivel
     m_Metadata:
       m_Items: []
+  - m_Id: 109671197207113728
+    m_Localized: "Men\xFA"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 109671197945311232
+    m_Localized: Punto de control
+    m_Metadata:
+      m_Items: []
+  - m_Id: 109671198616399872
+    m_Localized: Reiniciar
+    m_Metadata:
+      m_Items: []
+  - m_Id: 109671199325237248
+    m_Localized: "Men\xFA principal"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 109671199698530304
+    m_Localized: '<size=76%>NIVEL {0}</size>
+
+      COMPLETADO'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 109671200067629056
+    m_Localized: Siguiente nivel
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:

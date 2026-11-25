@@ -16,8 +16,8 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 /// - Does not trigger Level Complete.
 /// - Waits for the entire pickup animation.
 /// - Reuses TutorialFrame_Left and TutorialDimmer.
-/// - Pauses gameplay during the conversation.
-/// - Resumes gameplay after page 54.
+/// - Holds the player in place from pickup through the Keeper fade.
+/// - Preserves the level countdown during the conversation.
 /// - Saves completed dialogue independently.
 /// - Each page has independent Keeper and medallion settings.
 /// </summary>
@@ -215,10 +215,8 @@ public sealed class TutorialPuzzleFinale : MonoBehaviour
     private Coroutine puzzleWaitRoutine;
     private Coroutine fadeRoutine;
 
-    private float previousTimeScale = 1f;
-
-    private bool pausedByFinale;
     private bool movementLockedByFinale;
+    private LevelTimer dialogueTimer;
 
     private bool actionGroupCaptured;
     private bool inventoryGroupCaptured;
@@ -315,6 +313,9 @@ public sealed class TutorialPuzzleFinale : MonoBehaviour
     {
         if (source == firstPuzzlePiece && source.PuzzleId == 1 && source.PieceNumber == 1)
         {
+            if (phase == FinalePhase.Waiting && HeartLessonAllowsFinale)
+                BeginPuzzleWait();
+
             if (saveCompletedDialogue)
                 TutorialProgressManager.SavePuzzleFinalePage(FirstPage);
             LevelProgressSave.RecordObjective(1, LevelProgressSave.Objective.CollectionPiece);
@@ -329,12 +330,8 @@ public sealed class TutorialPuzzleFinale : MonoBehaviour
         if (phase != FinalePhase.Waiting)
             return;
 
-        if (requireCompletedHeartLesson &&
-            TutorialProgressManager.SavedLeftTutorialStage <
-            CompletedHeartLessonStage)
-        {
+        if (!HeartLessonAllowsFinale)
             return;
-        }
 
         if (TutorialProgressManager.PuzzleOwnedAtNewGame && collectedPieceLocation.HasValue)
         {
@@ -351,6 +348,15 @@ public sealed class TutorialPuzzleFinale : MonoBehaviour
         if (!returningToCollectedPiece && (firstPuzzlePiece == null || !firstPuzzlePiece.IsPickedUp))
             return;
 
+        BeginPuzzleWait();
+    }
+
+    private bool HeartLessonAllowsFinale => !requireCompletedHeartLesson ||
+        TutorialProgressManager.SavedLeftTutorialStage >= CompletedHeartLessonStage;
+
+    private void BeginPuzzleWait()
+    {
+        HoldPlayer();
         phase = FinalePhase.WaitingForAnimation;
 
         if (puzzleWaitRoutine != null)
@@ -419,12 +425,15 @@ public sealed class TutorialPuzzleFinale : MonoBehaviour
                 "[PUZZLE FINALE] Missing Keeper UI or Player references.",
                 this);
 
+            ResumeGameplay();
             phase = FinalePhase.Waiting;
             return;
         }
 
         CaptureKeeperBaseline();
-        PauseGameplay();
+        dialogueTimer = FindAnyObjectByType<LevelTimer>();
+        if (dialogueTimer != null)
+            dialogueTimer.SetPuzzleDialoguePaused(true);
 
         phase = FinalePhase.Conversation;
         int savedPage = TutorialProgressManager.SavedPuzzleFinalePage;
@@ -755,23 +764,15 @@ public sealed class TutorialPuzzleFinale : MonoBehaviour
     }
 
     // ============================================================
-    // GAMEPLAY PAUSE
+    // PLAYER AND CONTROLS
     // ============================================================
 
-    private void PauseGameplay()
+    private void HoldPlayer()
     {
-        if (!pausedByFinale)
-        {
-            previousTimeScale = Time.timeScale;
-            Time.timeScale = 0f;
-            pausedByFinale = true;
-        }
-
         if (!movementLockedByFinale &&
             playerController != null)
         {
-            playerController.SetHorizontalMovementLock(true);
-            movementLockedByFinale = true;
+            movementLockedByFinale = playerController.LockForPuzzleFinale(this);
         }
 
         if (actionControlsGroup != null)
@@ -823,15 +824,14 @@ public sealed class TutorialPuzzleFinale : MonoBehaviour
         if (movementLockedByFinale &&
             playerController != null)
         {
-            playerController.SetHorizontalMovementLock(false);
+            playerController.UnlockAfterPuzzleFinale(this);
         }
 
         movementLockedByFinale = false;
 
-        if (pausedByFinale)
-            Time.timeScale = previousTimeScale;
-
-        pausedByFinale = false;
+        if (dialogueTimer != null)
+            dialogueTimer.SetPuzzleDialoguePaused(false);
+        dialogueTimer = null;
     }
 
     // ============================================================
@@ -1133,8 +1133,11 @@ public sealed class TutorialPuzzleFinale : MonoBehaviour
             HideKeeper();
             RestoreDimmer();
             RestoreKeeperBaseline();
-            ResumeGameplay();
         }
+
+        ResumeGameplay();
+        if (phase != FinalePhase.Complete)
+            phase = FinalePhase.Waiting;
     }
 
     private void OnValidate()

@@ -60,6 +60,30 @@ MonoBehaviour:
     m_Localized: Choisir un niveau
     m_Metadata:
       m_Items: []
+  - m_Id: 109671197207113728
+    m_Localized: Menu
+    m_Metadata:
+      m_Items: []
+  - m_Id: 109671197945311232
+    m_Localized: "Point de contr\xF4le"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 109671198616399872
+    m_Localized: Recommencer
+    m_Metadata:
+      m_Items: []
+  - m_Id: 109671199325237248
+    m_Localized: Menu principal
+    m_Metadata:
+      m_Items: []
+  - m_Id: 109671199698530304
+    m_Localized: "<size=76%>NIVEAU {0}</size>\nTERMIN\xC9"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 109671200067629056
+    m_Localized: Niveau suivant
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:

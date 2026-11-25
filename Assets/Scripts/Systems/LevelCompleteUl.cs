@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Localization.Components;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -19,6 +20,7 @@ public class LevelCompleteUI : MonoBehaviour
     [SerializeField] private CanvasGroup victoryBackdrop;
     [SerializeField, Min(0f)] private float backdropFadeDuration = 0.32f;
     [SerializeField] private CanvasGroup victoryTitle;
+    [SerializeField] private LocalizeStringEvent localizedVictoryTitle;
     [SerializeField, Min(0f)] private float titleFadeDuration = 0.28f;
     [SerializeField] private VictoryFireworks fireworks;
     [SerializeField] private PanelBoomEffect frameAnimation;
@@ -65,6 +67,14 @@ public class LevelCompleteUI : MonoBehaviour
 
     private void Awake()
     {
+        if (localizedVictoryTitle != null)
+        {
+            var scene = gameObject.scene;
+            int level = LevelLaunchSession.TryGetLevelNumber(scene.path, out int number) ? number : 1;
+            localizedVictoryTitle.StringReference.Arguments = new object[] { level };
+            localizedVictoryTitle.RefreshString();
+        }
+
         if (levelCompletePanel != null)
             levelCompletePanel.gameObject.SetActive(true);
 
@@ -172,14 +182,17 @@ public class LevelCompleteUI : MonoBehaviour
         if (LevelLaunchSession.Mode == LevelLaunchMode.GalleryReplay)
         {
             LevelLaunchSession.AdvanceReplayOrReturnToMenu();
-            return;
         }
+        else
+            LevelLaunchSession.AdvanceFromStoryLevel(SceneManager.GetActiveScene().path);
 
-        LevelLaunchSession.AdvanceFromStoryLevel(SceneManager.GetActiveScene().path);
+        if (LevelLaunchSession.IsLoading)
+            fireworks?.Stop();
     }
 
     private void HideInstant()
     {
+        fireworks?.Stop();
         if (victoryBackdrop != null)
             SetCanvasGroup(victoryBackdrop, 0f, false);
         if (victoryTitle != null)
@@ -215,7 +228,6 @@ public class LevelCompleteUI : MonoBehaviour
         buttonRoutine = StartCoroutine(ShowNextButtonWithDelay());
         PlayWinTextAnimation();
         yield return FadeCanvasGroup(victoryTitle, 1f, titleFadeDuration, false);
-        yield return buttonRoutine;
         if (fireworks != null)
             fireworks.Play();
     }

@@ -118,13 +118,6 @@ public class SkeletonEnemy : MonoBehaviour
     // PRIVATE
     // ============================================================
 
-    private enum PlayerHitType
-    {
-        Kick,
-        Sword,
-        Weapon
-    }
-
     private Rigidbody2D rb;
     private Collider2D bodyCollider;
 
@@ -318,7 +311,7 @@ public class SkeletonEnemy : MonoBehaviour
 
         ReceivePlayerHit(
             damage,
-            PlayerHitType.Kick
+            GuardHitType.Kick
         );
     }
 
@@ -339,7 +332,7 @@ public class SkeletonEnemy : MonoBehaviour
 
         ReceivePlayerHit(
             damage,
-            PlayerHitType.Sword
+            GuardHitType.Sword
         );
     }
 
@@ -350,7 +343,9 @@ public class SkeletonEnemy : MonoBehaviour
 
     public void ReceiveWeaponHit(
         float damage
-    )
+    ) => ReceiveWeaponHit(damage, GuardHitType.Unspecified, null);
+
+    internal void ReceiveWeaponHit(float damage, GuardHitType hitType, CombatContact? contact)
     {
         if (!CanReceivePlayerHit(
                 damage))
@@ -360,7 +355,8 @@ public class SkeletonEnemy : MonoBehaviour
 
         ReceivePlayerHit(
             damage,
-            PlayerHitType.Weapon
+            hitType,
+            contact
         );
     }
 
@@ -395,7 +391,8 @@ public class SkeletonEnemy : MonoBehaviour
 
     private void ReceivePlayerHit(
         float damage,
-        PlayerHitType hitType
+        GuardHitType hitType,
+        CombatContact? contact = null
     )
     {
         if (isDead ||
@@ -406,17 +403,20 @@ public class SkeletonEnemy : MonoBehaviour
             return;
         }
 
+        float previousHealth = currentHealth;
         currentHealth =
             Mathf.Max(
                 0f,
                 currentHealth -
                 damage
             );
+        if (currentHealth < previousHealth)
+            CombatImpactEffects.Report(this, hitType, contact, player, bodyCollider);
         if (healthBar != null)
             healthBar.ShowDamage(currentHealth / maxHealth, spriteRenderer);
 
         if (hitType ==
-            PlayerHitType.Kick)
+            GuardHitType.Kick)
         {
             PlayPlayerHitsSkeletonHaptic();
         }
@@ -863,8 +863,10 @@ public class SkeletonEnemy : MonoBehaviour
 
             if (playerCanTakeDamage)
             {
-                playerHealth.TakeDamage(
-                    damageToPlayer
+                playerHealth.TakeCombatDamage(
+                    damageToPlayer,
+                    GuardHitType.SkeletonStrike,
+                    transform
                 );
 
                 PlaySkeletonHitsPlayerHaptic();

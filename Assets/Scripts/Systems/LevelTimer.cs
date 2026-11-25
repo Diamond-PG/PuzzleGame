@@ -16,6 +16,7 @@ public class LevelTimer : MonoBehaviour
     private float timeLeft;
     private bool running;
     private bool startedOnce;
+    private bool puzzleDialoguePaused;
 
     // Важно: если остановили таймер вручную (победа) — он больше никогда не должен перезапустить уровень
     private bool stoppedManually;
@@ -35,7 +36,7 @@ public class LevelTimer : MonoBehaviour
         // Сначала проверяем “победную” блокировку
         if (stoppedManually) return;
 
-        if (!running) return;
+        if (!running || puzzleDialoguePaused) return;
 
         timeLeft -= Time.deltaTime;
 
@@ -87,6 +88,11 @@ public class LevelTimer : MonoBehaviour
     {
         if (stoppedManually) return; // после Win не даём снова запустить
         running = !pause;
+    }
+
+    internal void SetPuzzleDialoguePaused(bool paused)
+    {
+        puzzleDialoguePaused = paused;
     }
 
     // Если захочешь перезапускать таймер вручную

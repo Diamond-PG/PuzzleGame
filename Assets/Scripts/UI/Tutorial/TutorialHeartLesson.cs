@@ -200,6 +200,13 @@ public sealed class TutorialHeartLesson : MonoBehaviour
     [SerializeField, Min(0f)]
     private float goodbyeFadeSeconds = 0.65f;
 
+    [Header("13 - KEEPER DISAPPEAR SOUND (TUTORIAL 48)")]
+    [SerializeField] private bool enableSound = true;
+    [SerializeField] private AudioSource keeperDisappearAudioSource;
+    [SerializeField] private AudioClip keeperDisappearClip;
+    [SerializeField, Range(0f, 1f)] private float volume = 0.8f;
+    [SerializeField, Min(0f)] private float soundDelay;
+
     private enum Phase
     {
         Waiting,
@@ -550,6 +557,9 @@ public sealed class TutorialHeartLesson : MonoBehaviour
 
     private IEnumerator FadeKeeperAndResume()
     {
+        if (enableSound && keeperDisappearAudioSource != null && keeperDisappearClip != null)
+            StartCoroutine(PlayKeeperDisappearSound());
+
         float startAlpha =
             leftFrameCanvasGroup != null
                 ? leftFrameCanvasGroup.alpha
@@ -584,6 +594,15 @@ public sealed class TutorialHeartLesson : MonoBehaviour
         phase = Phase.Complete;
         if (progressBarrier != null)
             progressBarrier.enabled = false;
+    }
+
+    private IEnumerator PlayKeeperDisappearSound()
+    {
+        if (soundDelay > 0f || PauseManager.IsMenuPaused)
+            yield return PauseManager.WaitForTutorialSeconds(soundDelay);
+
+        if (isActiveAndEnabled && enableSound)
+            keeperDisappearAudioSource.PlayOneShot(keeperDisappearClip, volume);
     }
 
     private bool PrepareKeeper()

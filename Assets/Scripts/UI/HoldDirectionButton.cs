@@ -293,7 +293,7 @@ public class HoldDirectionButton :
     // RELEASE
     // ============================================================
 
-    private void ReleaseButton()
+    internal void ReleaseButton()
     {
         bool wasVerticalButton =
             Mathf.Abs(climbVerticalValue) >

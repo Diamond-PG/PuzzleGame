@@ -424,7 +424,7 @@ public class LegAttackButton : MonoBehaviour
 
     private bool GameplayActionsLocked()
     {
-        if (PlayerIsDead())
+        if (ClimbHook.PlayerIsOnHook || PlayerIsDead())
             return true;
 
         if (playerVisual != null &&
@@ -711,7 +711,10 @@ public class LegAttackButton : MonoBehaviour
 
                 bool damageDelivered =
                     ApplyBalancedKickDamage(
-                        target
+                        target,
+                        hit,
+                        attackCenter,
+                        direction
                     );
 
                 if (!damageDelivered)
@@ -768,7 +771,10 @@ public class LegAttackButton : MonoBehaviour
     // ============================================================
 
     private bool ApplyBalancedKickDamage(
-        GameObject target
+        GameObject target,
+        Collider2D hit = null,
+        Vector2 attackCenter = default,
+        float direction = 1f
     )
     {
         if (target == null)
@@ -780,6 +786,20 @@ public class LegAttackButton : MonoBehaviour
             GetBalancedKickDamage(
                 target
             );
+
+        if (hit != null && target.TryGetComponent(out GuardEnemy guard))
+        {
+            guard.ReceiveWeaponHit(balancedDamage, GuardHitType.Kick,
+                CombatContact.FromHitbox(hit, attackCenter, direction));
+            return true;
+        }
+
+        if (hit != null && target.TryGetComponent(out SkeletonEnemy skeleton))
+        {
+            skeleton.ReceiveWeaponHit(balancedDamage, GuardHitType.Kick,
+                CombatContact.FromHitbox(hit, attackCenter, direction));
+            return true;
+        }
 
         /*
          * Новый метод:
@@ -1352,7 +1372,7 @@ public class LegAttackButton : MonoBehaviour
         if (guard != null)
         {
             return
-                !guard.IsDead;
+                guard.CanBeTargeted;
         }
 
 

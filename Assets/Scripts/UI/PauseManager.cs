@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class PauseManager : MonoBehaviour
@@ -15,6 +16,7 @@ public class PauseManager : MonoBehaviour
     [SerializeField] private Button introPauseButton;
     [SerializeField] private TutorialKeeperFade keeperFade;
     [SerializeField] private CanvasGroup mainPauseButtonGroup;
+    [SerializeField] private Canvas mainPauseButtonCanvas;
     [SerializeField] private PrisonDarknessMask prisonDarknessMask;
     [SerializeField] private LevelCompleteUI levelCompletion;
 
@@ -22,7 +24,10 @@ public class PauseManager : MonoBehaviour
     [SerializeField] private CanvasGroup pauseMenuGroup;      // CanvasGroup на объекте PauseMenu
 
     [Header("Menu Buttons")]
-    [SerializeField] private Button btnResume;
+    [FormerlySerializedAs("btnResume")]
+    [SerializeField] private Button btnCheckpoint;
+    [SerializeField] private CanvasGroup checkpointGroup;
+    [SerializeField] private RectTransform menuFrame;
     [SerializeField] private Button btnRestart;
     [SerializeField] private Button btnMainMenu;
 
@@ -47,6 +52,8 @@ public class PauseManager : MonoBehaviour
     private bool isPaused;
     private bool isLoadingScene;
     private float timeScaleBeforePause;
+    private bool pausedGameMusic;
+    private Vector2 menuViewportSize;
 
     public static bool IsMenuPaused { get; private set; }
     internal static float TutorialDeltaTime => IsMenuPaused ? 0f : Time.unscaledDeltaTime;
@@ -94,15 +101,7 @@ public class PauseManager : MonoBehaviour
             Debug.LogWarning("[PauseManager] pauseButton = NULL (не назначена и нет Button на объекте)");
         }
 
-        if (btnResume != null)
-        {
-            btnResume.onClick.RemoveAllListeners();
-            btnResume.onClick.AddListener(() =>
-            {
-                PlayClickSafe();
-                Resume();
-            });
-        }
+        SetCheckpointAvailable(false);
 
         if (introPauseButton != null)
         {
@@ -142,11 +141,38 @@ public class PauseManager : MonoBehaviour
 
     private void Start() => RefreshPauseButtons();
 
-    private void LateUpdate() => RefreshPauseButtons();
+    private void LateUpdate()
+    {
+        RefreshPauseButtons();
+        if (!isPaused || menuFrame == null)
+            return;
+
+        Vector2 viewportSize = ((RectTransform)menuFrame.parent).rect.size;
+        if (viewportSize == menuViewportSize)
+            return;
+
+        menuViewportSize = viewportSize;
+        Vector2 frameSize = menuFrame.rect.size;
+        float scale = Mathf.Min(1f, 0.92f * viewportSize.x / frameSize.x,
+            0.92f * viewportSize.y / frameSize.y);
+        menuFrame.localScale = Vector3.one * scale;
+    }
+
+    public void SetCheckpointAvailable(bool available)
+    {
+        if (btnCheckpoint != null)
+            btnCheckpoint.interactable = available;
+
+        if (checkpointGroup != null)
+        {
+            checkpointGroup.alpha = available ? 1f : 0.5f;
+            checkpointGroup.blocksRaycasts = available;
+        }
+    }
 
     private void RefreshPauseButtons()
     {
-        if (introPauseButton == null || mainPauseButtonGroup == null || prisonDarknessMask == null)
+        if (isPaused || introPauseButton == null || mainPauseButtonGroup == null || prisonDarknessMask == null)
             return;
 
         bool introFinished = keeperFade != null
@@ -165,10 +191,10 @@ public class PauseManager : MonoBehaviour
         if (!isPaused)
             return;
 
-        IsMenuPaused = false;
-        if (!isLoadingScene)
-            Time.timeScale = timeScaleBeforePause;
-        if (gameMusic != null) gameMusic.UnPause();
+        if (isLoadingScene)
+            IsMenuPaused = false;
+        else
+            Resume();
     }
 
     public void TogglePause()
@@ -194,8 +220,16 @@ public class PauseManager : MonoBehaviour
         SetMenuVisible(true);
 
         SetPauseIcon(playSprite);
+        if (mainPauseButtonCanvas != null && pauseMenuGroup != null &&
+            pauseMenuGroup.TryGetComponent(out Canvas menuCanvas))
+        {
+            mainPauseButtonCanvas.overrideSorting = true;
+            mainPauseButtonCanvas.sortingLayerID = menuCanvas.sortingLayerID;
+            mainPauseButtonCanvas.sortingOrder = menuCanvas.sortingOrder + 1;
+        }
 
-        if (gameMusic != null && gameMusic.isPlaying)
+        pausedGameMusic = gameMusic != null && gameMusic.isPlaying;
+        if (pausedGameMusic)
             gameMusic.Pause();
 
         Debug.Log("[PauseManager] PAUSED. timeScale=" + Time.timeScale);
@@ -213,9 +247,12 @@ public class PauseManager : MonoBehaviour
         SetMenuVisible(false);
 
         SetPauseIcon(pauseSprite);
+        if (mainPauseButtonCanvas != null)
+            mainPauseButtonCanvas.overrideSorting = false;
 
-        if (gameMusic != null)
+        if (pausedGameMusic && gameMusic != null)
             gameMusic.UnPause();
+        pausedGameMusic = false;
 
         Debug.Log("[PauseManager] RESUMED. timeScale=" + Time.timeScale);
     }

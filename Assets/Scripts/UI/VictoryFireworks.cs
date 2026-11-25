@@ -13,8 +13,8 @@ public sealed class VictoryFireworks : MaskableGraphic
         public Vector2 burst;
         [Min(0f)] public float delay;
         [Min(1f)] public float rocketSpeed = 520f;
-        [Min(1f)] public float burstSize = 139f;
-        [Range(4, 64)] public int sparkCount = 38;
+        [Min(1f)] public float burstSize = 174f;
+        [Range(4, 64)] public int sparkCount = 54;
         [Min(0.1f)] public float duration = 1.26f;
         [Min(0f)] public float fallAcceleration = 110f;
         public Color rocketColor = new(1f, 0.78f, 0.36f);
@@ -33,6 +33,7 @@ public sealed class VictoryFireworks : MaskableGraphic
     [SerializeField] private Color silver = new(0.76f, 0.88f, 1f);
     [SerializeField] private Color white = new(1f, 0.99f, 0.92f);
     [SerializeField] private Color emerald = new(0.28f, 1f, 0.63f);
+    [SerializeField, Min(0.1f)] private float launchInterval = 2.2f;
 
     private struct Spark
     {
@@ -45,21 +46,24 @@ public sealed class VictoryFireworks : MaskableGraphic
     private Spark[] leftSparks;
     private Spark[] rightSparks;
     private float elapsed;
-    private float totalDuration;
-    private bool started;
     private bool playing;
 
     public void Play()
     {
-        if (started)
+        if (playing)
             return;
 
-        started = true;
         playing = true;
         elapsed = 0f;
         leftSparks = CreateSparks(left, 206, gold);
         rightSparks = CreateSparks(right, 417, silver);
-        totalDuration = Mathf.Max(EndTime(left), EndTime(right));
+        SetVerticesDirty();
+    }
+
+    public void Stop()
+    {
+        playing = false;
+        elapsed = 0f;
         SetVerticesDirty();
     }
 
@@ -68,14 +72,15 @@ public sealed class VictoryFireworks : MaskableGraphic
         if (!playing || PauseManager.IsMenuPaused)
             return;
 
-        elapsed += Time.unscaledDeltaTime;
-        playing = elapsed < totalDuration;
+        // Let both bursts finish before starting the next pair at any frame size.
+        float cycleDuration = Mathf.Max(launchInterval, Mathf.Max(EndTime(left), EndTime(right)));
+        elapsed = (elapsed + Time.unscaledDeltaTime) % cycleDuration;
         SetVerticesDirty();
     }
 
     protected override void OnDisable()
     {
-        playing = false;
+        Stop();
         base.OnDisable();
     }
 

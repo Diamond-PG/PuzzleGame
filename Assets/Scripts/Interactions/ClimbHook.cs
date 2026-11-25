@@ -500,6 +500,14 @@ public class ClimbHook : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (playerController != null && playerController.PuzzleGameplayActionsBlocked)
+        {
+            lastVerticalInputTime = float.NegativeInfinity;
+            lastBufferedVertical = 0f;
+            StopActiveClimb();
+            return;
+        }
+
         UpdateInputBuffer();
 
         if (PlayerIsDead())
@@ -584,6 +592,9 @@ public class ClimbHook : MonoBehaviour
 
     private void TryStartClimb()
     {
+        if (playerController != null && playerController.PuzzleGameplayActionsBlocked)
+            return;
+
         if (isActivelyClimbing)
         {
             return;

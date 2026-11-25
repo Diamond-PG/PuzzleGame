@@ -431,6 +431,16 @@ public class InventoryUI : MonoBehaviour
         );
     }
 
+    private bool PuzzleBlocksWeaponSwitch()
+    {
+        if (playerVisual == null)
+            FindPlayerVisual();
+
+        return playerVisual != null &&
+            playerVisual.TryGetComponent(out PlayerController controller) &&
+            controller.PuzzleGameplayActionsBlocked;
+    }
+
 
     // ============================================================
     // WEAPON MOVE SOUND
@@ -1674,7 +1684,8 @@ public class InventoryUI : MonoBehaviour
         float weaponButtonGlowRotationOffset
     )
     {
-        if (sourceSlot == null ||
+        if (PuzzleBlocksWeaponSwitch() ||
+            sourceSlot == null ||
             weaponSprite == null)
         {
             return false;
@@ -2147,6 +2158,9 @@ public class InventoryUI : MonoBehaviour
 
     public bool UnequipCurrentWeapon()
     {
+        if (PuzzleBlocksWeaponSwitch())
+            return false;
+
         if (!weaponEquipped ||
             currentWeaponSprite == null)
         {

@@ -23,6 +23,7 @@ public class StudioSplashController : MonoBehaviour
 
     [Header("Next Scene")]
     [SerializeField] private string mainMenuSceneName = "MainMenu";
+    [SerializeField] private IntroVideoController introVideo;
 
     private IEnumerator Start()
     {
@@ -38,6 +39,7 @@ public class StudioSplashController : MonoBehaviour
         studioLogo.interactable = false;
         studioLogo.blocksRaycasts = false;
 
+        introVideo?.Prepare();
         yield return new WaitForSecondsRealtime(initialDelay);
 
         yield return FadeLogo(0f, 1f, fadeInDuration);
@@ -55,6 +57,9 @@ public class StudioSplashController : MonoBehaviour
             );
             yield break;
         }
+
+        if (introVideo != null && introVideo.TryPlay(mainMenuSceneName))
+            yield break;
 
         SceneManager.LoadScene(mainMenuSceneName);
     }

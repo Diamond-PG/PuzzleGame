@@ -59,6 +59,30 @@ MonoBehaviour:
     m_Key: gallery_select_level_title
     m_Metadata:
       m_Items: []
+  - m_Id: 109671197207113728
+    m_Key: pause_menu_title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 109671197945311232
+    m_Key: pause_checkpoint
+    m_Metadata:
+      m_Items: []
+  - m_Id: 109671198616399872
+    m_Key: pause_restart
+    m_Metadata:
+      m_Items: []
+  - m_Id: 109671199325237248
+    m_Key: pause_main_menu
+    m_Metadata:
+      m_Items: []
+  - m_Id: 109671199698530304
+    m_Key: victory_level_complete
+    m_Metadata:
+      m_Items: []
+  - m_Id: 109671200067629056
+    m_Key: victory_next_level
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

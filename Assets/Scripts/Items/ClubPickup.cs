@@ -461,6 +461,7 @@ public class ClubPickup : MonoBehaviour, IHandInteractable
     private Camera mainCamera;
 
     private bool pickupBusy;
+    public bool IsPickupInProgress => pickupBusy;
 
 
     // ============================================================

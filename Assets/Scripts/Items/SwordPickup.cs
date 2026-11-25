@@ -316,6 +316,7 @@ public class SwordPickup : MonoBehaviour, IHandInteractable
 
     private Camera mainCamera;
     private bool pickupBusy;
+    public bool IsPickupInProgress => pickupBusy;
 
     private class TrailGhost
     {

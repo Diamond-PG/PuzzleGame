@@ -102,9 +102,7 @@ public static class LevelLaunchSession
 
     internal static void AdvanceFromStoryLevel(string currentScenePath)
     {
-        string name = System.IO.Path.GetFileNameWithoutExtension(currentScenePath);
-        if (name.StartsWith("Level", StringComparison.Ordinal) &&
-            int.TryParse(name.Substring("Level".Length), out int currentLevel) &&
+        if (TryGetLevelNumber(currentScenePath, out int currentLevel) &&
             SupportsReplay(currentLevel, currentScenePath) &&
             LevelProgressSave.IsLevelUnlocked(currentLevel + 1,
                 GameInstallationSave.HasCurrentInstallSave(), LevelProgressSave.GetBestStars) &&
@@ -112,6 +110,14 @@ public static class LevelLaunchSession
                 return;
 
         BeginLoad(GetLoadableSceneIndex(MainMenuPath));
+    }
+
+    internal static bool TryGetLevelNumber(string scenePath, out int level)
+    {
+        level = 0;
+        string name = System.IO.Path.GetFileNameWithoutExtension(scenePath);
+        return name.StartsWith("Level", StringComparison.Ordinal) &&
+            int.TryParse(name.Substring("Level".Length), out level);
     }
 
     internal static int GetLoadableSceneIndex(string path)

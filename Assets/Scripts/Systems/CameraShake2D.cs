@@ -10,6 +10,8 @@ public class CameraShake2D : MonoBehaviour
     [SerializeField] private float defaultMagnitude = 0.12f;
 
     private Vector3 _startLocalPos;
+    private Vector2 _legacyOffset;
+    private Vector2 _combatOffset;
     private Coroutine _routine;
 
     private void Awake()
@@ -21,8 +23,28 @@ public class CameraShake2D : MonoBehaviour
     private void OnDisable()
     {
         if (_routine != null) StopCoroutine(_routine);
+        _routine = null;
+        _legacyOffset = Vector2.zero;
+        _combatOffset = Vector2.zero;
         transform.localPosition = _startLocalPos;
     }
+
+    private void OnDestroy()
+    {
+        if (Instance == this)
+            Instance = null;
+    }
+
+    internal void SetCombatOffset(Vector2 offset)
+    {
+        if (!isActiveAndEnabled)
+            return;
+
+        _combatOffset = offset;
+        ApplyOffset();
+    }
+
+    private void ApplyOffset() => transform.localPosition = _startLocalPos + (Vector3)(_legacyOffset + _combatOffset);
 
     public void Shake(float duration, float magnitude)
     {
@@ -44,13 +66,15 @@ public class CameraShake2D : MonoBehaviour
             float x = Random.Range(-1f, 1f) * magnitude;
             float y = Random.Range(-1f, 1f) * magnitude;
 
-            transform.localPosition = _startLocalPos + new Vector3(x, y, 0f);
+            _legacyOffset = new Vector2(x, y);
+            ApplyOffset();
 
             t += Time.unscaledDeltaTime; // чтобы тряска работала даже при замедлении времени
             yield return null;
         }
 
-        transform.localPosition = _startLocalPos;
+        _legacyOffset = Vector2.zero;
+        ApplyOffset();
         _routine = null;
     }
 }

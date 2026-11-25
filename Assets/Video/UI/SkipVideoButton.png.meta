@@ -1,0 +1,1276 @@
+fileFormatVersion: 2
+guid: f974b001cd133d04ab60fbc8a1eba7f9
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -5325715274731224229
+    second: SkipVideoButton_0
+  - first:
+      213: -4996426557223674830
+    second: SkipVideoButton_1
+  - first:
+      213: -1566309477333660648
+    second: SkipVideoButton_2
+  - first:
+      213: 8960893407558279238
+    second: SkipVideoButton_3
+  - first:
+      213: -7409138648837478825
+    second: SkipVideoButton_4
+  - first:
+      213: 1326091914874815671
+    second: SkipVideoButton_5
+  - first:
+      213: -6372929183518725180
+    second: SkipVideoButton_6
+  - first:
+      213: 8872659155966090119
+    second: SkipVideoButton_7
+  - first:
+      213: -264888419067123453
+    second: SkipVideoButton_8
+  - first:
+      213: -6577085299432442141
+    second: SkipVideoButton_9
+  - first:
+      213: -8352138742811598838
+    second: SkipVideoButton_10
+  - first:
+      213: 351254041834086485
+    second: SkipVideoButton_11
+  - first:
+      213: -5848191296490137986
+    second: SkipVideoButton_12
+  - first:
+      213: 7666675029317033885
+    second: SkipVideoButton_13
+  - first:
+      213: 5062461942443271391
+    second: SkipVideoButton_14
+  - first:
+      213: -1671700735252204474
+    second: SkipVideoButton_15
+  - first:
+      213: -1067872320583271371
+    second: SkipVideoButton_16
+  - first:
+      213: 2565916943348658354
+    second: SkipVideoButton_17
+  - first:
+      213: -1574889224396740555
+    second: SkipVideoButton_18
+  - first:
+      213: -1320755257350447822
+    second: SkipVideoButton_19
+  - first:
+      213: -3620781667659013610
+    second: SkipVideoButton_20
+  - first:
+      213: -9071126966321223581
+    second: SkipVideoButton_21
+  - first:
+      213: -4555540752927305693
+    second: SkipVideoButton_22
+  - first:
+      213: 4243382376755277324
+    second: SkipVideoButton_23
+  - first:
+      213: -8735873035674877785
+    second: SkipVideoButton_24
+  - first:
+      213: -7124213823761583760
+    second: SkipVideoButton_25
+  - first:
+      213: 8285500091179922610
+    second: SkipVideoButton_26
+  - first:
+      213: -8681498481625982809
+    second: SkipVideoButton_27
+  - first:
+      213: 9001782232736556081
+    second: SkipVideoButton_28
+  - first:
+      213: -5226576149121204146
+    second: SkipVideoButton_29
+  - first:
+      213: -2806348722905659614
+    second: SkipVideoButton_30
+  - first:
+      213: -3341617448751097369
+    second: SkipVideoButton_31
+  - first:
+      213: 5376239620861006232
+    second: SkipVideoButton_32
+  - first:
+      213: -4891220813821387188
+    second: SkipVideoButton_33
+  - first:
+      213: -6465184811829303845
+    second: SkipVideoButton_34
+  - first:
+      213: -4653186573904961339
+    second: SkipVideoButton_35
+  - first:
+      213: 4850888346580243606
+    second: SkipVideoButton_36
+  - first:
+      213: -4058127534568634318
+    second: SkipVideoButton_37
+  - first:
+      213: -8628287689333850830
+    second: SkipVideoButton_38
+  - first:
+      213: -5584065328500317028
+    second: SkipVideoButton_39
+  - first:
+      213: -7436023248333183465
+    second: SkipVideoButton_40
+  - first:
+      213: 8718620783355043812
+    second: SkipVideoButton_41
+  - first:
+      213: -8665185632460175429
+    second: SkipVideoButton_42
+  - first:
+      213: 4498784839147037133
+    second: SkipVideoButton_43
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 0
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 0
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationMethod: 0
+  spriteTessellationDetail: -1
+  spriteGeometrySubdivision: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 256
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 256
+    resizeAlgorithm: 0
+    textureFormat: 48
+    textureCompression: 1
+    compressionQuality: 100
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 1
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: SkipVideoButton_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 1246
+        height: 1252
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b5306caac224716b0800000000000000
+      internalID: -5325715274731224229
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SkipVideoButton_1
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 1204
+        width: 63
+        height: 43
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 23cda56b48029aab0800000000000000
+      internalID: -4996426557223674830
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SkipVideoButton_2
+      rect:
+        serializedVersion: 2
+        x: 195
+        y: 1221
+        width: 21
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 81c033b34d9534ae0800000000000000
+      internalID: -1566309477333660648
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SkipVideoButton_3
+      rect:
+        serializedVersion: 2
+        x: 24
+        y: 1154
+        width: 35
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 640a6abc31d7b5c70800000000000000
+      internalID: 8960893407558279238
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SkipVideoButton_4
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 877
+        width: 63
+        height: 250
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 756ac6877a37d2990800000000000000
+      internalID: -7409138648837478825
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SkipVideoButton_5
+      rect:
+        serializedVersion: 2
+        x: 52
+        y: 1112
+        width: 27
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7b481a51299376210800000000000000
+      internalID: 1326091914874815671
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SkipVideoButton_6
+      rect:
+        serializedVersion: 2
+        x: 14
+        y: 1012
+        width: 31
+        height: 43
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4cb65ad3caece87a0800000000000000
+      internalID: -6372929183518725180
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SkipVideoButton_7
+      rect:
+        serializedVersion: 2
+        x: 54
+        y: 1044
+        width: 19
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 78bd9743e74022b70800000000000000
+      internalID: 8872659155966090119
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SkipVideoButton_8
+      rect:
+        serializedVersion: 2
+        x: 38
+        y: 1004
+        width: 11
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 309a364e26de25cf0800000000000000
+      internalID: -264888419067123453
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SkipVideoButton_9
+      rect:
+        serializedVersion: 2
+        x: 1221
+        y: 352
+        width: 12
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3e6b2ed54cf79b4a0800000000000000
+      internalID: -6577085299432442141
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SkipVideoButton_10
+      rect:
+        serializedVersion: 2
+        x: 54
+        y: 284
+        width: 25
+        height: 37
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a00efef901e371c80800000000000000
+      internalID: -8352138742811598838
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SkipVideoButton_11
+      rect:
+        serializedVersion: 2
+        x: 1204
+        y: 310
+        width: 29
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 550e075a0b7efd400800000000000000
+      internalID: 351254041834086485
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SkipVideoButton_12
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 199
+        width: 5
+        height: 82
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e769c2a300d07dea0800000000000000
+      internalID: -5848191296490137986
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SkipVideoButton_13
+      rect:
+        serializedVersion: 2
+        x: 15
+        y: 272
+        width: 18
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d9f9cc2c150856a60800000000000000
+      internalID: 7666675029317033885
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SkipVideoButton_14
+      rect:
+        serializedVersion: 2
+        x: 1222
+        y: 263
+        width: 7
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fd4e348805a714640800000000000000
+      internalID: 5062461942443271391
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SkipVideoButton_15
+      rect:
+        serializedVersion: 2
+        x: 1206
+        y: 248
+        width: 7
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6447880d90decc8e0800000000000000
+      internalID: -1671700735252204474
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SkipVideoButton_16
+      rect:
+        serializedVersion: 2
+        x: 1219
+        y: 262
+        width: 6
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 53c792248c72e21f0800000000000000
+      internalID: -1067872320583271371
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SkipVideoButton_17
+      rect:
+        serializedVersion: 2
+        x: 26
+        y: 213
+        width: 41
+        height: 45
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2b0f37b7dd7fb9320800000000000000
+      internalID: 2565916943348658354
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SkipVideoButton_18
+      rect:
+        serializedVersion: 2
+        x: 62
+        y: 202
+        width: 13
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 538ed33389ed42ae0800000000000000
+      internalID: -1574889224396740555
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SkipVideoButton_19
+      rect:
+        serializedVersion: 2
+        x: 46
+        y: 168
+        width: 19
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 23d9562571cbbade0800000000000000
+      internalID: -1320755257350447822
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SkipVideoButton_20
+      rect:
+        serializedVersion: 2
+        x: 1200
+        y: 174
+        width: 19
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 61220f9c14660cdc0800000000000000
+      internalID: -3620781667659013610
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SkipVideoButton_21
+      rect:
+        serializedVersion: 2
+        x: 16
+        y: 151
+        width: 21
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 368e4f3c512ec1280800000000000000
+      internalID: -9071126966321223581
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SkipVideoButton_22
+      rect:
+        serializedVersion: 2
+        x: 1190
+        y: 117
+        width: 23
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 320d3fd42d777c0c0800000000000000
+      internalID: -4555540752927305693
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SkipVideoButton_23
+      rect:
+        serializedVersion: 2
+        x: 8
+        y: 77
+        width: 17
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c0ea6ac0ac583ea30800000000000000
+      internalID: 4243382376755277324
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SkipVideoButton_24
+      rect:
+        serializedVersion: 2
+        x: 125
+        y: 45
+        width: 41
+        height: 62
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7a08fa932c1f3c680800000000000000
+      internalID: -8735873035674877785
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SkipVideoButton_25
+      rect:
+        serializedVersion: 2
+        x: 231
+        y: 2
+        width: 132
+        height: 83
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 07173c2e545b12d90800000000000000
+      internalID: -7124213823761583760
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SkipVideoButton_26
+      rect:
+        serializedVersion: 2
+        x: 882
+        y: 41
+        width: 19
+        height: 40
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2b4fe393f620cf270800000000000000
+      internalID: 8285500091179922610
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SkipVideoButton_27
+      rect:
+        serializedVersion: 2
+        x: 938
+        y: 59
+        width: 14
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7a81794a02f158780800000000000000
+      internalID: -8681498481625982809
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SkipVideoButton_28
+      rect:
+        serializedVersion: 2
+        x: 953
+        y: 51
+        width: 13
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1346fa74f31ccec70800000000000000
+      internalID: 9001782232736556081
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SkipVideoButton_29
+      rect:
+        serializedVersion: 2
+        x: 56
+        y: 35
+        width: 19
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e400a181fa87777b0800000000000000
+      internalID: -5226576149121204146
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SkipVideoButton_30
+      rect:
+        serializedVersion: 2
+        x: 86
+        y: 39
+        width: 22
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 227465784b8dd09d0800000000000000
+      internalID: -2806348722905659614
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SkipVideoButton_31
+      rect:
+        serializedVersion: 2
+        x: 828
+        y: 44
+        width: 7
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7e991ff82a030a1d0800000000000000
+      internalID: -3341617448751097369
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SkipVideoButton_32
+      rect:
+        serializedVersion: 2
+        x: 850
+        y: 39
+        width: 11
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8911dcc537d3c9a40800000000000000
+      internalID: 5376239620861006232
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SkipVideoButton_33
+      rect:
+        serializedVersion: 2
+        x: 924
+        y: 37
+        width: 12
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c4edd2aa594ee1cb0800000000000000
+      internalID: -4891220813821387188
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SkipVideoButton_34
+      rect:
+        serializedVersion: 2
+        x: 929
+        y: 37
+        width: 9
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bd5e9abeaac0746a0800000000000000
+      internalID: -6465184811829303845
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SkipVideoButton_35
+      rect:
+        serializedVersion: 2
+        x: 1083
+        y: 27
+        width: 19
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5c027c4f67f8c6fb0800000000000000
+      internalID: -4653186573904961339
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SkipVideoButton_36
+      rect:
+        serializedVersion: 2
+        x: 1174
+        y: 32
+        width: 27
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6945ff60041d15340800000000000000
+      internalID: 4850888346580243606
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SkipVideoButton_37
+      rect:
+        serializedVersion: 2
+        x: 128
+        y: 31
+        width: 14
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2380ec81282aea7c0800000000000000
+      internalID: -4058127534568634318
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SkipVideoButton_38
+      rect:
+        serializedVersion: 2
+        x: 193
+        y: 33
+        width: 7
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 23d3169af0a224880800000000000000
+      internalID: -8628287689333850830
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SkipVideoButton_39
+      rect:
+        serializedVersion: 2
+        x: 223
+        y: 11
+        width: 19
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c94e92c5b2a6182b0800000000000000
+      internalID: -5584065328500317028
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SkipVideoButton_40
+      rect:
+        serializedVersion: 2
+        x: 914
+        y: 2
+        width: 36
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 716ed8dd040fdc890800000000000000
+      internalID: -7436023248333183465
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SkipVideoButton_41
+      rect:
+        serializedVersion: 2
+        x: 971
+        y: 22
+        width: 13
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4ef1733c863cef870800000000000000
+      internalID: 8718620783355043812
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SkipVideoButton_42
+      rect:
+        serializedVersion: 2
+        x: 898
+        y: 17
+        width: 13
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bb78460d3931fb780800000000000000
+      internalID: -8665185632460175429
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SkipVideoButton_43
+      rect:
+        serializedVersion: 2
+        x: 1155
+        y: 23
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dc1a542c9f4ee6e30800000000000000
+      internalID: 4498784839147037133
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      SkipVideoButton_0: -5325715274731224229
+      SkipVideoButton_1: -4996426557223674830
+      SkipVideoButton_10: -8352138742811598838
+      SkipVideoButton_11: 351254041834086485
+      SkipVideoButton_12: -5848191296490137986
+      SkipVideoButton_13: 7666675029317033885
+      SkipVideoButton_14: 5062461942443271391
+      SkipVideoButton_15: -1671700735252204474
+      SkipVideoButton_16: -1067872320583271371
+      SkipVideoButton_17: 2565916943348658354
+      SkipVideoButton_18: -1574889224396740555
+      SkipVideoButton_19: -1320755257350447822
+      SkipVideoButton_2: -1566309477333660648
+      SkipVideoButton_20: -3620781667659013610
+      SkipVideoButton_21: -9071126966321223581
+      SkipVideoButton_22: -4555540752927305693
+      SkipVideoButton_23: 4243382376755277324
+      SkipVideoButton_24: -8735873035674877785
+      SkipVideoButton_25: -7124213823761583760
+      SkipVideoButton_26: 8285500091179922610
+      SkipVideoButton_27: -8681498481625982809
+      SkipVideoButton_28: 9001782232736556081
+      SkipVideoButton_29: -5226576149121204146
+      SkipVideoButton_3: 8960893407558279238
+      SkipVideoButton_30: -2806348722905659614
+      SkipVideoButton_31: -3341617448751097369
+      SkipVideoButton_32: 5376239620861006232
+      SkipVideoButton_33: -4891220813821387188
+      SkipVideoButton_34: -6465184811829303845
+      SkipVideoButton_35: -4653186573904961339
+      SkipVideoButton_36: 4850888346580243606
+      SkipVideoButton_37: -4058127534568634318
+      SkipVideoButton_38: -8628287689333850830
+      SkipVideoButton_39: -5584065328500317028
+      SkipVideoButton_4: -7409138648837478825
+      SkipVideoButton_40: -7436023248333183465
+      SkipVideoButton_41: 8718620783355043812
+      SkipVideoButton_42: -8665185632460175429
+      SkipVideoButton_43: 4498784839147037133
+      SkipVideoButton_5: 1326091914874815671
+      SkipVideoButton_6: -6372929183518725180
+      SkipVideoButton_7: 8872659155966090119
+      SkipVideoButton_8: -264888419067123453
+      SkipVideoButton_9: -6577085299432442141
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

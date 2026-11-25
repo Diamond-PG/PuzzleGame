@@ -4,13 +4,14 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(Collider2D))]
 [RequireComponent(typeof(EnemyHealthBar))]
-public class GuardEnemy : MonoBehaviour
+public partial class GuardEnemy : MonoBehaviour
 {
     [Header("PLAYER")]
     [SerializeField] private Transform player;
     [SerializeField] private PlayerHealth playerHealth;
 
     [Header("VISUAL")]
+    [Tooltip("Use a child SpriteRenderer to align unarmed poses independently of the guard's physics.")]
     [SerializeField] private SpriteRenderer spriteRenderer;
 
     [Header("SPRITES - IDLE / LOOK")]
@@ -133,6 +134,7 @@ public class GuardEnemy : MonoBehaviour
 
     [Header("AUDIO - OPTIONAL")]
     [SerializeField] private AudioSource sfxSource;
+    private bool CanPlaySfx => sfxSource != null && sfxSource.isActiveAndEnabled;
 
     [Header("AUDIO - DETECT")]
     [SerializeField] private AudioClip detectClip;
@@ -216,13 +218,6 @@ public class GuardEnemy : MonoBehaviour
     // ============================================================
     // PRIVATE
     // ============================================================
-
-    private enum PlayerHitType
-    {
-        Kick,
-        Sword,
-        Weapon
-    }
 
     private Rigidbody2D rb;
     private Collider2D bodyCollider;
@@ -309,10 +304,7 @@ public class GuardEnemy : MonoBehaviour
             }
         }
 
-        if (weaponObject != null)
-        {
-            weaponObject.SetActive(false);
-        }
+        CaptureVisualAndWeapon();
 
         if (sfxSource == null)
         {
@@ -351,7 +343,7 @@ public class GuardEnemy : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (isDead)
+        if (!CanBeTargeted)
             return;
 
         if (player == null)
@@ -430,134 +422,34 @@ public class GuardEnemy : MonoBehaviour
 
 
     // ============================================================
-    // LEG ATTACK - LEGACY
+    // PLAYER HITS
     // ============================================================
 
-    public void ReceiveKick(
-        int damage
-    )
+    public void ReceiveKick(int damage) => ReceiveKickDamage(damage);
+
+    public void ReceiveKickDamage(float damage) => ReceiveWeaponHit(damage, GuardHitType.Kick);
+
+    public void ReceiveSwordHit(int damage) => ReceiveWeaponHit(damage, GuardHitType.Sword);
+
+    public void ReceiveWeaponHit(float damage) => ReceiveWeaponHit(damage, GuardHitType.Unspecified);
+
+    public void ReceiveWeaponHit(float damage, GuardHitType hitType)
+        => ReceiveWeaponHit(damage, hitType, null);
+
+    internal void ReceiveWeaponHit(float damage, GuardHitType hitType, CombatContact? contact)
     {
-        ReceiveKickDamage(
-            damage
-        );
-    }
-
-
-    // ============================================================
-    // LEG ATTACK - BALANCED
-    // ============================================================
-
-    public void ReceiveKickDamage(
-        float damage
-    )
-    {
-        if (!CanReceivePlayerHit(
-                damage))
-        {
+        if (!CanBeTargeted || hitBlinking || isKnockedBack || damage <= 0f)
             return;
-        }
 
-        ReceivePlayerHit(
-            damage,
-            PlayerHitType.Kick
-        );
-    }
-
-
-    // ============================================================
-    // SWORD ATTACK - LEGACY
-    // ============================================================
-
-    public void ReceiveSwordHit(
-        int damage
-    )
-    {
-        if (!CanReceivePlayerHit(
-                damage))
-        {
-            return;
-        }
-
-        ReceivePlayerHit(
-            damage,
-            PlayerHitType.Sword
-        );
-    }
-
-
-    // ============================================================
-    // GENERIC WEAPON ATTACK
-    // ============================================================
-
-    /*
-     * Дубинка, топор, копьё и любое
-     * будущее оружие могут использовать
-     * этот метод.
-     */
-    public void ReceiveWeaponHit(
-        float damage
-    )
-    {
-        if (!CanReceivePlayerHit(
-                damage))
-        {
-            return;
-        }
-
-        ReceivePlayerHit(
-            damage,
-            PlayerHitType.Weapon
-        );
-    }
-
-
-    // ============================================================
-    // CAN RECEIVE HIT
-    // ============================================================
-
-    private bool CanReceivePlayerHit(
-        float damage
-    )
-    {
-        if (isDead)
-            return false;
-
-        if (damage <= 0f)
-            return false;
-
-        if (hitBlinking ||
-            isKnockedBack)
-        {
-            return false;
-        }
-
-        return true;
-    }
-
-
-    // ============================================================
-    // RECEIVE DAMAGE
-    // ============================================================
-
-    private void ReceivePlayerHit(
-        float damage,
-        PlayerHitType hitType
-    )
-    {
-        if (isDead ||
-            hitBlinking ||
-            isKnockedBack ||
-            damage <= 0f)
-        {
-            return;
-        }
-
+        float previousHealth = currentHealth;
         currentHealth =
             Mathf.Max(
                 0f,
                 currentHealth -
                 damage
             );
+        if (currentHealth < previousHealth)
+            CombatImpactEffects.Report(this, hitType, contact, player, bodyCollider);
         if (healthBar != null)
             healthBar.ShowDamage(currentHealth / maxHealth, spriteRenderer);
 
@@ -567,13 +459,13 @@ public class GuardEnemy : MonoBehaviour
         // --------------------------------------------------------
 
         if (hitType ==
-            PlayerHitType.Kick)
+            GuardHitType.Kick)
         {
             PlayPlayerHitsGuardHaptic();
             PlayPlayerKickImpactSound();
         }
         else if (hitType ==
-                 PlayerHitType.Sword)
+                 GuardHitType.Sword)
         {
             PlayPlayerSwordHitsGuardHaptic();
             PlayPlayerSwordImpactSound();
@@ -595,7 +487,7 @@ public class GuardEnemy : MonoBehaviour
         // HURT VOICE
         // --------------------------------------------------------
 
-        if (sfxSource != null &&
+        if (CanPlaySfx &&
             hurtClip != null)
         {
             sfxSource.PlayOneShot(
@@ -612,7 +504,7 @@ public class GuardEnemy : MonoBehaviour
         if (currentHealth <=
             0.0001f)
         {
-            Die();
+            Fall(enableKnockout && (hitType == GuardHitType.Kick || hitType == GuardHitType.Club));
             return;
         }
 
@@ -683,7 +575,7 @@ public class GuardEnemy : MonoBehaviour
 
     private void PlayPlayerKickImpactSound()
     {
-        if (sfxSource == null ||
+        if (!CanPlaySfx ||
             playerKickImpactClip == null)
         {
             return;
@@ -702,7 +594,7 @@ public class GuardEnemy : MonoBehaviour
 
     private void PlayPlayerSwordImpactSound()
     {
-        if (sfxSource == null ||
+        if (!CanPlaySfx ||
             playerSwordImpactClip == null)
         {
             return;
@@ -881,7 +773,7 @@ public class GuardEnemy : MonoBehaviour
         {
             if (playerIsInFront &&
                 horizontalDistance <=
-                    detectionDistance &&
+                    ActiveDetectionRange &&
                 verticalDistance <=
                     detectionHeight &&
                 HasClearLineOfSightToPlayer())
@@ -948,7 +840,7 @@ public class GuardEnemy : MonoBehaviour
 
     private void PlayDetectSound()
     {
-        if (sfxSource == null ||
+        if (!CanPlaySfx ||
             detectClip == null)
         {
             return;
@@ -976,7 +868,7 @@ public class GuardEnemy : MonoBehaviour
             );
         }
 
-        if (isDead ||
+        if (!CanBeTargeted ||
             !chasingPlayer ||
             !detectedPlayerNaturally ||
             player == null ||
@@ -987,7 +879,7 @@ public class GuardEnemy : MonoBehaviour
             yield break;
         }
 
-        if (sfxSource != null &&
+        if (CanPlaySfx &&
             chaseClip != null)
         {
             sfxSource.PlayOneShot(
@@ -1051,7 +943,7 @@ public class GuardEnemy : MonoBehaviour
         }
 
         if (distanceX <=
-                attackDistance &&
+                ActiveAttackRange &&
             distanceY <=
                 attackHeight)
         {
@@ -1068,7 +960,7 @@ public class GuardEnemy : MonoBehaviour
         rb.linearVelocity =
             new Vector2(
                 direction *
-                chaseSpeed,
+                ActiveChaseSpeed,
                 rb.linearVelocity.y
             );
     }
@@ -1081,7 +973,7 @@ public class GuardEnemy : MonoBehaviour
     private void StartGuardAttack()
     {
         if (attackBusy ||
-            isDead ||
+            !CanBeTargeted ||
             hitBlinking ||
             isKnockedBack)
         {
@@ -1104,11 +996,14 @@ public class GuardEnemy : MonoBehaviour
     private IEnumerator GuardAttackRoutine()
     {
         attackBusy = true;
+        float spriteDuration = isUnarmed ? unarmedCombat.attackAnimationDuration : attackSpriteDuration;
+        float impactDelay = isUnarmed ? Mathf.Min(unarmedCombat.attackHitDelay, spriteDuration) : attackImpactDelay;
+        float cooldown = isUnarmed ? unarmedCombat.attackCooldown : attackCooldown;
 
         StopHorizontalMovement();
         UpdateAttackSprite();
 
-        if (sfxSource != null &&
+        if (CanPlaySfx &&
             swingClip != null &&
             (playerHealth == null ||
              !playerHealth.IsDead))
@@ -1119,10 +1014,10 @@ public class GuardEnemy : MonoBehaviour
             );
         }
 
-        if (attackImpactDelay > 0f)
+        if (impactDelay > 0f)
         {
             yield return new WaitForSeconds(
-                attackImpactDelay
+                impactDelay
             );
         }
 
@@ -1133,7 +1028,7 @@ public class GuardEnemy : MonoBehaviour
             yield break;
         }
 
-        if (!isDead &&
+        if (CanBeTargeted &&
             !isKnockedBack &&
             !hitBlinking &&
             PlayerStillInAttackRange())
@@ -1145,8 +1040,10 @@ public class GuardEnemy : MonoBehaviour
 
             if (playerCanTakeDamage)
             {
-                playerHealth.TakeDamage(
-                    damageToPlayer
+                playerHealth.TakeCombatDamage(
+                    isUnarmed ? unarmedCombat.attackDamage : damageToPlayer,
+                    isUnarmed ? GuardHitType.Fist : GuardHitType.Sword,
+                    transform
                 );
 
                 PlayGuardHitsPlayerHaptic();
@@ -1156,8 +1053,8 @@ public class GuardEnemy : MonoBehaviour
         float remainingSpriteTime =
             Mathf.Max(
                 0f,
-                attackSpriteDuration -
-                attackImpactDelay
+                spriteDuration -
+                impactDelay
             );
 
         if (remainingSpriteTime > 0f)
@@ -1174,13 +1071,15 @@ public class GuardEnemy : MonoBehaviour
             yield break;
         }
 
-        UpdateChaseSprite();
+        if (isUnarmed)
+            SetIdleFrontSprite();
+        else
+            UpdateChaseSprite();
 
         float remainingCooldown =
             Mathf.Max(
                 0f,
-                attackCooldown -
-                attackSpriteDuration
+                cooldown - spriteDuration
             );
 
         if (remainingCooldown > 0f)
@@ -1219,8 +1118,9 @@ public class GuardEnemy : MonoBehaviour
             );
 
         return
+            (!isUnarmed || movingRight == (player.position.x >= transform.position.x)) &&
             distanceX <=
-                attackDistance &&
+                ActiveAttackRange &&
             distanceY <=
                 attackHeight &&
             HasClearLineOfSightToPlayer();
@@ -1294,7 +1194,7 @@ public class GuardEnemy : MonoBehaviour
         {
             rb.linearVelocity =
                 new Vector2(
-                    patrolSpeed,
+                    ActivePatrolSpeed,
                     rb.linearVelocity.y
                 );
 
@@ -1311,7 +1211,7 @@ public class GuardEnemy : MonoBehaviour
         {
             rb.linearVelocity =
                 new Vector2(
-                    -patrolSpeed,
+                    -ActivePatrolSpeed,
                     rb.linearVelocity.y
                 );
 
@@ -1333,7 +1233,7 @@ public class GuardEnemy : MonoBehaviour
             chasingPlayer ||
             hitBlinking ||
             isKnockedBack ||
-            isDead)
+            !CanBeTargeted)
         {
             return;
         }
@@ -1353,19 +1253,19 @@ public class GuardEnemy : MonoBehaviour
         SetIdleFrontSprite();
 
         yield return new WaitForSeconds(
-            pauseBeforeBlink
+            isUnarmed ? wakeUpAnimation.patrolPauseBeforeBlink : pauseBeforeBlink
         );
 
         SetBlinkSprite();
 
         yield return new WaitForSeconds(
-            blinkDuration
+            isUnarmed ? wakeUpAnimation.patrolBlinkDuration : blinkDuration
         );
 
         SetIdleFrontSprite();
 
         yield return new WaitForSeconds(
-            pauseAfterBlink
+            isUnarmed ? wakeUpAnimation.patrolPauseAfterBlink : pauseAfterBlink
         );
 
         movingRight =
@@ -1624,7 +1524,7 @@ public class GuardEnemy : MonoBehaviour
         Collision2D collision
     )
     {
-        if (isDead ||
+        if (!CanBeTargeted ||
             isKnockedBack)
         {
             return;
@@ -1659,12 +1559,12 @@ public class GuardEnemy : MonoBehaviour
 
 
     // ============================================================
-    // DEATH
+    // FALL
     // ============================================================
 
-    private void Die()
+    private void Fall(bool knockedOut)
     {
-        if (isDead)
+        if (!CanBeTargeted)
             return;
 
         float floorY =
@@ -1672,7 +1572,9 @@ public class GuardEnemy : MonoBehaviour
                 ? bodyCollider.bounds.min.y
                 : transform.position.y;
 
-        isDead = true;
+        isDead = !knockedOut;
+        isKnockedOut = knockedOut;
+        healthBar.ResetHidden(0f);
 
         bool playerIsLeft =
             player != null &&
@@ -1733,24 +1635,8 @@ public class GuardEnemy : MonoBehaviour
             spriteRenderer.enabled =
                 true;
 
-            if (playerIsLeft)
-            {
-                if (deathWhenPlayerLeftSprite != null)
-                {
-                    spriteRenderer.sprite =
-                        deathWhenPlayerLeftSprite;
-                }
-            }
-            else
-            {
-                if (deathWhenPlayerRightSprite != null)
-                {
-                    spriteRenderer.sprite =
-                        deathWhenPlayerRightSprite;
-                }
-            }
+            SetGuardSprite(playerIsLeft ? deathWhenPlayerLeftSprite : deathWhenPlayerRightSprite);
         }
-
         if (bodyCollider != null)
         {
             bodyCollider.enabled =
@@ -1763,8 +1649,7 @@ public class GuardEnemy : MonoBehaviour
                 false;
         }
 
-        if (sfxSource != null &&
-            deathClip != null)
+        if (!knockedOut && CanPlaySfx && deathClip != null)
         {
             sfxSource.PlayOneShot(
                 deathClip,
@@ -1772,19 +1657,15 @@ public class GuardEnemy : MonoBehaviour
             );
         }
 
-        StartCoroutine(
-            DropWeaponRoutine(
-                playerIsLeft,
-                floorY
-            )
-        );
+        if (knockedOut)
+        {
+            wakeAt = Time.time + knockoutDuration;
+            knockoutStars.Show(transform, playerIsLeft == mirrorStarsWhenPlayerLeft);
+        }
+
+        if (!isUnarmed && !weaponDropped && weaponObject != null)
+            StartCoroutine(DropWeaponRoutine(playerIsLeft, floorY));
     }
-
-
-    // ============================================================
-    // CONTROLLED WEAPON DROP
-    // ============================================================
-
     private IEnumerator DropWeaponRoutine(
         bool playerIsLeft,
         float floorY
@@ -1797,6 +1678,7 @@ public class GuardEnemy : MonoBehaviour
         }
 
         weaponDropped = true;
+        weaponDropInProgress = true;
 
         weaponObject.transform.SetParent(
             null,
@@ -1911,7 +1793,7 @@ public class GuardEnemy : MonoBehaviour
         float timer = 0f;
 
         while (timer <
-               safeDuration)
+               safeDuration && weaponObject != null)
         {
             timer +=
                 Time.deltaTime;
@@ -1956,6 +1838,12 @@ public class GuardEnemy : MonoBehaviour
             yield return null;
         }
 
+        if (weaponObject == null)
+        {
+            weaponDropInProgress = false;
+            yield break;
+        }
+
         weaponObject.transform.position =
             endPosition;
 
@@ -1985,6 +1873,8 @@ public class GuardEnemy : MonoBehaviour
                     true;
             }
         }
+
+        weaponDropInProgress = false;
     }
 
 
@@ -2165,120 +2055,16 @@ public class GuardEnemy : MonoBehaviour
     }
 
 
-    private void SetIdleFrontSprite()
-    {
-        if (spriteRenderer != null &&
-            idleFrontSprite != null)
-        {
-            spriteRenderer.sprite =
-                idleFrontSprite;
-        }
-    }
-
-
-    private void SetBlinkSprite()
-    {
-        if (spriteRenderer != null &&
-            blinkSprite != null)
-        {
-            spriteRenderer.sprite =
-                blinkSprite;
-        }
-    }
-
-
-    private void SetLookLeftSprite()
-    {
-        if (spriteRenderer != null &&
-            lookLeftSprite != null)
-        {
-            spriteRenderer.sprite =
-                lookLeftSprite;
-        }
-    }
-
-
-    private void SetLookRightSprite()
-    {
-        if (spriteRenderer != null &&
-            lookRightSprite != null)
-        {
-            spriteRenderer.sprite =
-                lookRightSprite;
-        }
-    }
-
-
-    private void SetWalkRightSprite()
-    {
-        if (spriteRenderer != null &&
-            walkRightSprite != null)
-        {
-            spriteRenderer.sprite =
-                walkRightSprite;
-        }
-    }
-
-
-    private void SetWalkLeftSprite()
-    {
-        if (spriteRenderer != null &&
-            walkLeftSprite != null)
-        {
-            spriteRenderer.sprite =
-                walkLeftSprite;
-        }
-    }
-
-
-    private void SetChaseLeftSprite()
-    {
-        if (spriteRenderer != null &&
-            chaseLeftSprite != null)
-        {
-            spriteRenderer.sprite =
-                chaseLeftSprite;
-        }
-    }
-
-
-    private void SetChaseRightSprite()
-    {
-        if (spriteRenderer != null &&
-            chaseRightSprite != null)
-        {
-            spriteRenderer.sprite =
-                chaseRightSprite;
-        }
-    }
-
-
-    private void SetAttackLeftSprite()
-    {
-        if (spriteRenderer != null &&
-            attackLeftSprite != null)
-        {
-            spriteRenderer.sprite =
-                attackLeftSprite;
-        }
-    }
-
-
-    private void SetAttackRightSprite()
-    {
-        if (spriteRenderer != null &&
-            attackRightSprite != null)
-        {
-            spriteRenderer.sprite =
-                attackRightSprite;
-        }
-    }
-
-
-    // ============================================================
-    // HELPERS
-    // ============================================================
-
+    private void SetIdleFrontSprite() => SetGuardSprite(idleFrontSprite, unarmedSprites.angry);
+    private void SetBlinkSprite() => SetGuardSprite(blinkSprite, unarmedSprites.angryBlink);
+    private void SetLookLeftSprite() => SetGuardSprite(lookLeftSprite, unarmedSprites.angry);
+    private void SetLookRightSprite() => SetGuardSprite(lookRightSprite, unarmedSprites.angry);
+    private void SetWalkRightSprite() => SetGuardSprite(walkRightSprite, unarmedSprites.walkRight);
+    private void SetWalkLeftSprite() => SetGuardSprite(walkLeftSprite, unarmedSprites.walkLeft);
+    private void SetChaseLeftSprite() => SetGuardSprite(chaseLeftSprite, unarmedSprites.runLeft);
+    private void SetChaseRightSprite() => SetGuardSprite(chaseRightSprite, unarmedSprites.runRight);
+    private void SetAttackLeftSprite() => SetGuardSprite(attackLeftSprite, unarmedSprites.attackLeft);
+    private void SetAttackRightSprite() => SetGuardSprite(attackRightSprite, unarmedSprites.attackRight);
     private bool IsPlayerTransform(
         Transform target
     )

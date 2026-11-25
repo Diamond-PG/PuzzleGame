@@ -121,12 +121,22 @@ public class PlayerController : MonoBehaviour
     // PUBLIC STATE
     // ============================================================
 
+    private Object puzzleFinaleOwner;
+    private RigidbodyConstraints2D constraintsBeforePuzzle;
+    private bool awaitingPuzzleClickRelease;
+    private bool awaitingPuzzleDirectionRelease;
+
+    internal bool IsPuzzleFinaleLocked => puzzleFinaleOwner != null;
+    internal bool PuzzleGameplayActionsBlocked => IsPuzzleFinaleLocked || awaitingPuzzleClickRelease;
+    internal int PuzzleActionVersion { get; private set; }
+
     public bool IsMovementLocked =>
         movementLocked ||
-        actionLocked;
+        actionLocked ||
+        IsPuzzleFinaleLocked;
 
     public bool IsActionLocked =>
-        actionLocked || PauseManager.IsMenuPaused;
+        actionLocked || PuzzleGameplayActionsBlocked || PauseManager.IsMenuPaused;
 
     public bool IsHorizontalMovementLocked =>
         horizontalMovementLocked;
@@ -249,6 +259,12 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (IsPuzzleFinaleLocked)
+        {
+            StopBodyForPuzzle();
+            return;
+        }
+
         // ========================================================
         // MOVEMENT LOCK
         // ========================================================
@@ -346,7 +362,7 @@ public class PlayerController : MonoBehaviour
         // KEYBOARD
         // ========================================================
 
-        if (Keyboard.current == null)
+        if (Keyboard.current == null || awaitingPuzzleDirectionRelease)
         {
             return 0f;
         }
@@ -488,7 +504,8 @@ public class PlayerController : MonoBehaviour
     public Vector2 GetInput()
     {
         if (actionLocked ||
-            horizontalMovementLocked)
+            horizontalMovementLocked ||
+            IsPuzzleFinaleLocked)
         {
             return Vector2.zero;
         }
@@ -502,7 +519,7 @@ public class PlayerController : MonoBehaviour
 
     public float GetClimbVerticalInput()
     {
-        if (actionLocked)
+        if (actionLocked || PuzzleGameplayActionsBlocked)
         {
             return 0f;
         }
@@ -522,7 +539,7 @@ public class PlayerController : MonoBehaviour
         // KEYBOARD
         // ========================================================
 
-        else if (Keyboard.current != null)
+        else if (Keyboard.current != null && !awaitingPuzzleDirectionRelease)
         {
             bool moveUp =
                 Keyboard.current.wKey.isPressed ||
@@ -543,6 +560,104 @@ public class PlayerController : MonoBehaviour
             -1f,
             1f
         );
+    }
+
+    internal bool LockForPuzzleFinale(Object owner)
+    {
+        if (puzzleFinaleOwner != null)
+            return puzzleFinaleOwner == owner;
+
+        if (owner == null || rb == null)
+            return false;
+
+        puzzleFinaleOwner = owner;
+        PuzzleActionVersion++;
+        constraintsBeforePuzzle = rb.constraints;
+        rb.constraints = RigidbodyConstraints2D.FreezeAll;
+        ClearPuzzleDirections();
+        StopBodyForPuzzle();
+        return true;
+    }
+
+    internal void UnlockAfterPuzzleFinale(Object owner)
+    {
+        if (puzzleFinaleOwner != owner)
+            return;
+
+        ClearPuzzleDirections();
+        awaitingPuzzleDirectionRelease = DirectionKeyPressed();
+        awaitingPuzzleClickRelease = true;
+        if (rb != null)
+        {
+            StopBodyForPuzzle();
+            rb.constraints = constraintsBeforePuzzle;
+        }
+        puzzleFinaleOwner = null;
+    }
+
+    private void ClearPuzzleDirections()
+    {
+        input = Vector2.zero;
+        if (mobileInput != null)
+            mobileInput.ReleaseDirections();
+        ClimbHook.SetClimbVerticalInput(0f);
+    }
+
+    private void StopBodyForPuzzle()
+    {
+        rb.linearVelocity = Vector2.zero;
+        rb.angularVelocity = 0f;
+    }
+
+    private void LateUpdate()
+    {
+        if (awaitingPuzzleDirectionRelease && !DirectionKeyPressed())
+            awaitingPuzzleDirectionRelease = false;
+
+        // Keep the lock through the frame that delivers a held button's release event.
+        if (awaitingPuzzleClickRelease && !GameplayClickPressed())
+            awaitingPuzzleClickRelease = false;
+    }
+
+    private static bool DirectionKeyPressed()
+    {
+        foreach (var device in InputSystem.devices)
+        {
+            if (device is Keyboard keyboard &&
+                (keyboard.aKey.isPressed || keyboard.dKey.isPressed || keyboard.wKey.isPressed || keyboard.sKey.isPressed ||
+                 keyboard.leftArrowKey.isPressed || keyboard.rightArrowKey.isPressed ||
+                 keyboard.upArrowKey.isPressed || keyboard.downArrowKey.isPressed))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool GameplayClickPressed()
+    {
+        // A press can outlast a change of the current device (for example a mouse
+        // click alongside an existing touch). Check each device still holding UI input.
+        foreach (var device in InputSystem.devices)
+        {
+            switch (device)
+            {
+                case Mouse mouse when mouse.leftButton.isPressed:
+                case Pen pen when pen.tip.isPressed:
+                case Gamepad gamepad when gamepad.buttonSouth.isPressed:
+                case Keyboard keyboard when keyboard.enterKey.isPressed ||
+                    keyboard.numpadEnterKey.isPressed || keyboard.spaceKey.isPressed:
+                    return true;
+                case Touchscreen touchscreen:
+                    foreach (var touch in touchscreen.touches)
+                        if (touch.press.isPressed)
+                            return true;
+                    break;
+            }
+        }
+
+        return false;
     }
 
     // ============================================================

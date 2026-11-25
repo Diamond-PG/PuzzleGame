@@ -29,6 +29,7 @@ public class HandInteractionButton : MonoBehaviour
 
     private IHandInteractable currentInteractable;
     private MonoBehaviour currentInteractableBehaviour;
+    private PlayerController playerController;
 
     private void Awake()
     {
@@ -73,11 +74,23 @@ public class HandInteractionButton : MonoBehaviour
             GameObject.FindGameObjectWithTag(playerTag);
 
         if (playerObject != null)
+        {
             player = playerObject.transform;
+            playerController = playerObject.GetComponent<PlayerController>();
+        }
     }
 
     private void FindNearestInteractable()
     {
+        if (playerController != null && playerController.PuzzleGameplayActionsBlocked)
+        {
+            currentInteractable = null;
+            currentInteractableBehaviour = null;
+            if (handButton != null)
+                handButton.interactable = false;
+            return;
+        }
+
         Collider2D[] hits =
             Physics2D.OverlapCircleAll(
                 player.position,
@@ -161,7 +174,8 @@ public class HandInteractionButton : MonoBehaviour
 
     private void UseHand()
     {
-        if (PauseManager.IsMenuPaused)
+        if (PauseManager.IsMenuPaused ||
+            (playerController != null && playerController.PuzzleGameplayActionsBlocked))
             return;
 
         if (currentInteractable == null)
